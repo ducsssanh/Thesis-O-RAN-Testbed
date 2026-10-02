@@ -55,11 +55,13 @@
 4. Song song được: **R2** patch gNB (PRB cap + RRC Release qua E2SM-RC; handler hiện là stub ở `src/oai-ran/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c:872`); **R1** ánh xạ KPM UE ID ↔ SUPI với 2 UE.
 5. Sau đó theo plan: R3 → U → G → M → L → E.
 
-**Quyết định đang chờ tác giả:**
-- Khôi phục điểm rollback release cũ `oai-lab` (11 Deployment bị xóa nhầm; `helm rollback oai-lab 105` chỉ khi stack 4 namespace đã scale về 0, rồi scale release cũ về 0).
-- `sudo systemctl restart docker` để sửa gốc DNS (sẽ restart cả node minikube).
-- Duyệt thiết kế TTL (design mục 4.1, tham số `session_ttl.*` ở mục 6.1) trước khi triển khai A.8.
-- Đưa lỗi FlexRIC agent assert khi `epoll_wait` trả EINTR (`asio_agent.c:134`; làm gNB/FlexRIC/SMF cùng crash) vào danh sách sửa?
+**Quyết định đã chốt (02/10/2026, tác giả đồng ý cả 4):**
+- Khôi phục điểm rollback `oai-lab`: làm sau khi restart Docker (stack 4 namespace về 0 → `helm rollback oai-lab 105` → scale release cũ về 0 → dựng lại stack).
+- `sudo systemctl restart docker` để sửa gốc DNS: **tác giả chạy ở terminal riêng** (cần mật khẩu sudo); sau đó chạy `coredns-search-guard.sh` và dựng lại stack.
+- Thiết kế TTL (design 4.1, `session_ttl.*` mục 6.1) được duyệt ⇒ triển khai A.8 cùng đợt A.6.
+- Lỗi FlexRIC agent assert khi `epoll_wait` trả EINTR (`asio_agent.c:134`) đưa vào danh sách sửa (bỏ qua EINTR thay vì assert; cần patch + mục trong `OAI-UPSTREAM-CHANGES.md`).
+
+**Repo:** https://github.com/ducsssanh/Thesis-O-RAN-Testbed (public, nhánh `main`). Cây upstream OAI/FlexRIC trong `src/` bị `.gitignore`; dựng lại bằng `scripts/verify-oai-upstream.sh`.
 
 ## 6. Runbook (lệnh đúng, đã kiểm chứng)
 
