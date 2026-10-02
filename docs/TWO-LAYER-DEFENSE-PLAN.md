@@ -152,9 +152,9 @@ Throttle bằng QER chuẩn qua SMF; key IMEI (User ID IE có IMEI); chuyển UE
 | 3 | ✅ UPF chỉ set Apply Action khi IE có mặt | A.5 | 1 h | build UPF cùng #2 |
 | 4 | ✅ Session mồ côi khi UE restart (sửa SMF, mục 8) | A.3 | 0.5–1 ngày | — |
 | 5 | ✅ Session epoch (mục 9) | A.4 | 1 ngày | — |
-| 6 | SMF URR cấu hình được, PERIO 1 s; đo tải | A.6 | 1 ngày | — |
+| 6 | SMF URR cấu hình được, PERIO 1 s; đo tải — code xong 02/10 (C19), chờ build + đo | A.6 | 1 ngày | — |
 | 7 | Hiệu chỉnh URR ↔ KPM | A.7 | 0.5 ngày | 1, 6 |
-| 7b | TTL session T1/T2/T3 (sửa SMF + UPF) | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
+| 7b | TTL session T1/T2/T3 (sửa SMF + UPF) — code xong 02/10 (C19–C21; T2 hiệu chỉnh, design 4.1), chờ build + gate | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
 | 8 | Ánh xạ KPM UE ID ↔ SUPI, 2 UE | R1 | 2–3 ngày | 1 |
 | 9 | gNB: PRB cap + RRC Release qua E2SM-RC; Gate R2 | R2 | 4–6 ngày | — (song song A) |
 | 10 | xApp detector KPM + hành động RAN; Gate R3 | R3 | 2–3 ngày | 8, 9 |

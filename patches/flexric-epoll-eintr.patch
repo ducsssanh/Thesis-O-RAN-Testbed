@@ -1,0 +1,37 @@
+--- a/src/agent/asio_agent.c
++++ b/src/agent/asio_agent.c
+@@ -130,6 +130,10 @@
+ 
+   const int events_ready = epoll_wait(io->efd, events, maxevents, timeout_ms);
+   if (events_ready < 0) {
++    // A signal (e.g. SIGCHLD, profiling, debugger) interrupts the wait: same
++    // as a timeout, the caller polls again
++    if (errno == EINTR)
++      return -1;
+     fprintf(stderr, "epoll_wait() returned -1: errno %d, %s\n", errno, strerror(errno));
+     assert(0);
+   }
+--- a/src/ric/iApp/asio_iapp.c
++++ b/src/ric/iApp/asio_iapp.c
+@@ -120,6 +120,10 @@
+ 
+   const int events_ready = epoll_wait(io->efd, events, maxevents, timeout_ms);
+   if (events_ready < 0) {
++    // A signal (e.g. SIGCHLD, profiling, debugger) interrupts the wait: same
++    // as a timeout, the caller polls again
++    if (errno == EINTR)
++      return -1;
+     fprintf(stderr, "epoll_wait() returned -1: errno %d, %s\n", errno, strerror(errno));
+     assert(0);
+   }
+--- a/src/xApp/asio_xapp.c
++++ b/src/xApp/asio_xapp.c
+@@ -105,6 +105,8 @@
+ 
+   const int events_ready = epoll_wait(io->efd, events, maxevents, timeout_ms); 
+   if(events_ready == -1){
++    // Interrupted by a signal: same as a timeout
++    if(errno == EINTR) return -1;
+     printf("Error detected = %s \n", strerror(errno));
+     fflush(stdout);
+   }

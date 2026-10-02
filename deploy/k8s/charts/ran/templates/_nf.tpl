@@ -81,6 +81,32 @@ spec:
             {{- if eq $nf "nr-ue" }}
             - {name: tun, mountPath: /dev/net/tun}
             {{- end }}
+        {{- if and (eq $nf "nr-ue") (gt (int $lab.defense.ueKeepaliveS) 0) }}
+        # Benign background traffic, like any phone's keep-alives: one UDP
+        # datagram to the DN discard port through the UE tunnel, so an idle
+        # but attached UE is not taken for a lost one by the session TTL (T2)
+        - name: keepalive
+          image: {{ $lab.toolsImage | quote }}
+          command:
+            - python3
+            - -c
+            - |
+              import socket, sys, time
+              dn, period = sys.argv[1], float(sys.argv[2])
+              while True:
+                  try:
+                      s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                      s.setsockopt(socket.SOL_SOCKET, getattr(socket, "SO_BINDTODEVICE", 25), b"oaitun_ue1")
+                      s.sendto(b"keepalive", (dn, 9))
+                      s.close()
+                  except OSError:
+                      pass
+                  time.sleep(period)
+            - {{ $lab.networks.n6.addresses.dn | quote }}
+            - {{ $lab.defense.ueKeepaliveS | quote }}
+          securityContext: {capabilities: {add: [NET_RAW], drop: [ALL]}}
+          resources: {requests: {cpu: 5m, memory: 16Mi}, limits: {cpu: 50m, memory: 64Mi}}
+        {{- end }}
         {{- if eq $nf "smf" }}
         - name: capture
           image: {{ $lab.toolsImage | quote }}
