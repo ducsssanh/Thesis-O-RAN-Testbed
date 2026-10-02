@@ -1,0 +1,16 @@
+ M CMakeLists.txt
+ M cmake_targets/tools/build_helper
+ M executables/nr-softmodem.c
+ M openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c
+ m openair2/E2AP/flexric
+ M openair3/NAS/NR_UE/nr_nas_msg.c
+ M openair3/UICC/pdu_session.c
+ M radio/zmq/ring_buffer.cpp
+ M radio/zmq/zmq_imported.cpp
+ M radio/zmq/zmq_imported.h
+?? executables/nr-softmodem.c.previous
+?? openair3/NAS/NR_UE/nr_nas_msg.c.previous
+?? openair3/UICC/pdu_session.c.previous
+?? radio/zmq/ring_buffer.cpp.previous
+?? radio/zmq/zmq_imported.cpp.previous
+?? radio/zmq/zmq_imported.h.previous

@@ -1,0 +1,12 @@
+{{- range $item := list (dict "name" "db" "size" .Values.global.lab.dbSize) (dict "name" "artifacts" "size" .Values.global.lab.artifactSize) }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oai-lab-{{ $item.name }}
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: {storage: {{ $item.size }}}
+{{- end }}

@@ -1,0 +1,6 @@
+Session after SMF restart: SEID 1, epoch 20261001T140605Z, reports: 26
+(SEID, UR-SEQN) pairs of this session already present from earlier sessions: 26 of 26
+=> with the old key (SEID, UR-SEQN) the producer would have dropped 26 reports
+Earlier epochs of SEID 1: ['(schema 1.0.0, no epoch)', '20261001T134925Z']
+xApp stored for run 20261001T140526Z: 26 ; event_ids carry the epoch, e.g. oai-urr-nearrt-ue1:1:20261001T140605Z:1
+Epochs per (SEID) in schema 1.1.0 records: {(1000001790862408, '20261001T134448Z'): 1, (1, '20261001T134925Z'): 26, (1000001790863063, '20261001T135543Z'): 1, (2, '20261001T135833Z'): 27, (1000001790863544, '20261001T140344Z'): 1, (1, '20261001T140605Z'): 26}

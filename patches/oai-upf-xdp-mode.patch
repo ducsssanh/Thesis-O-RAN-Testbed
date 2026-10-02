@@ -1,0 +1,247 @@
+--- a/src/upf_app/app/upf_config.hpp
++++ b/src/upf_app/app/upf_config.hpp
+@@ -95,6 +95,7 @@
+ 
+   bool enable_5g_features;
+   bool enable_bpf_datapath;
++  std::string xdp_mode = "auto";
+   bool enable_eth_pdu;  // Ethernet PDU Sessions (3GPP TS 29.244)
+   bool enable_fr;
+   bool enable_qos;
+--- a/src/upf_app/app/upf_config_yaml.cpp
++++ b/src/upf_app/app/upf_config_yaml.cpp
+@@ -6,6 +6,7 @@
+ 
+ #include <boost/algorithm/string.hpp>
+ #include <regex>
++#include "XdpMode.hpp"
+ 
+ #include "conversions.hpp"
+ #include "fqdn.hpp"
+@@ -37,6 +38,10 @@
+ 
+ //------------------------------------------------------------------------------
+ void upf_support_features::from_yaml(const YAML::Node& node) {
++  if (node["xdp_mode"]) {
++    m_xdp_mode = node["xdp_mode"].as<std::string>();
++    ::upf::ParseXdpMode(m_xdp_mode);  // Reject invalid modes before loading BPF.
++  }
+   // Performance
+   if (node[UPF_ENABLE_BPF]) {
+     m_enable_bpf_datapath.from_yaml(node[UPF_ENABLE_BPF]);
+@@ -90,6 +95,7 @@
+ //------------------------------------------------------------------------------
+ std::string upf_support_features::to_string(const std::string& indent) const {
+   std::string out;
++  out.append(indent).append("XDP mode: ").append(m_xdp_mode).append("\n");
+   unsigned int inner_width = get_inner_width(indent.length());
+ 
+   // Performance
+@@ -484,6 +490,7 @@
+   cfg.sbi.if_name = local().get_sbi().get_if_name();
+ 
+   // Feature flags - Performance
++  cfg.xdp_mode = upf_local->get_support_features().get_xdp_mode();
+   cfg.enable_bpf_datapath =
+       upf_local->get_support_features().get_option_enable_bpf_datapath();
+ 
+--- a/src/upf_app/app/upf_config_yaml.hpp
++++ b/src/upf_app/app/upf_config_yaml.hpp
+@@ -200,6 +200,7 @@
+    *       - Appropriate kernel capabilities (CAP_BPF, CAP_NET_ADMIN)
+    */
+   option_config_value m_enable_bpf_datapath{};
++  std::string m_xdp_mode = "auto";
+ 
+   /**
+    * @brief Enable QoS enforcement (QER rules)
+@@ -376,6 +377,7 @@
+    * @return true if eBPF datapath is enabled, false otherwise
+    */
+   [[nodiscard]] bool get_option_enable_bpf_datapath() const;
++  const std::string& get_xdp_mode() const { return m_xdp_mode; }
+ 
+   /**
+    * @brief Check if QoS enforcement is enabled
+--- a/src/upf_app/control/Configuration.cpp
++++ b/src/upf_app/control/Configuration.cpp
+@@ -86,6 +86,7 @@
+   //   upf::g_net_cfg.n6_port = upf_cfg.n6.port;
+ 
+   // --- Feature flags ---
++  upf::g_net_cfg.xdp_mode = upf_cfg.xdp_mode;
+   upf::g_net_cfg.bpf_datapath   = upf_cfg.enable_bpf_datapath;
+   upf::g_net_cfg.qos            = upf_cfg.enable_qos;
+   upf::g_net_cfg.urr            = upf_cfg.enable_urr;
+--- a/src/upf_app/include/upf_network_config.h
++++ b/src/upf_app/include/upf_network_config.h
+@@ -48,6 +48,7 @@
+ 
+   /// eBPF/XDP datapath acceleration — upf_cfg.enable_bpf_datapath
+   bool bpf_datapath = false;
++  std::string xdp_mode = "auto";
+ 
+   /// TC-BPF QoS enforcement (QER) — upf_cfg.enable_qer
+   bool qos = false;
+--- a/src/upf_app/user/ProgramLifeCycle.hpp
++++ b/src/upf_app/user/ProgramLifeCycle.hpp
+@@ -19,6 +19,8 @@
+ #include <map>
+ #include <mutex>
+ #include "logger.hpp"
++#include "upf_network_config.h"
++#include "XdpMode.hpp"
+ 
+ // TC handle and priority defaults
+ #define INGRESS_HANDLE 0x1
+@@ -339,42 +341,33 @@
+       throw std::runtime_error("Failed to get BPF program FD");
+     }
+ 
+-    // Try attaching XDP program with smart fallback
+-    int ret              = -1;
+-    const char* mode_str = "unknown";
+-
+-    // First try: Native mode (best performance)
+-    ret = bpf_xdp_attach(
+-        if_index, prog_fd, xdp_flags_ | XDP_FLAGS_DRV_MODE, nullptr);
+-    bool tried_native = (ret != 0);
+-
+-    if (ret == 0) {
+-      mode_str                                      = "native (driver mode)";
+-      interface_native_xdp_[std::string(interface)] = true;
+-    } else if (ret == -EOPNOTSUPP || ret == -95) {
+-      // Native mode not supported, try SKB mode (software fallback)
+-      Logger::upf_app().warn(
+-          "[%s] Native XDP unsupported on %s (driver limitation), using SKB "
+-          "mode",
+-          name_.c_str(), interface);
++    const auto mode = upf::ParseXdpMode(upf::g_net_cfg.xdp_mode);
++    uint32_t mode_flags = upf::InitialXdpFlags(mode);
++    struct bpf_prog_info info {};
++    uint32_t info_len = sizeof(info);
++    if (bpf_obj_get_info_by_fd(prog_fd, &info, &info_len) != 0)
++      throw std::runtime_error("Cannot identify XDP program before attach");
++    int ret = bpf_xdp_attach(
++        if_index, prog_fd, xdp_flags_ | mode_flags, nullptr);
++    bool tried_native = false;
++    if (upf::ShouldFallbackToSkb(mode, ret)) {
++      mode_flags = XDP_FLAGS_SKB_MODE;
++      tried_native = true;
+       ret = bpf_xdp_attach(
+-          if_index, prog_fd, xdp_flags_ | XDP_FLAGS_SKB_MODE, nullptr);
+-
+-      if (ret == 0) {
+-        mode_str                                      = "SKB (software mode)";
+-        interface_native_xdp_[std::string(interface)] = false;
+-      }
+-    }
+-
+-    // If both attempts failed, throw error
+-
++          if_index, prog_fd, xdp_flags_ | mode_flags, nullptr);
++    }
+     if (ret < 0) {
+       Logger::upf_app().error(
+-          "[%s] Failed to attach XDP program '%s' to interface '%s': %d (%s)",
+-          name_.c_str(), section_name, interface, ret, strerror(-ret));
+-      throw std::runtime_error(
+-          "XDP attach failed in both native and SKB modes");
+-    }
++          "[%s] XDP attach failed interface=%s requested_mode=%s error=%d",
++          name_.c_str(), interface, upf::g_net_cfg.xdp_mode.c_str(), ret);
++      throw std::runtime_error("XDP attach failed in requested mode");
++    }
++    const char* mode_str = mode_flags == XDP_FLAGS_SKB_MODE ? "skb" : "native";
++    interface_native_xdp_[std::string(interface)] = mode_flags == XDP_FLAGS_DRV_MODE;
++    xdp_attachments_[if_index] = {prog_fd, info.id, mode_flags};
++    Logger::upf_app().info(
++        "[%s] XDP attached interface=%s mode=%s program_id=%u",
++        name_.c_str(), interface, mode_str, info.id);
+ 
+     // Track linked interface
+     std::string section_str(section_name);
+@@ -658,29 +651,28 @@
+       return;
+     }
+ 
+-    // Unlink XDP programs if in LINKED state
+-    if (state_ == LINKED) {
+-      Logger::upf_app().debug(
+-          "[%s] Unlinking XDP programs from interfaces", name_.c_str());
+-      for (const auto& section_entry : section_link_map_) {
+-        const std::string& section_name         = section_entry.first;
+-        const std::vector<uint32_t>& interfaces = section_entry.second;
+-
+-        for (uint32_t if_index : interfaces) {
+-          int ret = bpf_xdp_attach(if_index, -1, xdp_flags_, nullptr);
+-          if (ret) {
+-            Logger::upf_app().error(
+-                "[%s] Failed to unlink XDP '%s' from ifindex %d", name_.c_str(),
+-                section_entry.first.c_str(), if_index);
+-          } else {
+-            Logger::upf_app().info(
+-                "[%s] XDP '%s' unlinked from ifindex %d", name_.c_str(),
+-                section_entry.first.c_str(), if_index);
+-          }
+-        }
++    // Ownership is checked by ID and atomically enforced by old_prog_fd.
++    // Do not detach a replacement program installed by another instance.
++    for (const auto& entry : xdp_attachments_) {
++      uint32_t current_id = 0;
++      const auto& attachment = entry.second;
++      if (bpf_xdp_query_id(entry.first, attachment.mode, &current_id) != 0 ||
++          current_id != attachment.id) {
++        Logger::upf_app().warn(
++            "[%s] Skipping XDP detach on ifindex=%u: ownership changed",
++            name_.c_str(), entry.first);
++        continue;
+       }
+-      section_link_map_.clear();
+-    }
++      struct bpf_xdp_attach_opts opts {};
++      opts.sz = sizeof(opts);
++      opts.old_prog_fd = attachment.fd;
++      const int ret = bpf_xdp_detach(entry.first, attachment.mode, &opts);
++      if (ret != 0)
++        Logger::upf_app().error("[%s] XDP detach failed ifindex=%u error=%d",
++                                name_.c_str(), entry.first, ret);
++    }
++    xdp_attachments_.clear();
++    section_link_map_.clear();
+ 
+     // Destroy skeleton
+     if (skeleton_) {
+@@ -734,6 +726,8 @@
+ 
+   T* skeleton_;         ///< Pointer to BPF skeleton (nullptr if not opened)
+   ProgramState state_;  ///< Current lifecycle state
++  struct XdpAttachment { int fd; uint32_t id; uint32_t mode; };
++  std::map<uint32_t, XdpAttachment> xdp_attachments_;
+   uint32_t xdp_flags_;  ///< XDP attachment flags (DRV_MODE or SKB_MODE)
+ 
+   std::mutex teardown_mutex_;  ///< Mutex for thread-safe teardown
+--- /dev/null
++++ b/src/upf_app/include/XdpMode.hpp
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: LicenseRef-CSSL-1.0
++#pragma once
++#include <cerrno>
++#include <linux/if_link.h>
++#include <stdexcept>
++#include <string>
++namespace upf {
++enum class XdpMode { Auto, Skb, Native };
++inline XdpMode ParseXdpMode(const std::string& mode) {
++  if (mode == "auto") return XdpMode::Auto;
++  if (mode == "skb") return XdpMode::Skb;
++  if (mode == "native") return XdpMode::Native;
++  throw std::invalid_argument("xdp_mode must be auto, skb or native");
++}
++inline unsigned InitialXdpFlags(XdpMode mode) {
++  return mode == XdpMode::Skb ? XDP_FLAGS_SKB_MODE : XDP_FLAGS_DRV_MODE;
++}
++inline bool ShouldFallbackToSkb(XdpMode mode, int result) {
++  return mode == XdpMode::Auto && result == -EOPNOTSUPP;
++}
++}

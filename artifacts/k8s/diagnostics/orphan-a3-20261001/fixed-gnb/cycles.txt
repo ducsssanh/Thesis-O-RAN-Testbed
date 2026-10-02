@@ -1,0 +1,6 @@
+start 1 
+cycle 1: killed pod/oai-nr-ue-5768bdc745-sm29v; before=[1 ] new=2 after=[2 ]
+cycle 2: killed pod/oai-nr-ue-5768bdc745-gxhlt; before=[2 ] new=3 after=[3 ]
+cycle 3: killed pod/oai-nr-ue-5768bdc745-gfkrj; before=[3 ] new=4 after=[4 ]
+mode=gnb final=[4 ] replaced=[ 1   2  3  4 ] missing-deletion=[]
+PASS

@@ -1,0 +1,281 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Node",
+            "metadata": {
+                "annotations": {
+                    "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///run/containerd/containerd.sock",
+                    "node.alpha.kubernetes.io/ttl": "0",
+                    "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+                },
+                "creationTimestamp": "2026-09-26T15:03:42Z",
+                "labels": {
+                    "beta.kubernetes.io/arch": "amd64",
+                    "beta.kubernetes.io/os": "linux",
+                    "kubernetes.io/arch": "amd64",
+                    "kubernetes.io/hostname": "oai-lab",
+                    "kubernetes.io/os": "linux",
+                    "minikube.k8s.io/commit": "c93a4cb9311efc66b90d33ea03f75f2c4120e9b0",
+                    "minikube.k8s.io/name": "oai-lab",
+                    "minikube.k8s.io/primary": "true",
+                    "minikube.k8s.io/updated_at": "2026_09_26T22_03_45_0700",
+                    "minikube.k8s.io/version": "v1.38.1",
+                    "node-role.kubernetes.io/control-plane": "",
+                    "node.kubernetes.io/exclude-from-external-load-balancers": ""
+                },
+                "name": "oai-lab",
+                "resourceVersion": "3290",
+                "uid": "d4928722-02f5-4f55-8655-f8f9f2579a25"
+            },
+            "spec": {
+                "podCIDR": "10.244.0.0/24",
+                "podCIDRs": [
+                    "10.244.0.0/24"
+                ]
+            },
+            "status": {
+                "addresses": [
+                    {
+                        "address": "192.168.49.2",
+                        "type": "InternalIP"
+                    },
+                    {
+                        "address": "oai-lab",
+                        "type": "Hostname"
+                    }
+                ],
+                "allocatable": {
+                    "cpu": "18",
+                    "ephemeral-storage": "338594096Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32349572Ki",
+                    "pods": "110"
+                },
+                "capacity": {
+                    "cpu": "18",
+                    "ephemeral-storage": "338594096Ki",
+                    "hugepages-1Gi": "0",
+                    "hugepages-2Mi": "0",
+                    "memory": "32349572Ki",
+                    "pods": "110"
+                },
+                "conditions": [
+                    {
+                        "lastHeartbeatTime": "2026-09-27T09:57:00Z",
+                        "lastTransitionTime": "2026-09-26T15:03:42Z",
+                        "message": "kubelet has sufficient memory available",
+                        "reason": "KubeletHasSufficientMemory",
+                        "status": "False",
+                        "type": "MemoryPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-27T09:57:00Z",
+                        "lastTransitionTime": "2026-09-26T15:03:42Z",
+                        "message": "kubelet has no disk pressure",
+                        "reason": "KubeletHasNoDiskPressure",
+                        "status": "False",
+                        "type": "DiskPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-27T09:57:00Z",
+                        "lastTransitionTime": "2026-09-26T15:03:42Z",
+                        "message": "kubelet has sufficient PID available",
+                        "reason": "KubeletHasSufficientPID",
+                        "status": "False",
+                        "type": "PIDPressure"
+                    },
+                    {
+                        "lastHeartbeatTime": "2026-09-27T09:57:00Z",
+                        "lastTransitionTime": "2026-09-26T15:03:45Z",
+                        "message": "kubelet is posting ready status",
+                        "reason": "KubeletReady",
+                        "status": "True",
+                        "type": "Ready"
+                    }
+                ],
+                "daemonEndpoints": {
+                    "kubeletEndpoint": {
+                        "Port": 10250
+                    }
+                },
+                "features": {
+                    "supplementalGroupsPolicy": true
+                },
+                "images": [
+                    {
+                        "names": [
+                            "docker.io/library/oai-lab-radio:b715742212936699"
+                        ],
+                        "sizeBytes": 1197940905
+                    },
+                    {
+                        "names": [
+                            "ghcr.io/k8snetworkplumbingwg/multus-cni@sha256:a60a21ee1d00c9f215b0b2fa03b3d5e384ab7ddb9ea0d231d36aef220e95a69c",
+                            "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick"
+                        ],
+                        "sizeBytes": 195697159
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/oai-lab-upf:354c74ac438fa0df"
+                        ],
+                        "sizeBytes": 120377484
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/oai-lab-upf:b715742212936699"
+                        ],
+                        "sizeBytes": 120377484
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/mariadb:10.6"
+                        ],
+                        "sizeBytes": 115747468
+                    },
+                    {
+                        "names": [
+                            "docker.io/library/oai-lab-tools:354c74ac438fa0df",
+                            "docker.io/library/oai-lab-tools:b715742212936699"
+                        ],
+                        "sizeBytes": 114694560
+                    },
+                    {
+                        "names": [
+                            "docker.io/oaisoftwarealliance/oai-amf:v2.2.0"
+                        ],
+                        "sizeBytes": 73776378
+                    },
+                    {
+                        "names": [
+                            "docker.io/oaisoftwarealliance/oai-smf:v2.2.0"
+                        ],
+                        "sizeBytes": 65679478
+                    },
+                    {
+                        "names": [
+                            "docker.io/oaisoftwarealliance/oai-udr:v2.2.0"
+                        ],
+                        "sizeBytes": 64626845
+                    },
+                    {
+                        "names": [
+                            "docker.io/oaisoftwarealliance/oai-nrf:v2.2.0"
+                        ],
+                        "sizeBytes": 59552727
+                    },
+                    {
+                        "names": [
+                            "docker.io/oaisoftwarealliance/oai-udm:v2.2.0"
+                        ],
+                        "sizeBytes": 59199410
+                    },
+                    {
+                        "names": [
+                            "docker.io/oaisoftwarealliance/oai-ausf:v2.2.0"
+                        ],
+                        "sizeBytes": 58091958
+                    },
+                    {
+                        "names": [
+                            "docker.io/kindest/kindnetd@sha256:07a4b3fe0077a0ae606cc0a200fc25a28fa64dcc30b8d311b461089969449f9a",
+                            "docker.io/kindest/kindnetd:v20250512-df8de77b"
+                        ],
+                        "sizeBytes": 44375501
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/kube-proxy@sha256:dc4788df776179d96e5a106ad64cf6aa1086108a0323950d68a27f9bfaca9bce",
+                            "registry.k8s.io/kube-proxy:v1.33.13"
+                        ],
+                        "sizeBytes": 32041137
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/kube-apiserver@sha256:576c504089365f4540dce71901ecd49a6802a1fb1f59e42d5e96b422a80b5beb",
+                            "registry.k8s.io/kube-apiserver:v1.33.13"
+                        ],
+                        "sizeBytes": 30234437
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/kube-controller-manager@sha256:fad93ee836fd44975c3d4d2e13356955584a2e8e88b8ecff014191fab2649266",
+                            "registry.k8s.io/kube-controller-manager:v1.33.13"
+                        ],
+                        "sizeBytes": 27770920
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/etcd@sha256:251e7e490f64859d329cd963bc879dc04acf3d7195bb52c4c50b4a07bedf37d6",
+                            "registry.k8s.io/etcd:3.5.24-0"
+                        ],
+                        "sizeBytes": 23716032
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/kube-scheduler@sha256:ccb3926e60fb6ad34abe2434aebdc3394adc9aa9fa1d4f288bdff54ebb5d741d",
+                            "registry.k8s.io/kube-scheduler:v1.33.13"
+                        ],
+                        "sizeBytes": 21880166
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/coredns/coredns@sha256:40384aa1f5ea6bfdc77997d243aec73da05f27aed0c5e9d65bfa98933c519d97",
+                            "registry.k8s.io/coredns/coredns:v1.12.0"
+                        ],
+                        "sizeBytes": 20939036
+                    },
+                    {
+                        "names": [
+                            "gcr.io/k8s-minikube/storage-provisioner@sha256:18eb69d1418e854ad5a19e399310e52808a8321e4c441c1dddad8977a0d7a944",
+                            "gcr.io/k8s-minikube/storage-provisioner:v5"
+                        ],
+                        "sizeBytes": 9058936
+                    },
+                    {
+                        "names": [
+                            "registry.k8s.io/pause@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a",
+                            "registry.k8s.io/pause:3.10"
+                        ],
+                        "sizeBytes": 320368
+                    }
+                ],
+                "nodeInfo": {
+                    "architecture": "amd64",
+                    "bootID": "e3bd8616-dedc-4fa0-91a2-cea4a524832a",
+                    "containerRuntimeVersion": "containerd://2.2.1",
+                    "kernelVersion": "6.8.1-1059-realtime",
+                    "kubeProxyVersion": "",
+                    "kubeletVersion": "v1.33.13",
+                    "machineID": "86e0bfeb3f77427722393c2969964edb",
+                    "operatingSystem": "linux",
+                    "osImage": "Debian GNU/Linux 12 (bookworm)",
+                    "systemUUID": "502ac0cb-5430-4e8f-b642-e63a79aa491d"
+                },
+                "runtimeHandlers": [
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": ""
+                    },
+                    {
+                        "features": {
+                            "recursiveReadOnlyMounts": true,
+                            "userNamespaces": true
+                        },
+                        "name": "runc"
+                    }
+                ]
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "oai_charts": {
+    "url": "https://gitlab.eurecom.fr/oai/orchestration/charts.git",
+    "commit": "7925f939ea36a3c4c1df5525f3718ce8470f6b3f"
+  },
+  "configuration": "OAI v2.2.0 config/schema snapshot adapted to one slice; no runtime dependency on 5gdeploy",
+  "multus": {
+    "url": "https://github.com/k8snetworkplumbingwg/multus-cni",
+    "commit": "00adf22482945de41ff702258593aaf867a48e2d",
+    "tag": "v4.2.2",
+    "image": "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick",
+    "sha256": "d1f0b3dcde44c87490f865eaba235210f61bc9405876ad014d6a79b535c325ef",
+    "patch": "Pinned v4.2.2-thick image; install CNI binaries through same-directory temporary files and atomic rename to avoid ETXTBSY during restart"
+  }
+}

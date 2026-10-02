@@ -1,0 +1,15 @@
+NAME                                  READY   STATUS      RESTARTS   AGE
+pod/oai-lab-bootstrap-client-h7mn5    0/1     Completed   0          18h
+pod/oai-lab-bootstrap-radio-mmnqq     0/1     Completed   0          18h
+pod/oai-lab-bootstrap-server-zrgqc    0/1     Completed   0          18h
+pod/oai-lab-bootstrap-ue-tun-nbptl    0/1     Completed   0          18h
+pod/oai-lab-bootstrap-upf-bpf-g6w86   0/1     Completed   0          18h
+pod/oai-lab-db-0                      0/1     Unknown     0          18h
+pod/oai-lab-dn-6fd59798b7-q7pwr       0/1     Unknown     0          18h
+
+NAME                                  STATUS     COMPLETIONS   DURATION   AGE
+job.batch/oai-lab-bootstrap-client    Complete   1/1           13s        18h
+job.batch/oai-lab-bootstrap-radio     Complete   1/1           7s         18h
+job.batch/oai-lab-bootstrap-server    Complete   1/1           14s        18h
+job.batch/oai-lab-bootstrap-ue-tun    Complete   1/1           8s         18h
+job.batch/oai-lab-bootstrap-upf-bpf   Complete   1/1           6s         18h

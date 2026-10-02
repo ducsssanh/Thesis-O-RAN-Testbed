@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: oai-lab-dn}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {oai-lab/component: dn}
+  template:
+    metadata:
+      labels: {oai-lab/component: dn}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" .Values.global.lab "nf" "dn") | quote }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: dn
+          image: {{ .Values.global.lab.toolsImage | quote }}
+          command: [sh, -ec]
+          args:
+            - ip route replace {{ .Values.global.lab.ueSubnet }} via {{ .Values.global.lab.networks.n6.addresses.upf }} dev n6; exec sleep infinity
+          securityContext: {capabilities: {add: [NET_ADMIN, NET_RAW], drop: [ALL]}}
+          volumeMounts: [{name: artifacts, mountPath: /artifacts}]
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim: {claimName: oai-lab-artifacts}

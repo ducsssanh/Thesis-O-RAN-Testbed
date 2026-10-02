@@ -1,0 +1,10 @@
+{
+  "producer": {
+    "image": "oai-lab-urr-ei-producer:5dc07af1a610989e",
+    "id": "sha256:3d476b3f1e2f38f641faa39d04575a54b58b33e2f5c8535e24cb7e34e3e41da1"
+  },
+  "adapter": {
+    "image": "oai-lab-a1-ei-adapter:2ff96bc6adf5169c",
+    "id": "sha256:f68e1485cec219ba1ddd9791731f618dad686cdece6006a1165a58b3db9d7b29"
+  }
+}

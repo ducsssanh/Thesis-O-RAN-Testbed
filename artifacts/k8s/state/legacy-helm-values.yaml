@@ -1,0 +1,223 @@
+bootstrapTestEnabled: false
+global:
+  clusterIpServiceIpAllocation: true
+  lab:
+    artifactSize: 2Gi
+    cpus: 8
+    dbImage: mariadb:10.6
+    dbSize: 2Gi
+    experiment:
+      duration: 120
+      periodMs: 1000
+      rate: 10M
+      timeout: 180
+    kubernetesVersion: v1.33.13
+    memoryMiB: 16384
+    minDiskGiB: 25
+    minRetainedDiskGiB: 5
+    namespace: oai-lab
+    networks:
+      e2:
+        addresses:
+          flexric: 172.30.27.10
+          gnb: 172.30.27.20
+          xapp: 172.30.27.30
+        bridge: oai-e2
+        subnet: 172.30.27.0/24
+      n2:
+        addresses:
+          amf: 172.30.22.10
+          gnb: 172.30.22.20
+        bridge: oai-n2
+        subnet: 172.30.22.0/24
+      n3:
+        addresses:
+          gnb: 172.30.23.20
+          upf: 172.30.23.10
+        bridge: oai-n3
+        subnet: 172.30.23.0/24
+      n4:
+        addresses:
+          smf: 172.30.24.10
+          upf: 172.30.24.20
+        bridge: oai-n4
+        subnet: 172.30.24.0/24
+      n6:
+        addresses:
+          dn: 172.30.26.10
+          upf: 172.30.26.20
+        bridge: oai-n6
+        subnet: 172.30.26.0/24
+    plmn:
+      mcc: "001"
+      mnc: "01"
+    profile: oai-lab
+    radio:
+      band: 78
+      frequency: 3619200000
+      numerology: 1
+      prbs: 106
+    secretName: oai-lab-credentials
+    slice:
+      dnn: nist-dnn
+      sd: FFFFFF
+      sst: 1
+    tac: 7
+    toolsImage: oai-lab-tools:f4aafed83d8c25ea
+    ueSubnet: 10.1.0.0/16
+    usageReporting: true
+    workloads:
+      amf:
+        image: oaisoftwarealliance/oai-amf:v2.2.0
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      ausf:
+        image: oaisoftwarealliance/oai-ausf:v2.2.0
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      flexric:
+        image: oai-lab-radio:ab3bf500e5cb08be
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      gnb:
+        image: oai-lab-radio:ab3bf500e5cb08be
+        limits:
+          cpu: "4"
+          memory: 4Gi
+        requests:
+          cpu: "2"
+          memory: 2Gi
+      nr-ue:
+        image: oai-lab-radio:ab3bf500e5cb08be
+        limits:
+          cpu: "4"
+          memory: 4Gi
+        requests:
+          cpu: "2"
+          memory: 2Gi
+      nrf:
+        image: oaisoftwarealliance/oai-nrf:v2.2.0
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      smf:
+        image: oai-lab-smf:v2.2.0-ie43-771248b5
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      udm:
+        image: oaisoftwarealliance/oai-udm:v2.2.0
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      udr:
+        image: oaisoftwarealliance/oai-udr:v2.2.0
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+      upf:
+        image: oai-lab-upf:b715742212936699
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+    xdpMode: skb
+  waitForNRF: false
+oai-amf:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-ausf:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-flexric:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-gnb:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-nr-ue:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-nrf:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-smf:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-udm:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-udr:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+oai-upf:
+  enabled: true
+  exposedPorts:
+    sbi: 80
+  imagePullSecrets: []
+  multus:
+    enabled: false
+seedEnabled: true
+xappEnabled: true

@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "global"
+  ],
+  "properties": {
+    "global": {
+      "type": "object",
+      "required": [
+        "lab"
+      ],
+      "properties": {
+        "lab": {
+          "type": "object",
+          "required": [
+            "profile",
+            "namespace",
+            "xdpMode",
+            "networks",
+            "workloads"
+          ],
+          "properties": {
+            "profile": {
+              "const": "oai-lab"
+            },
+            "namespace": {
+              "const": "oai-lab"
+            },
+            "xdpMode": {
+              "const": "skb"
+            },
+            "usageReporting": {
+              "const": true
+            },
+            "cpus": {
+              "type": "integer",
+              "minimum": 8
+            },
+            "memoryMiB": {
+              "type": "integer",
+              "minimum": 16384
+            },
+            "networks": {
+              "type": "object",
+              "required": [
+                "n2",
+                "n3",
+                "n4",
+                "n6",
+                "e2"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

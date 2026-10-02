@@ -1,0 +1,8 @@
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:00:21 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 10
+TEST SUITE: None
+DB/subscriber and repeated seed PASS

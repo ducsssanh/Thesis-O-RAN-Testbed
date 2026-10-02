@@ -1,0 +1,19 @@
+== fixed-gnb
+[2026-10-01 14:21:24.186] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Delet
+[2026-10-01 14:21:24.186] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 14:23:56.686] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Delet
+[2026-10-01 14:23:56.686] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 14:26:27.565] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Delet
+[2026-10-01 14:26:27.565] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+0
+== fixed-ue
+[2026-10-01 14:26:47.453] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 14:27:01.579] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 14:27:18.856] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+0
+rules_match_pdr id=1157 entries=2
+session_rules_e id=1149 entries=1
+session_by_ue_i id=1154 entries=1
+pdrs_per_sessio id=1155 entries=1
+urr_volume_coun id=1182 entries=1
+urr_config_map id=1183 entries=1

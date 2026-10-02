@@ -1,0 +1,18 @@
+--- a/src/upf_app/app/upf_n4.cpp
++++ b/src/upf_app/app/upf_n4.cpp
+@@ -344,6 +344,15 @@
+           "Received SX ASSOCIATION SETUP REQUEST without recovery time stamp "
+           "IE!, ignore message");
+       return;
++    }
++    // A CP-initiated association has no locally-created candidate. Register
++    // the peer before add_association(), which otherwise only promotes an
++    // existing candidate and silently leaves the association map empty.
++    std::shared_ptr<pfcp_association> existing_association = {};
++    if (not pfcp_associations::get_instance().get_association(
++            msg_ies_container.node_id.second, existing_association)) {
++      pfcp_associations::get_instance().add_peer_candidate_node(
++          msg_ies_container.node_id.second);
+     }
+     // bool restore_n4_sessions = false;
+     if (msg_ies_container.cp_function_features.first) {

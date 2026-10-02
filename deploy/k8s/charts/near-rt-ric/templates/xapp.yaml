@@ -1,0 +1,72 @@
+{{- if .Values.xappEnabled }}
+apiVersion: v1
+kind: Service
+metadata: {name: oai-lab-xapp}
+spec:
+  selector: {oai-lab/component: xapp}
+  ports: [{name: https, port: 8443, targetPort: 8443}]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oai-lab-xapp-state
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: {requests: {storage: 1Gi}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: xapp-entrypoint}
+data:
+  radio-entrypoint.sh: |
+    {{- .Files.Get "files/radio-entrypoint.sh" | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: oai-lab-xapp}
+spec:
+  replicas: {{ .Values.replicas | default 0 }}
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {oai-lab/component: xapp}
+  template:
+    metadata:
+      labels: {oai-lab/component: xapp}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" .Values.global.lab "nf" "xapp") | quote }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: xapp
+          image: {{ .Values.xappImage | default .Values.global.lab.workloads.flexric.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: [/opt/lab/radio-entrypoint.sh, xapp]
+          ports: [{name: https, containerPort: 8443}]
+          startupProbe: {httpGet: {scheme: HTTPS, path: /healthz, port: 8443}, periodSeconds: 5, failureThreshold: 30}
+          readinessProbe: {httpGet: {scheme: HTTPS, path: /readyz, port: 8443}, periodSeconds: 5}
+          env:
+            - {name: RUN_ID, value: {{ .Values.global.lab.currentRun | default "bootstrap" | quote }}}
+            - {name: URR_TLS_CERT, value: /tls/tls.crt}
+            - {name: URR_TLS_KEY, value: /tls/tls.key}
+            - {name: RIC_IP, value: {{ .Values.global.lab.networks.e2.addresses.flexric | quote }}}
+            - {name: SST, value: {{ .Values.global.lab.slice.sst | quote }}}
+            - {name: SD, value: {{ printf "0x%s" .Values.global.lab.slice.sd | quote }}}
+            - {name: KPM_PERIOD, value: {{ .Values.global.lab.experiment.periodMs | quote }}}
+            # Exit (and be restarted to resubscribe) after 10 KPM periods, at least 10 s, without indications
+            - {name: KPM_STALE_S, value: {{ max 10 (div (mul 10 (int .Values.global.lab.experiment.periodMs)) 1000) | quote }}}
+          volumeMounts:
+            - {name: artifacts, mountPath: /artifacts}
+            - {name: state, mountPath: /urr-state}
+            - {name: tls, mountPath: /tls, readOnly: true}
+            - {name: entrypoint, mountPath: /opt/lab/radio-entrypoint.sh, subPath: radio-entrypoint.sh, readOnly: true}
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim: {claimName: oai-lab-artifacts}
+        - name: state
+          persistentVolumeClaim: {claimName: oai-lab-xapp-state}
+        - name: tls
+          secret: {secretName: oai-lab-xapp-tls}
+        - name: entrypoint
+          configMap: {name: xapp-entrypoint, defaultMode: 0755}
+{{- end }}

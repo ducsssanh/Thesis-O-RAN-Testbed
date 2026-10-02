@@ -1,0 +1,310 @@
+--- a/examples/xApp/c/monitor/CMakeLists.txt
++++ b/examples/xApp/c/monitor/CMakeLists.txt
+@@ -91,6 +91,7 @@
+ 
+ add_executable(xapp_kpm_moni_write_to_csv
+ 		xapp_kpm_moni_write_to_csv.c
++                urr_receiver.c
+                 ../metrics_factory.c
+                 ../../../../src/util/alg_ds/alg/defer.c
+                 ../../../../src/util/alg_ds/alg/murmur_hash_32.c
+@@ -104,6 +105,10 @@
+                     -lsctp
+                     -ldl
+                     -lm
++                    microhttpd
++                    json-c
++                    sqlite3
++                    crypto
+                       )
+ 
+ target_compile_definitions(xapp_kpm_moni_write_to_csv PRIVATE KPM_MEAS_LIST="${KPM_MEAS_LIST}")
+--- a/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
++++ b/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
+@@ -44,6 +44,7 @@
+ #include <stdlib.h>
+ #include <time.h>
+ #include <unistd.h>
++#include "urr_receiver.h"
+ 
+ // Set to the interval in milliseconds at which the xApp should write to the CSV file
+ static uint64_t period_ms = 1000;
+@@ -1053,6 +1054,10 @@
+   }
+   period_ms = (uint64_t)val;
+ 
++  if (urr_receiver_start() != 0) {
++    fprintf(stderr, "URR HTTPS receiver failed to start\n");
++    return EXIT_FAILURE;
++  }
+ 
+   is_cell_metric = false;
+   csv_wrote_header = false;
+@@ -1151,6 +1156,7 @@
+   while (try_stop_xapp_api() == false)
+     usleep(1000);
+ 
++  urr_receiver_stop();
+ 
+   printf("Test xApp run SUCCESSFULLY\n");
+ }
+--- /dev/null
++++ b/examples/xApp/c/monitor/urr_receiver.c
+@@ -0,0 +1,240 @@
++/* Lab-internal URR delivery endpoint in the KPM xApp process. */
++#include "urr_receiver.h"
++#include <microhttpd.h>
++#include <json-c/json.h>
++#include <sqlite3.h>
++#include <pthread.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdint.h>
++#include <time.h>
++#include <errno.h>
++#include <limits.h>
++#include <openssl/pem.h>
++#include <openssl/x509.h>
++
++#define MAX_BODY (1u << 20)
++typedef struct { char *body; size_t used; } request_t;
++static struct MHD_Daemon *urr_daemon;
++static sqlite3 *db;
++static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
++static char *cert, *key;
++static char export_path[PATH_MAX];
++static urr_record_t last_report;
++static int has_last_report;
++static unsigned long long duplicate_count, error_count;
++
++static char *read_file(const char *path) {
++  FILE *f=fopen(path,"rb"); if(!f)return NULL;
++  if(fseek(f,0,SEEK_END)!=0){fclose(f);return NULL;}
++  long n=ftell(f); if(n<0 || n>1024*1024){fclose(f);return NULL;}
++  rewind(f); char *p=calloc((size_t)n+1,1);
++  if(!p || fread(p,1,(size_t)n,f)!=(size_t)n){free(p);fclose(f);return NULL;}
++  fclose(f);return p;
++}
++
++static int valid_tls_identity(const char *certificate,const char *private_key){
++  BIO *cert_bio=BIO_new_mem_buf(certificate,-1),*key_bio=BIO_new_mem_buf(private_key,-1);
++  if(!cert_bio || !key_bio){BIO_free(cert_bio);BIO_free(key_bio);return 0;}
++  X509 *cert_obj=PEM_read_bio_X509(cert_bio,NULL,NULL,NULL);
++  EVP_PKEY *key_obj=PEM_read_bio_PrivateKey(key_bio,NULL,NULL,NULL);
++  int valid=cert_obj && key_obj && X509_cmp_current_time(X509_get0_notBefore(cert_obj))<0 &&
++      X509_cmp_current_time(X509_get0_notAfter(cert_obj))>0 && X509_check_private_key(cert_obj,key_obj)==1;
++  X509_free(cert_obj);EVP_PKEY_free(key_obj);BIO_free(cert_bio);BIO_free(key_bio);
++  return valid;
++}
++
++static enum MHD_Result reply(struct MHD_Connection *c,unsigned code,const char *body) {
++  struct MHD_Response *r=MHD_create_response_from_buffer(strlen(body),(void*)body,MHD_RESPMEM_MUST_COPY);
++  if(!r)return MHD_NO;
++  MHD_add_response_header(r,"Content-Type","application/json");
++  enum MHD_Result rc=MHD_queue_response(c,code,r); MHD_destroy_response(r); return rc;
++}
++
++static int uint_field(json_object *o,const char *name,uint64_t *v) {
++  json_object *x=NULL;
++  if(!json_object_object_get_ex(o,name,&x) || !json_object_is_type(x,json_type_int))return 0;
++  const char *s=json_object_get_string(x); if(!s || *s=='-' || !*s)return 0;
++  errno=0; char *end=NULL; unsigned long long n=strtoull(s,&end,10);
++  if(errno || *end)return 0; *v=(uint64_t)n;return 1;
++}
++
++static int string_field(json_object *o,const char *name) {
++  json_object *x=NULL;return json_object_object_get_ex(o,name,&x) && json_object_is_type(x,json_type_string) && json_object_get_string_len(x)>0;
++}
++
++static void copy_field(json_object *o,const char *name,char *dst,size_t capacity){
++  json_object *x=NULL;if(json_object_object_get_ex(o,name,&x) && json_object_is_type(x,json_type_string))snprintf(dst,capacity,"%s",json_object_get_string(x));
++}
++
++static int valid_report(json_object *o,urr_record_t *record) {
++  uint64_t seid=0,seq=0,n;
++  if(!o || !json_object_is_type(o,json_type_object) || !uint_field(o,"seid",&seid) || !uint_field(o,"ur_seqn",&seq) || !seid || !seq)return 0;
++  const char *strings[]={"schema_version","run_id","observed_at","supi","dnn","enrichment_source"};
++  for(size_t i=0;i<sizeof(strings)/sizeof(*strings);i++)if(!string_field(o,strings[i]))return 0;
++  const char *nums[]={"ul_bytes","dl_bytes","total_bytes","ul_packets","dl_packets","total_packets","duration_seconds"};
++  for(size_t i=0;i<sizeof(nums)/sizeof(*nums);i++)if(!uint_field(o,nums[i],&n))return 0;
++  json_object *id=NULL,*triggers=NULL,*snssai=NULL;
++  if(!json_object_object_get_ex(o,"urr_id",&id) || !(json_object_is_type(id,json_type_null) || uint_field(o,"urr_id",&n)))return 0;
++  if(!json_object_object_get_ex(o,"triggers",&triggers) || !json_object_is_type(triggers,json_type_array))return 0;
++  for(size_t i=0;i<json_object_array_length(triggers);i++)if(!json_object_is_type(json_object_array_get_idx(triggers,i),json_type_string))return 0;
++  if(!json_object_object_get_ex(o,"snssai",&snssai) || !json_object_is_type(snssai,json_type_object))return 0;
++  if(!uint_field(snssai,"sst",&n) || !string_field(snssai,"sd"))return 0;
++  memset(record,0,sizeof(*record));record->seid=seid;record->ur_seqn=seq;
++  if(!json_object_is_type(id,json_type_null)){record->has_urr_id=true;uint_field(o,"urr_id",&record->urr_id);}
++  uint_field(o,"ul_bytes",&record->ul_bytes);uint_field(o,"dl_bytes",&record->dl_bytes);uint_field(o,"total_bytes",&record->total_bytes);
++  uint_field(o,"ul_packets",&record->ul_packets);uint_field(o,"dl_packets",&record->dl_packets);uint_field(o,"total_packets",&record->total_packets);
++  uint_field(o,"duration_seconds",&record->duration_seconds);
++  copy_field(o,"supi",record->supi,sizeof(record->supi));copy_field(o,"dnn",record->dnn,sizeof(record->dnn));
++  copy_field(o,"observed_at",record->observed_at,sizeof(record->observed_at));
++  copy_field(o,"schema_version",record->schema_version,sizeof(record->schema_version));
++  copy_field(o,"run_id",record->run_id,sizeof(record->run_id));
++  copy_field(o,"enrichment_source",record->enrichment_source,sizeof(record->enrichment_source));
++  return 1;
++}
++
++static int export_jsonl(void) {
++  char temp[PATH_MAX]; if(snprintf(temp,sizeof(temp),"%s.tmp",export_path)>=(int)sizeof(temp))return 0;
++  FILE *f=fopen(temp,"wb");if(!f)return 0;
++  sqlite3_stmt *q=NULL;
++  if(sqlite3_prepare_v2(db,"SELECT event_id,job_id,report,received_at,run_id FROM urr WHERE run_id=? ORDER BY rowid",-1,&q,NULL)!=SQLITE_OK){fclose(f);return 0;}
++  const char *run=getenv("RUN_ID");sqlite3_bind_text(q,1,run?run:"bootstrap",-1,SQLITE_TRANSIENT);
++  int ok=1;
++  while(sqlite3_step(q)==SQLITE_ROW){
++    json_object *v=json_object_new_object();
++    json_object_object_add(v,"event_id",json_object_new_string((const char*)sqlite3_column_text(q,0)));
++    json_object_object_add(v,"job_id",json_object_new_string((const char*)sqlite3_column_text(q,1)));
++    json_object *r=json_tokener_parse((const char*)sqlite3_column_text(q,2));
++    json_object_object_add(v,"report",r);
++    json_object_object_add(v,"received_at",json_object_new_string((const char*)sqlite3_column_text(q,3)));
++    json_object_object_add(v,"xapp_run_id",json_object_new_string((const char*)sqlite3_column_text(q,4)));
++    if(fputs(json_object_to_json_string_ext(v,JSON_C_TO_STRING_PLAIN),f)==EOF || fputc('\n',f)==EOF)ok=0;
++    json_object_put(v); if(!ok)break;
++  }
++  sqlite3_finalize(q); if(fflush(f)!=0)ok=0; if(fclose(f)!=0)ok=0;
++  if(ok && rename(temp,export_path)!=0)ok=0;
++  if(!ok)remove(temp);return ok;
++}
++
++static enum MHD_Result ingest(struct MHD_Connection *c,request_t *req){
++  json_tokener *tok=json_tokener_new();
++  json_object *o=json_tokener_parse_ex(tok,req->body,(int)req->used);
++  int parsed=json_tokener_get_error(tok)==json_tokener_success;
++  json_tokener_free(tok);
++  json_object *eid=NULL,*jid=NULL,*report=NULL;
++  urr_record_t record;
++  if(!parsed || !o || !json_object_object_get_ex(o,"event_id",&eid) || !json_object_is_type(eid,json_type_string) ||
++     !json_object_object_get_ex(o,"job_id",&jid) || !json_object_is_type(jid,json_type_string) ||
++     !json_object_object_get_ex(o,"report",&report) || !valid_report(report,&record)){
++    pthread_mutex_lock(&lock);error_count++;pthread_mutex_unlock(&lock);
++    if(o)json_object_put(o);return reply(c,400,"{\"error\":\"invalid URR envelope\"}");
++  }
++  const char *id=json_object_get_string(eid),*job=json_object_get_string(jid);
++  if(!*id || !*job || strlen(id)>255 || strlen(job)>128 || strncmp(id,job,strlen(job))!=0 || id[strlen(job)]!=':'){
++    pthread_mutex_lock(&lock);error_count++;pthread_mutex_unlock(&lock);
++    json_object_put(o);return reply(c,400,"{\"error\":\"invalid event ID\"}");
++  }
++  const char *raw=json_object_to_json_string_ext(report,JSON_C_TO_STRING_PLAIN);
++  char expected[128];snprintf(expected,sizeof(expected),"%llu:%llu",(unsigned long long)record.seid,(unsigned long long)record.ur_seqn);
++  if(strcmp(id+strlen(job)+1,expected)!=0){pthread_mutex_lock(&lock);error_count++;pthread_mutex_unlock(&lock);json_object_put(o);return reply(c,400,"{\"error\":\"event ID mismatch\"}");}
++  pthread_mutex_lock(&lock);
++  sqlite3_stmt *q=NULL;int status=500;
++  if(sqlite3_prepare_v2(db,"SELECT report FROM urr WHERE event_id=?",-1,&q,NULL)==SQLITE_OK){
++    sqlite3_bind_text(q,1,id,-1,SQLITE_TRANSIENT);
++    if(sqlite3_step(q)==SQLITE_ROW){
++      json_object *old=json_tokener_parse((const char*)sqlite3_column_text(q,0));
++      status=old && json_object_equal(old,report)?200:409;
++      if(status==200)duplicate_count++;else error_count++;
++      if(old)json_object_put(old);
++    }else status=201;
++  }
++  sqlite3_finalize(q);
++  if(status==201){
++    const char *run=getenv("RUN_ID");if(!run)run="bootstrap";
++    char when[40];time_t now=time(NULL);struct tm t;gmtime_r(&now,&t);strftime(when,sizeof(when),"%Y-%m-%dT%H:%M:%SZ",&t);
++    if(sqlite3_prepare_v2(db,"INSERT INTO urr(event_id,job_id,report,received_at,run_id) VALUES(?,?,?,?,?)",-1,&q,NULL)==SQLITE_OK){
++      sqlite3_bind_text(q,1,id,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q,2,job,-1,SQLITE_TRANSIENT);
++      sqlite3_bind_text(q,3,raw,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q,4,when,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q,5,run,-1,SQLITE_TRANSIENT);
++      if(sqlite3_step(q)!=SQLITE_DONE)status=500;
++    }else status=500;
++    sqlite3_finalize(q);
++    if(status==201){last_report=record;has_last_report=1;(void)export_jsonl();}
++    else error_count++;
++  }
++  pthread_mutex_unlock(&lock);json_object_put(o);
++  if(status==201)return reply(c,201,"{\"status\":\"stored\"}");
++  if(status==200)return reply(c,200,"{\"status\":\"duplicate\"}");
++  if(status==409)return reply(c,409,"{\"error\":\"conflicting payload\"}");
++  return reply(c,500,"{\"error\":\"storage failure\"}");
++}
++
++static enum MHD_Result handle(void *cls,struct MHD_Connection *c,const char *url,const char *method,const char *version,
++                              const char *upload,size_t *size,void **context){
++  (void)cls;(void)version;
++  if(strcmp(method,"GET")==0){
++    if(strcmp(url,"/healthz")==0 || strcmp(url,"/readyz")==0)return reply(c,200,"{\"status\":\"ok\"}");
++    if(strcmp(url,"/v1/urr/status")==0){
++      pthread_mutex_lock(&lock);sqlite3_stmt *q=NULL;int count=0;
++      if(sqlite3_prepare_v2(db,"SELECT COUNT(*) FROM urr",-1,&q,NULL)==SQLITE_OK && sqlite3_step(q)==SQLITE_ROW)count=sqlite3_column_int(q,0);
++      sqlite3_finalize(q);
++      char latest[256]="";
++      if(sqlite3_prepare_v2(db,"SELECT event_id FROM urr ORDER BY rowid DESC LIMIT 1",-1,&q,NULL)==SQLITE_OK && sqlite3_step(q)==SQLITE_ROW){
++        const char *p=(const char*)sqlite3_column_text(q,0);if(p)snprintf(latest,sizeof(latest),"%s",p);
++      }
++      sqlite3_finalize(q);
++      unsigned long long duplicates=duplicate_count,errors=error_count;
++      pthread_mutex_unlock(&lock);
++      json_object *status=json_object_new_object();
++      json_object_object_add(status,"received",json_object_new_int(count));
++      json_object_object_add(status,"duplicates",json_object_new_uint64(duplicates));
++      json_object_object_add(status,"errors",json_object_new_uint64(errors));
++      json_object_object_add(status,"last_event_id",json_object_new_string(latest));
++      enum MHD_Result rc=reply(c,200,json_object_to_json_string(status));json_object_put(status);return rc;
++    }
++    return reply(c,404,"{}");
++  }
++  if(strcmp(url,"/v1/urr/events")!=0 || strcmp(method,"POST")!=0)return reply(c,404,"{}");
++  if(*context==NULL){request_t *r=calloc(1,sizeof(*r));if(!r)return MHD_NO;r->body=calloc(MAX_BODY+1,1);if(!r->body){free(r);return MHD_NO;}*context=r;return MHD_YES;}
++  request_t *r=*context;
++  if(*size){if(r->used+*size>MAX_BODY)return reply(c,413,"{\"error\":\"body too large\"}");memcpy(r->body+r->used,upload,*size);r->used+=*size;*size=0;return MHD_YES;}
++  return ingest(c,r);
++}
++
++static void completed(void *cls,struct MHD_Connection *c,void **context,enum MHD_RequestTerminationCode reason){
++  (void)cls;(void)c;(void)reason;request_t *r=*context;if(r){free(r->body);free(r);}*context=NULL;
++}
++
++int urr_receiver_start(void){
++  const char *path=getenv("URR_DB_PATH");if(!path)path="/artifacts/urr-state/urr.db";
++  const char *out=getenv("URR_EXPORT_PATH");if(!out)out="/artifacts/urr-received.jsonl";
++  if(snprintf(export_path,sizeof(export_path),"%s",out)>=(int)sizeof(export_path))return -1;
++  if(sqlite3_open(path,&db)!=SQLITE_OK)return -1;
++  if(sqlite3_exec(db,"PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS urr(event_id TEXT PRIMARY KEY,job_id TEXT NOT NULL,report TEXT NOT NULL,received_at TEXT NOT NULL,run_id TEXT NOT NULL);",NULL,NULL,NULL)!=SQLITE_OK)return -1;
++  sqlite3_stmt *last=NULL;
++  if(sqlite3_prepare_v2(db,"SELECT report FROM urr ORDER BY rowid DESC LIMIT 1",-1,&last,NULL)==SQLITE_OK && sqlite3_step(last)==SQLITE_ROW){
++    json_object *r=json_tokener_parse((const char*)sqlite3_column_text(last,0));
++    if(r){has_last_report=valid_report(r,&last_report);json_object_put(r);}
++  }
++  sqlite3_finalize(last);
++  (void)export_jsonl();
++  cert=read_file(getenv("URR_TLS_CERT")?getenv("URR_TLS_CERT"):"/tls/tls.crt");
++  key=read_file(getenv("URR_TLS_KEY")?getenv("URR_TLS_KEY"):"/tls/tls.key");
++  if(!cert || !key || !valid_tls_identity(cert,key))return -1;
++  urr_daemon=MHD_start_daemon(MHD_USE_INTERNAL_POLLING_THREAD|MHD_USE_TLS,8443,NULL,NULL,&handle,NULL,
++                          MHD_OPTION_HTTPS_MEM_KEY,key,MHD_OPTION_HTTPS_MEM_CERT,cert,
++                          MHD_OPTION_NOTIFY_COMPLETED,&completed,NULL,MHD_OPTION_END);
++  return urr_daemon?0:-1;
++}
++
++void urr_receiver_stop(void){
++  if(urr_daemon){MHD_stop_daemon(urr_daemon);urr_daemon=NULL;}
++  if(db){sqlite3_close(db);db=NULL;}
++  free(cert);free(key);cert=key=NULL;
++}
++
++int urr_receiver_latest(urr_record_t *out){
++  if(!out)return 0;
++  pthread_mutex_lock(&lock);int found=has_last_report;if(found)*out=last_report;pthread_mutex_unlock(&lock);
++  return found;
++}
+--- /dev/null
++++ b/examples/xApp/c/monitor/urr_receiver.h
+@@ -0,0 +1,14 @@
++#ifndef OAI_LAB_URR_RECEIVER_H
++#define OAI_LAB_URR_RECEIVER_H
++#include <stdint.h>
++#include <stdbool.h>
++typedef struct {
++  uint64_t seid,ur_seqn,urr_id;
++  bool has_urr_id;
++  uint64_t ul_bytes,dl_bytes,total_bytes,ul_packets,dl_packets,total_packets,duration_seconds;
++  char supi[96],dnn[96],observed_at[64],schema_version[24],run_id[96],enrichment_source[48];
++} urr_record_t;
++int urr_receiver_start(void);
++void urr_receiver_stop(void);
++int urr_receiver_latest(urr_record_t *out);
++#endif

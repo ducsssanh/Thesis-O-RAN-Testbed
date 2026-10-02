@@ -1,0 +1,5 @@
+[2026-10-01 16:13:50.318] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x1               │
+[2026-10-01 16:13:50.318] [upf_app] [debug] [N4] Delete Session: seid 0x1 - Deleting eBPF data-path pipeline
+[2026-10-01 16:13:50.319] [upf_app] [info] [N4] Delete Session: seid 0x1 - eBPF data-path pipeline deleted successfully
+[2026-10-01 16:13:50.319] [upf_app] [info] [N4] Delete Session: seid 0x1 - Session removed from registry
+[2026-10-01 16:13:50.319] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x2              │

@@ -1,0 +1,5 @@
+==> Linting /home/ducsssanh/6G/O-RAN/DATN/Codebase/deploy/k8s/chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+Preflight passed. Actual BPF attachment remains a runtime gate.

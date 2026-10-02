@@ -1,0 +1,2 @@
+patching file pfcp/3gpp_29.244.hpp
+PASS: 20 captured IE43 payloads identical; original rejects length=8; patched decoder preserves FTUP, consumes extensions, preserves next IE, rejects short/truncated payloads. Runtime SMF NOT TESTED.

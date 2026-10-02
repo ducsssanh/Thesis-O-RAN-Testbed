@@ -1,0 +1,5 @@
+[2026-09-29 11:36:33.888] [smf_app] [debug] UPF 172.30.24.20 already exists on pending associations.
+[2026-09-29 11:36:51.177] [smf_n4 ] [warning] PFCP HEARTBEAT PROCEDURE FAILED after 2 retries, remove the association with this UPF
+[2026-09-29 11:36:51.177] [smf_app] [debug] UPF graph is empty
+[2026-09-29 11:37:05.394] [smf_app] [warning] UPF selection failed
+[2026-09-29 11:37:05.394] [smf_app] [info] PDU Session Establishment Request: Create SM Context Request procedure failed

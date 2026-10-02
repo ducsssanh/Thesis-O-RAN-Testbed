@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "scope": "milestone 1, not end-to-end acceptance",
+  "images": {
+    "sourceHash": "ab3bf500e5cb08be",
+    "images": {
+      "tools": {
+        "image": "oai-lab-tools:f4aafed83d8c25ea",
+        "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+        "repoDigests": []
+      },
+      "upf": {
+        "image": "oai-lab-upf:b715742212936699",
+        "id": "sha256:5e75f06b1e508cba0a328f4cac68887837102ef737709bf018f6087a87c0ccdb",
+        "repoDigests": []
+      },
+      "radio": {
+        "image": "oai-lab-radio:ab3bf500e5cb08be",
+        "id": "sha256:9b83b7584e9c63e0e8bb0369ea77e6645d8afb2209f04a5cc026f811cb009b26",
+        "repoDigests": []
+      },
+      "smf": {
+        "image": "oai-lab-smf:v2.2.0-ie43-771248b5",
+        "id": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9",
+        "repoDigests": [],
+        "sourceCommit": "d18906656ca85b823cc68877e3c545353150c018",
+        "commonSourceCommit": "b5042f5f52cbb0dd61e9a1421b34a9fc030c685f",
+        "patchSha256": "771248b5f3fda25ed5867a8e3ffaee28b01819e0e36efe4fa647c0c90b045085"
+      }
+    }
+  }
+}

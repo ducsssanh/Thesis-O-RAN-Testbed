@@ -1,0 +1,14 @@
+{{- $allowed := list "gnb" "nr-ue" }}
+{{- range $name, $net := .Values.global.lab.networks }}
+{{- range $nf, $ip := $net.addresses }}
+{{- if has $nf $allowed }}
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-{{ $nf }}-{{ $name }}
+spec:
+  config: {{ toJson (dict "cniVersion" "0.3.1" "type" "bridge" "bridge" $net.bridge "isGateway" false "ipMasq" false "hairpinMode" true "ipam" (dict "type" "static" "addresses" (list (dict "address" (printf "%s/%s" $ip (last (splitList "/" $net.subnet))))))) | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

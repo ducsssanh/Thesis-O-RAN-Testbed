@@ -1,0 +1,11 @@
+--- a/deploy/k8s/vendor/multus.yaml
++++ b/deploy/k8s/vendor/multus.yaml
+@@ -205,7 +205,7 @@
+           command:
+             - "sh"
+             - "-c"
+-            - "cp /usr/src/multus-cni/bin/multus-shim /host/opt/cni/bin/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/opt/cni/bin/passthru"
++            - "cp /usr/src/multus-cni/bin/multus-shim /host/opt/cni/bin/.multus-shim.tmp && mv -f /host/opt/cni/bin/.multus-shim.tmp /host/opt/cni/bin/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/opt/cni/bin/.passthru.tmp && mv -f /host/opt/cni/bin/.passthru.tmp /host/opt/cni/bin/passthru"
+           resources:
+             requests:
+               cpu: "10m"

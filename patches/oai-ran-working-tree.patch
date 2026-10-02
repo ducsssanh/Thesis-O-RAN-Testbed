@@ -1,0 +1,201 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ff5d4254ae..d02d124cdf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -371,11 +371,11 @@ set(E2_AGENT "OFF" CACHE STRING "O-RAN-compliant E2 Agent")
+ set_property(CACHE E2_AGENT PROPERTY STRINGS "ON" "OFF")
+ 
+ if (E2_AGENT)
+-  set(E2AP_VERSION "E2AP_V2" CACHE STRING "E2AP version")
++  set(E2AP_VERSION "E2AP_V3" CACHE STRING "E2AP version")
+   set_property(CACHE E2AP_VERSION PROPERTY STRINGS "E2AP_V1" "E2AP_V2" "E2AP_V3")
+   message(STATUS "Selected E2AP version: ${E2AP_VERSION}")
+ 
+-  set(KPM_VERSION "KPM_V2_03" CACHE STRING "The KPM SM version to use")
++  set(KPM_VERSION "KPM_V3_00" CACHE STRING "The KPM SM version to use")
+   set_property(CACHE KPM_VERSION PROPERTY STRINGS "KPM_V2_03" "KPM_V3_00")
+   message(STATUS "Selected KPM version: ${KPM_VERSION}")
+ endif()
+diff --git a/cmake_targets/tools/build_helper b/cmake_targets/tools/build_helper
+index 05eeeba6ca..a9e9e9bec7 100755
+--- a/cmake_targets/tools/build_helper
++++ b/cmake_targets/tools/build_helper
+@@ -17,6 +17,7 @@ case "$OS_DISTRO" in
+   centos) OS_BASEDISTRO="fedora"; INSTALLER="dnf"; CMAKE="cmake3" ;; # CentOS Stream
+   debian) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
+   ubuntu) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
++  linuxmint) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
+ esac
+ KERNEL_VERSION=$(uname -r | cut -d '.' -f1)
+ KERNEL_MAJOR=$(uname -r | cut -d '.' -f2)
+@@ -73,6 +74,21 @@ echo_info()    { cecho "$*" $blue         ;}
+ # Examples:
+ #   debian8.5
+ get_distribution_release() {
++    if [[ $OS_DISTRO == "linuxmint" ]]; then
++        if [[ $OS_RELEASE == 23* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="26.04"
++        elif [[ $OS_RELEASE == 22* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="24.04"
++        elif [[ $OS_RELEASE == 21* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="22.04"
++        elif [[ $OS_RELEASE == 20* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="20.04"
++        fi
++    fi
+     if [[ ! -z "$OS_DISTRO$OS_RELEASE" ]]; then
+         echo "$OS_DISTRO$OS_RELEASE"
+     else
+@@ -86,6 +102,7 @@ check_supported_distribution() {
+         "ubuntu26.04") return 0 ;;
+         "ubuntu24.04") return 0 ;;
+         "ubuntu22.04") return 0 ;;
++        "ubuntu20.04") return 0 ;;
+         "debian11")    return 0 ;;
+         "debian12")    return 0 ;;
+         "fedora43")    return 0 ;;
+diff --git a/executables/nr-softmodem.c b/executables/nr-softmodem.c
+index c1bd360001..bf28714201 100644
+--- a/executables/nr-softmodem.c
++++ b/executables/nr-softmodem.c
+@@ -474,8 +474,8 @@ static void initialize_agent(ngran_node_t node_type, e2_agent_args_t oai_args)
+   } else if (node_type == ngran_gNB_DU) {
+     const gNB_MAC_INST* mac = RC.nrmac[0];
+     AssertFatal(mac, "MAC not initialized\n");
+-    cu_du_id = mac->f1_config.gnb_id;
+-    nb_id = mac->f1_config.setup_req->gNB_DU_id;
++    nb_id = mac->f1_config.gnb_id;
++    cu_du_id = mac->f1_config.setup_req->gNB_DU_id;
+   } else if (node_type == ngran_gNB_CU || node_type == ngran_gNB_CUCP) {
+     // agent buggy: the CU has no second ID, it is the CU-UP ID
+     // however, that is not a problem her for us, so put the same ID twice
+diff --git a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c
+index 4d60c3a357..527c2c9f15 100644
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c
+@@ -53,10 +53,11 @@ static meas_record_lst_t fill_DRB_PdcpSduVolumeDL(__attribute__((unused)) const
+   const int rb_id = 1;  // at the moment, only 1 DRB is supported
+   nr_pdcp_statistics_t pdcp = get_pdcp_stats_per_drb(ue_info.rrc_ue_id, rb_id);
+ 
+-  meas_record.value = INTEGER_MEAS_VALUE;
++  meas_record.value = REAL_MEAS_VALUE;
+ 
+-  // Get DL data volume delivered to PDCP layer
+-  meas_record.int_val = (pdcp.rxsdu_bytes - last_pdcp_sdu_total_bytes[ue_idx].dl)*8/1000000;   // [Mb]
++  // Keep the standard Mb unit on E2 while preserving sub-megabit samples.
++  const uint32_t delta_bytes = pdcp.rxsdu_bytes - last_pdcp_sdu_total_bytes[ue_idx].dl;
++  meas_record.real_val = (double)delta_bytes * 8.0 / 1000000.0;  // [Mb]
+   last_pdcp_sdu_total_bytes[ue_idx].dl = pdcp.rxsdu_bytes;
+ 
+   return meas_record;
+@@ -76,10 +77,11 @@ static meas_record_lst_t fill_DRB_PdcpSduVolumeUL(__attribute__((unused)) const
+   const int rb_id = 1;  // at the moment, only 1 DRB is supported
+   nr_pdcp_statistics_t pdcp = get_pdcp_stats_per_drb(ue_info.rrc_ue_id, rb_id);
+ 
+-  meas_record.value = INTEGER_MEAS_VALUE;
++  meas_record.value = REAL_MEAS_VALUE;
+ 
+-  // Get UL data volume delivered from PDCP layer
+-  meas_record.int_val = (pdcp.txsdu_bytes - last_pdcp_sdu_total_bytes[ue_idx].ul)*8/1000000;   // [Mb]
++  // Keep the standard Mb unit on E2 while preserving sub-megabit samples.
++  const uint32_t delta_bytes = pdcp.txsdu_bytes - last_pdcp_sdu_total_bytes[ue_idx].ul;
++  meas_record.real_val = (double)delta_bytes * 8.0 / 1000000.0;  // [Mb]
+   last_pdcp_sdu_total_bytes[ue_idx].ul = pdcp.txsdu_bytes;
+ 
+   return meas_record;
+diff --git a/openair2/E2AP/flexric b/openair2/E2AP/flexric
+--- a/openair2/E2AP/flexric
++++ b/openair2/E2AP/flexric
+@@ -1 +1 @@
+-Subproject commit ef6d722f22191eea74089966983da1f5ec1fedd4
++Subproject commit ef6d722f22191eea74089966983da1f5ec1fedd4-dirty
+diff --git a/openair3/NAS/NR_UE/nr_nas_msg.c b/openair3/NAS/NR_UE/nr_nas_msg.c
+index aeecaae57f..2bee0940d6 100644
+--- a/openair3/NAS/NR_UE/nr_nas_msg.c
++++ b/openair3/NAS/NR_UE/nr_nas_msg.c
+@@ -60,8 +60,9 @@
+ #include "x963_kdf.h"
+ #include "sha_256_hmac.h"
+ static const char hex[] = "0123456789abcdef";
+-#elif OPENSSL_VERSION_NUMBER >= 0x10100000L
+-#define MY_OPENSSL_VERSION_STR OpenSSL_version(OPENSSL_VERSION)
++#endif
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L
++#define MY_OPENSSL_VERSION_STR OPENSSL_VERSION_TEXT
+ #else
+ #define MY_OPENSSL_VERSION_STR SSLeay_version(SSLEAY_VERSION)
+ #endif
+@@ -400,6 +401,7 @@ static security_state_t nas_security_rx_process(nr_ue_nas_t *nas, byte_array_t b
+   return NAS_SECURITY_INTEGRITY_PASSED;
+ }
+ 
++#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+ static void suci_profile_scheme_a_generate_output(const uint8_t home_network_public_key[32],
+                                                   const char *msin,
+                                                   const size_t msin_len,
+@@ -476,6 +478,7 @@ static void suci_profile_scheme_a_generate_output(const uint8_t home_network_pub
+     *schemeoutput++ = hex[mac_full[i] & 0x0F];
+   }
+ }
++#endif /* OPENSSL_VERSION_NUMBER >= 0x30000000L */
+ 
+ static int fill_suci(FGSMobileIdentity *mi, const uicc_t *uicc)
+ {
+diff --git a/openair3/UICC/pdu_session.c b/openair3/UICC/pdu_session.c
+index 7cc22ae054..effc0ca9d6 100644
+--- a/openair3/UICC/pdu_session.c
++++ b/openair3/UICC/pdu_session.c
+@@ -34,7 +34,7 @@
+               3 /*PDU_SESSION_TYPE_IPV4V6*/,         \
+               5 /*PDU_SESSION_TYPE_ETHER*/},         \
+              4}},                                    \
+-    {.s2 = {config_check_intrange, {1, 4}}},         \
++    {.s2 = {config_check_intrange, {0, 255}}},       \
+     {.s2 = {config_check_intrange, {1, 0xffffff}}},  \
+     {.s4 = {config_check_dnn}},                      \
+ }
+diff --git a/radio/zmq/ring_buffer.cpp b/radio/zmq/ring_buffer.cpp
+index c4fdd94b29..c4eab607cf 100644
+--- a/radio/zmq/ring_buffer.cpp
++++ b/radio/zmq/ring_buffer.cpp
+@@ -9,7 +9,7 @@
+ 
+ ring_buffer::ring_buffer(size_t max_size) : max_size_(max_size)
+ {
+-  buffer_ = std::make_unique<cf_t[]>(max_size);
++  buffer_ = std::unique_ptr<cf_t[]>(new cf_t[max_size]());
+ }
+ 
+ size_t ring_buffer::push_samples(const cf_t *samples, const size_t nsamps)
+diff --git a/radio/zmq/zmq_imported.cpp b/radio/zmq/zmq_imported.cpp
+index 19bf542098..3907ab8900 100644
+--- a/radio/zmq/zmq_imported.cpp
++++ b/radio/zmq/zmq_imported.cpp
+@@ -13,7 +13,7 @@ static constexpr std::chrono::milliseconds RECEIVE_TS_ALIGN_TIMEOUT = std::chron
+ 
+ void zmq_tx_channel::transmit(c16_t *samples, size_t nsamps, uint64_t timestamp)
+ {
+-  std::scoped_lock lock(transmit_alignment_mutex_);
++  std::lock_guard<std::mutex> lock(transmit_alignment_mutex_);
+   size_t overflow = 0;
+   if (timestamp > sample_count_) {
+     overflow += buffer_.push_zeros(timestamp - sample_count_);
+diff --git a/radio/zmq/zmq_imported.h b/radio/zmq/zmq_imported.h
+index 7262ea0605..5f8e3266d4 100644
+--- a/radio/zmq/zmq_imported.h
++++ b/radio/zmq/zmq_imported.h
+@@ -18,8 +18,8 @@ class zmq_tx_channel {
+  public:
+   void *socket_;
+   overflow_buffer buffer_;
+-  std::atomic<uint64_t> sample_count_ = 0;
+-  std::atomic<bool> is_tx_enabled_ = false;
++  std::atomic<uint64_t> sample_count_{0};
++  std::atomic<bool> is_tx_enabled_{false};
+   std::mutex transmit_alignment_mutex_;
+   std::condition_variable transmit_alignment_cvar_;
+ 

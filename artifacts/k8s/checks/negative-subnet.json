@@ -1,0 +1,6 @@
+{
+  "test": "CLI rejects overlapping networks before deployment",
+  "status": "PASS",
+  "exitCode": 1,
+  "log": "FAIL: Overlapping lab subnets\n"
+}

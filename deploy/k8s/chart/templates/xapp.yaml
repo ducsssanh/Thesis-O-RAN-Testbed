@@ -1,0 +1,30 @@
+{{- if .Values.xappEnabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: oai-lab-xapp}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {oai-lab/component: xapp}
+  template:
+    metadata:
+      labels: {oai-lab/component: xapp}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" .Values.global.lab "nf" "xapp") | quote }}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: xapp
+          image: {{ .Values.global.lab.workloads.flexric.image | quote }}
+          command: [/opt/lab/radio-entrypoint.sh, xapp]
+          env:
+            - {name: RIC_IP, value: {{ .Values.global.lab.networks.e2.addresses.flexric | quote }}}
+            - {name: SST, value: {{ .Values.global.lab.slice.sst | quote }}}
+            - {name: SD, value: {{ printf "0x%s" .Values.global.lab.slice.sd | quote }}}
+            - {name: KPM_PERIOD, value: {{ .Values.global.lab.experiment.periodMs | quote }}}
+          volumeMounts: [{name: artifacts, mountPath: /artifacts}]
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim: {claimName: oai-lab-artifacts}
+{{- end }}

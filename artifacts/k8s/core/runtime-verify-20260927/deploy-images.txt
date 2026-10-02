@@ -1,0 +1,9 @@
+NAME         READY   IMAGE
+oai-amf      1       oaisoftwarealliance/oai-amf:v2.2.0
+oai-ausf     1       oaisoftwarealliance/oai-ausf:v2.2.0
+oai-lab-dn   1       oai-lab-tools:b715742212936699
+oai-nrf      1       oaisoftwarealliance/oai-nrf:v2.2.0
+oai-smf      1       oai-lab-smf:v2.2.0-ie43-771248b5,oai-lab-tools:b715742212936699
+oai-udm      1       oaisoftwarealliance/oai-udm:v2.2.0
+oai-udr      1       oaisoftwarealliance/oai-udr:v2.2.0
+oai-upf      1       oai-lab-upf:b715742212936699

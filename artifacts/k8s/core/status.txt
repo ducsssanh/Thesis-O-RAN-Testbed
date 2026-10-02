@@ -1,0 +1,39 @@
+NAME                                  READY   STATUS      RESTARTS        AGE     IP            NODE      NOMINATED NODE   READINESS GATES
+pod/oai-amf-7869dcb9b8-xt5f4          1/1     Running     0               5m4s    10.244.0.28   oai-lab   <none>           <none>
+pod/oai-ausf-764d96f7dd-pb4m7         1/1     Running     0               5m10s   10.244.0.27   oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-client-h7mn5    0/1     Completed   0               18h     <none>        oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-radio-mmnqq     0/1     Completed   0               18h     <none>        oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-server-zrgqc    0/1     Completed   0               18h     <none>        oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-ue-tun-nbptl    0/1     Completed   0               18h     <none>        oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-upf-bpf-g6w86   0/1     Completed   0               18h     <none>        oai-lab   <none>           <none>
+pod/oai-lab-db-0                      1/1     Running     1 (9m19s ago)   18h     10.244.0.19   oai-lab   <none>           <none>
+pod/oai-lab-dn-6fd59798b7-q7pwr       1/1     Running     1 (9m19s ago)   18h     10.244.0.21   oai-lab   <none>           <none>
+pod/oai-lab-subscriber-bsj96          0/1     Completed   0               5m47s   10.244.0.23   oai-lab   <none>           <none>
+pod/oai-nrf-589874bccf-tmfsm          1/1     Running     0               5m28s   10.244.0.24   oai-lab   <none>           <none>
+pod/oai-smf-58f65699c6-6b4sr          2/2     Running     0               4m9s    10.244.0.30   oai-lab   <none>           <none>
+pod/oai-udm-65469948fc-7gn8k          1/1     Running     0               5m16s   10.244.0.26   oai-lab   <none>           <none>
+pod/oai-udr-7ff48fdd6b-l7p6v          1/1     Running     0               5m22s   10.244.0.25   oai-lab   <none>           <none>
+pod/oai-upf-5578f78b49-fqhrs          1/1     Running     0               44s     10.244.0.32   oai-lab   <none>           <none>
+
+NAME                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                    AGE     SELECTOR
+service/oai-amf         ClusterIP   10.96.14.143     <none>        80/TCP,38412/SCTP          5m4s    app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-amf
+service/oai-ausf        ClusterIP   10.96.249.213    <none>        80/TCP                     5m10s   app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-ausf
+service/oai-gnb-rfsim   ClusterIP   10.99.23.202     <none>        4043/TCP                   18h     oai-lab/component=gnb
+service/oai-lab-db      ClusterIP   10.110.33.211    <none>        3306/TCP                   18h     oai-lab/component=db
+service/oai-nrf         ClusterIP   10.105.229.227   <none>        80/TCP                     5m28s   app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-nrf
+service/oai-smf         ClusterIP   10.111.94.8      <none>        8805/UDP,80/TCP            4m58s   app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-smf
+service/oai-udm         ClusterIP   10.104.15.170    <none>        80/TCP                     5m16s   app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-udm
+service/oai-udr         ClusterIP   10.110.181.236   <none>        80/TCP                     5m22s   app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-udr
+service/oai-upf         ClusterIP   10.105.16.193    <none>        8805/UDP,2152/UDP,80/TCP   4m4s    app.kubernetes.io/instance=oai-lab,app.kubernetes.io/name=oai-upf
+
+NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/oai-lab-artifacts   Bound    pvc-141274dc-9c5e-4e62-981f-20eb6cbbc9c8   2Gi        RWO            standard       <unset>                 18h   Filesystem
+persistentvolumeclaim/oai-lab-db          Bound    pvc-ebe23898-2419-4f10-95b5-af257e8e7a61   2Gi        RWO            standard       <unset>                 18h   Filesystem
+
+NAME                                  STATUS     COMPLETIONS   DURATION   AGE     CONTAINERS      IMAGES                           SELECTOR
+job.batch/oai-lab-bootstrap-client    Complete   1/1           13s        18h     probe           oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=517c88ae-fb1b-4783-88e8-b5c052d7e5b8
+job.batch/oai-lab-bootstrap-radio     Complete   1/1           7s         18h     radio-probe     oai-lab-radio:b715742212936699   batch.kubernetes.io/controller-uid=6709adf4-2a9c-4f8c-8af4-b2140a54ae19
+job.batch/oai-lab-bootstrap-server    Complete   1/1           14s        18h     probe           oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=4eb2d5bf-00e5-431d-bb27-bda8dbfd5e2d
+job.batch/oai-lab-bootstrap-ue-tun    Complete   1/1           8s         18h     ue-tun-probe    oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=47a4e72c-b00f-4a8b-aaa5-9389271be1db
+job.batch/oai-lab-bootstrap-upf-bpf   Complete   1/1           6s         18h     upf-bpf-probe   oai-lab-upf:b715742212936699     batch.kubernetes.io/controller-uid=b5adde80-2c32-4811-a1e2-2b95745e49b5
+job.batch/oai-lab-subscriber          Complete   1/1           4s         5m47s   seed            oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=92884cb3-1c51-40e3-a8a5-fb3a5de6a6ca

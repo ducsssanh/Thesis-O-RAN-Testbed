@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oai-lab-config
+data:
+  lab.json: {{ toJson .Values.global.lab | quote }}
+  config.yaml: |
+    {{- tpl (.Files.Get "files/config.yaml.tpl") . | nindent 4 }}
+  gnb.conf: |
+    {{- tpl (.Files.Get "files/gnb.conf.tpl") . | nindent 4 }}
+  ue.conf: |
+    {{- tpl (.Files.Get "files/ue.conf.tpl") . | nindent 4 }}
+  channelmod_rfsimu.conf: |
+    {{- .Files.Get "files/channelmod_rfsimu.conf" | nindent 4 }}
+  schema.sql: |
+    {{- .Files.Get "files/schema.sql" | nindent 4 }}
+{{- if eq .Chart.Name "oai-ran" }}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: oai-gnb-rfsim}
+spec:
+  selector: {oai-lab/component: gnb}
+  ports: [{name: rfsim, port: 4043, targetPort: 4043, protocol: TCP}]
+
+{{- end }}

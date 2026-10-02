@@ -1,0 +1,3 @@
+image=docker.io/library/oai-lab-smf:v2.2.0-ie43-771248b5
+imageID=sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9
+restarts=0

@@ -1,0 +1,11 @@
+global:
+  lab: {}
+replicas: 0
+ics:
+  replicas: 0
+  image: nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-plt-informationcoordinatorservice@sha256:531eb929b9ee7b28fda5ffd17ed72f0c0d9c6466823c1223040fdae9c40795b6
+  size: 2Gi
+producer:
+  replicas: 0
+  image: oai-lab-urr-ei-producer:unbuilt
+  size: 1Gi

@@ -1,0 +1,12 @@
+==> Linting /home/ducsssanh/6G/O-RAN/DATN/Codebase/deploy/k8s/chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+Preflight passed; runtime BPF attachment will be checked during up.
+* [oai-lab] minikube v1.38.1 on Ubuntu 24.04
+  - KUBECONFIG=/home/ducsssanh/.kube/config
+* Kubernetes 1.35.1 is now available. If you would like to upgrade, specify: --kubernetes-version=v1.35.1
+* Using the docker driver based on existing profile
+* Starting "oai-lab" primary control-plane node in "oai-lab" cluster
+* Pulling base image v0.0.50 ...
+! StartHost failed, but will try again: provision: get ssh host-port: unable to inspect a not running container to get SSH port

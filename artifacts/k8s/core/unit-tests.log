@@ -1,0 +1,20 @@
+test_artifact_paths_separate_state_and_evidence (test_lab.Tests.test_artifact_paths_separate_state_and_evidence) ... ok
+test_bpf_permission_failure_is_fatal (test_lab.Tests.test_bpf_permission_failure_is_fatal) ... ok
+test_helm_reads_overlay_from_state_directory (test_lab.Tests.test_helm_reads_overlay_from_state_directory) ... ok
+test_host_overlap (test_lab.Tests.test_host_overlap) ... ok
+test_invalid_mode (test_lab.Tests.test_invalid_mode) ... ok
+test_missing_image_does_not_bootstrap (test_lab.Tests.test_missing_image_does_not_bootstrap) ... ok
+test_native_is_not_skb (test_lab.Tests.test_native_is_not_skb) ... ok
+test_overlapping_network (test_lab.Tests.test_overlapping_network) ... ok
+test_render_security_and_interfaces (test_lab.Tests.test_render_security_and_interfaces) ... ok
+test_report_missing_or_rejected (test_lab.Tests.test_report_missing_or_rejected) ... ok
+test_response_transaction_matching (test_lab.Tests.test_response_transaction_matching) ... ok
+test_smf_not_ready_stops (test_lab.Tests.test_smf_not_ready_stops) ... ok
+test_topology (test_lab.Tests.test_topology) ... ok
+test_wrong_context (test_lab.Tests.test_wrong_context) ... ok
+test_xapp_no_samples (test_lab.Tests.test_xapp_no_samples) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.274s
+
+OK

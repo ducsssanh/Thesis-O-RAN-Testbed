@@ -1,0 +1,445 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata": {
+        "annotations": {
+            "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.59\"\n    ],\n    \"mac\": \"4e:4d:f6:7d:eb:5b\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n},{\n    \"name\": \"oai-lab/oai-smf-n4\",\n    \"interface\": \"n4\",\n    \"ips\": [\n        \"172.30.24.10\"\n    ],\n    \"mac\": \"e2:2c:86:0e:e2:ab\",\n    \"dns\": {}\n}]",
+            "k8s.v1.cni.cncf.io/networks": "[{\"interface\":\"n4\",\"name\":\"oai-smf-n4\"}]",
+            "oai-lab/config-checksum": "a87ae88ccfe8c88da5892083a01970af66369d20994803bcf66c9b4a5cd79536"
+        },
+        "creationTimestamp": "2026-09-27T13:25:17Z",
+        "generateName": "oai-smf-665cb7cfbc-",
+        "generation": 1,
+        "labels": {
+            "app.kubernetes.io/instance": "oai-lab",
+            "app.kubernetes.io/name": "oai-smf",
+            "oai-lab/component": "smf",
+            "pod-template-hash": "665cb7cfbc"
+        },
+        "name": "oai-smf-665cb7cfbc-sdv46",
+        "namespace": "oai-lab",
+        "ownerReferences": [
+            {
+                "apiVersion": "apps/v1",
+                "blockOwnerDeletion": true,
+                "controller": true,
+                "kind": "ReplicaSet",
+                "name": "oai-smf-665cb7cfbc",
+                "uid": "3b1c3c81-0cbf-471f-bc02-c40a69178ff1"
+            }
+        ],
+        "resourceVersion": "11936",
+        "uid": "10813fd2-355b-4656-9352-fb1814b2f326"
+    },
+    "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+            {
+                "command": [
+                    "/openair-smf/bin/oai_smf",
+                    "-c",
+                    "/config/config.yaml",
+                    "-o"
+                ],
+                "image": "oai-lab-smf:v2.2.0-ie43-771248b5",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "smf",
+                "readinessProbe": {
+                    "exec": {
+                        "command": [
+                            "sh",
+                            "-c",
+                            "awk '$2 ~ /:0050$/ \u0026\u0026 $4 == \"0A\" {ok=1} END {exit !ok}' /proc/net/tcp /proc/net/tcp6"
+                        ]
+                    },
+                    "failureThreshold": 3,
+                    "periodSeconds": 5,
+                    "successThreshold": 1,
+                    "timeoutSeconds": 1
+                },
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "256Mi"
+                    }
+                },
+                "securityContext": {
+                    "capabilities": {
+                        "add": [
+                            "NET_ADMIN",
+                            "NET_RAW"
+                        ],
+                        "drop": [
+                            "ALL"
+                        ]
+                    },
+                    "privileged": false
+                },
+                "startupProbe": {
+                    "exec": {
+                        "command": [
+                            "sh",
+                            "-c",
+                            "awk '$2 ~ /:0050$/ \u0026\u0026 $4 == \"0A\" {ok=1} END {exit !ok}' /proc/net/tcp /proc/net/tcp6"
+                        ]
+                    },
+                    "failureThreshold": 90,
+                    "periodSeconds": 2,
+                    "successThreshold": 1,
+                    "timeoutSeconds": 1
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/config",
+                        "name": "runtime",
+                        "readOnly": true
+                    }
+                ]
+            },
+            {
+                "command": [
+                    "python3",
+                    "/opt/lab/runtime.py",
+                    "capture"
+                ],
+                "image": "oai-lab-tools:b715742212936699",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "capture",
+                "resources": {
+                    "limits": {
+                        "cpu": "250m",
+                        "memory": "256Mi"
+                    },
+                    "requests": {
+                        "cpu": "25m",
+                        "memory": "64Mi"
+                    }
+                },
+                "securityContext": {
+                    "capabilities": {
+                        "add": [
+                            "NET_RAW",
+                            "NET_ADMIN",
+                            "CHOWN",
+                            "SETUID",
+                            "SETGID"
+                        ],
+                        "drop": [
+                            "ALL"
+                        ]
+                    }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/artifacts",
+                        "name": "artifacts"
+                    }
+                ]
+            }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "enableServiceLinks": true,
+        "initContainers": [
+            {
+                "command": [
+                    "python3",
+                    "/opt/lab/runtime.py",
+                    "prepare",
+                    "smf"
+                ],
+                "env": [
+                    {
+                        "name": "POD_IP",
+                        "valueFrom": {
+                            "fieldRef": {
+                                "apiVersion": "v1",
+                                "fieldPath": "status.podIP"
+                            }
+                        }
+                    },
+                    {
+                        "name": "DB_PASSWORD",
+                        "valueFrom": {
+                            "secretKeyRef": {
+                                "key": "DB_PASSWORD",
+                                "name": "oai-lab-credentials"
+                            }
+                        }
+                    }
+                ],
+                "image": "oai-lab-tools:b715742212936699",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "prepare",
+                "resources": {},
+                "securityContext": {
+                    "capabilities": {
+                        "add": [
+                            "NET_ADMIN"
+                        ],
+                        "drop": [
+                            "ALL"
+                        ]
+                    },
+                    "privileged": false
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                    {
+                        "mountPath": "/input",
+                        "name": "config",
+                        "readOnly": true
+                    },
+                    {
+                        "mountPath": "/config",
+                        "name": "runtime"
+                    }
+                ]
+            }
+        ],
+        "nodeName": "oai-lab",
+        "preemptionPolicy": "PreemptLowerPriority",
+        "priority": 0,
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "default",
+        "serviceAccountName": "default",
+        "terminationGracePeriodSeconds": 30,
+        "tolerations": [
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/not-ready",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            },
+            {
+                "effect": "NoExecute",
+                "key": "node.kubernetes.io/unreachable",
+                "operator": "Exists",
+                "tolerationSeconds": 300
+            }
+        ],
+        "volumes": [
+            {
+                "configMap": {
+                    "defaultMode": 420,
+                    "name": "oai-lab-config"
+                },
+                "name": "config"
+            },
+            {
+                "emptyDir": {
+                    "medium": "Memory"
+                },
+                "name": "runtime"
+            },
+            {
+                "name": "artifacts",
+                "persistentVolumeClaim": {
+                    "claimName": "oai-lab-artifacts"
+                }
+            }
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-09-27T13:25:21Z",
+                "status": "True",
+                "type": "PodReadyToStartContainers"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-09-27T13:25:22Z",
+                "status": "True",
+                "type": "Initialized"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-09-27T13:25:26Z",
+                "status": "True",
+                "type": "Ready"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-09-27T13:25:26Z",
+                "status": "True",
+                "type": "ContainersReady"
+            },
+            {
+                "lastProbeTime": null,
+                "lastTransitionTime": "2026-09-27T13:25:17Z",
+                "status": "True",
+                "type": "PodScheduled"
+            }
+        ],
+        "containerStatuses": [
+            {
+                "allocatedResources": {
+                    "cpu": "25m",
+                    "memory": "64Mi"
+                },
+                "containerID": "containerd://1f4257471b0ab035c4418479782e0496633784dfd8685dbd73d9a8dddaaa478a",
+                "image": "docker.io/library/oai-lab-tools:b715742212936699",
+                "imageID": "sha256:b95d7ff1cf74429101c13ad39a6bafd41b9b19a6d171a4a5503c8c15e4939b87",
+                "lastState": {
+                    "terminated": {
+                        "containerID": "containerd://56751deba0df59c247baf5d5a9cc4b39c17a2853ec5f694bac4f6c9777467592",
+                        "exitCode": 1,
+                        "finishedAt": "2026-09-27T13:25:24Z",
+                        "reason": "Error",
+                        "startedAt": "2026-09-27T13:25:22Z"
+                    }
+                },
+                "name": "capture",
+                "ready": true,
+                "resources": {
+                    "limits": {
+                        "cpu": "250m",
+                        "memory": "256Mi"
+                    },
+                    "requests": {
+                        "cpu": "25m",
+                        "memory": "64Mi"
+                    }
+                },
+                "restartCount": 1,
+                "started": true,
+                "state": {
+                    "running": {
+                        "startedAt": "2026-09-27T13:25:25Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0
+                        ],
+                        "uid": 0
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/artifacts",
+                        "name": "artifacts"
+                    }
+                ]
+            },
+            {
+                "allocatedResources": {
+                    "cpu": "100m",
+                    "memory": "256Mi"
+                },
+                "containerID": "containerd://03a76fcf82f8137cb822e13ef0138a1f892d85c596a14f8d5e6c1300bd476b43",
+                "image": "docker.io/library/oai-lab-smf:v2.2.0-ie43-771248b5",
+                "imageID": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9",
+                "lastState": {},
+                "name": "smf",
+                "ready": true,
+                "resources": {
+                    "limits": {
+                        "cpu": "2",
+                        "memory": "1Gi"
+                    },
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "256Mi"
+                    }
+                },
+                "restartCount": 0,
+                "started": true,
+                "state": {
+                    "running": {
+                        "startedAt": "2026-09-27T13:25:22Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0
+                        ],
+                        "uid": 0
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/config",
+                        "name": "runtime",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    }
+                ]
+            }
+        ],
+        "hostIP": "192.168.49.2",
+        "hostIPs": [
+            {
+                "ip": "192.168.49.2"
+            }
+        ],
+        "initContainerStatuses": [
+            {
+                "containerID": "containerd://ec3ba36aa39dc0e8e766f7ee95289fc61ca35cf05128f5bea5af1eae9bc07fe8",
+                "image": "docker.io/library/oai-lab-tools:b715742212936699",
+                "imageID": "sha256:b95d7ff1cf74429101c13ad39a6bafd41b9b19a6d171a4a5503c8c15e4939b87",
+                "lastState": {},
+                "name": "prepare",
+                "ready": true,
+                "resources": {},
+                "restartCount": 0,
+                "started": false,
+                "state": {
+                    "terminated": {
+                        "containerID": "containerd://ec3ba36aa39dc0e8e766f7ee95289fc61ca35cf05128f5bea5af1eae9bc07fe8",
+                        "exitCode": 0,
+                        "finishedAt": "2026-09-27T13:25:20Z",
+                        "reason": "Completed",
+                        "startedAt": "2026-09-27T13:25:20Z"
+                    }
+                },
+                "user": {
+                    "linux": {
+                        "gid": 0,
+                        "supplementalGroups": [
+                            0
+                        ],
+                        "uid": 0
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "mountPath": "/input",
+                        "name": "config",
+                        "readOnly": true,
+                        "recursiveReadOnly": "Disabled"
+                    },
+                    {
+                        "mountPath": "/config",
+                        "name": "runtime"
+                    }
+                ]
+            }
+        ],
+        "phase": "Running",
+        "podIP": "10.244.0.59",
+        "podIPs": [
+            {
+                "ip": "10.244.0.59"
+            }
+        ],
+        "qosClass": "Burstable",
+        "startTime": "2026-09-27T13:25:17Z"
+    }
+}

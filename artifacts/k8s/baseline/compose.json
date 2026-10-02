@@ -1,0 +1,51 @@
+{
+  "backend": "compose",
+  "runtimeAcceptance": "NOT_RUN",
+  "reason": "Legacy stack not active at migration baseline; no mock traffic substituted",
+  "upfServices": {
+    "upf1": {
+      "image": "oai-upf-research:local",
+      "capabilities": [
+        "NET_ADMIN"
+      ]
+    },
+    "upf140": {
+      "image": "oai-upf-research:local",
+      "capabilities": [
+        "NET_ADMIN"
+      ]
+    },
+    "upf141": {
+      "image": "oai-upf-research:local",
+      "capabilities": [
+        "NET_ADMIN"
+      ]
+    }
+  },
+  "composeHash": "c6c2bdf5f519404d9a65ac6caeae83bffbda09bf7ffdf97d63df31068086badf",
+  "containers": [
+    "oai-lab Up 8 minutes",
+    "oransim Exited (255) 5 weeks ago"
+  ],
+  "generatorWithBpfFlag": {
+    "upf1": [
+      "NET_ADMIN",
+      "BPF",
+      "SYS_ADMIN",
+      "SYS_RESOURCE"
+    ],
+    "upf140": [
+      "NET_ADMIN",
+      "BPF",
+      "SYS_ADMIN",
+      "SYS_RESOURCE"
+    ],
+    "upf141": [
+      "NET_ADMIN",
+      "BPF",
+      "SYS_ADMIN",
+      "SYS_RESOURCE"
+    ]
+  },
+  "generatorCapabilityCheck": "PASS"
+}

@@ -1,0 +1,5 @@
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-yaml python3-pymysql iproute2 iptables iperf tcpdump tshark procps curl ca-certificates tar && rm -rf /var/lib/apt/lists/*
+COPY deploy/k8s/images/runtime.py /opt/lab/runtime.py
+CMD ["sleep", "infinity"]

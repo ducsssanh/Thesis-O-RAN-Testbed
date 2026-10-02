@@ -1,0 +1,60 @@
+[
+  {
+    "source": "producer-normalized.jsonl",
+    "record": {
+      "schema_version": "1.0.0",
+      "run_id": "bootstrap",
+      "observed_at": "2026-09-29T04:42:50.038351314Z",
+      "smf_timestamp": "3999645770",
+      "supi": "imsi-001010123456780",
+      "seid": 1,
+      "urr_id": null,
+      "ur_seqn": 3,
+      "triggers": [
+        "Periodic Reporting"
+      ],
+      "ul_bytes": 0,
+      "dl_bytes": 681528,
+      "total_bytes": 681528,
+      "ul_packets": 0,
+      "dl_packets": 438,
+      "total_packets": 438,
+      "duration_seconds": 54,
+      "dnn": "nist-dnn",
+      "snssai": {
+        "sst": 1,
+        "sd": "FFFFFF"
+      },
+      "enrichment_source": "lab-config"
+    }
+  },
+  {
+    "source": "adapter-urr.jsonl",
+    "record": {
+      "schema_version": "1.0.0",
+      "run_id": "bootstrap",
+      "observed_at": "2026-09-29T04:42:50.038351314Z",
+      "smf_timestamp": "3999645770",
+      "supi": "imsi-001010123456780",
+      "seid": 1,
+      "urr_id": null,
+      "ur_seqn": 3,
+      "triggers": [
+        "Periodic Reporting"
+      ],
+      "ul_bytes": 0,
+      "dl_bytes": 681528,
+      "total_bytes": 681528,
+      "ul_packets": 0,
+      "dl_packets": 438,
+      "total_packets": 438,
+      "duration_seconds": 54,
+      "dnn": "nist-dnn",
+      "snssai": {
+        "sst": 1,
+        "sd": "FFFFFF"
+      },
+      "enrichment_source": "lab-config"
+    }
+  }
+]

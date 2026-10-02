@@ -1,0 +1,4 @@
+none  cause 1 [(1, 'forw'), (2, 'forw')]
+drop  cause 1 [(1, 'drop'), (2, 'drop')]
+none  cause 1 [(1, 'drop'), (2, 'drop')]
+forw  cause 1 [(1, 'forw'), (2, 'forw')]

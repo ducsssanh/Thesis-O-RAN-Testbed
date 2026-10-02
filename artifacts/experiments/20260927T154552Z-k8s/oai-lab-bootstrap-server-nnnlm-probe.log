@@ -1,0 +1,1 @@
+{"status": "PASS", "side": "server", "interfaces": ["e2", "n2", "n3", "n4", "n6"], "dns": true, "sctp": true, "secondaryDefaultRoute": false}

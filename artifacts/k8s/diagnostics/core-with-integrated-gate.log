@@ -1,0 +1,119 @@
+==> Linting /home/ducsssanh/6G/O-RAN/DATN/Codebase/deploy/k8s/chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+* [oai-lab] minikube v1.38.1 on Ubuntu 24.04
+  - KUBECONFIG=/home/ducsssanh/.kube/config
+* Kubernetes 1.35.1 is now available. If you would like to upgrade, specify: --kubernetes-version=v1.35.1
+* Using the docker driver based on existing profile
+* Starting "oai-lab" primary control-plane node in "oai-lab" cluster
+* Pulling base image v0.0.50 ...
+* Preparing Kubernetes v1.33.13 on containerd 2.2.1 ...
+* Verifying Kubernetes components...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: default-storageclass, storage-provisioner
+
+! /usr/local/bin/kubectl is version 1.35.1, which may have incompatibilities with Kubernetes 1.33.13.
+  - Want kubectl v1.33.13? Try 'minikube kubectl -- get pods -A'
+* To connect to this cluster, use:  --context=oai-lab
+customresourcedefinition.apiextensions.k8s.io/network-attachment-definitions.k8s.cni.cncf.io unchanged
+clusterrole.rbac.authorization.k8s.io/multus unchanged
+clusterrolebinding.rbac.authorization.k8s.io/multus unchanged
+serviceaccount/multus unchanged
+configmap/multus-daemon-config unchanged
+daemonset.apps/kube-multus-ds unchanged
+daemon set "kube-multus-ds" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:30:11 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 40
+TEST SUITE: None
+partitioned roll out complete: 1 new pods have been updated...
+deployment "oai-lab-dn" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:30:20 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 41
+TEST SUITE: None
+job.batch/oai-lab-bootstrap-server condition met
+job.batch/oai-lab-bootstrap-client condition met
+job.batch/oai-lab-bootstrap-upf-bpf condition met
+job.batch/oai-lab-bootstrap-ue-tun condition met
+job.batch/oai-lab-bootstrap-radio condition met
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:30:58 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 42
+TEST SUITE: None
+job.batch/oai-lab-subscriber condition met
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:31:09 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 43
+TEST SUITE: None
+Waiting for deployment "oai-nrf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-nrf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:31:18 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 44
+TEST SUITE: None
+Waiting for deployment "oai-udr" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-udr" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:31:27 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 45
+TEST SUITE: None
+Waiting for deployment "oai-udm" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-udm" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:31:36 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 46
+TEST SUITE: None
+Waiting for deployment "oai-ausf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-ausf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:31:45 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 47
+TEST SUITE: None
+Waiting for deployment "oai-amf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-amf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:31:54 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 48
+TEST SUITE: None
+Waiting for deployment "oai-smf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-smf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 22:32:08 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 49
+TEST SUITE: None
+Waiting for deployment "oai-upf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-upf" successfully rolled out
+FAIL: PFCP association/heartbeat integration gate failed
+Preflight passed. Actual BPF attachment remains a runtime gate.

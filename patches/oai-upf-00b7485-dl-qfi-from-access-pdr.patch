@@ -1,0 +1,90 @@
+--- a/src/upf_app/control/SessionProgramManager.cpp
++++ b/src/upf_app/control/SessionProgramManager.cpp
+@@ -44,6 +44,29 @@
+ 
+ static constexpr int64_t kEmptySlot = -1;
+ 
++// OAI SMF can install the default flow's QFI on the ACCESS PDR while omitting
++// both QFI and QER from the CORE PDR. In a single-flow session, the ACCESS QFI
++// is the only unambiguous value to put in the DL GTP-U PDU Session Container.
++// Never guess when the session has several distinct uplink QFIs.
++static uint8_t UniqueAccessQfi(
++    const std::shared_ptr<pfcp::pfcp_session>& session) {
++  uint8_t unique_qfi = 0;
++  for (const auto& candidate : session->pdrs) {
++    pfcp::pdi pdi;
++    pfcp::source_interface_t source_interface;
++    if (!candidate->get(pdi) || !pdi.get(source_interface) ||
++        source_interface.interface_value != INTERFACE_VALUE_ACCESS ||
++        !pdi.qfi.first) {
++      continue;
++    }
++    const auto qfi = pdi.qfi.second.qfi;
++    if (qfi == 0 || qfi > 63) continue;
++    if (unique_qfi != 0 && unique_qfi != qfi) return 0;
++    unique_qfi = qfi;
++  }
++  return unique_qfi;
++}
++
+ //==============================================================================
+ // Constructor & Destructor
+ //==============================================================================
+@@ -768,11 +791,25 @@
+       struct pfcp_bar bpf_bar = ConvertBar(bar);
+       struct pfcp_mar bpf_mar = ConvertMar(mar);
+ 
+-      // For downlink PDRs, QFI is not in PDI (no incoming GTP-U
+-      // header) Copy QFI from QER into PDR's PDI for BPF matching logic See
+-      // 3GPP TS 29.244 Section 8.2.89 - QFI is in QER for downlink
++      // Prefer an explicit PDR/QER QFI. If SMF omitted both on a CORE PDR,
++      // use the unique ACCESS PDR QFI from this same PFCP session.
+       if (bpf_pdr.pdi.qfi.qfi == 0 && bpf_qer.qos_flow_identifier.qfi != 0) {
+         bpf_pdr.pdi.qfi.qfi = bpf_qer.qos_flow_identifier.qfi;
++      }
++      if (!is_eth_pdu &&
++          source_interface.interface_value == INTERFACE_VALUE_CORE &&
++          bpf_pdr.pdi.qfi.qfi == 0) {
++        bpf_pdr.pdi.qfi.qfi = UniqueAccessQfi(session);
++        if (bpf_pdr.pdi.qfi.qfi != 0) {
++          logger.info(
++              "DL PDR %u: derived QFI %u from unique ACCESS PDR in "
++              "session " SEID_FMT,
++              pdr_id, bpf_pdr.pdi.qfi.qfi, seid);
++        } else {
++          logger.warn(
++              "DL PDR %u: no unambiguous QFI in session " SEID_FMT, pdr_id,
++              seid);
++        }
+       }
+ 
+       /* Update rules_match_pdr map with ALL rules (TS 29.244 Section 8.2)
+@@ -1169,11 +1206,25 @@
+       struct pfcp_bar bpf_bar = ConvertBar(bar);
+       struct pfcp_mar bpf_mar = ConvertMar(mar);
+ 
+-      // CRITICAL: For downlink PDRs, QFI is not in PDI (no incoming GTP-U
+-      // header) Copy QFI from QER into PDR's PDI for BPF matching logic See
+-      // 3GPP TS 29.244 Section 8.2.89 - QFI is in QER for downlink
++      // Prefer an explicit PDR/QER QFI. If SMF omitted both on a CORE PDR,
++      // use the unique ACCESS PDR QFI from this same PFCP session.
+       if (bpf_pdr.pdi.qfi.qfi == 0 && bpf_qer.qos_flow_identifier.qfi != 0) {
+         bpf_pdr.pdi.qfi.qfi = bpf_qer.qos_flow_identifier.qfi;
++      }
++      if (!is_eth_pdu && has_pdi &&
++          source_interface.interface_value == INTERFACE_VALUE_CORE &&
++          bpf_pdr.pdi.qfi.qfi == 0) {
++        bpf_pdr.pdi.qfi.qfi = UniqueAccessQfi(session);
++        if (bpf_pdr.pdi.qfi.qfi != 0) {
++          logger.info(
++              "DL PDR %u: derived QFI %u from unique ACCESS PDR in "
++              "session " SEID_FMT,
++              pdr_id, bpf_pdr.pdi.qfi.qfi, seid);
++        } else {
++          logger.warn(
++              "DL PDR %u: no unambiguous QFI in session " SEID_FMT, pdr_id,
++              seid);
++        }
+       }
+ 
+       /* Update rules_match_pdr map with ALL rules (TS 29.244 Section 8.2)

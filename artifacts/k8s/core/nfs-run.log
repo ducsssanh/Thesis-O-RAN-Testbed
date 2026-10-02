@@ -1,0 +1,76 @@
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:00:41 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 11
+TEST SUITE: None
+Waiting for deployment "oai-nrf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-nrf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:00:46 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 12
+TEST SUITE: None
+Waiting for deployment "oai-udr" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-udr" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:00:52 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 13
+TEST SUITE: None
+Waiting for deployment "oai-udm" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-udm" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:00:58 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 14
+TEST SUITE: None
+Waiting for deployment "oai-ausf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-ausf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:01:04 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 15
+TEST SUITE: None
+Waiting for deployment "oai-amf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-amf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:01:10 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 16
+TEST SUITE: None
+Waiting for deployment "oai-smf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-smf" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 17:02:04 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 18
+TEST SUITE: None
+Waiting for deployment "oai-upf" rollout to finish: 0 of 1 updated replicas are available...
+error: timed out waiting for the condition
+Traceback (most recent call last):
+  File "/tmp/oai-core-nfs.py", line 6, in <module>
+    l.enabled.append(nf);l.helm();l.ready(nf)
+                                  ^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/lab.py", line 443, in ready
+    self.k("rollout", "status", obj, "--timeout=180s", capture=False, timeout=200)
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/lab.py", line 404, in k
+    return run(
+           ^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/lab.py", line 100, in run
+    raise GateError(
+lab.GateError: Command failed: minikube ['--profile', 'oai-lab']
+

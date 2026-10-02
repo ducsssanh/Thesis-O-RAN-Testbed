@@ -1,0 +1,182 @@
+{
+  "capturedAt": "2026-09-28T15:47:01.541731+00:00",
+  "resources": [
+    {
+      "kind": "Deployment",
+      "name": "oai-amf",
+      "replicas": 1,
+      "image": [
+        "oaisoftwarealliance/oai-amf:v2.2.0"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-ausf",
+      "replicas": 1,
+      "image": [
+        "oaisoftwarealliance/oai-ausf:v2.2.0"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-flexric",
+      "replicas": 0,
+      "image": [
+        "oai-lab-radio:ab3bf500e5cb08be"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-gnb",
+      "replicas": 0,
+      "image": [
+        "oai-lab-radio:ab3bf500e5cb08be"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-lab-dn",
+      "replicas": 1,
+      "image": [
+        "oai-lab-tools:f4aafed83d8c25ea"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-lab-xapp",
+      "replicas": 0,
+      "image": [
+        "oai-lab-radio:ab3bf500e5cb08be"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-nr-ue",
+      "replicas": 0,
+      "image": [
+        "oai-lab-radio:ab3bf500e5cb08be"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-nrf",
+      "replicas": 1,
+      "image": [
+        "oaisoftwarealliance/oai-nrf:v2.2.0"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-smf",
+      "replicas": 1,
+      "image": [
+        "oai-lab-smf:v2.2.0-ie43-771248b5",
+        "oai-lab-tools:f4aafed83d8c25ea"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-udm",
+      "replicas": 1,
+      "image": [
+        "oaisoftwarealliance/oai-udm:v2.2.0"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-udr",
+      "replicas": 1,
+      "image": [
+        "oaisoftwarealliance/oai-udr:v2.2.0"
+      ]
+    },
+    {
+      "kind": "Deployment",
+      "name": "oai-upf",
+      "replicas": 1,
+      "image": [
+        "oai-lab-upf:30e854d39b1192d1"
+      ]
+    },
+    {
+      "kind": "StatefulSet",
+      "name": "oai-lab-db",
+      "replicas": 1,
+      "image": [
+        "mariadb:10.6"
+      ]
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-amf-7f5f7b99b7-fs6wk",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-ausf-c778bdd89-rkqxm",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-lab-db-0",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-lab-dn-fc88889fb-pf2sx",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-lab-subscriber-dx7ds",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-nrf-7d65bbfd64-j2fbf",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-smf-5f758456d7-s4pp4",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-udm-c8657c45d-ssnjd",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-udr-77fc79b7f7-mzlrn",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "Pod",
+      "name": "oai-upf-cd848ddbb-2m6cn",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "name": "oai-lab-artifacts",
+      "replicas": null,
+      "image": []
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "name": "oai-lab-db",
+      "replicas": null,
+      "image": []
+    }
+  ]
+}

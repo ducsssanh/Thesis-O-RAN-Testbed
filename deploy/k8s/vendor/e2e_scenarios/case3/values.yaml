@@ -1,0 +1,467 @@
+# SPDX-License-Identifier: MIT
+
+global:
+  kubernetesDistribution: Vanilla #Openshift/Vanilla Kubernetes for Upstream Kubernetes
+  coreNetworkConfigMap: core
+  clusterIpServiceIpAllocation: false #this will allocate ip-address to cluster Ip service
+  waitForAMF: true     #gNB waits for AMF 
+  waitForRadio: true   #UE waits for RFSimulated gNB
+  waitForNRF: true     #All NFs wait for NRF to be ready
+  waitForUDR: true
+  http2Param: "--http2-prior-knowledge"  # if waitForNRF is true and http2 is used for all NF then this param is needed
+  timeout: 1
+  imagePullSecrets:
+  - &secret
+    name: "regcred"
+mysql:
+  enabled: true
+  imagePullPolicy: IfNotPresent
+  oai5gdatabase: basic
+  imagePullSecrets:
+    - *secret
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 200m
+    limits:
+      memory: 512Mi
+      cpu: 200m
+oai-nrf:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-nrf          ## The image will be pulled from dockerhub
+    version: v2.2.0                          ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+    #storageClass: "nfs-client" #If value is "-" default storageClass will be used
+    storageClass: "-"
+    size: 1Gi
+  start:
+    nrf: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-lmf:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-lmf          ## The image will be pulled from dockerhub
+    version: v2.2.0                          ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  persistent:
+    sharedvolume: false
+  start:
+    lmf: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-udr:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-udr           ## The image will be pulled from dockerhub
+    version: v2.2.0                                    ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+  start:
+    udr: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-udm:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-udm           ## The image will be pulled from dockerhub
+    version: v2.2.0                                    ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+  start:
+    udm: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-ausf:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-ausf           ## The image will be pulled from dockerhub
+    version: v2.2.0                                    ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+  start:
+    ausf: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+oai-amf:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-amf           ## The image will be pulled from dockerhub
+    version: v2.2.0                                    ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+  start:
+    amf: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    ## If you don't want to add a default route in your pod then replace this field with ""
+    enabled: false
+    interfaces:
+      - name: "n2"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.90"
+        netmask: "22"
+        routes: ""
+        defaultRoute: "172.21.7.254"
+        enabled: true
+      - name: "sbi"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.91"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+oai-upf:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-upf    ## The image will be pulled from dockerhub
+    version: v2.2.0                                    ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+  start:
+    upf: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    ## If you don't want to add a default route in your pod then replace this field with ""
+    enabled: false
+    interfaces:
+      - name: "n3"
+        hostInterface: "eth0"
+        ipAdd: "172.21.12.95"
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+        enabled: true
+      - name: "n4"
+        hostInterface: "eth0"
+        ipAdd: "192.168.24.2"
+        netmask: "24"
+        enabled: true
+      - name: "n6"
+        hostInterface: "eth0"
+        ipAdd: "192.168.22.2"
+        netmask: "24"
+        enabled: true
+      - name: "n9"
+        hostInterface: "eth0"
+        ipAdd: "192.168.23.2"
+        netmask: "24"
+        enabled: false
+      - name: "sbi"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.91"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+  #NOTE: If the interface you selected for n6If is wrong then traffic will not be routed towards internet
+oai-traffic-server:
+  enabled: true
+  nfimage:
+    repository: docker.io/oaisoftwarealliance/trf-gen-cn5g
+    version: latest       # Image tag (or "v2.2.0" for latest dev build)
+    pullPolicy: IfNotPresent  # Options: IfNotPresent, Always, Never
+  imagePullSecrets:
+    - *secret
+  multus:
+    ## If you don't want to add a default route in your pod then replace this field with ""
+    enabled: false
+    interfaces:
+      - name: "external"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.99"
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+        enabled: true
+  config:
+    ueroute: 12.1.1.0/24
+    upfHost: oai-upf
+    noOfIperf3Server: 2
+  resources:
+    define: false
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector: {}
+  nodeName: ""
+oai-smf:
+  enabled: true
+  nfimage:  # image name either locally present or in a public/private repository
+    repository: docker.io/oaisoftwarealliance/oai-smf           ## The image will be pulled from dockerhub
+    version: v2.2.0                         ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  ## Only if you want to store all pcaps in persistent volume
+  persistent:
+    sharedvolume: false
+  start:
+    smf: true #If false the network function container will run in sleep mode for manually testing
+    tcpdump: false
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    ## If you don't want to add a default route in your pod then replace this field with ""
+    enabled: false
+    interfaces:
+      - name: "n4"
+        hostInterface: "eth0"
+        ipAdd: "192.168.24.3"
+        netmask: "24"
+        defaultRoute: ""
+        enabled: true
+      - name: "sbi"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.92"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+oai-cu-cp:
+  enabled: true
+  nfimage:  
+    repository: docker.io/oaisoftwarealliance/oai-gnb
+    version: 2025.w50
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    enabled: false
+    interfaces:
+      - name: "n2"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.90"
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+        enabled: true
+      - name: "f1c"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.91"
+        netmask: "22"
+        gateway: "172.21.11.254"
+        enabled: true
+      - name: "e1"
+        hostInterface: "eth0"
+        ipAdd: "192.168.80.90"
+        netmask: "24"
+        gateway: "192.168.80.1"
+        enabled: true
+  config:
+    timeZone: "Europe/Paris"
+    useAdditionalOptions: "--log_config.global_log_options level,nocolor,time"
+    cucpName: "oai-cu-cp"
+    amfHost: "oai-amf"  # amf ip-address or service-name oai-amf or 172.21.6.94
+    f1uPort: 2153
+    gdbstack: 1     # 1 to see gdb traces 
+    tac: 1
+    plmn_list:
+    - mcc: "001"   # Must match AMF/SMF/UPF
+      mnc: "01"
+      mnc_length: "2"
+      snssaiList:
+        - sst: "1"
+          sd: "0xffffff"
+  resources:
+    define: true
+    limits:
+      nf:
+        cpu: 500m
+        memory: 512Mi
+    requests:
+      nf:
+        cpu: 500m
+        memory: 512Mi
+oai-cu-up:
+  enabled: true
+  nfimage:  
+    repository: docker.io/oaisoftwarealliance/oai-nr-cuup
+    version: 2025.w50         ## The branch to be used to pull from dockerhub
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  imagePullSecrets:
+    - *secret
+  nodeSelector: {}
+  multus:
+    enabled: false
+    interfaces:
+      - name: "n3"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.90"
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+      - name: "f1u"
+        hostInterface: "eth0"
+        ipAdd: "172.21.8.91"
+        netmask: "22"
+        gateway: "172.21.11.254"
+      - name: "e1"
+        hostInterface: "eth0"
+        ipAdd: "192.168.80.90"
+        netmask: "24"
+        gateway: "192.168.80.1"
+  config:
+    timeZone: "Europe/Paris"
+    useAdditionalOptions: "--log_config.global_log_options level,nocolor,time"
+    cuupName: "oai-cu-up"
+    cucpHost: "oai-cu"
+    f1uPort: "2153"   #2153 if using same interface for f1 and n3 else standard port 2152 should be use if f1 and n3 interface are different
+    gdbstack: 1     # 1 to see gdb traces
+    tac: 1
+    plmn_list:
+    - mcc: "001"   # Must match AMF/SMF/UPF
+      mnc: "01"
+      mnc_length: "2"
+      snssaiList:
+        - sst: "1"
+          sd: "0xffffff"
+  resources:
+    define: true
+    limits:
+      nf:
+        cpu: 500m
+        memory: 512Mi
+    requests:
+      nf:
+        cpu: 500m
+        memory: 512Mi
+oai-du:
+  enabled: true
+  nfimage:  
+    repository: docker.io/oaisoftwarealliance/oai-gnb
+    version: 2025.w50
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  imagePullSecrets:
+    - *secret
+  multus:
+    enabled: false
+    interfaces:
+      - name: "f1c"
+        hostInterface: "eth0"
+        ipAdd: "172.21.6.90"
+        enabled: true
+        netmask: "22"
+        defaultRoute: "172.21.7.254"
+      - name: "f1u"
+        hostInterface: "eth0"
+        ipAdd: "172.21.16.90"
+        enabled: true
+        netmask: "22"
+        defaultRoute: "172.21.19.254"
+      - name: "ru"
+        hostInterface: "eth0"
+        enabled: true
+        ipAdd: "192.168.80.90"
+        netmask: "24"
+        gateway: "192.168.80.1"
+        mtu: 1500
+  config:
+    timeZone: "Europe/Paris"
+    useAdditionalOptions: "-E --rfsim --log_config.global_log_options level,nocolor,time"
+    duName: "oai-rfsim"
+    usrp: "rfsim"  # Options: rfsim, b2xx, n3xx, x3xx
+    cuHost: "oai-cu" ## Ip-address or hostname
+    gdbstack: 1     # 1 to see gdb traces 
+    tac: 1
+    plmn_list:
+    - mcc: "001"   # Must match AMF/SMF/UPF
+      mnc: "01"
+      mnc_length: "2"
+      snssaiList:
+        - sst: "1"
+          sd: "0xffffff"
+  resources:
+    define: false
+    limits:
+      nf:
+        cpu: 2000m
+        memory: 2Gi
+    requests:
+      nf:
+        cpu: 2000m
+        memory: 2Gi
+  nodeSelector: {}
+oai-nr-ue:
+  enabled: true
+  nfimage:  
+    repository: docker.io/oaisoftwarealliance/oai-nr-ue
+    version: 2025.w50
+    # pullPolicy: IfNotPresent or Never or Always
+    pullPolicy: IfNotPresent
+  imagePullSecrets:
+    - *secret
+  config:
+    timeZone: "Europe/Paris"
+    rfSimServer: "oai-ran"
+    fullImsi: "001010000000100"       # make sure all the below entries are present in the subscriber database
+    fullKey: "fec86ba6eb707ed08905757b1bb44b8f"
+    opc: "C42449363BBAD02B66D16BC975D77CC1"
+    gdbstack: 1     # 1 to see gdb traces 
+    dnn: "oai"
+    sst: "1"              # configure according to gnb and amf, smf and upf 
+    sd: "16777215"
+    usrp: "rfsim"            # allowed rfsim, b2xx, n3xx, x3xx
+    useAdditionalOptions: "-E --rfsim -r 106 --numerology 1 -C 3319680000 --log_config.global_log_options level,nocolor,time"
+  resources:
+    define: false
+    limits:
+      nf:
+        cpu: 2000m
+        memory: 2Gi
+    requests:
+      nf:
+        cpu: 2000m
+        memory: 2Gi
+  nodeSelector: {}
+  nodeName: ""

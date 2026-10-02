@@ -1,0 +1,436 @@
+Trying to read .yaml configuration file: /config/config.yaml
+LTTNG Tracing disabled at build-time!
+[2026-09-27 18:40:46.223] [system ] [start] Options parsed
+[2026-09-27 18:40:46.224] [system ] [debug] Parsing the configuration file (YAML).
+[2026-09-27 18:40:46.224] [config ] [info] Reading NF configuration from /config/config.yaml
+[2026-09-27 18:40:46.233] [config ] [debug] Unknown NF amf in configuration. Ignored
+[2026-09-27 18:40:46.233] [config ] [debug] Unknown NF ausf in configuration. Ignored
+[2026-09-27 18:40:46.233] [config ] [debug] Unknown NF smf in configuration. Ignored
+[2026-09-27 18:40:46.233] [config ] [debug] Unknown NF upf in configuration. Ignored
+[2026-09-27 18:40:46.233] [config ] [debug] Validating configuration of log_level
+[2026-09-27 18:40:46.233] [config ] [debug] Validating configuration of register_nf
+[2026-09-27 18:40:46.233] [config ] [debug] Validating configuration of http_version
+[2026-09-27 18:40:46.233] [config ] [debug] Validating configuration of http_request_timeout
+[2026-09-27 18:40:46.233] [config ] [debug] Validating configuration of NRF
+[2026-09-27 18:40:46.234] [config ] [debug] Validating configuration of UDR
+[2026-09-27 18:40:46.234] [config ] [debug] Validating configuration of UDM
+[2026-09-27 18:40:46.235] [config ] [debug] Validating configuration of database
+[2026-09-27 18:40:46.235] [config ] [info] ==== OPENAIRINTERFACE udm vBranch: HEAD Abrev. Hash: 40bad06 Date: Tue Dec 9 09:52:53 2025 +0000 ====
+[2026-09-27 18:40:46.235] [config ] [info] Basic Configuration:
+[2026-09-27 18:40:46.235] [config ] [info]   - log_level..................................: debug
+[2026-09-27 18:40:46.235] [config ] [info]   - register_nf................................: Yes
+[2026-09-27 18:40:46.235] [config ] [info]   - http_version...............................: 1
+[2026-09-27 18:40:46.235] [config ] [info]   - HTTP Request Timeout.......................: 3000 (ms)
+[2026-09-27 18:40:46.235] [config ] [info]     UDM:
+[2026-09-27 18:40:46.235] [config ] [info]     - host.....................................: 10.244.0.148
+[2026-09-27 18:40:46.235] [config ] [info]     - SBI
+[2026-09-27 18:40:46.235] [config ] [info]       + URL....................................: http://10.244.0.148:80
+[2026-09-27 18:40:46.235] [config ] [info]       + API Version............................: v1
+[2026-09-27 18:40:46.235] [config ] [info]       + IPv4 Address ..........................: 10.244.0.148
+[2026-09-27 18:40:46.235] [config ] [info]     - Instance ID..............................: 0
+[2026-09-27 18:40:46.235] [config ] [info]     - PID Directory............................: 
+[2026-09-27 18:40:46.235] [config ] [info]     - UDM Name.................................: 
+[2026-09-27 18:40:46.235] [config ] [info] Peer NF Configuration:
+[2026-09-27 18:40:46.235] [config ] [info]   NRF:
+[2026-09-27 18:40:46.235] [config ] [info]     - host.....................................: oai-nrf
+[2026-09-27 18:40:46.235] [config ] [info]     - SBI
+[2026-09-27 18:40:46.235] [config ] [info]       + URL....................................: http://oai-nrf:80
+[2026-09-27 18:40:46.235] [config ] [info]       + API Version............................: v1
+[2026-09-27 18:40:46.235] [config ] [info]   UDR:
+[2026-09-27 18:40:46.235] [config ] [info]     - host.....................................: oai-udr
+[2026-09-27 18:40:46.235] [config ] [info]     - SBI
+[2026-09-27 18:40:46.235] [config ] [info]       + URL....................................: http://oai-udr:80
+[2026-09-27 18:40:46.235] [config ] [info]       + API Version............................: v1
+[2026-09-27 18:40:46.235] [udm_client] [info] HTTP Client successfully initiated on interface eth0 with timeout 3000 ms, HTTP version 1
+[2026-09-27 18:40:46.235] [udm_app] [start] Starting...
+[2026-09-27 18:40:46.235] [udm_app] [debug] - NF instance info
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Instance ID: dc589e56-a136-40f6-8f20-a087068e856a
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Instance name: OAI-UDM
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Instance type: UDM
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Instance fqdn: oai-udm
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Status: REGISTERED
+[2026-09-27 18:40:46.235] [udm_app] [debug]     HeartBeat timer: 50
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Priority: 1
+[2026-09-27 18:40:46.235] [udm_app] [debug]     Capacity: 100
+[2026-09-27 18:40:46.236] [udm_app] [debug]     IPv4 Addr:
+[2026-09-27 18:40:46.236] [udm_app] [debug]         10.244.0.148
+[2026-09-27 18:40:46.236] [udm_app] [debug] 	UDM Info
+[2026-09-27 18:40:46.236] [udm_app] [debug] 		GroupId: oai-udm-testgroupid
+[2026-09-27 18:40:46.236] [udm_app] [debug] 		 SupiRanges: Start - 208950000000031, End - 208950000000131, Pattern - ^imsi-20895[31-131]{10}$
+[2026-09-27 18:40:46.236] [udm_app] [debug] 		 GpsiRanges: Start - 752740000, End - 752749999, Pattern - ^gpsi-75274[0-9]{4}$
+[2026-09-27 18:40:46.236] [udm_app] [debug] 		 Routing Indicators: 0210
+[2026-09-27 18:40:46.236] [udm_app] [debug] 		 Routing Indicators: 9876
+[2026-09-27 18:40:46.236] [udm_app] [debug] udm profile to JSON:
+ {"capacity":100,"fqdn":"oai-udm","heartBeatTimer":50,"ipv4Addresses":["10.244.0.148"],"nfInstanceId":"dc589e56-a136-40f6-8f20-a087068e856a","nfInstanceName":"OAI-UDM","nfStatus":"REGISTERED","nfType":"UDM","priority":1,"sNssais":[],"udmInfo":{"externalGroupIdentifiersRanges":[],"gpsiRanges":[{"end":"752749999","pattern":"^gpsi-75274[0-9]{4}$","start":"752740000"}],"groupId":"oai-udm-testgroupid","internalGroupIdentifiersRanges":[],"routingIndicators":["0210","9876"],"supiRanges":[{"end":"208950000000131","pattern":"^imsi-20895[31-131]{10}$","start":"208950000000031"}]}}
+[2026-09-27 18:40:46.236] [udm_nrf] [info] Sending NF registration request to NRF, NRF's URI: http://oai-nrf:80/nnrf-nfm/v1/nf-instances/dc589e56-a136-40f6-8f20-a087068e856a
+[2026-09-27 18:40:46.236] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:40:46.239] [udm_app] [info] NRF TASK Created 
+[2026-09-27 18:40:46.239] [udm_app] [start] Started
+[2026-09-27 18:40:46.240] [udm_server] [info] HTTP1 server started
+[2026-09-27 18:40:56.278] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:40:56.278] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:41:06.400] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:41:06.400] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:41:16.464] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:41:16.464] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:41:26.492] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:41:26.492] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:41:36.510] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:41:36.510] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:41:46.544] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:41:46.544] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:41:56.580] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:41:56.580] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:06.636] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:42:06.636] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:16.664] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:42:16.664] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:26.710] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:42:26.710] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:33.864] [udm_ueau] [info] Handle generate_auth_data()
+[2026-09-27 18:42:33.864] [udm_ueau] [info] Handle Generate Auth Data Request
+[2026-09-27 18:42:33.864] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:42:33.864] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:33.871] [common] [debug] [udm_ueau]Result For F1-Alg Key
+00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 
+[2026-09-27 18:42:33.871] [common] [debug] [udm_ueau]Result For F1-Alg OPC
+63 bf a5 0e e6 52 33 65 ff 14 c1 f4 5f 88 73 7d 
+[2026-09-27 18:42:33.871] [common] [debug] [udm_ueau]Result For F1-Alg AMF
+80 00 
+[2026-09-27 18:42:33.871] [common] [debug] [udm_ueau]Result For F1-Alg SQN: 
+00 00 00 00 00 60 
+[2026-09-27 18:42:33.871] [udm_ueau] [info] Current SQN 000000000080
+4f 88 60 78 49 af 7d 27 cc cd 90 e6 6a 53 89 3c 
+7f c0 e9 f2 5d e5 9f e3 a0 a2 ab 9 9 b1 b8 c3 
+4f 88 60 78 49 af 7d 27 cc cd 90 e6 6a 53 89 3c 
+e3 6b 8d 8 e4 bf 5f fb 3c 9 cf f3 b0 eb 78 da 
+a0 fb 1b bf f0 c5 3 3f f4 af 3c 9f 2f a7 41 c6 
+b4 81 47 7b 38 63 f0 53 6b e3 5 80 6c 37 d7 77 
+[2026-09-27 18:42:33.874] [common] [debug] [udm_ueau]XRES*(new)
+dd d9 38 28 5d 86 ba 3c 51 5f ec b6 d1 3a fe 56 32 53 27 12 28 71 8b 0e 0f d7 f2 00 df bc a7 ee 
+[2026-09-27 18:42:33.874] [udm_ueau] [debug] derive_kausf ...
+[2026-09-27 18:42:33.874] [common] [debug] [udm_ueau]derive_kausf key
+b1 4b 19 0c 93 46 a9 8f 29 da 95 eb 2b 1a 15 4a e0 ba 69 b3 df 2b 0d d2 b9 67 b0 38 33 50 5c 29 
+[2026-09-27 18:42:33.874] [common] [debug] [udm_ueau]derive_kausf kausf
+54 a8 e7 74 63 d7 90 f1 1d 85 3d 39 6a 0b aa 80 ca b5 86 79 75 2c 3f 84 d1 3e 1b 2c 62 c6 33 4c 
+[2026-09-27 18:42:33.874] [udm_ueau] [info] New SQN (for next round) = 0000000000a0
+[2026-09-27 18:42:33.874] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:42:33.874] [udm_ueau] [info] Update UDR with PATCH message, body:  [{"from":"","op":"replace","path":"","value":"{\"lastIndexes\":{\"ausf\":0},\"sqn\":\"0000000000a0\",\"sqnScheme\":\"NON_TIME_BASED\"}"}]
+[2026-09-27 18:42:33.874] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:33.882] [udm_ueau] [info] Send 200 OK response to AUSF
+[2026-09-27 18:42:33.882] [udm_ueau] [info] AuthInfoResult {"authType":"5G_AKA","authenticationVector":{"autn":"32c5f16b91c580008f6861019719d076","avType":"5G_HE_AKA","kausf":"54a8e77463d790f11d853d396a0baa80cab58679752c3f84d13e1b2c62c6334c","rand":"2c26e745eba82835bb40fba9f90614be","xresStar":"3253271228718b0e0fd7f200dfbca7ee"}}
+[2026-09-27 18:42:33.882] [udm_ueau] [info] Send response to AUSF
+[2026-09-27 18:42:33.882] [udm_ueau] [info] Update sqn in Database
+[2026-09-27 18:42:33.991] [udm_ueau] [info] Handle confirm_auth()
+[2026-09-27 18:42:33.991] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:42:33.991] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:33.995] [udm_ueau] [debug] Remote URI:http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-status
+[2026-09-27 18:42:33.995] [udm_ueau] [debug] Request body = {"authRemovalInd":false,"authType":"5G_AKA","nfInstanceId":"400346f4-087e-40b1-a4cd-00566953999d","servingNetworkName":"5G:mnc001.mcc001.3gppnetwork.org","success":true,"timeStamp":"2026-09-27T16:42:33Z"}
+[2026-09-27 18:42:33.995] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:34.001] [udm_ueau] [debug] authEventId=a7ce743b0c19271671054e811defd03054827885465808f34747134659c7ea73
+[2026-09-27 18:42:34.001] [udm_ueau] [info] Send 201 Created response to AUSF
+[2026-09-27 18:42:34.001] [udm_ueau] [info] Send response to AUSF
+[2026-09-27 18:42:34.101] [udm_sdm] [debug] Handle Slice Selection Subscription Data Retrieval request
+[2026-09-27 18:42:34.101] [udm_sdm] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/00101/provisioned-data/am-data
+[2026-09-27 18:42:34.101] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:34.108] [udm_sdm] [debug] HTTP response code 200
+[2026-09-27 18:42:34.108] [udm_sdm] [debug] Response from UDR: {"nssai":{"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}}
+[2026-09-27 18:42:34.108] [udm_sdm] [debug] Slice Selection Subscription Data from UDR: {"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}
+[2026-09-27 18:42:34.113] [udm_uecm] [debug] Remote URI:http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/context-data/amf-3gpp-access
+[2026-09-27 18:42:34.113] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:34.117] [udm_uecm] [debug] HTTP Response: null
+[2026-09-27 18:42:34.117] [udm_uecm] [debug] HTTP response code 404
+[2026-09-27 18:42:36.859] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:42:36.859] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:47.065] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:42:47.065] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:42:57.251] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:42:57.251] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:43:07.415] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:43:07.415] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:43:17.592] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:43:17.592] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:43:27.761] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:43:27.761] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:43:37.935] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:43:37.935] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:43:48.153] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:43:48.153] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:43:58.410] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:43:58.410] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:44:08.574] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:44:08.574] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:44:18.747] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:44:18.747] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:44:28.964] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:44:28.966] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:44:39.169] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:44:39.170] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:44:49.371] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:44:49.371] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:44:59.561] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:44:59.561] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:45:09.736] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:45:09.736] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:45:19.894] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:45:19.894] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:45:30.054] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:45:30.054] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:45:40.215] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:45:40.215] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:45:50.430] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:45:50.430] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:46:00.592] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:46:00.592] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:46:10.757] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:46:10.757] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:46:20.928] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:46:20.929] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:46:31.089] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:46:31.089] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:46:41.258] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:46:41.258] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:46:51.480] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:46:51.481] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:47:01.607] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:47:01.607] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:47:11.733] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:47:11.733] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:47:21.866] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:47:21.866] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:47:31.975] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:47:31.975] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:47:42.158] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:47:42.158] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:47:52.356] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:47:52.356] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:48:02.477] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:48:02.477] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:48:12.636] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:48:12.637] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:48:22.786] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:48:22.786] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:48:32.888] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:48:32.888] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:48:42.982] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:48:42.982] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:48:53.081] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:48:53.082] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:49:03.178] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:49:03.178] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:49:13.267] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:49:13.267] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:49:23.335] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:49:23.335] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:49:33.497] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:49:33.497] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:49:43.604] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:49:43.604] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:49:53.748] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:49:53.748] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:50:03.854] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:50:03.854] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:50:13.926] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:50:13.926] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:50:24.026] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:50:24.026] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:50:34.108] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:50:34.108] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:50:44.265] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:50:44.265] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:50:54.435] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:50:54.435] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:51:04.553] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:51:04.553] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:51:14.720] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:51:14.720] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:51:24.875] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:51:24.875] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:51:34.984] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:51:34.985] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:51:45.185] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:51:45.189] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:51:55.266] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:51:55.267] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:52:05.376] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:52:05.376] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:52:15.519] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:52:15.519] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:52:25.652] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:52:25.652] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:52:35.796] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:52:35.796] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:52:45.905] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:52:45.905] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:52:55.978] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:52:55.979] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:53:06.066] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:53:06.066] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:53:16.175] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:53:16.175] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:53:26.311] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:53:26.311] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:53:36.451] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:53:36.451] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:53:46.729] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:53:46.729] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:53:57.016] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:53:57.016] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:54:07.261] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:54:07.261] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:54:17.616] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:54:17.616] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:54:27.829] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:54:27.829] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:54:38.051] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:54:38.051] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:54:48.233] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:54:48.233] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:54:58.397] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:54:58.397] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:08.585] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:55:08.585] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:18.770] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:55:18.770] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:29.167] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:55:29.167] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:39.198] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:55:39.198] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.563] [udm_ueau] [info] Handle generate_auth_data()
+[2026-09-27 18:55:43.563] [udm_ueau] [info] Handle Generate Auth Data Request
+[2026-09-27 18:55:43.563] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:55:43.563] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.567] [common] [debug] [udm_ueau]Result For F1-Alg Key
+00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 
+[2026-09-27 18:55:43.567] [common] [debug] [udm_ueau]Result For F1-Alg OPC
+63 bf a5 0e e6 52 33 65 ff 14 c1 f4 5f 88 73 7d 
+[2026-09-27 18:55:43.567] [common] [debug] [udm_ueau]Result For F1-Alg AMF
+80 00 
+[2026-09-27 18:55:43.567] [common] [debug] [udm_ueau]Result For F1-Alg SQN: 
+00 00 00 00 00 a0 
+[2026-09-27 18:55:43.567] [udm_ueau] [info] Current SQN 0000000000c0
+51 1f 18 9 1e a4 b1 7 ac 2a 32 98 c6 30 a8 97 
+8 b 48 c 9a d5 e5 3 79 bb 37 1a 3b ea 31 2 
+51 1f 18 9 1e a4 b1 7 ac 2a 32 98 c6 30 a8 97 
+94 a0 2c f6 23 cf 25 1b e5 10 53 e0 82 f0 f1 1b 
+67 8b 61 5f 29 dc 9f 2c c6 b4 b5 5e 58 6c e0 38 
+6d 98 db 68 a 78 79 92 1c 28 a4 7e ab 47 ad 97 
+[2026-09-27 18:55:43.568] [common] [debug] [udm_ueau]XRES*(new)
+da d0 58 85 f5 e0 de 5a c2 1d 68 ed f9 87 ac 3f 2e ea f7 84 55 43 3f b9 54 f0 aa cb 24 fa bb 56 
+[2026-09-27 18:55:43.568] [udm_ueau] [debug] derive_kausf ...
+[2026-09-27 18:55:43.568] [common] [debug] [udm_ueau]derive_kausf key
+0d 6d e1 6a 4f f8 54 ac e2 0b 31 c4 cc 1b 2f 2a 59 bd 0e 24 fb f7 85 d9 e3 73 f2 81 a1 43 3f 6f 
+[2026-09-27 18:55:43.568] [common] [debug] [udm_ueau]derive_kausf kausf
+73 32 81 9b c5 f3 42 57 e3 91 bb db d3 30 0a 2a 91 07 f2 fc b3 e3 02 21 f9 29 21 38 9e 61 d9 fc 
+[2026-09-27 18:55:43.568] [udm_ueau] [info] New SQN (for next round) = 0000000000e0
+[2026-09-27 18:55:43.568] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:55:43.568] [udm_ueau] [info] Update UDR with PATCH message, body:  [{"from":"","op":"replace","path":"","value":"{\"lastIndexes\":{\"ausf\":0},\"sqn\":\"0000000000e0\",\"sqnScheme\":\"NON_TIME_BASED\"}"}]
+[2026-09-27 18:55:43.568] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.574] [udm_ueau] [info] Send 200 OK response to AUSF
+[2026-09-27 18:55:43.574] [udm_ueau] [info] AuthInfoResult {"authType":"5G_AKA","authenticationVector":{"autn":"350168c92ac68000217463cac3e09560","avType":"5G_HE_AKA","kausf":"7332819bc5f34257e391bbdbd3300a2a9107f2fcb3e30221f92921389e61d9fc","rand":"32b19f34bca3e415dba759d755653515","xresStar":"2eeaf78455433fb954f0aacb24fabb56"}}
+[2026-09-27 18:55:43.574] [udm_ueau] [info] Send response to AUSF
+[2026-09-27 18:55:43.574] [udm_ueau] [info] Update sqn in Database
+[2026-09-27 18:55:43.637] [udm_ueau] [info] Handle confirm_auth()
+[2026-09-27 18:55:43.637] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:55:43.637] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.641] [udm_ueau] [debug] Remote URI:http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-status
+[2026-09-27 18:55:43.641] [udm_ueau] [debug] Request body = {"authRemovalInd":false,"authType":"5G_AKA","nfInstanceId":"400346f4-087e-40b1-a4cd-00566953999d","servingNetworkName":"5G:mnc001.mcc001.3gppnetwork.org","success":true,"timeStamp":"2026-09-27T16:55:43Z"}
+[2026-09-27 18:55:43.641] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.648] [udm_ueau] [debug] authEventId=a7ce743b0c19271671054e811defd03054827885465808f34747134659c7ea73
+[2026-09-27 18:55:43.648] [udm_ueau] [info] Send 201 Created response to AUSF
+[2026-09-27 18:55:43.648] [udm_ueau] [info] Send response to AUSF
+[2026-09-27 18:55:43.729] [udm_sdm] [debug] Handle Slice Selection Subscription Data Retrieval request
+[2026-09-27 18:55:43.729] [udm_sdm] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/00101/provisioned-data/am-data
+[2026-09-27 18:55:43.729] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.733] [udm_sdm] [debug] HTTP response code 200
+[2026-09-27 18:55:43.733] [udm_sdm] [debug] Response from UDR: {"nssai":{"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}}
+[2026-09-27 18:55:43.733] [udm_sdm] [debug] Slice Selection Subscription Data from UDR: {"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}
+[2026-09-27 18:55:43.738] [udm_uecm] [debug] Remote URI:http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/context-data/amf-3gpp-access
+[2026-09-27 18:55:43.738] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:43.742] [udm_uecm] [debug] HTTP Response: null
+[2026-09-27 18:55:43.742] [udm_uecm] [debug] HTTP response code 404
+[2026-09-27 18:55:49.293] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:55:49.293] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:55:59.428] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:55:59.428] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:56:09.577] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:56:09.577] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:56:19.744] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:56:19.744] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:56:29.947] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:56:29.947] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:56:40.068] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:56:40.068] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:56:50.250] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:56:50.250] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:57:00.386] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:57:00.386] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:57:10.566] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:57:10.566] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:57:20.699] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:57:20.699] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:57:30.881] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:57:30.882] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:57:41.023] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:57:41.023] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:57:51.199] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:57:51.199] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:01.285] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:58:01.285] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.630] [udm_ueau] [info] Handle generate_auth_data()
+[2026-09-27 18:58:08.630] [udm_ueau] [info] Handle Generate Auth Data Request
+[2026-09-27 18:58:08.630] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:58:08.630] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.633] [common] [debug] [udm_ueau]Result For F1-Alg Key
+00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 
+[2026-09-27 18:58:08.633] [common] [debug] [udm_ueau]Result For F1-Alg OPC
+63 bf a5 0e e6 52 33 65 ff 14 c1 f4 5f 88 73 7d 
+[2026-09-27 18:58:08.633] [common] [debug] [udm_ueau]Result For F1-Alg AMF
+80 00 
+[2026-09-27 18:58:08.633] [common] [debug] [udm_ueau]Result For F1-Alg SQN: 
+00 00 00 00 00 e0 
+[2026-09-27 18:58:08.633] [udm_ueau] [info] Current SQN 000000000100
+fd f2 f0 92 da 45 ff dc d 49 6 16 cd 2d 92 66 
+b1 ef 8f 53 14 74 38 7f ca ef 4b c0 ac d9 69 90 
+fd f2 f0 92 da 45 ff dc d 49 6 16 cd 2d 92 66 
+2d 44 eb a9 ac ae f8 67 56 44 2f 3a 14 3 a9 89 
+e8 ea bc 23 9a 88 e3 f6 50 47 ed cc e1 88 27 67 
+de cc a7 b2 9c 8b 21 0 a5 cc 63 21 24 26 70 eb 
+[2026-09-27 18:58:08.634] [common] [debug] [udm_ueau]XRES*(new)
+e9 ef dc f3 48 94 6f dd 4b 9f 20 ca ba e2 49 91 fe c1 a3 e2 27 27 b6 e7 d7 4f 4c 0d 25 85 63 e1 
+[2026-09-27 18:58:08.634] [udm_ueau] [debug] derive_kausf ...
+[2026-09-27 18:58:08.634] [common] [debug] [udm_ueau]derive_kausf key
+72 91 81 28 66 63 9a f2 bf 85 d4 88 e4 23 54 cf 1b 6d 67 46 7e 65 2b 1c 28 10 b2 aa 9d f9 5d c0 
+[2026-09-27 18:58:08.634] [common] [debug] [udm_ueau]derive_kausf kausf
+28 8e e3 be f2 5a 7b f9 a5 0d 3e 0d bc e3 c8 fe c5 79 2c a4 58 9d bb 04 a9 d4 27 a6 76 a4 4d 46 
+[2026-09-27 18:58:08.634] [udm_ueau] [info] New SQN (for next round) = 000000000120
+[2026-09-27 18:58:08.634] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:58:08.634] [udm_ueau] [info] Update UDR with PATCH message, body:  [{"from":"","op":"replace","path":"","value":"{\"lastIndexes\":{\"ausf\":0},\"sqn\":\"000000000120\",\"sqnScheme\":\"NON_TIME_BASED\"}"}]
+[2026-09-27 18:58:08.634] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.644] [udm_ueau] [info] Send 200 OK response to AUSF
+[2026-09-27 18:58:08.644] [udm_ueau] [info] AuthInfoResult {"authType":"5G_AKA","authenticationVector":{"autn":"aeb95efcbff980009318ac530f1e48e1","avType":"5G_HE_AKA","kausf":"288ee3bef25a7bf9a50d3e0dbce3c8fec5792ca4589dbb04a9d427a676a44d46","rand":"9e5c77af7842aace7ac46d595e780fe4","xresStar":"fec1a3e22727b6e7d74f4c0d258563e1"}}
+[2026-09-27 18:58:08.644] [udm_ueau] [info] Send response to AUSF
+[2026-09-27 18:58:08.644] [udm_ueau] [info] Update sqn in Database
+[2026-09-27 18:58:08.728] [udm_ueau] [info] Handle confirm_auth()
+[2026-09-27 18:58:08.728] [udm_ueau] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-subscription
+[2026-09-27 18:58:08.728] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.738] [udm_ueau] [debug] Remote URI:http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/authentication-data/authentication-status
+[2026-09-27 18:58:08.738] [udm_ueau] [debug] Request body = {"authRemovalInd":false,"authType":"5G_AKA","nfInstanceId":"400346f4-087e-40b1-a4cd-00566953999d","servingNetworkName":"5G:mnc001.mcc001.3gppnetwork.org","success":true,"timeStamp":"2026-09-27T16:58:08Z"}
+[2026-09-27 18:58:08.738] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.745] [udm_ueau] [debug] authEventId=a7ce743b0c19271671054e811defd03054827885465808f34747134659c7ea73
+[2026-09-27 18:58:08.745] [udm_ueau] [info] Send 201 Created response to AUSF
+[2026-09-27 18:58:08.745] [udm_ueau] [info] Send response to AUSF
+[2026-09-27 18:58:08.840] [udm_sdm] [debug] Handle Slice Selection Subscription Data Retrieval request
+[2026-09-27 18:58:08.840] [udm_sdm] [debug] Remote URI: http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/00101/provisioned-data/am-data
+[2026-09-27 18:58:08.840] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.844] [udm_sdm] [debug] HTTP response code 200
+[2026-09-27 18:58:08.844] [udm_sdm] [debug] Response from UDR: {"nssai":{"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}}
+[2026-09-27 18:58:08.844] [udm_sdm] [debug] Slice Selection Subscription Data from UDR: {"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}
+[2026-09-27 18:58:08.847] [udm_uecm] [debug] Remote URI:http://oai-udr:80/nudr-dr/v1/subscription-data/imsi-[REDACTED]/context-data/amf-3gpp-access
+[2026-09-27 18:58:08.847] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:08.851] [udm_uecm] [debug] HTTP Response: null
+[2026-09-27 18:58:08.851] [udm_uecm] [debug] HTTP response code 404
+[2026-09-27 18:58:11.541] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:58:11.541] [udm_client] [debug] Send a simple HTTP request
+[2026-09-27 18:58:21.683] [udm_nrf] [info] Sending NF heartbeat request
+[2026-09-27 18:58:21.683] [udm_client] [debug] Send a simple HTTP request

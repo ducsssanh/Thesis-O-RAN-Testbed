@@ -1,0 +1,2 @@
+frame_time_iso,frame_time_epoch_seconds,pfcp_message_type,pfcp_seid,urr_id,measurement_method_volume,trigger_volume_threshold,volume_threshold_bytes,uplink_volume_threshold_bytes,downlink_volume_threshold_bytes
+2026-10-01T13:49:23.956204+00:00,1790862563.956204000,50,0x0000000000000001,1,True,True,,,1000

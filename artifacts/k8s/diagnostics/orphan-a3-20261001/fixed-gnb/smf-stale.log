@@ -1,0 +1,6 @@
+[2026-10-01 14:21:24.186] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Deletion Request, UP SEID 0x1
+[2026-10-01 14:21:24.186] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 14:23:56.686] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Deletion Request, UP SEID 0x2
+[2026-10-01 14:23:56.686] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 14:26:27.565] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Deletion Request, UP SEID 0x3
+[2026-10-01 14:26:27.565] [smf_app] [warning] PDU Session already existed (SUPI imsi-001010123456780, PDU Session ID 1)

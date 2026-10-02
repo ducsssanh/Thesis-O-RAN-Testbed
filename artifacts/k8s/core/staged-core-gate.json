@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "runId": "20261001T085133Z-m35",
+  "pfcp": {
+    "association": 19202,
+    "heartbeats": 3,
+    "upfInitiatedHeartbeats": 2
+  },
+  "nrf": {
+    "UDR": 1,
+    "UDM": 1,
+    "AUSF": 1,
+    "AMF": 1,
+    "SMF": 1,
+    "UPF": 1
+  },
+  "xdpProgramIds": {
+    "n3": 579,
+    "n6": 586
+  },
+  "dnReturnRoute": true,
+  "podUIDs": {
+    "smf": "472220c2-6b6d-4545-81c7-78106103ed1f",
+    "upf": "048daca7-f421-4103-a92d-ce072b0d4b56"
+  }
+}

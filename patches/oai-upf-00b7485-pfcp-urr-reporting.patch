@@ -1,0 +1,880 @@
+From 00b7485329b2c07d6cf74bbfae53b7f7acf5de4e Mon Sep 17 00:00:00 2001
+From: ducsssanh <ducanhitwork@gmail.com>
+Date: Thu, 3 Sep 2026 17:03:58 +0700
+Subject: [PATCH] feat(upf): emit PFCP usage reports from eBPF URR events
+
+---
+ src/upf_app/CMakeLists.txt                  |   2 +-
+ src/upf_app/app/upf_n4.cpp                  |  26 ++-
+ src/upf_app/control/UrrReportConsumer.cpp   | 181 ++++++++++++++++++++
+ src/upf_app/control/UrrReportConsumer.h     |  54 ++++++
+ src/upf_app/control/UserPlaneComponent.cpp  |  19 ++
+ src/upf_app/control/UserPlaneComponent.h    |   4 +
+ src/upf_app/kernel/include/urr_maps.h       |   2 +-
+ src/upf_app/kernel/include/urr_types.h      |   5 +-
+ src/upf_app/kernel/xdp/xdp_urr_apply_kern.c |  30 +++-
+ src/upf_app/user/urr_apply_user.cpp         | 164 +++++++++---------
+ src/upf_app/user/urr_apply_user.h           |  35 +---
+ src/upf_app/user/wrappers/BPFMap.cpp        |   5 +
+ src/upf_app/user/wrappers/BPFMap.hpp        |   3 +
+ 13 files changed, 404 insertions(+), 126 deletions(-)
+ create mode 100644 src/upf_app/control/UrrReportConsumer.cpp
+ create mode 100644 src/upf_app/control/UrrReportConsumer.h
+
+diff --git a/src/upf_app/CMakeLists.txt b/src/upf_app/CMakeLists.txt
+index 937cbfc..3a8b4c6 100644
+--- a/src/upf_app/CMakeLists.txt
++++ b/src/upf_app/CMakeLists.txt
+@@ -63,6 +63,7 @@ set(CMAKE_C_FLAGS "-Wno-gnu-variable-sized-type-not-at-end")
+ # ==========================================================================
+ set(UPF_CONTROL_SOURCES
+   control/UserPlaneComponent.cpp
++  control/UrrReportConsumer.cpp
+   control/Configuration.cpp
+   control/SignalHandler.cpp
+   control/SessionProgramManager.cpp
+@@ -207,4 +208,3 @@ target_include_directories(UPF_TC PUBLIC
+       RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+       INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+   )
+-
+diff --git a/src/upf_app/app/upf_n4.cpp b/src/upf_app/app/upf_n4.cpp
+index bcd7c1c..a977548 100644
+--- a/src/upf_app/app/upf_n4.cpp
++++ b/src/upf_app/app/upf_n4.cpp
+@@ -137,6 +137,13 @@ void upf_n4_task(void* args_p) {
+         }
+         break;
+ 
++      case N4_SESSION_REPORT_REQUEST:
++        if (itti_n4_session_report_request* m =
++                dynamic_cast<itti_n4_session_report_request*>(msg)) {
++          upf_n4_inst->send_n4_msg(ref(*m));
++        }
++        break;
++
+       case N4_SESSION_REPORT_RESPONSE:
+         if (itti_n4_session_report_response* m =
+                 dynamic_cast<itti_n4_session_report_response*>(msg)) {
+@@ -589,6 +596,7 @@ void upf_n4::send_n4_msg(itti_n4_session_deletion_response& i) {
+ }
+ //------------------------------------------------------------------------------
+ void upf_n4::send_n4_msg(itti_n4_session_report_request& i) {
++  if (i.trxn_id == 0) i.trxn_id = generate_trxn_id();
+   send_request(i.r_endpoint, i.seid, i.pfcp_ies, TASK_UPF_N4, i.trxn_id);
+ }
+ //------------------------------------------------------------------------------
+@@ -618,10 +626,12 @@ void upf_n4::start_association(const pfcp::node_id_t& node_id) {
+ //------------------------------------------------------------------------------
+ void upf_n4::send_n4_msg(
+     const pfcp::fseid_t& cp_fseid, const pfcp::pfcp_session_report_request& s) {
+-  itti_n4_session_report_request isrr(TASK_UPF_N4, TASK_UPF_N4);
+-  isrr.trxn_id  = generate_trxn_id();
+-  isrr.pfcp_ies = s;
+-  isrr.seid     = cp_fseid.seid;
++  auto isrr = std::make_shared<itti_n4_session_report_request>(
++      TASK_UPF_APP, TASK_UPF_N4);
++  // The N4 task allocates the transaction ID immediately before sending.
++  isrr->trxn_id  = 0;
++  isrr->pfcp_ies = s;
++  isrr->seid     = cp_fseid.seid;
+ 
+   std::shared_ptr<pfcp_association> sa = {};
+   if (pfcp_associations::get_instance().get_association(cp_fseid, sa)) {
+@@ -629,9 +639,13 @@ void upf_n4::send_n4_msg(
+     if (peer_node_id.node_id_type == pfcp::NODE_ID_TYPE_IPV4_ADDRESS) {
+       // a.l_endpoint =
+       // endpoint(boost::asio::ip::address_v4(upf_cfg.n4.addr4), 0);
+-      isrr.r_endpoint =
++      isrr->r_endpoint =
+           endpoint(peer_node_id.u1.ipv4_address, pfcp::default_port);
+-      send_n4_msg(isrr);
++      const int ret = itti_inst->send_msg(isrr);
++      if (RETURNok != ret) {
++        Logger::upf_n4().error(
++            "Could not enqueue PFCP_SESSION_REPORT_REQUEST to TASK_UPF_N4");
++      }
+     } else {
+       Logger::upf_n4().warn("TODO start_association() node_id IPV6, FQDN!");
+     }
+diff --git a/src/upf_app/control/UrrReportConsumer.cpp b/src/upf_app/control/UrrReportConsumer.cpp
+new file mode 100644
+index 0000000..1f80807
+--- /dev/null
++++ b/src/upf_app/control/UrrReportConsumer.cpp
+@@ -0,0 +1,181 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#include "UrrReportConsumer.h"
++
++#include <bpf/libbpf.h>
++#include <algorithm>
++#include <cerrno>
++#include <cinttypes>
++#include <ctime>
++#include <limits>
++#include <stdexcept>
++#include <utility>
++
++#include "SessionManager.h"
++#include "logger.hpp"
++#include "pfcp_session.hpp"
++#include "upf_n4.hpp"
++#include "urr_types.h"
++#include "wrappers/BPFMap.hpp"
++
++extern oai::upf::app::upf_n4* upf_n4_inst;
++
++namespace {
++constexpr uint64_t kNanosecondsPerSecond = 1000000000ULL;
++constexpr uint64_t kNtpUnixEpochOffset   = 2208988800ULL;
++
++uint32_t SaturatingSeconds(uint64_t nanoseconds) {
++  const uint64_t seconds = nanoseconds / kNanosecondsPerSecond;
++  return seconds > std::numeric_limits<uint32_t>::max() ?
++             std::numeric_limits<uint32_t>::max() :
++             static_cast<uint32_t>(seconds);
++}
++
++pfcp::usage_report_trigger_t ToPfcpTrigger(uint8_t trigger) {
++  pfcp::usage_report_trigger_t result = {};
++  result.volth                        = !!(trigger & URR_TRIGGER_VOLTH);
++  result.volqu                        = !!(trigger & URR_TRIGGER_VOLQU);
++  result.timth                        = !!(trigger & URR_TRIGGER_TIMTH);
++  result.timqu                        = !!(trigger & URR_TRIGGER_TIMQU);
++  result.perio                        = !!(trigger & URR_TRIGGER_PERIO);
++  result.start                        = !!(trigger & URR_TRIGGER_START);
++  result.stop                         = !!(trigger & URR_TRIGGER_STOPT);
++  result.droth                        = !!(trigger & URR_TRIGGER_DROTH);
++  return result;
++}
++}  // namespace
++
++UrrReportConsumer::UrrReportConsumer(
++    std::shared_ptr<BPFMap> ringbuf_map,
++    std::shared_ptr<SessionManager> session_manager)
++    : ringbuf_map_(std::move(ringbuf_map)),
++      session_manager_(std::move(session_manager)) {}
++
++UrrReportConsumer::~UrrReportConsumer() {
++  Stop();
++}
++
++void UrrReportConsumer::Start() {
++  if (running_.load()) return;
++  if (!ringbuf_map_ || !session_manager_) {
++    throw std::runtime_error("URR consumer dependencies are not initialized");
++  }
++
++  const int map_fd = ringbuf_map_->GetFd();
++  if (map_fd < 0) {
++    throw std::runtime_error("URR report ring buffer is not loaded");
++  }
++
++  ring_buffer_ = ring_buffer__new(
++      map_fd, UrrReportConsumer::OnRingbufEvent, this, nullptr);
++  if (!ring_buffer_) {
++    throw std::runtime_error(
++        "Failed to create URR report ring buffer consumer");
++  }
++
++  running_.store(true);
++  worker_ = std::thread(&UrrReportConsumer::PollLoop, this);
++  Logger::upf_app().info("URR report ring buffer consumer started");
++}
++
++void UrrReportConsumer::Stop() {
++  running_.store(false);
++  if (worker_.joinable()) worker_.join();
++  if (ring_buffer_) {
++    ring_buffer__free(ring_buffer_);
++    ring_buffer_ = nullptr;
++  }
++  report_sequences_.clear();
++}
++
++int UrrReportConsumer::OnRingbufEvent(
++    void* context, void* data, size_t data_size) {
++  if (!context || !data || data_size != sizeof(struct urr_report_event)) {
++    Logger::upf_app().error(
++        "Invalid URR ring buffer event size: %zu (expected %zu)", data_size,
++        sizeof(struct urr_report_event));
++    return 0;
++  }
++  return static_cast<UrrReportConsumer*>(context)->HandleEvent(
++      *static_cast<const struct urr_report_event*>(data));
++}
++
++int UrrReportConsumer::HandleEvent(const struct urr_report_event& event) {
++  const auto session = session_manager_->GetSession(event.seid);
++  if (!session) {
++    Logger::upf_app().warn(
++        "Dropping URR report for unknown SEID=%" PRIu64, event.seid);
++    return 0;
++  }
++  if (!upf_n4_inst) {
++    Logger::upf_app().error(
++        "Cannot send URR report for SEID=%" PRIu64 ": N4 is unavailable",
++        event.seid);
++    return 0;
++  }
++
++  pfcp::usage_report_within_pfcp_session_report_request usage_report;
++  const pfcp::urr_id_t urr_id    = {.urr_id = event.urr_id};
++  const pfcp::ur_seqn_t sequence = {.ur_seqn = ++report_sequences_[event.seid]};
++  usage_report.set(urr_id);
++  usage_report.set(sequence);
++  usage_report.set(ToPfcpTrigger(event.trigger));
++
++  pfcp::volume_measurement_t volume = {};
++  volume.tovol                      = 1;
++  volume.ulvol                      = 1;
++  volume.dlvol                      = 1;
++  volume.tonop                      = 1;
++  volume.ulnop                      = 1;
++  volume.dlnop                      = 1;
++  volume.total_volume               = event.vol.total_bytes;
++  volume.uplink_volume              = event.vol.ul_bytes;
++  volume.downlink_volume            = event.vol.dl_bytes;
++  volume.total_nop                  = event.vol.total_packets;
++  volume.uplink_nop                 = event.vol.ul_packets;
++  volume.downlink_nop               = event.vol.dl_packets;
++  usage_report.set(volume);
++
++  const uint64_t elapsed_ns       = event.timestamp_ns >= event.start_time_ns ?
++                                        event.timestamp_ns - event.start_time_ns :
++                                        0;
++  const uint32_t duration_seconds = SaturatingSeconds(elapsed_ns);
++  const uint64_t ntp_now =
++      static_cast<uint64_t>(std::time(nullptr)) + kNtpUnixEpochOffset;
++  const uint32_t end_seconds = static_cast<uint32_t>(
++      std::min<uint64_t>(ntp_now, std::numeric_limits<uint32_t>::max()));
++  const uint32_t start_seconds =
++      end_seconds >= duration_seconds ? end_seconds - duration_seconds : 0;
++  usage_report.set(pfcp::start_time_t{.start_time = start_seconds});
++  usage_report.set(pfcp::end_time_t{.end_time = end_seconds});
++  usage_report.set(pfcp::duration_measurement_t{.duration = duration_seconds});
++
++  pfcp::pfcp_session_report_request request;
++  pfcp::report_type_t report_type = {};
++  report_type.usar                = 1;
++  request.set(report_type);
++  request.set(usage_report);
++
++  upf_n4_inst->send_n4_msg(session->cp_fseid, request);
++  Logger::upf_app().info(
++      "Queued PFCP Usage Report SEID=%" PRIu64
++      " URR_ID=%u UR-SEQN=%u "
++      "trigger=0x%02x total_bytes=%" PRIu64,
++      event.seid, event.urr_id, sequence.ur_seqn, event.trigger,
++      event.vol.total_bytes);
++  return 0;
++}
++
++void UrrReportConsumer::PollLoop() {
++  while (running_.load()) {
++    const int result = ring_buffer__poll(ring_buffer_, 250);
++    if (result == -EINTR) continue;
++    if (result < 0) {
++      Logger::upf_app().error("URR ring buffer polling failed: %d", result);
++      break;
++    }
++  }
++  running_.store(false);
++}
+diff --git a/src/upf_app/control/UrrReportConsumer.h b/src/upf_app/control/UrrReportConsumer.h
+new file mode 100644
+index 0000000..e91f0c8
+--- /dev/null
++++ b/src/upf_app/control/UrrReportConsumer.h
+@@ -0,0 +1,54 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#ifndef URR_REPORT_CONSUMER_H_
++#define URR_REPORT_CONSUMER_H_
++
++#include <atomic>
++#include <cstddef>
++#include <cstdint>
++#include <memory>
++#include <thread>
++#include <unordered_map>
++
++struct ring_buffer;
++struct urr_report_event;
++
++class BPFMap;
++class SessionManager;
++
++/**
++ * @brief Bridges URR events from the eBPF dataplane to PFCP/N4.
++ *
++ * Packet accounting and trigger detection stay in kernel space. This consumer
++ * only handles the control-plane work that eBPF cannot perform: resolving the
++ * PFCP session, encoding a Usage Report, and handing it to the N4 task.
++ */
++class UrrReportConsumer {
++ public:
++  UrrReportConsumer(
++      std::shared_ptr<BPFMap> ringbuf_map,
++      std::shared_ptr<SessionManager> session_manager);
++  ~UrrReportConsumer();
++
++  UrrReportConsumer(const UrrReportConsumer&)            = delete;
++  UrrReportConsumer& operator=(const UrrReportConsumer&) = delete;
++
++  void Start();
++  void Stop();
++
++ private:
++  static int OnRingbufEvent(void* context, void* data, size_t data_size);
++  int HandleEvent(const struct urr_report_event& event);
++  void PollLoop();
++
++  std::shared_ptr<BPFMap> ringbuf_map_;
++  std::shared_ptr<SessionManager> session_manager_;
++  struct ring_buffer* ring_buffer_ = nullptr;
++  std::atomic<bool> running_{false};
++  std::thread worker_;
++  std::unordered_map<uint64_t, uint32_t> report_sequences_;
++};
++
++#endif  // URR_REPORT_CONSUMER_H_
+diff --git a/src/upf_app/control/UserPlaneComponent.cpp b/src/upf_app/control/UserPlaneComponent.cpp
+index 87113d2..4af876b 100644
+--- a/src/upf_app/control/UserPlaneComponent.cpp
++++ b/src/upf_app/control/UserPlaneComponent.cpp
+@@ -6,6 +6,7 @@
+ #include "SessionManager.h"
+ #include "SessionProgramManager.h"
+ #include "SignalHandler.h"
++#include "UrrReportConsumer.h"
+ #include <upf_xdp_user.h>
+ #include "logger.hpp"
+ #include "Configuration.h"
+@@ -159,6 +160,18 @@ void UserPlaneComponent::Setup(
+ 
+   Logger::upf_app().info("Session Manager initialized");
+ 
++  // PFCP encoding/sending belongs in userspace. Start consuming only after the
++  // BPF maps and the session registry are both available.
++  if (flags.enable_urr) {
++    const auto urr_program = upf_xdp_program_->GetUrrProgram();
++    if (!urr_program || !urr_program->GetUrrReportRingbuf()) {
++      throw std::runtime_error("URR enabled but report ring buffer is missing");
++    }
++    urr_report_consumer_ = std::make_shared<UrrReportConsumer>(
++        urr_program->GetUrrReportRingbuf(), session_manager_);
++    urr_report_consumer_->Start();
++  }
++
+   // Count loaded features
+   int feature_count = 3;  // Core: session_lookup + pdr_match + far
+   if (flags.enable_qer) feature_count++;
+@@ -211,6 +224,12 @@ void UserPlaneComponent::Setup(
+ void UserPlaneComponent::TearDown() {
+   Logger::upf_app().info("Tearing down User Plane Component");
+ 
++  // Stop polling while both the session registry and BPF map are still alive.
++  if (urr_report_consumer_) {
++    urr_report_consumer_->Stop();
++    urr_report_consumer_.reset();
++  }
++
+   // Remove all sessions from singleton
+   SessionProgramManager::GetInstance().RemoveAllSessions();
+ 
+diff --git a/src/upf_app/control/UserPlaneComponent.h b/src/upf_app/control/UserPlaneComponent.h
+index f585310..fe3a57d 100644
+--- a/src/upf_app/control/UserPlaneComponent.h
++++ b/src/upf_app/control/UserPlaneComponent.h
+@@ -32,6 +32,7 @@
+ // Forward declarations
+ class SessionManager;
+ class UPF_XDPProgram;
++class UrrReportConsumer;
+ 
+ /**
+  * @class UserPlaneComponent
+@@ -246,6 +247,9 @@ class UserPlaneComponent : public ISessionObserver {
+   /// BPF data plane manager (entry programs + shared map ownership)
+   std::shared_ptr<UPF_XDPProgram> upf_xdp_program_;
+ 
++  /// Converts dataplane URR ring-buffer events into PFCP Usage Reports.
++  std::shared_ptr<UrrReportConsumer> urr_report_consumer_;
++
+   /// N3 GTP-U interface name
+   std::string gtp_interface_;
+ 
+diff --git a/src/upf_app/kernel/include/urr_maps.h b/src/upf_app/kernel/include/urr_maps.h
+index 75d94ce..70b2e21 100644
+--- a/src/upf_app/kernel/include/urr_maps.h
++++ b/src/upf_app/kernel/include/urr_maps.h
+@@ -68,7 +68,7 @@ struct {
+  *
+  * Producer: xdp_urr_apply_kern.c  — submits struct urr_report_event
+  *           when a Reporting Trigger fires.
+- * Consumer: xdp_urr_apply_user.cpp — polls and constructs PFCP
++ * Consumer: UrrReportConsumer.cpp — polls and constructs PFCP
+  *           Session Report Requests (§7.2.5) for the SMF.
+  *
+  * If the ring is full, bpf_ringbuf_reserve() returns NULL and the
+diff --git a/src/upf_app/kernel/include/urr_types.h b/src/upf_app/kernel/include/urr_types.h
+index f33f8d1..e456f85 100644
+--- a/src/upf_app/kernel/include/urr_types.h
++++ b/src/upf_app/kernel/include/urr_types.h
+@@ -75,6 +75,9 @@ struct urr_config {
+   __u8 reporting_triggers; /**< Reporting Triggers bitmask (§8.2.19)    */
+   __u8 pad[3];
+ 
++  /** One-shot latch used to suppress duplicate threshold/quota reports. */
++  __u64 reported_triggers;
++
+   /* Volume Threshold (§8.2.13) — generate report when crossed           */
+   __u64 volume_threshold_total; /**< Total volume threshold (bytes)      */
+   __u64 volume_threshold_ul;    /**< Uplink volume threshold (bytes)     */
+@@ -111,7 +114,7 @@ struct urr_config {
+ /**
+  * @brief Usage Report event sent to userspace via ringbuf.
+  *
+- * Produced by the XDP program, consumed by xdp_urr_apply_user.cpp.
++ * Produced by the XDP program, consumed by UrrReportConsumer.cpp.
+  * Userspace reads this event and constructs a PFCP Session Report
+  * Request (TS 29.244 §7.2.5) with a Usage Report IE
+  * (Table 7.5.8.3-1) and sends it to the SMF.
+diff --git a/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c b/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c
+index 596ea47..7b66e6e 100644
+--- a/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c
++++ b/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c
+@@ -101,10 +101,6 @@ static __always_inline void urr_submit_report(
+   evt->pad[2]        = 0;
+   evt->timestamp_ns  = now_ns;
+   evt->start_time_ns = cfg->monitoring_time_ns;
+-  /*  Not an atomic read of the whole struct,
+-   * but individual fields are atomically updated — slight inconsistency
+-   * between fields is acceptable for reporting purposes.
+-   */
+   /*
+    * Snapshot current counters. Not an atomic read of the whole struct,
+    * but individual fields are atomically updated — slight inconsistency
+@@ -127,6 +123,19 @@ static __always_inline void urr_submit_report(
+       trigger, cfg->urr_id, seid);
+ }
+ 
++/**
++ * @brief Atomically claim a one-shot reporting trigger.
++ *
++ * Threshold and quota conditions remain true for every packet after they are
++ * crossed. Without this latch, each of those packets would enqueue another
++ * PFCP Usage Report event. Periodic reporting deliberately does not use it.
++ */
++static __always_inline bool urr_claim_one_shot_trigger(
++    struct urr_config* cfg, __u64 trigger) {
++  __u64 previous = __sync_fetch_and_or(&cfg->reported_triggers, trigger);
++  return !(previous & trigger);
++}
++
+ /* ========================================================================== */
+ /*                   THRESHOLD / QUOTA CHECK (§8.2.46-48)                     */
+ /* ========================================================================== */
+@@ -168,7 +177,7 @@ static __always_inline bool urr_check_thresholds(
+         vol->dl_bytes >= cfg->volume_threshold_dl)
+       crossed = true;
+ 
+-    if (crossed) {
++    if (crossed && urr_claim_one_shot_trigger(cfg, URR_TRIGGER_VOLTH)) {
+       bpf_debug(
+           "URR: Volume Threshold crossed"
+           "SEID = %llu, total = %llu bytes",
+@@ -200,7 +209,8 @@ static __always_inline bool urr_check_thresholds(
+           "URR: Volume Quota exhausted "
+           "SEID = %llu - enforcing DROP",
+           seid);
+-      urr_submit_report(seid, cfg, vol, URR_TRIGGER_VOLQU, now_ns);
++      if (urr_claim_one_shot_trigger(cfg, URR_TRIGGER_VOLQU))
++        urr_submit_report(seid, cfg, vol, URR_TRIGGER_VOLQU, now_ns);
+       should_drop = true;
+     }
+   }
+@@ -212,7 +222,8 @@ static __always_inline bool urr_check_thresholds(
+     if (cfg->time_threshold_ns > 0 && cfg->monitoring_time_ns > 0) {
+       __u64 elapsed = now_ns - cfg->monitoring_time_ns;
+ 
+-      if (elapsed >= cfg->time_threshold_ns) {
++      if (elapsed >= cfg->time_threshold_ns &&
++          urr_claim_one_shot_trigger(cfg, URR_TRIGGER_TIMTH)) {
+         bpf_debug(
+             "URR: Time Threshold reached "
+             "SEID = %llu, elapsed = %llu ns",
+@@ -255,7 +266,8 @@ static __always_inline bool urr_check_thresholds(
+             "URR: Time Quota exhausted (§8.2.47) "
+             "SEID = %llu, elapsed = %llu ns — enforcing DROP",
+             seid, elapsed);
+-        urr_submit_report(seid, cfg, vol, URR_TRIGGER_TIMQU, now_ns);
++        if (urr_claim_one_shot_trigger(cfg, URR_TRIGGER_TIMQU))
++          urr_submit_report(seid, cfg, vol, URR_TRIGGER_TIMQU, now_ns);
+         should_drop = true;
+       }
+     }
+@@ -280,7 +292,7 @@ static __always_inline bool urr_check_thresholds(
+         vol->dropped_dl_packets >= cfg->dropped_dl_threshold_pkts)
+       droth_crossed = true;
+ 
+-    if (droth_crossed) {
++    if (droth_crossed && urr_claim_one_shot_trigger(cfg, URR_TRIGGER_DROTH)) {
+       bpf_debug(
+           "URR: Dropped DL Threshold crossed (§8.2.49) "
+           "SEID = %llu, dropped_dl_bytes = %llu, dropped_dl_pkts = %llu",
+diff --git a/src/upf_app/user/urr_apply_user.cpp b/src/upf_app/user/urr_apply_user.cpp
+index 3b31f46..345535f 100644
+--- a/src/upf_app/user/urr_apply_user.cpp
++++ b/src/upf_app/user/urr_apply_user.cpp
+@@ -5,6 +5,8 @@
+ #include "urr_apply_user.h"
+ #include <bpf/libbpf.h>
+ #include <cerrno>
++#include <cstring>
++#include <ctime>
+ #include <stdexcept>
+ #include <wrappers/BPFMap.hpp>
+ #include <wrappers/BPFMaps.h>
+@@ -14,6 +16,19 @@
+ 
+ using namespace oai::utils::bpf;
+ 
++namespace {
++constexpr uint64_t kNanosecondsPerSecond = 1000000000ULL;
++
++uint64_t MonotonicNowNs() {
++  struct timespec now {};
++  if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
++    throw std::runtime_error("Failed to read CLOCK_MONOTONIC for URR");
++  }
++  return static_cast<uint64_t>(now.tv_sec) * kNanosecondsPerSecond +
++         static_cast<uint64_t>(now.tv_nsec);
++}
++}  // namespace
++
+ //------------------------------------------------------------------------------
+ void URRProgram::ConfigureMaps(struct xdp_urr_apply_kern_c* skel) {
+   if (!skel) {
+@@ -141,122 +156,114 @@ size_t URRProgram::GetMapCount() const {
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::ConvertUrr(
+-    const pfcp::pfcp_urr& urr, struct pfcp_urr& bpf_urr) {
+-  bpf_urr        = {};
+-  bpf_urr.urr_id = urr.urr_id.second.urr_id;
++    const pfcp::pfcp_urr& urr, struct urr_config& config) {
++  config        = {};
++  config.urr_id = urr.urr_id.second.urr_id;
++
+   if (urr.reporting_triggers.first) {
+-    bpf_urr.reporting_triggers.volth =
+-        urr.reporting_triggers.second.volth ? 1 : 0;
+-    bpf_urr.reporting_triggers.volqu =
+-        urr.reporting_triggers.second.volqu ? 1 : 0;
+-    bpf_urr.reporting_triggers.timth =
+-        urr.reporting_triggers.second.timth ? 1 : 0;
+-    bpf_urr.reporting_triggers.timqu =
+-        urr.reporting_triggers.second.timqu ? 1 : 0;
+-    bpf_urr.reporting_triggers.perio =
+-        urr.reporting_triggers.second.perio ? 1 : 0;
+-    bpf_urr.reporting_triggers.start =
+-        urr.reporting_triggers.second.start ? 1 : 0;
+-    bpf_urr.reporting_triggers.stop =
+-        urr.reporting_triggers.second.stop ? 1 : 0;
+-    bpf_urr.reporting_triggers.droth =
+-        urr.reporting_triggers.second.droth ? 1 : 0;
++    const auto& triggers = urr.reporting_triggers.second;
++    if (triggers.volth) config.reporting_triggers |= URR_TRIGGER_VOLTH;
++    if (triggers.volqu) config.reporting_triggers |= URR_TRIGGER_VOLQU;
++    if (triggers.timth) config.reporting_triggers |= URR_TRIGGER_TIMTH;
++    if (triggers.timqu) config.reporting_triggers |= URR_TRIGGER_TIMQU;
++    if (triggers.perio) config.reporting_triggers |= URR_TRIGGER_PERIO;
++    if (triggers.start) config.reporting_triggers |= URR_TRIGGER_START;
++    if (triggers.stop) config.reporting_triggers |= URR_TRIGGER_STOPT;
++    if (triggers.droth) config.reporting_triggers |= URR_TRIGGER_DROTH;
+   }
++
+   if (urr.volume_threshold.first) {
+-    bpf_urr.volume_threshold.total_volume =
+-        urr.volume_threshold.second.total_volume;
+-    bpf_urr.volume_threshold.uplink_volume =
+-        urr.volume_threshold.second.uplink_volume;
+-    bpf_urr.volume_threshold.downlink_volume =
+-        urr.volume_threshold.second.downlink_volume;
++    config.volume_threshold_total = urr.volume_threshold.second.total_volume;
++    config.volume_threshold_ul    = urr.volume_threshold.second.uplink_volume;
++    config.volume_threshold_dl    = urr.volume_threshold.second.downlink_volume;
+   }
+   if (urr.volume_quota.first) {
+-    bpf_urr.volume_quota.total_volume  = urr.volume_quota.second.total_volume;
+-    bpf_urr.volume_quota.uplink_volume = urr.volume_quota.second.uplink_volume;
+-    bpf_urr.volume_quota.downlink_volume =
+-        urr.volume_quota.second.downlink_volume;
++    config.volume_quota_total = urr.volume_quota.second.total_volume;
++    config.volume_quota_ul    = urr.volume_quota.second.uplink_volume;
++    config.volume_quota_dl    = urr.volume_quota.second.downlink_volume;
+   }
+-  if (urr.measurement_period.first)
+-    bpf_urr.measurement_period.measurement_period =
++  if (urr.measurement_period.first) {
++    config.measurement_period_ns =
+         static_cast<uint64_t>(
+             urr.measurement_period.second.measurement_period) *
+-        1000000000ULL;
+-  if (urr.time_threshold.first)
+-    bpf_urr.time_threshold.time_threshold =
++        kNanosecondsPerSecond;
++  }
++  if (urr.time_threshold.first) {
++    config.time_threshold_ns =
+         static_cast<uint64_t>(urr.time_threshold.second.time_threshold) *
+-        1000000000ULL;
+-  if (urr.monitoring_time.first)
+-    bpf_urr.monitoring_time.monitoring_time =
+-        static_cast<uint64_t>(urr.monitoring_time.second.monitoring_time) *
+-        1000000000ULL;
++        kNanosecondsPerSecond;
++  }
++  if (urr.time_quota.first) {
++    config.time_quota_ns =
++        static_cast<uint64_t>(urr.time_quota.second.time_quota) *
++        kNanosecondsPerSecond;
++  }
+   if (urr.dropped_dl_traffic_threshold.first) {
+     const auto& ddth = urr.dropped_dl_traffic_threshold.second;
+-    bpf_urr.dropped_dl_traffic_threshold.flags = 0;
+-    if (ddth.dlpa) {
+-      bpf_urr.dropped_dl_traffic_threshold.flags |= DDTH_FLAG_DLPA;
+-      bpf_urr.dropped_dl_traffic_threshold.downlink_packets =
+-          ddth.downlink_packets;
+-    }
++    if (ddth.dlpa) config.dropped_dl_threshold_pkts = ddth.downlink_packets;
+     if (ddth.dlby) {
+-      bpf_urr.dropped_dl_traffic_threshold.flags |= DDTH_FLAG_DLBY;
+-      bpf_urr.dropped_dl_traffic_threshold.number_of_bytes_of_downlink_data =
+-          ddth.number_of_bytes_of_downlink_data;
++      config.dropped_dl_threshold_bytes = ddth.number_of_bytes_of_downlink_data;
+     }
+   }
+-}
+ 
+-//------------------------------------------------------------------------------
+-urr_map_key URRProgram::MakeKey(uint64_t seid, uint32_t urr_id) {
+-  urr_map_key k;
+-  k.seid   = seid;
+-  k.urr_id = urr_id;
+-  k._pad   = 0;
+-  return k;
++  // bpf_ktime_get_ns() is monotonic since boot. PFCP Monitoring Time is an
++  // NTP wall-clock value and cannot be used in kernel elapsed-time arithmetic.
++  config.monitoring_time_ns = MonotonicNowNs();
++  config.last_report_ns     = config.monitoring_time_ns;
+ }
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::PopulateUrrConfigMap(
+     uint64_t seid, const std::shared_ptr<pfcp::pfcp_urr>& ie, uint64_t flags) {
+   if (!ie || !urr_config_map_) return;
+-  struct pfcp_urr bpf_urr;
+-  ConvertUrr(*ie, bpf_urr);
+-  urr_map_key key = MakeKey(seid, bpf_urr.urr_id);
+-  int ret         = urr_config_map_->Update(key, bpf_urr, flags);
++  struct urr_config config {};
++  ConvertUrr(*ie, config);
++  uint64_t key = seid;
++  int ret      = urr_config_map_->Update(key, config, flags);
+   if (ret != 0) {
+     Logger::upf_app().error(
+         "URRProgram: config map update failed SEID=%" PRIu64
+         " URR_ID=%u ret=%d",
+-        seid, bpf_urr.urr_id, ret);
++        seid, config.urr_id, ret);
+   } else {
+-    __u16 t;
+-    __builtin_memcpy(&t, &bpf_urr.reporting_triggers, sizeof(t));
+     Logger::upf_app().debug(
+         "URRProgram: config map updated SEID=%" PRIu64
+-        " URR_ID=%u triggers=0x%04x",
+-        seid, bpf_urr.urr_id, static_cast<unsigned>(t));
++        " URR_ID=%u triggers=0x%02x",
++        seid, config.urr_id, static_cast<unsigned>(config.reporting_triggers));
+   }
+ }
+ 
+ //------------------------------------------------------------------------------
+-void URRProgram::InitUrrVolumeMap(uint64_t seid, uint32_t urr_id) {
+-  urr_map_key key = MakeKey(seid, urr_id);
+-  urr_volume_t zero{};
++void URRProgram::InitUrrVolumeMap(uint64_t seid) {
++  uint64_t key = seid;
++  struct urr_volume zero {};
+   if (!urr_volume_counters_map_) return;
+-  int ret = urr_volume_counters_map_->Update(key, zero, BPF_NOEXIST);
+-  if (ret != 0 && ret != -EEXIST)
++  const int ret = bpf_map_update_elem(
++      urr_volume_counters_map_->GetFd(), &key, &zero, BPF_NOEXIST);
++  if (ret != 0 && errno != EEXIST) {
+     Logger::upf_app().warn(
+-        "URRProgram: volume map init failed SEID=%" PRIu64 " URR_ID=%u ret=%d",
+-        seid, urr_id, ret);
++        "URRProgram: volume map init failed SEID=%" PRIu64
++        " errno=%d (%s)",
++        seid, errno, strerror(errno));
++    throw std::runtime_error("URR volume map initialization failed");
++  }
+ }
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::Setup(
+     uint64_t seid, const std::vector<std::shared_ptr<pfcp::pfcp_urr>>& urrs) {
++  std::shared_ptr<pfcp::pfcp_urr> selected;
+   for (const auto& urr : urrs) {
+     if (!urr) continue;
+-    PopulateUrrConfigMap(seid, urr, BPF_ANY);
+-    InitUrrVolumeMap(seid, urr->urr_id.second.urr_id);
++    if (selected) {
++      throw std::runtime_error(
++          "URR MVP supports exactly one URR per PFCP session");
++    }
++    selected = urr;
+   }
++  if (!selected) return;
++  PopulateUrrConfigMap(seid, selected, BPF_ANY);
++  InitUrrVolumeMap(seid);
+ }
+ 
+ //------------------------------------------------------------------------------
+@@ -268,7 +275,9 @@ void URRProgram::Update(
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::Remove(uint64_t seid, uint32_t urr_id) {
+-  urr_map_key key = MakeKey(seid, urr_id);
++  uint64_t key = seid;
++  Logger::upf_app().debug(
++      "URRProgram: removing SEID=%" PRIu64 " URR_ID=%u", seid, urr_id);
+   if (urr_config_map_) urr_config_map_->Remove(key);
+   if (urr_volume_counters_map_) urr_volume_counters_map_->Remove(key);
+ }
+@@ -279,13 +288,14 @@ void URRProgram::TearDown(
+   for (const auto& urr : urrs) {
+     if (!urr) continue;
+     Remove(seid, urr->urr_id.second.urr_id);
++    break;
+   }
+ }
+ 
+ //------------------------------------------------------------------------------
+ bool URRProgram::ReadVolumeCounters(
+-    uint64_t seid, uint32_t urr_id, urr_volume_t& out) const {
+-  urr_map_key key = MakeKey(seid, urr_id);
++    uint64_t seid, struct urr_volume& out) const {
++  uint64_t key = seid;
+   if (!urr_volume_counters_map_) return false;
+   return urr_volume_counters_map_->Lookup(key, &out) == 0;
+ }
+diff --git a/src/upf_app/user/urr_apply_user.h b/src/upf_app/user/urr_apply_user.h
+index e4a0f51..a02c07e 100644
+--- a/src/upf_app/user/urr_apply_user.h
++++ b/src/upf_app/user/urr_apply_user.h
+@@ -24,27 +24,6 @@ class BPFMap;
+ 
+ using UrrProgramLifeCycle = ProgramLifeCycle<xdp_urr_apply_kern_c>;
+ 
+-/**
+- * @struct urr_map_key
+- * @brief Compound BPF map key: {seid, urr_id}.
+- */
+-struct urr_map_key {
+-  uint64_t seid;
+-  uint32_t urr_id;
+-  uint32_t _pad;
+-} __attribute__((packed));
+-
+-/**
+- * @struct urr_volume_t
+- * @brief Per-URR volume counters maintained atomically by the data plane.
+- */
+-struct urr_volume_t {
+-  uint64_t ul_octets;
+-  uint64_t dl_octets;
+-  uint64_t ul_packets;
+-  uint64_t dl_packets;
+-};
+-
+ /**
+  * @class URRProgram
+  * @brief Manages the xdp_urr_apply XDP program lifecycle.
+@@ -184,19 +163,16 @@ class URRProgram : public BPFProgram {
+    * exist, preserving any in-flight accounting across session updates.
+    *
+    * @param seid    PFCP session identifier.
+-   * @param urr_id  URR identifier.
+    */
+-  void InitUrrVolumeMap(uint64_t seid, uint32_t urr_id);
++  void InitUrrVolumeMap(uint64_t seid);
+ 
+   /**
+    * @brief Read current volume counters for a URR.
+    * @param seid    PFCP session identifier.
+-   * @param urr_id  URR identifier.
+    * @param[out] volume  Output volume counter struct.
+    * @return true if entry found and populated.
+    */
+-  bool ReadVolumeCounters(
+-      uint64_t seid, uint32_t urr_id, urr_volume_t& volume) const;
++  bool ReadVolumeCounters(uint64_t seid, struct urr_volume& volume) const;
+ 
+  private:
+   /**
+@@ -214,12 +190,9 @@ class URRProgram : public BPFProgram {
+    */
+   void InitializeMaps();
+ 
+-  /** @brief Build a urr_map_key from SEID and URR_ID (pad zeroed). */
+-  static urr_map_key MakeKey(uint64_t seid, uint32_t urr_id);
+-
+-  /** @brief Translate PFCP URR IE into BPF pfcp_urr struct. */
++  /** @brief Translate a PFCP URR IE into the exact BPF map value layout. */
+   static void ConvertUrr(
+-      const pfcp::pfcp_urr& pfcp_ie, struct pfcp_urr& bpf_urr);
++      const pfcp::pfcp_urr& pfcp_ie, struct urr_config& config);
+ 
+   //----------------------------------------------------------------------------
+   // Skeleton and lifecycle
+diff --git a/src/upf_app/user/wrappers/BPFMap.cpp b/src/upf_app/user/wrappers/BPFMap.cpp
+index 97bb94c..e9083c6 100644
+--- a/src/upf_app/user/wrappers/BPFMap.cpp
++++ b/src/upf_app/user/wrappers/BPFMap.cpp
+@@ -20,3 +20,8 @@ BPFMap::~BPFMap() {
+ std::string BPFMap::GetName() const {
+   return name_;
+ }
++
++//------------------------------------------------------------------------------
++int BPFMap::GetFd() const {
++  return bpf_map_ ? bpf_map__fd(bpf_map_) : -1;
++}
+diff --git a/src/upf_app/user/wrappers/BPFMap.hpp b/src/upf_app/user/wrappers/BPFMap.hpp
+index 282bd69..89abf45 100644
+--- a/src/upf_app/user/wrappers/BPFMap.hpp
++++ b/src/upf_app/user/wrappers/BPFMap.hpp
+@@ -208,6 +208,9 @@ class BPFMap {
+    */
+   std::string GetName() const;
+ 
++  /** @brief Return the loaded map file descriptor, or -1 if unavailable. */
++  int GetFd() const;
++
+  private:
+   struct bpf_map* bpf_map_;  ///< Pointer to libbpf map structure
+   std::string name_;         ///< Human-readable map name for logging
+-- 
+2.43.0
+

@@ -1,0 +1,300 @@
+[2026-09-27 15:25:37.832] [smf_n4 ] [info] handle_receive(42 bytes)
+[2026-09-27 15:25:37.832] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 6 length 38
+[2026-09-27 15:25:37.832] [smf_n4 ] [info] Received N4 ASSOCIATION SETUP RESPONSE from an UPF
+[2026-09-27 15:25:37.832] [smf_n4 ] [info] Received N4 ASSOCIATION SETUP RESPONSE
+[2026-09-27 15:25:37.832] [common] [debug] Resolving an FQDN/IP Addr for an UPF node
+[2026-09-27 15:25:37.832] [common] [debug] Resolving an IP address (name 172.30.24.20)
+[2026-09-27 15:25:37.832] [common] [debug] Reverse Resolving Try #0
+[2026-09-27 15:25:37.869] [common] [debug] Resolve IP Addr 172.30.24.20, FQDN 172.30.24.20
+[2026-09-27 15:25:37.869] [smf_app] [debug] Found UPF config for pending PFCP association 172.30.24.20
+[2026-09-27 15:25:37.869] [smf_app] [debug] UPF Interface list is empty: Assume that the UPF has an N3 interface.
+[2026-09-27 15:25:37.869] [smf_app] [debug] UPF Interface list is empty: Assume that the UPF has an N6 interface.
+[2026-09-27 15:25:37.869] [smf_app] [info] Successfully added UPF node: 172.30.24.20
+[2026-09-27 15:25:37.869] [smf_app] [debug] Successfully added UPF graph edge for 172.30.24.20: - UPF Graph Edge
+  + Interface Type.............................: N3
+  + NWI........................................: 
+  + Uplink.....................................: No
+
+[2026-09-27 15:25:37.869] [smf_app] [debug] Successfully added UPF graph edge for 172.30.24.20: - UPF Graph Edge
+  + Interface Type.............................: N6
+  + NWI........................................: 
+  + Uplink.....................................: No
+
+[2026-09-27 15:25:37.869] [smf_app] [debug] UPF graph
+[2026-09-27 15:25:37.869] [smf_app] [debug] 
+ - Node.........................................: 172.30.24.20
+  + Edges
+    - UPF Graph Edge
+      + Interface Type.........................: N3
+      + NWI....................................: 
+      + Uplink.................................: No
+    - UPF Graph Edge
+      + Interface Type.........................: N6
+      + NWI....................................: 
+      + Uplink.................................: No
+
+[2026-09-27 15:25:37.869] [smf_app] [debug] Added PFCP association with UPF config: 
+ + 172.30.24.20
+      + host...................................: 172.30.24.20
+      + port...................................: 8805
+      + enable_usage_reporting.................: Yes
+      + enable_qers............................: No
+      + enable_upf_wo_nf_discovery.............: No
+      + enable_dl_pdr_in_session_establishment.: No
+      + upf_info:
+        - snssai_upf_info_item:
+          + snssai:
+            - sst..............................: 1
+            - sd...............................: ffffff
+          + dnns:
+            - dnn..............................: nist-dnn
+
+[2026-09-27 15:25:39.831] [common] [debug] Resolving an FQDN/IP Addr for an UPF node
+[2026-09-27 15:25:42.684] [smf_app] [info] TIME-OUT event timer id 2
+[2026-09-27 15:25:42.684] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:25:42.684] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:25:42.684] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:25:42.684] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:25:42.684] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:25:42.688] [smf_sbi] [debug] Response data 
+[2026-09-27 15:25:42.688] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:25:42.688] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:25:42.688] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:25:42.688] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:25:42.688] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:25:42.831] [smf_n4 ] [info] TIME-OUT event timer id 4
+[2026-09-27 15:25:47.869] [smf_n4 ] [info] TIME-OUT event timer id 5
+[2026-09-27 15:25:47.869] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:25:47.869] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:25:47.869] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:25:52.688] [smf_app] [info] TIME-OUT event timer id 6
+[2026-09-27 15:25:52.688] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:25:52.688] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:25:52.688] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:25:52.688] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:25:52.688] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:25:52.691] [smf_sbi] [debug] Response data 
+[2026-09-27 15:25:52.691] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:25:52.691] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:25:52.691] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:25:52.691] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:25:52.691] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:25:52.869] [smf_n4 ] [info] TIME-OUT event timer id 9
+[2026-09-27 15:25:57.869] [smf_n4 ] [info] TIME-OUT event timer id 10
+[2026-09-27 15:25:57.869] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:25:57.870] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:25:57.870] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:26:02.691] [smf_app] [info] TIME-OUT event timer id 11
+[2026-09-27 15:26:02.691] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:26:02.691] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:26:02.691] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:26:02.692] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:26:02.692] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:26:02.696] [smf_sbi] [debug] Response data 
+[2026-09-27 15:26:02.696] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:26:02.696] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:26:02.696] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:26:02.696] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:26:02.696] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:26:02.870] [smf_n4 ] [info] TIME-OUT event timer id 14
+[2026-09-27 15:26:07.870] [smf_n4 ] [info] TIME-OUT event timer id 15
+[2026-09-27 15:26:07.870] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:26:07.870] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:26:07.870] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:26:12.696] [smf_app] [info] TIME-OUT event timer id 16
+[2026-09-27 15:26:12.696] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:26:12.696] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:26:12.696] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:26:12.696] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:26:12.696] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:26:12.699] [smf_sbi] [debug] Response data 
+[2026-09-27 15:26:12.699] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:26:12.699] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:26:12.699] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:26:12.699] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:26:12.699] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:26:12.870] [smf_n4 ] [info] TIME-OUT event timer id 19
+[2026-09-27 15:26:17.871] [smf_n4 ] [info] TIME-OUT event timer id 20
+[2026-09-27 15:26:17.871] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:26:17.871] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:26:17.871] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:26:22.699] [smf_app] [info] TIME-OUT event timer id 21
+[2026-09-27 15:26:22.699] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:26:22.699] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:26:22.699] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:26:22.699] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:26:22.699] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:26:22.702] [smf_sbi] [debug] Response data 
+[2026-09-27 15:26:22.702] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:26:22.702] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:26:22.702] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:26:22.702] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:26:22.702] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:26:22.871] [smf_n4 ] [info] TIME-OUT event timer id 24
+[2026-09-27 15:26:27.871] [smf_n4 ] [info] TIME-OUT event timer id 25
+[2026-09-27 15:26:27.871] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:26:27.872] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:26:27.872] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:26:32.703] [smf_app] [info] TIME-OUT event timer id 26
+[2026-09-27 15:26:32.703] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:26:32.703] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:26:32.703] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:26:32.703] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:26:32.703] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:26:32.705] [smf_sbi] [debug] Response data 
+[2026-09-27 15:26:32.705] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:26:32.705] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:26:32.705] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:26:32.705] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:26:32.705] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:26:32.872] [smf_n4 ] [info] TIME-OUT event timer id 29
+[2026-09-27 15:26:37.872] [smf_n4 ] [info] TIME-OUT event timer id 30
+[2026-09-27 15:26:37.872] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:26:37.872] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:26:37.873] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:26:42.706] [smf_app] [info] TIME-OUT event timer id 31
+[2026-09-27 15:26:42.706] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:26:42.706] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:26:42.706] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:26:42.706] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:26:42.706] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:26:42.709] [smf_sbi] [debug] Response data 
+[2026-09-27 15:26:42.709] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:26:42.709] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:26:42.709] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:26:42.709] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:26:42.709] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:26:42.872] [smf_n4 ] [info] TIME-OUT event timer id 34
+[2026-09-27 15:26:47.873] [smf_n4 ] [info] TIME-OUT event timer id 35
+[2026-09-27 15:26:47.873] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:26:47.873] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:26:47.873] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:26:52.709] [smf_app] [info] TIME-OUT event timer id 36
+[2026-09-27 15:26:52.709] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:26:52.709] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:26:52.709] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:26:52.710] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:26:52.710] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:26:52.712] [smf_sbi] [debug] Response data 
+[2026-09-27 15:26:52.713] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:26:52.713] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:26:52.713] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:26:52.713] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:26:52.713] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:26:52.873] [smf_n4 ] [info] TIME-OUT event timer id 39
+[2026-09-27 15:26:57.873] [smf_n4 ] [info] TIME-OUT event timer id 40
+[2026-09-27 15:26:57.873] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:26:57.874] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:26:57.874] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:27:02.713] [smf_app] [info] TIME-OUT event timer id 41
+[2026-09-27 15:27:02.713] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:27:02.713] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:27:02.713] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:27:02.713] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:27:02.713] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:27:02.716] [smf_sbi] [debug] Response data 
+[2026-09-27 15:27:02.716] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:27:02.716] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:27:02.716] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:27:02.716] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:27:02.716] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:27:02.874] [smf_n4 ] [info] TIME-OUT event timer id 44
+[2026-09-27 15:27:07.874] [smf_n4 ] [info] TIME-OUT event timer id 45
+[2026-09-27 15:27:07.874] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:27:07.874] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:27:07.874] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:27:12.716] [smf_app] [info] TIME-OUT event timer id 46
+[2026-09-27 15:27:12.716] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:27:12.716] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:27:12.717] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:27:12.717] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:27:12.717] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:27:12.722] [smf_sbi] [debug] Response data 
+[2026-09-27 15:27:12.722] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:27:12.722] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:27:12.722] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:27:12.722] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:27:12.722] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:27:12.874] [smf_n4 ] [info] TIME-OUT event timer id 49
+[2026-09-27 15:27:17.875] [smf_n4 ] [info] TIME-OUT event timer id 50
+[2026-09-27 15:27:17.875] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:27:17.875] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:27:17.875] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:27:22.722] [smf_app] [info] TIME-OUT event timer id 51
+[2026-09-27 15:27:22.723] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:27:22.723] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:27:22.723] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:27:22.723] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:27:22.723] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:27:22.726] [smf_sbi] [debug] Response data 
+[2026-09-27 15:27:22.726] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:27:22.726] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:27:22.726] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:27:22.726] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:27:22.726] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:27:22.875] [smf_n4 ] [info] TIME-OUT event timer id 54
+[2026-09-27 15:27:27.875] [smf_n4 ] [info] TIME-OUT event timer id 55
+[2026-09-27 15:27:27.875] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:27:27.876] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:27:27.876] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:27:32.726] [smf_app] [info] TIME-OUT event timer id 56
+[2026-09-27 15:27:32.726] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:27:32.726] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:27:32.726] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:27:32.726] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:27:32.727] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:27:32.733] [smf_sbi] [debug] Response data 
+[2026-09-27 15:27:32.733] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:27:32.733] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:27:32.733] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:27:32.733] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:27:32.733] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:27:32.876] [smf_n4 ] [info] TIME-OUT event timer id 59
+[2026-09-27 15:27:37.876] [smf_n4 ] [info] TIME-OUT event timer id 60
+[2026-09-27 15:27:37.876] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:27:37.877] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:27:37.877] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:27:42.734] [smf_app] [info] TIME-OUT event timer id 61
+[2026-09-27 15:27:42.734] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:27:42.734] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:27:42.734] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:27:42.734] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:27:42.734] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:27:42.737] [smf_sbi] [debug] Response data 
+[2026-09-27 15:27:42.737] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:27:42.737] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:27:42.737] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:27:42.737] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:27:42.737] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:27:42.876] [smf_n4 ] [info] TIME-OUT event timer id 64
+[2026-09-27 15:27:47.877] [smf_n4 ] [info] TIME-OUT event timer id 65
+[2026-09-27 15:27:47.877] [smf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 337125036 starting
+[2026-09-27 15:27:47.877] [smf_n4 ] [info] handle_receive(16 bytes)
+[2026-09-27 15:27:47.877] [smf_n4 ] [debug] handle_receive_pfcp_msg msg type 2 length 12
+[2026-09-27 15:27:52.738] [smf_app] [info] TIME-OUT event timer id 66
+[2026-09-27 15:27:52.738] [smf_app] [debug] Send ITTI msg to N11 task to trigger NRF Heartbeat
+[2026-09-27 15:27:52.738] [smf_sbi] [debug] Send NF Update to NRF (HTTP version 1)
+[2026-09-27 15:27:52.738] [smf_sbi] [debug] Send NF Update to NRF, Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-09-27 15:27:52.738] [smf_sbi] [debug] Send NF Update to NRF, NRF URL http://oai-nrf:80/nnrf-nfm/v1/nf-instances/27fb7c51-a0b1-4320-a211-10cf4cdf239e
+[2026-09-27 15:27:52.738] [smf_sbi] [debug] Send a simple HTTP request
+[2026-09-27 15:27:52.741] [smf_sbi] [debug] Response data 
+[2026-09-27 15:27:52.742] [smf_sbi] [debug] NF Instance Update, response from NRF, HTTP Code: 204
+[2026-09-27 15:27:52.742] [smf_sbi] [debug] NF Update, response from NRF: 
+ 
+[2026-09-27 15:27:52.742] [smf_app] [debug] NF Update NF response
+[2026-09-27 15:27:52.742] [smf_app] [debug] SMF has successfully registered to NRF.
+[2026-09-27 15:27:52.742] [smf_app] [debug] Set NRF Heartbeat timer (10)
+[2026-09-27 15:27:52.877] [smf_n4 ] [info] TIME-OUT event timer id 69

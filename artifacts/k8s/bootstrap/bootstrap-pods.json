@@ -1,0 +1,1514 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.144\"\n    ],\n    \"mac\": \"8e:1d:a4:69:7b:34\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n},{\n    \"name\": \"oai-lab/oai-bootstrap-client-e2\",\n    \"interface\": \"e2\",\n    \"ips\": [\n        \"172.30.27.251\"\n    ],\n    \"mac\": \"b6:b1:8a:43:9b:fb\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-client-n2\",\n    \"interface\": \"n2\",\n    \"ips\": [\n        \"172.30.22.251\"\n    ],\n    \"mac\": \"32:42:99:9e:36:d6\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-client-n3\",\n    \"interface\": \"n3\",\n    \"ips\": [\n        \"172.30.23.251\"\n    ],\n    \"mac\": \"ae:b5:f9:a3:ee:ec\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-client-n4\",\n    \"interface\": \"n4\",\n    \"ips\": [\n        \"172.30.24.251\"\n    ],\n    \"mac\": \"72:70:07:9f:67:d7\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-client-n6\",\n    \"interface\": \"n6\",\n    \"ips\": [\n        \"172.30.26.251\"\n    ],\n    \"mac\": \"02:f8:61:96:08:72\",\n    \"dns\": {}\n}]",
+                    "k8s.v1.cni.cncf.io/networks": "[{\"interface\":\"e2\",\"name\":\"oai-bootstrap-client-e2\"},{\"interface\":\"n2\",\"name\":\"oai-bootstrap-client-n2\"},{\"interface\":\"n3\",\"name\":\"oai-bootstrap-client-n3\"},{\"interface\":\"n4\",\"name\":\"oai-bootstrap-client-n4\"},{\"interface\":\"n6\",\"name\":\"oai-bootstrap-client-n6\"}]"
+                },
+                "creationTimestamp": "2026-09-27T16:39:14Z",
+                "generateName": "oai-lab-bootstrap-client-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "bbc13031-3cb3-456e-940a-c9217f9ffac2",
+                    "batch.kubernetes.io/job-name": "oai-lab-bootstrap-client",
+                    "controller-uid": "bbc13031-3cb3-456e-940a-c9217f9ffac2",
+                    "job-name": "oai-lab-bootstrap-client"
+                },
+                "name": "oai-lab-bootstrap-client-pqzl6",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "oai-lab-bootstrap-client",
+                        "uid": "bbc13031-3cb3-456e-940a-c9217f9ffac2"
+                    }
+                ],
+                "resourceVersion": "25408",
+                "uid": "cf91eb59-af76-4a29-bd3c-b5ddf494dde6"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "python3",
+                            "/probe/bootstrap.py"
+                        ],
+                        "env": [
+                            {
+                                "name": "SIDE",
+                                "value": "client"
+                            }
+                        ],
+                        "image": "oai-lab-tools:f4aafed83d8c25ea",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "probe",
+                        "resources": {
+                            "limits": {
+                                "cpu": "250m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/config",
+                                "name": "config",
+                                "readOnly": true
+                            },
+                            {
+                                "mountPath": "/probe",
+                                "name": "probe",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "oai-lab-config"
+                        },
+                        "name": "config"
+                    },
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "oai-lab-bootstrap"
+                        },
+                        "name": "probe"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:14Z",
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:08Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:08Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "50m",
+                            "memory": "64Mi"
+                        },
+                        "containerID": "containerd://d8ccadc0a5f82e4f024a864fb8ff692b983b28df0d6b8743b284bce3eab0c8b6",
+                        "image": "docker.io/library/oai-lab-tools:f4aafed83d8c25ea",
+                        "imageID": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+                        "lastState": {},
+                        "name": "probe",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "cpu": "250m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://d8ccadc0a5f82e4f024a864fb8ff692b983b28df0d6b8743b284bce3eab0c8b6",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-27T16:40:07Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-27T16:40:07Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/config",
+                                "name": "config",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            },
+                            {
+                                "mountPath": "/probe",
+                                "name": "probe",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Succeeded",
+                "podIP": "10.244.0.144",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.144"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-09-27T16:39:14Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.143\"\n    ],\n    \"mac\": \"be:bc:b2:34:6d:17\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n}]"
+                },
+                "creationTimestamp": "2026-09-27T16:39:14Z",
+                "generateName": "oai-lab-bootstrap-radio-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "d86dd7d2-cd84-4d78-92e8-f3ccf8bf1d00",
+                    "batch.kubernetes.io/job-name": "oai-lab-bootstrap-radio",
+                    "controller-uid": "d86dd7d2-cd84-4d78-92e8-f3ccf8bf1d00",
+                    "job-name": "oai-lab-bootstrap-radio"
+                },
+                "name": "oai-lab-bootstrap-radio-ggszb",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "oai-lab-bootstrap-radio",
+                        "uid": "d86dd7d2-cd84-4d78-92e8-f3ccf8bf1d00"
+                    }
+                ],
+                "resourceVersion": "25394",
+                "uid": "8ad769c9-7c54-4e03-b2d5-80b8e4119421"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "args": [
+                            "for binary in nr-softmodem nr-uesoftmodem nearRT-RIC xapp_kpm_moni_write_to_csv; do\n  test -x \"/opt/oai/bin/$binary\"\n  ldd \"/opt/oai/bin/$binary\" \u003e /tmp/ldd.txt\n  if grep -q 'not found' /tmp/ldd.txt; then cat /tmp/ldd.txt; exit 1; fi\ndone\ntest -r /opt/oai/sm/libkpm_sm.so\ntest -r /source/flexric/build/28_552_kpm_meas.txt\nfor library in /opt/oai/sm/*.so /opt/oai/ran/*.so; do\n  ldd \"$library\" \u003e /tmp/ldd.txt\n  if grep -q 'not found' /tmp/ldd.txt; then cat /tmp/ldd.txt; exit 1; fi\ndone\necho '{\"status\":\"PASS\",\"binaries\":4,\"sharedLibraries\":\"resolved\"}'\n"
+                        ],
+                        "command": [
+                            "sh",
+                            "-ec"
+                        ],
+                        "image": "oai-lab-radio:ab3bf500e5cb08be",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "radio-probe",
+                        "resources": {
+                            "limits": {
+                                "cpu": "500m",
+                                "memory": "256Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File"
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:09Z",
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:07Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:07Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "50m",
+                            "memory": "64Mi"
+                        },
+                        "containerID": "containerd://2fe4b15ebe7ec9a9cb9aafd3e8e8b921d4a3691fd2cff679d4afd587e1ea3236",
+                        "image": "docker.io/library/oai-lab-radio:ab3bf500e5cb08be",
+                        "imageID": "sha256:9b83b7584e9c63e0e8bb0369ea77e6645d8afb2209f04a5cc026f811cb009b26",
+                        "lastState": {},
+                        "name": "radio-probe",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "cpu": "500m",
+                                "memory": "256Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://2fe4b15ebe7ec9a9cb9aafd3e8e8b921d4a3691fd2cff679d4afd587e1ea3236",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-27T16:40:06Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-27T16:40:06Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        }
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Succeeded",
+                "podIP": "10.244.0.143",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.143"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-09-27T16:39:14Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.141\"\n    ],\n    \"mac\": \"f2:18:28:82:fe:77\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n},{\n    \"name\": \"oai-lab/oai-bootstrap-server-e2\",\n    \"interface\": \"e2\",\n    \"ips\": [\n        \"172.30.27.250\"\n    ],\n    \"mac\": \"d2:91:75:d0:25:fe\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-server-n2\",\n    \"interface\": \"n2\",\n    \"ips\": [\n        \"172.30.22.250\"\n    ],\n    \"mac\": \"de:5f:b9:4b:80:d8\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-server-n3\",\n    \"interface\": \"n3\",\n    \"ips\": [\n        \"172.30.23.250\"\n    ],\n    \"mac\": \"be:cf:49:9c:70:31\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-server-n4\",\n    \"interface\": \"n4\",\n    \"ips\": [\n        \"172.30.24.250\"\n    ],\n    \"mac\": \"b2:01:28:a8:5b:e4\",\n    \"dns\": {}\n},{\n    \"name\": \"oai-lab/oai-bootstrap-server-n6\",\n    \"interface\": \"n6\",\n    \"ips\": [\n        \"172.30.26.250\"\n    ],\n    \"mac\": \"b6:08:79:0f:8c:ed\",\n    \"dns\": {}\n}]",
+                    "k8s.v1.cni.cncf.io/networks": "[{\"interface\":\"e2\",\"name\":\"oai-bootstrap-server-e2\"},{\"interface\":\"n2\",\"name\":\"oai-bootstrap-server-n2\"},{\"interface\":\"n3\",\"name\":\"oai-bootstrap-server-n3\"},{\"interface\":\"n4\",\"name\":\"oai-bootstrap-server-n4\"},{\"interface\":\"n6\",\"name\":\"oai-bootstrap-server-n6\"}]"
+                },
+                "creationTimestamp": "2026-09-27T16:39:14Z",
+                "generateName": "oai-lab-bootstrap-server-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "842d820d-3b9d-43c2-bffd-c2de59170c76",
+                    "batch.kubernetes.io/job-name": "oai-lab-bootstrap-server",
+                    "controller-uid": "842d820d-3b9d-43c2-bffd-c2de59170c76",
+                    "job-name": "oai-lab-bootstrap-server"
+                },
+                "name": "oai-lab-bootstrap-server-sf4sv",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "oai-lab-bootstrap-server",
+                        "uid": "842d820d-3b9d-43c2-bffd-c2de59170c76"
+                    }
+                ],
+                "resourceVersion": "25404",
+                "uid": "8fad08ed-a7d6-42b9-97d0-3240b981e34d"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "python3",
+                            "/probe/bootstrap.py"
+                        ],
+                        "env": [
+                            {
+                                "name": "SIDE",
+                                "value": "server"
+                            }
+                        ],
+                        "image": "oai-lab-tools:f4aafed83d8c25ea",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "probe",
+                        "resources": {
+                            "limits": {
+                                "cpu": "250m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/config",
+                                "name": "config",
+                                "readOnly": true
+                            },
+                            {
+                                "mountPath": "/probe",
+                                "name": "probe",
+                                "readOnly": true
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "oai-lab-config"
+                        },
+                        "name": "config"
+                    },
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "oai-lab-bootstrap"
+                        },
+                        "name": "probe"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:13Z",
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:08Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:08Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "50m",
+                            "memory": "64Mi"
+                        },
+                        "containerID": "containerd://dfe5970d887524fa7bb5756ac580b750d94e7a0d7c69a9c5f0592c69cd6be1ee",
+                        "image": "docker.io/library/oai-lab-tools:f4aafed83d8c25ea",
+                        "imageID": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+                        "lastState": {},
+                        "name": "probe",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "cpu": "250m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://dfe5970d887524fa7bb5756ac580b750d94e7a0d7c69a9c5f0592c69cd6be1ee",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-27T16:40:07Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-27T16:40:05Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/config",
+                                "name": "config",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            },
+                            {
+                                "mountPath": "/probe",
+                                "name": "probe",
+                                "readOnly": true,
+                                "recursiveReadOnly": "Disabled"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Succeeded",
+                "podIP": "10.244.0.141",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.141"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-09-27T16:39:14Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.140\"\n    ],\n    \"mac\": \"66:fe:ca:87:55:29\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n}]"
+                },
+                "creationTimestamp": "2026-09-27T16:39:14Z",
+                "generateName": "oai-lab-bootstrap-ue-tun-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "40fe9cf6-b303-4616-9f1e-65d58e6575f0",
+                    "batch.kubernetes.io/job-name": "oai-lab-bootstrap-ue-tun",
+                    "controller-uid": "40fe9cf6-b303-4616-9f1e-65d58e6575f0",
+                    "job-name": "oai-lab-bootstrap-ue-tun"
+                },
+                "name": "oai-lab-bootstrap-ue-tun-2h8bw",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "oai-lab-bootstrap-ue-tun",
+                        "uid": "40fe9cf6-b303-4616-9f1e-65d58e6575f0"
+                    }
+                ],
+                "resourceVersion": "25328",
+                "uid": "4aa63b24-7f31-40a2-bc04-6696cc1e93c1"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "args": [
+                            "import os,fcntl,struct,json; fd=os.open(\"/dev/net/tun\",os.O_RDWR); fcntl.ioctl(fd,0x400454ca,struct.pack(\"16sH\",b\"oai-probe\",0x1001)); os.close(fd); print(json.dumps({\"status\":\"PASS\",\"tun\":True,\"privileged\":False}))"
+                        ],
+                        "command": [
+                            "python3",
+                            "-c"
+                        ],
+                        "image": "oai-lab-tools:f4aafed83d8c25ea",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "ue-tun-probe",
+                        "resources": {
+                            "limits": {
+                                "cpu": "250m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "add": [
+                                    "NET_ADMIN"
+                                ],
+                                "drop": [
+                                    "ALL"
+                                ]
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/dev/net/tun",
+                                "name": "tun"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "hostPath": {
+                            "path": "/dev/net/tun",
+                            "type": "CharDevice"
+                        },
+                        "name": "tun"
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:52Z",
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:50Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:50Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "50m",
+                            "memory": "64Mi"
+                        },
+                        "containerID": "containerd://dad053c0ed793e05c10eb2bfed249546c07f5287d4e4bb3db1b025fe92c17b15",
+                        "image": "docker.io/library/oai-lab-tools:f4aafed83d8c25ea",
+                        "imageID": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+                        "lastState": {},
+                        "name": "ue-tun-probe",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "cpu": "250m",
+                                "memory": "128Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://dad053c0ed793e05c10eb2bfed249546c07f5287d4e4bb3db1b025fe92c17b15",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-27T16:39:49Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-27T16:39:49Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/dev/net/tun",
+                                "name": "tun"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Succeeded",
+                "podIP": "10.244.0.140",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.140"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-09-27T16:39:14Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.142\"\n    ],\n    \"mac\": \"02:ad:ba:14:ef:84\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n}]"
+                },
+                "creationTimestamp": "2026-09-27T16:39:14Z",
+                "generateName": "oai-lab-bootstrap-upf-bpf-",
+                "generation": 1,
+                "labels": {
+                    "batch.kubernetes.io/controller-uid": "c4e2bc1b-4ace-45d3-be0b-9b8f14838732",
+                    "batch.kubernetes.io/job-name": "oai-lab-bootstrap-upf-bpf",
+                    "controller-uid": "c4e2bc1b-4ace-45d3-be0b-9b8f14838732",
+                    "job-name": "oai-lab-bootstrap-upf-bpf"
+                },
+                "name": "oai-lab-bootstrap-upf-bpf-bxc4b",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "batch/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "Job",
+                        "name": "oai-lab-bootstrap-upf-bpf",
+                        "uid": "c4e2bc1b-4ace-45d3-be0b-9b8f14838732"
+                    }
+                ],
+                "resourceVersion": "25388",
+                "uid": "2c01b14a-3954-4042-bb7f-32a4fef2c758"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "command": [
+                            "/openair-upf/bin/bpftool",
+                            "-j",
+                            "feature",
+                            "probe",
+                            "kernel"
+                        ],
+                        "image": "oai-lab-upf:b715742212936699",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "upf-bpf-probe",
+                        "resources": {
+                            "limits": {
+                                "cpu": "500m",
+                                "memory": "256Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "capabilities": {
+                                "add": [
+                                    "NET_ADMIN",
+                                    "NET_RAW"
+                                ],
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "privileged": true
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File"
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Never",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:07Z",
+                        "status": "False",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "reason": "PodCompleted",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:05Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:40:05Z",
+                        "reason": "PodCompleted",
+                        "status": "False",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T16:39:14Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "50m",
+                            "memory": "64Mi"
+                        },
+                        "containerID": "containerd://e5123681b2bf442f9848968560bc0791399b38fc108819d7c276b06e91e6d608",
+                        "image": "docker.io/library/oai-lab-upf:b715742212936699",
+                        "imageID": "sha256:5e75f06b1e508cba0a328f4cac68887837102ef737709bf018f6087a87c0ccdb",
+                        "lastState": {},
+                        "name": "upf-bpf-probe",
+                        "ready": false,
+                        "resources": {
+                            "limits": {
+                                "cpu": "500m",
+                                "memory": "256Mi"
+                            },
+                            "requests": {
+                                "cpu": "50m",
+                                "memory": "64Mi"
+                            }
+                        },
+                        "restartCount": 0,
+                        "started": false,
+                        "state": {
+                            "terminated": {
+                                "containerID": "containerd://e5123681b2bf442f9848968560bc0791399b38fc108819d7c276b06e91e6d608",
+                                "exitCode": 0,
+                                "finishedAt": "2026-09-27T16:40:04Z",
+                                "reason": "Completed",
+                                "startedAt": "2026-09-27T16:40:04Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        }
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Succeeded",
+                "podIP": "10.244.0.142",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.142"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-09-27T16:39:14Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.42\"\n    ],\n    \"mac\": \"96:b8:e0:19:81:bc\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n}]"
+                },
+                "creationTimestamp": "2026-09-26T15:07:08Z",
+                "generateName": "oai-lab-db-",
+                "generation": 1,
+                "labels": {
+                    "apps.kubernetes.io/pod-index": "0",
+                    "controller-revision-hash": "oai-lab-db-57bbf57899",
+                    "oai-lab/component": "db",
+                    "statefulset.kubernetes.io/pod-name": "oai-lab-db-0"
+                },
+                "name": "oai-lab-db-0",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "StatefulSet",
+                        "name": "oai-lab-db",
+                        "uid": "e83f698c-4d8c-4f3b-80e7-6e5cbf5d8126"
+                    }
+                ],
+                "resourceVersion": "10569",
+                "uid": "fefded60-e4d8-4e51-aa0a-fe163b129b21"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "MARIADB_DATABASE",
+                                "value": "oai_db"
+                            },
+                            {
+                                "name": "MARIADB_USER",
+                                "value": "oai"
+                            },
+                            {
+                                "name": "MARIADB_PASSWORD",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DB_PASSWORD",
+                                        "name": "oai-lab-credentials"
+                                    }
+                                }
+                            },
+                            {
+                                "name": "MARIADB_ROOT_PASSWORD",
+                                "valueFrom": {
+                                    "secretKeyRef": {
+                                        "key": "DB_ROOT_PASSWORD",
+                                        "name": "oai-lab-credentials"
+                                    }
+                                }
+                            }
+                        ],
+                        "image": "mariadb:10.6",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "db",
+                        "readinessProbe": {
+                            "exec": {
+                                "command": [
+                                    "healthcheck.sh",
+                                    "--connect",
+                                    "--innodb_initialized"
+                                ]
+                            },
+                            "failureThreshold": 3,
+                            "periodSeconds": 10,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "1",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "startupProbe": {
+                            "exec": {
+                                "command": [
+                                    "healthcheck.sh",
+                                    "--connect",
+                                    "--innodb_initialized"
+                                ]
+                            },
+                            "failureThreshold": 60,
+                            "periodSeconds": 3,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 1
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/lib/mysql",
+                                "name": "data"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "hostname": "oai-lab-db-0",
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "subdomain": "oai-lab-db",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "data",
+                        "persistentVolumeClaim": {
+                            "claimName": "oai-lab-db"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T13:12:24Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-26T15:07:08Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T13:12:27Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T13:12:27Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-26T15:07:08Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "allocatedResources": {
+                            "cpu": "250m",
+                            "memory": "256Mi"
+                        },
+                        "containerID": "containerd://df8bf69b5f96368c2caab9e7c9ca4584d924d3787d29d5a41733ced47f5fa9c8",
+                        "image": "docker.io/library/mariadb:10.6",
+                        "imageID": "sha256:a4db78e7d1d202786b2cc212092425aa639d0010e1f6be6ada781e1b78d95a88",
+                        "lastState": {
+                            "terminated": {
+                                "containerID": "containerd://0f86615c5b6bae55c69a72fcdfad2906cd69bafc64ea876f4a8f7ee1c418bd07",
+                                "exitCode": 255,
+                                "finishedAt": "2026-09-27T13:11:13Z",
+                                "reason": "Unknown",
+                                "startedAt": "2026-09-27T09:59:03Z"
+                            }
+                        },
+                        "name": "db",
+                        "ready": true,
+                        "resources": {
+                            "limits": {
+                                "cpu": "1",
+                                "memory": "1Gi"
+                            },
+                            "requests": {
+                                "cpu": "250m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "restartCount": 2,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-27T13:12:24Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/var/lib/mysql",
+                                "name": "data"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.0.42",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.42"
+                    }
+                ],
+                "qosClass": "Burstable",
+                "startTime": "2026-09-26T15:07:08Z"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "annotations": {
+                    "k8s.v1.cni.cncf.io/network-status": "[{\n    \"name\": \"bridge\",\n    \"interface\": \"eth0\",\n    \"ips\": [\n        \"10.244.0.87\"\n    ],\n    \"mac\": \"fa:13:1b:14:dd:aa\",\n    \"default\": true,\n    \"dns\": {},\n    \"gateway\": [\n        \"10.244.0.1\"\n    ]\n},{\n    \"name\": \"oai-lab/oai-dn-n6\",\n    \"interface\": \"n6\",\n    \"ips\": [\n        \"172.30.26.10\"\n    ],\n    \"mac\": \"1e:b5:53:93:92:34\",\n    \"dns\": {}\n}]",
+                    "k8s.v1.cni.cncf.io/networks": "[{\"interface\":\"n6\",\"name\":\"oai-dn-n6\"}]"
+                },
+                "creationTimestamp": "2026-09-27T15:41:03Z",
+                "generateName": "oai-lab-dn-fc88889fb-",
+                "generation": 1,
+                "labels": {
+                    "oai-lab/component": "dn",
+                    "pod-template-hash": "fc88889fb"
+                },
+                "name": "oai-lab-dn-fc88889fb-tbmlq",
+                "namespace": "oai-lab",
+                "ownerReferences": [
+                    {
+                        "apiVersion": "apps/v1",
+                        "blockOwnerDeletion": true,
+                        "controller": true,
+                        "kind": "ReplicaSet",
+                        "name": "oai-lab-dn-fc88889fb",
+                        "uid": "8a43fdbb-0185-4745-aa34-714cad6a0976"
+                    }
+                ],
+                "resourceVersion": "19948",
+                "uid": "a9b03472-52e2-461f-9714-e831dc8081ba"
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "args": [
+                            "ip route replace 10.1.0.0/16 via 172.30.26.20 dev n6; exec sleep infinity"
+                        ],
+                        "command": [
+                            "sh",
+                            "-ec"
+                        ],
+                        "image": "oai-lab-tools:f4aafed83d8c25ea",
+                        "imagePullPolicy": "IfNotPresent",
+                        "name": "dn",
+                        "resources": {},
+                        "securityContext": {
+                            "capabilities": {
+                                "add": [
+                                    "NET_ADMIN",
+                                    "NET_RAW"
+                                ],
+                                "drop": [
+                                    "ALL"
+                                ]
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/artifacts",
+                                "name": "artifacts"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "enableServiceLinks": true,
+                "nodeName": "oai-lab",
+                "preemptionPolicy": "PreemptLowerPriority",
+                "priority": 0,
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "default",
+                "serviceAccountName": "default",
+                "terminationGracePeriodSeconds": 30,
+                "tolerations": [
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/not-ready",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    },
+                    {
+                        "effect": "NoExecute",
+                        "key": "node.kubernetes.io/unreachable",
+                        "operator": "Exists",
+                        "tolerationSeconds": 300
+                    }
+                ],
+                "volumes": [
+                    {
+                        "name": "artifacts",
+                        "persistentVolumeClaim": {
+                            "claimName": "oai-lab-artifacts"
+                        }
+                    }
+                ]
+            },
+            "status": {
+                "conditions": [
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T15:41:07Z",
+                        "status": "True",
+                        "type": "PodReadyToStartContainers"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T15:41:03Z",
+                        "status": "True",
+                        "type": "Initialized"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T15:41:07Z",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T15:41:07Z",
+                        "status": "True",
+                        "type": "ContainersReady"
+                    },
+                    {
+                        "lastProbeTime": null,
+                        "lastTransitionTime": "2026-09-27T15:41:03Z",
+                        "status": "True",
+                        "type": "PodScheduled"
+                    }
+                ],
+                "containerStatuses": [
+                    {
+                        "containerID": "containerd://b4223c0682d0cd9c374ec02431dee3cd0f138186785916556226aa7b69e0277d",
+                        "image": "docker.io/library/oai-lab-tools:f4aafed83d8c25ea",
+                        "imageID": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+                        "lastState": {},
+                        "name": "dn",
+                        "ready": true,
+                        "resources": {},
+                        "restartCount": 0,
+                        "started": true,
+                        "state": {
+                            "running": {
+                                "startedAt": "2026-09-27T15:41:06Z"
+                            }
+                        },
+                        "user": {
+                            "linux": {
+                                "gid": 0,
+                                "supplementalGroups": [
+                                    0
+                                ],
+                                "uid": 0
+                            }
+                        },
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/artifacts",
+                                "name": "artifacts"
+                            }
+                        ]
+                    }
+                ],
+                "hostIP": "192.168.49.2",
+                "hostIPs": [
+                    {
+                        "ip": "192.168.49.2"
+                    }
+                ],
+                "phase": "Running",
+                "podIP": "10.244.0.87",
+                "podIPs": [
+                    {
+                        "ip": "10.244.0.87"
+                    }
+                ],
+                "qosClass": "BestEffort",
+                "startTime": "2026-09-27T15:41:03Z"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

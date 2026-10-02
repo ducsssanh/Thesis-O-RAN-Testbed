@@ -1,0 +1,34 @@
+apiVersion: v2
+name: oai-core
+version: 0.1.0
+type: application
+description: OAI lab core release
+dependencies:
+- name: oai-nrf
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-nrf
+  condition: oai-nrf.enabled
+- name: oai-udr
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-udr
+  condition: oai-udr.enabled
+- name: oai-udm
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-udm
+  condition: oai-udm.enabled
+- name: oai-ausf
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-ausf
+  condition: oai-ausf.enabled
+- name: oai-amf
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-amf
+  condition: oai-amf.enabled
+- name: oai-smf
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-smf
+  condition: oai-smf.enabled
+- name: oai-upf
+  version: v2.2.0
+  repository: file://../../vendor/oai-5g-core/oai-upf
+  condition: oai-upf.enabled

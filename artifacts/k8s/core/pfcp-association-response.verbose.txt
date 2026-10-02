@@ -1,0 +1,3020 @@
+Frame 2: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:08.842507000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:08.842507000 UTC
+    Epoch Arrival Time: 1790503328.842507000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000204000 seconds]
+    [Time delta from previous displayed frame: 0.000000000 seconds]
+    [Time since reference or first frame: 0.000204000 seconds]
+    Frame Number: 2
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x1f3d (7997)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x930f [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 0.000204000 seconds]
+        [Time since previous frame: 0.000204000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859458
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 1]
+    [Response Time: 0.000204000 seconds]
+
+Frame 4: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:10.842982000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:10.842982000 UTC
+    Epoch Arrival Time: 1790503330.842982000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000140000 seconds]
+    [Time delta from previous displayed frame: 2.000475000 seconds]
+    [Time since reference or first frame: 2.000679000 seconds]
+    Frame Number: 4
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x20d3 (8403)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x9179 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 2.000679000 seconds]
+        [Time since previous frame: 0.000140000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859459
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 3]
+    [Response Time: 0.000140000 seconds]
+
+Frame 6: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:12.843365000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:12.843365000 UTC
+    Epoch Arrival Time: 1790503332.843365000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000138000 seconds]
+    [Time delta from previous displayed frame: 2.000383000 seconds]
+    [Time since reference or first frame: 4.001062000 seconds]
+    Frame Number: 6
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x272f (10031)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x8b1d [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 4.001062000 seconds]
+        [Time since previous frame: 0.000138000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859460
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 5]
+    [Response Time: 0.000138000 seconds]
+
+Frame 8: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:14.843757000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:14.843757000 UTC
+    Epoch Arrival Time: 1790503334.843757000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000138000 seconds]
+    [Time delta from previous displayed frame: 2.000392000 seconds]
+    [Time since reference or first frame: 6.001454000 seconds]
+    Frame Number: 8
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x2e35 (11829)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x8417 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 6.001454000 seconds]
+        [Time since previous frame: 0.000138000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859461
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 7]
+    [Response Time: 0.000138000 seconds]
+
+Frame 10: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:16.844199000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:16.844199000 UTC
+    Epoch Arrival Time: 1790503336.844199000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000177000 seconds]
+    [Time delta from previous displayed frame: 2.000442000 seconds]
+    [Time since reference or first frame: 8.001896000 seconds]
+    Frame Number: 10
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x2e99 (11929)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x83b3 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 8.001896000 seconds]
+        [Time since previous frame: 0.000177000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859462
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 9]
+    [Response Time: 0.000177000 seconds]
+
+Frame 12: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:18.844690000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:18.844690000 UTC
+    Epoch Arrival Time: 1790503338.844690000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000200000 seconds]
+    [Time delta from previous displayed frame: 2.000491000 seconds]
+    [Time since reference or first frame: 10.002387000 seconds]
+    Frame Number: 12
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x3415 (13333)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x7e37 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 10.002387000 seconds]
+        [Time since previous frame: 0.000200000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859463
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 11]
+    [Response Time: 0.000200000 seconds]
+
+Frame 14: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:20.844974000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:20.844974000 UTC
+    Epoch Arrival Time: 1790503340.844974000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000136000 seconds]
+    [Time delta from previous displayed frame: 2.000284000 seconds]
+    [Time since reference or first frame: 12.002671000 seconds]
+    Frame Number: 14
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x3b2e (15150)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x771e [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 12.002671000 seconds]
+        [Time since previous frame: 0.000136000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859464
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 13]
+    [Response Time: 0.000136000 seconds]
+
+Frame 16: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:22.845558000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:22.845558000 UTC
+    Epoch Arrival Time: 1790503342.845558000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000247000 seconds]
+    [Time delta from previous displayed frame: 2.000584000 seconds]
+    [Time since reference or first frame: 14.003255000 seconds]
+    Frame Number: 16
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x4005 (16389)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x7247 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 14.003255000 seconds]
+        [Time since previous frame: 0.000247000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859465
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 15]
+    [Response Time: 0.000247000 seconds]
+
+Frame 18: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:24.845862000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:24.845862000 UTC
+    Epoch Arrival Time: 1790503344.845862000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000131000 seconds]
+    [Time delta from previous displayed frame: 2.000304000 seconds]
+    [Time since reference or first frame: 16.003559000 seconds]
+    Frame Number: 18
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x41aa (16810)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x70a2 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 16.003559000 seconds]
+        [Time since previous frame: 0.000131000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859466
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 17]
+    [Response Time: 0.000131000 seconds]
+
+Frame 20: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:02:26.846281000 +07
+    UTC Arrival Time: Sep 27, 2026 10:02:26.846281000 UTC
+    Epoch Arrival Time: 1790503346.846281000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000165000 seconds]
+    [Time delta from previous displayed frame: 2.000419000 seconds]
+    [Time since reference or first frame: 18.003978000 seconds]
+    Frame Number: 20
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0x45ab (17835)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x6ca1 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 18.003978000 seconds]
+        [Time since previous frame: 0.000165000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859467
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:30:23.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:30:23.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 19]
+    [Response Time: 0.000165000 seconds]
+
+Frame 22: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:10.660593000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:10.660593000 UTC
+    Epoch Arrival Time: 1790503510.660593000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000150000 seconds]
+    [Time delta from previous displayed frame: 163.814312000 seconds]
+    [Time since reference or first frame: 181.818290000 seconds]
+    Frame Number: 22
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xace4 (44260)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x0568 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 181.818290000 seconds]
+        [Time since previous frame: 0.000150000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859468
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 21]
+    [Response Time: 0.000150000 seconds]
+
+Frame 24: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:12.661152000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:12.661152000 UTC
+    Epoch Arrival Time: 1790503512.661152000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000173000 seconds]
+    [Time delta from previous displayed frame: 2.000559000 seconds]
+    [Time since reference or first frame: 183.818849000 seconds]
+    Frame Number: 24
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xb172 (45426)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0x00da [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 183.818849000 seconds]
+        [Time since previous frame: 0.000173000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859469
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 23]
+    [Response Time: 0.000173000 seconds]
+
+Frame 26: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:14.661578000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:14.661578000 UTC
+    Epoch Arrival Time: 1790503514.661578000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000142000 seconds]
+    [Time delta from previous displayed frame: 2.000426000 seconds]
+    [Time since reference or first frame: 185.819275000 seconds]
+    Frame Number: 26
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xb2a6 (45734)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xffa5 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 185.819275000 seconds]
+        [Time since previous frame: 0.000142000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859470
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 25]
+    [Response Time: 0.000142000 seconds]
+
+Frame 28: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:16.662023000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:16.662023000 UTC
+    Epoch Arrival Time: 1790503516.662023000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000168000 seconds]
+    [Time delta from previous displayed frame: 2.000445000 seconds]
+    [Time since reference or first frame: 187.819720000 seconds]
+    Frame Number: 28
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xb8dc (47324)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xf96f [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 187.819720000 seconds]
+        [Time since previous frame: 0.000168000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859471
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 27]
+    [Response Time: 0.000168000 seconds]
+
+Frame 30: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:18.662352000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:18.662352000 UTC
+    Epoch Arrival Time: 1790503518.662352000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000139000 seconds]
+    [Time delta from previous displayed frame: 2.000329000 seconds]
+    [Time since reference or first frame: 189.820049000 seconds]
+    Frame Number: 30
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xbe46 (48710)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xf405 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 189.820049000 seconds]
+        [Time since previous frame: 0.000139000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859472
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 29]
+    [Response Time: 0.000139000 seconds]
+
+Frame 32: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:20.662767000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:20.662767000 UTC
+    Epoch Arrival Time: 1790503520.662767000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000133000 seconds]
+    [Time delta from previous displayed frame: 2.000415000 seconds]
+    [Time since reference or first frame: 191.820464000 seconds]
+    Frame Number: 32
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xbfbc (49084)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xf28f [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 191.820464000 seconds]
+        [Time since previous frame: 0.000133000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859473
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 31]
+    [Response Time: 0.000133000 seconds]
+
+Frame 34: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:22.663157000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:22.663157000 UTC
+    Epoch Arrival Time: 1790503522.663157000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000142000 seconds]
+    [Time delta from previous displayed frame: 2.000390000 seconds]
+    [Time since reference or first frame: 193.820854000 seconds]
+    Frame Number: 34
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        Address: 06:d5:ba:f2:4e:32 (06:d5:ba:f2:4e:32)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xc36e (50030)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xeedd [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 193.820854000 seconds]
+        [Time since previous frame: 0.000142000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859474
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:25.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:25.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 33]
+    [Response Time: 0.000142000 seconds]
+
+Frame 56: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:44.697873000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:44.697873000 UTC
+    Epoch Arrival Time: 1790503544.697873000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000158000 seconds]
+    [Time delta from previous displayed frame: 22.034716000 seconds]
+    [Time since reference or first frame: 215.855570000 seconds]
+    Frame Number: 56
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00)
+        Address: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xeadd (60125)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xc76e [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 215.855570000 seconds]
+        [Time since previous frame: 0.000158000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859485
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:44.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:44.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 55]
+    [Response Time: 0.000158000 seconds]
+
+Frame 58: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:46.698183000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:46.698183000 UTC
+    Epoch Arrival Time: 1790503546.698183000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000138000 seconds]
+    [Time delta from previous displayed frame: 2.000310000 seconds]
+    [Time since reference or first frame: 217.855880000 seconds]
+    Frame Number: 58
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00)
+        Address: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xef1f (61215)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xc32c [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 217.855880000 seconds]
+        [Time since previous frame: 0.000138000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859486
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:44.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:44.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 57]
+    [Response Time: 0.000138000 seconds]
+
+Frame 60: 84 bytes on wire (672 bits), 84 bytes captured (672 bits)
+    Encapsulation type: Ethernet (1)
+    Arrival Time: Sep 27, 2026 17:05:48.698605000 +07
+    UTC Arrival Time: Sep 27, 2026 10:05:48.698605000 UTC
+    Epoch Arrival Time: 1790503548.698605000
+    [Time shift for this packet: 0.000000000 seconds]
+    [Time delta from previous captured frame: 0.000195000 seconds]
+    [Time delta from previous displayed frame: 2.000422000 seconds]
+    [Time since reference or first frame: 219.856302000 seconds]
+    Frame Number: 60
+    Frame Length: 84 bytes (672 bits)
+    Capture Length: 84 bytes (672 bits)
+    [Frame is marked: False]
+    [Frame is ignored: False]
+    [Protocols in frame: eth:ethertype:ip:udp:pfcp]
+Ethernet II, Src: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00), Dst: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+    Destination: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        Address: 36:72:b3:82:f8:a3 (36:72:b3:82:f8:a3)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Source: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00)
+        Address: 76:bd:48:12:a8:00 (76:bd:48:12:a8:00)
+        .... ..1. .... .... .... .... = LG bit: Locally administered address (this is NOT the factory default)
+        .... ...0 .... .... .... .... = IG bit: Individual address (unicast)
+    Type: IPv4 (0x0800)
+Internet Protocol Version 4, Src: 172.30.24.20, Dst: 172.30.24.10
+    0100 .... = Version: 4
+    .... 0101 = Header Length: 20 bytes (5)
+    Differentiated Services Field: 0x00 (DSCP: CS0, ECN: Not-ECT)
+        0000 00.. = Differentiated Services Codepoint: Default (0)
+        .... ..00 = Explicit Congestion Notification: Not ECN-Capable Transport (0)
+    Total Length: 70
+    Identification: 0xf1b2 (61874)
+    010. .... = Flags: 0x2, Don't fragment
+        0... .... = Reserved bit: Not set
+        .1.. .... = Don't fragment: Set
+        ..0. .... = More fragments: Not set
+    ...0 0000 0000 0000 = Fragment Offset: 0
+    Time to Live: 64
+    Protocol: UDP (17)
+    Header Checksum: 0xc099 [validation disabled]
+    [Header checksum status: Unverified]
+    Source Address: 172.30.24.20
+    Destination Address: 172.30.24.10
+User Datagram Protocol, Src Port: 8805, Dst Port: 45867
+    Source Port: 8805
+    Destination Port: 45867
+    Length: 50
+    Checksum: 0x889e [unverified]
+    [Checksum Status: Unverified]
+    [Stream index: 0]
+    [Timestamps]
+        [Time since first frame: 219.856302000 seconds]
+        [Time since previous frame: 0.000195000 seconds]
+    UDP payload (42 bytes)
+Packet Forwarding Control Protocol
+    Flags: 0x20
+        001. .... = Version: 1
+        ...0 .... = Spare: 0
+        .... 0... = Spare: 0
+        .... .0.. = Follow On (FO): False
+        .... ..0. = Message Priority (MP): False
+        .... ...0 = SEID (S): False
+    Message Type: PFCP Association Setup Response (6)
+    Length: 38
+    Sequence Number: 1859487
+    Spare: 0
+    Node ID : IPv4 address: 172.30.24.20
+        IE Type: Node ID (60)
+        IE Length: 5
+        0000 .... = Spare: 0
+        .... 0000 = Address Type: IPv4 address (0)
+        IPv4: 172.30.24.20
+    Cause : Request accepted(success)
+        IE Type: Cause (19)
+        IE Length: 1
+        Cause: Request accepted(success) (1)
+    Recovery Time Stamp : Sep 26, 2026 17:33:44.000000000 UTC
+        IE Type: Recovery Time Stamp (96)
+        IE Length: 4
+        Recovery Time Stamp: Sep 26, 2026 17:33:44.000000000 UTC
+    UP Function Features : 
+        IE Type: UP Function Features (43)
+        IE Length: 8
+        0... .... = TREU: Not supported
+        .0.. .... = HEEU: Not supported
+        ..0. .... = PFDM: Not supported
+        ...1 .... = FTUP: Supported
+        .... 0... = TRST: Not supported
+        .... .0.. = DLBD: Not supported
+        .... ..0. = DDND: Not supported
+        .... ...0 = BUCP: Not supported
+        0... .... = EPFAR: Not supported
+        .0.. .... = PFDE: Not supported
+        ..0. .... = FRRT: Not supported
+        ...0 .... = TRACE: Not supported
+        .... 0... = QUOAC: Not supported
+        .... .0.. = UDBC: Not supported
+        .... ..0. = PDIU: Not supported
+        .... ...0 = EMPU: Not supported
+        0... .... = GCOM: Not supported
+        .0.. .... = BUNDL: Not supported
+        ..0. .... = MTE N4: Not supported
+        ...0 .... = MNOP: Not supported
+        .... 0... = SSET: Not supported
+        .... .0.. = UEIP: Not supported
+        .... ..0. = ADPDP: Not supported
+        .... ...0 = DPDRA: Not supported
+        0... .... = MPTCP: Not supported
+        .0.. .... = TSN: Not supported
+        ..0. .... = IP6PL: Not supported
+        ...0 .... = IPTV: Not supported
+        .... 0... = NORP: Not supported
+        .... .0.. = VTIME: Not supported
+        .... ..0. = RTTL: Not supported
+        .... ...0 = MPAS: Not supported
+        0... .... = RDS: Not supported
+        .0.. .... = DDDS: Not supported
+        ..0. .... = ETHAR: Not supported
+        ...0 .... = CIOT: Not supported
+        .... 0... = MT-EDT: Not supported
+        .... .0.. = GPQM: Not supported
+        .... ..0. = QFQM: Not supported
+        .... ...0 = ATSSS-LL: Not supported
+        0... .... = DNSTS: Not supported
+        .0.. .... = IPREP: Not supported
+        ..0. .... = RESPS: Not supported
+        ...0 .... = UPBER: Not supported
+        .... 0... = L2TP: Not supported
+        .... .0.. = NSPOC: Not supported
+        .... ..0. = QUASF: Not supported
+        .... ...0 = RTTWP: Not supported
+        0... .... = MPQUIC: Not supported
+        .0.. .... = AFSFC: Not supported
+        ..0. .... = UPIDP: Not supported
+        ...0 .... = RATP: Not supported
+        .... 0... = EPPI: Not supported
+        .... .0.. = MBSN4: Not supported
+        .... ..0. = MBSN4: Not supported
+        .... ...0 = DRQOS: Not supported
+        0... .... = EML4S: Not supported
+        .0.. .... = DETNET: Not supported
+        ..0. .... = QMCON: Not supported
+        ...0 .... = N6JEDB: Not supported
+        .... 0... = DRTSC: Not supported
+        .... .0.. = TSCTS: Not supported
+        .... ..0. = DBDM: Not supported
+        .... ...0 = REDSM: Not supported
+    [Response To: 59]
+    [Response Time: 0.000195000 seconds]
+

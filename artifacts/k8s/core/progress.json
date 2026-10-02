@@ -1,0 +1,26 @@
+{
+  "status": "BLOCKED",
+  "stoppedAt": "PFCP association",
+  "databaseSeed": "PASS",
+  "subscriberReseedIdempotence": "PASS",
+  "corePodReadiness": "PASS",
+  "nfRegistration": "NOT_FULLY_VERIFIED",
+  "n4n6Routes": "NOT_FULLY_VERIFIED",
+  "xdpSkbAttach": "PASS",
+  "xdpProgramIds": {
+    "n3": 2336,
+    "n6": 2343
+  },
+  "pfcpAssociation": "FAIL",
+  "error": "SMF v2.2.0: handle_receive exception PFCP IE TLV 43 Bad Length 8; association remains pending despite UPF response cause=1",
+  "nextAction": "Investigate PFCP IE 43 encoding compatibility between patched UPF and SMF v2.2.0; do not accept packet cause=1 alone as association success",
+  "evidence": [
+    "core/database-step.json",
+    "core/status.txt",
+    "core/upf-links.json",
+    "core/smf.log",
+    "core/upf.log",
+    "core/pfcp.pcap"
+  ],
+  "note": "Stopped at protocol incompatibility per user instruction; no gNB/UE started."
+}

@@ -1,0 +1,34 @@
+{
+  "mode": "real",
+  "status": "PASS",
+  "report": {
+    "schema_version": "1.1.0",
+    "run_id": "bootstrap",
+    "observed_at": "2026-10-01T14:10:28.083368934Z",
+    "smf_timestamp": "3999852628",
+    "supi": "imsi-001010123456780",
+    "seid": 1,
+    "session_epoch": "20261001T140605Z",
+    "urr_id": null,
+    "ur_seqn": 26,
+    "triggers": [
+      "Periodic Reporting"
+    ],
+    "ul_bytes": 162799272,
+    "dl_bytes": 168564592,
+    "total_bytes": 331363864,
+    "ul_packets": 131080,
+    "dl_packets": 131080,
+    "total_packets": 262160,
+    "duration_seconds": 262,
+    "dnn": "nist-dnn",
+    "snssai": {
+      "sst": 1,
+      "sd": "FFFFFF"
+    },
+    "enrichment_source": "lab-config"
+  },
+  "job": {
+    "eiJobStatus": "ENABLED"
+  }
+}

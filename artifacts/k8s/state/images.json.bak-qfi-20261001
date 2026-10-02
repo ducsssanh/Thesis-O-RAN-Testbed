@@ -1,0 +1,27 @@
+{
+  "sourceHash": "30e854d39b1192d1",
+  "images": {
+    "tools": {
+      "image": "oai-lab-tools:30e854d39b1192d1",
+      "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+      "repoDigests": []
+    },
+    "upf": {
+      "image": "oai-lab-upf:qfi-f6d0516adf20",
+      "id": "sha256:9ac5cce7e61f6b87e9979b4e5a962cd50f22583fc7ba9f281abb46a3eb984c41",
+      "repoDigests": []
+    },
+    "radio": {
+      "image": "oai-lab-radio:30e854d39b1192d1",
+      "id": "sha256:fa863eceb039b119daa09a123f559e766ead54f78076dfb98c9f67e34016b225",
+      "repoDigests": []
+    },
+    "smf": {
+      "image": "oai-lab-smf:v2.2.0-ie43-771248b5",
+      "id": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9",
+      "repoDigests": [],
+      "sourceCommit": "d18906656ca85b823cc68877e3c545353150c018",
+      "patchSha256": "771248b5f3fda25ed5867a8e3ffaee28b01819e0e36efe4fa647c0c90b045085"
+    }
+  }
+}

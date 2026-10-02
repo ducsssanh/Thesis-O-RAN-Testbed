@@ -1,0 +1,118 @@
+{
+  "status": "PASS",
+  "runId": "20260927T132925Z-k8s",
+  "ready": {
+    "nrf": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/oaisoftwarealliance/oai-nrf:v2.2.0",
+      "imageID": "sha256:8cd7c45b2c06d09da0082c8033c05c2d6c70069d38e01e1c90c1c9139a85037c"
+    },
+    "udr": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/oaisoftwarealliance/oai-udr:v2.2.0",
+      "imageID": "sha256:58b625dedfeb99e16cc56df572fd1b0cf468766446997dd80e799f5bbb69e51a"
+    },
+    "udm": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/oaisoftwarealliance/oai-udm:v2.2.0",
+      "imageID": "sha256:0df0be3b859bb0d4dd3a99822c7090b2ddd5145c12a5a0fbaf48bfe2fdecf71e"
+    },
+    "ausf": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/oaisoftwarealliance/oai-ausf:v2.2.0",
+      "imageID": "sha256:d3bcf7f7bb28c876534ca9839c1f918a4421033b2de9caa6419c8bd2e6927a07"
+    },
+    "amf": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/oaisoftwarealliance/oai-amf:v2.2.0",
+      "imageID": "sha256:89f5127b8c96d453ffb62272d9ef2e5c272b19afd562304c03ce1b66344ad9e6"
+    },
+    "smf": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/library/oai-lab-smf:v2.2.0-ie43-771248b5",
+      "imageID": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9"
+    },
+    "upf": {
+      "phase": "Running",
+      "ready": true,
+      "restarts": 0,
+      "image": "docker.io/library/oai-lab-upf:b715742212936699",
+      "imageID": "sha256:5e75f06b1e508cba0a328f4cac68887837102ef737709bf018f6087a87c0ccdb"
+    }
+  },
+  "nrfProfiles": {
+    "UDR": [
+      {
+        "type": "UDR",
+        "status": "REGISTERED",
+        "name": "OAI-UDR"
+      }
+    ],
+    "UDM": [
+      {
+        "type": "UDM",
+        "status": "REGISTERED",
+        "name": "OAI-UDM"
+      }
+    ],
+    "AUSF": [
+      {
+        "type": "AUSF",
+        "status": "REGISTERED",
+        "name": "OAI-AUSF"
+      }
+    ],
+    "AMF": [
+      {
+        "type": "AMF",
+        "status": "REGISTERED",
+        "name": "amf"
+      }
+    ],
+    "SMF": [
+      {
+        "type": "SMF",
+        "status": "REGISTERED",
+        "name": "OAI-SMF"
+      }
+    ],
+    "UPF": [
+      {
+        "type": "UPF",
+        "status": "REGISTERED",
+        "name": "OAI-UPF"
+      }
+    ]
+  },
+  "pfcp": {
+    "associationAccepted": true,
+    "associationSeq": 5827937,
+    "heartbeatPairs": 5,
+    "ie43Length8": true
+  },
+  "smfDecoderErrorCount": 0,
+  "xdp": {
+    "n3": {
+      "mode": "generic",
+      "id": 3457
+    },
+    "n6": {
+      "mode": "generic",
+      "id": 3464
+    }
+  },
+  "upfLogsSkb": true,
+  "subscriberJob": "Subscriber synchronized; authentication sequence preserved"
+}

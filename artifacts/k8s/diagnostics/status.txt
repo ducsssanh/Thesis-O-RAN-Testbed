@@ -1,0 +1,23 @@
+NAME                                  READY   STATUS      RESTARTS   AGE     IP            NODE      NOMINATED NODE   READINESS GATES
+pod/oai-lab-bootstrap-client-h7mn5    0/1     Completed   0          2m9s    10.244.0.18   oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-radio-mmnqq     0/1     Completed   0          2m9s    10.244.0.15   oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-server-zrgqc    0/1     Completed   0          2m9s    10.244.0.17   oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-ue-tun-nbptl    0/1     Completed   0          2m9s    10.244.0.16   oai-lab   <none>           <none>
+pod/oai-lab-bootstrap-upf-bpf-g6w86   0/1     Completed   0          2m9s    10.244.0.14   oai-lab   <none>           <none>
+pod/oai-lab-db-0                      1/1     Running     0          28m     10.244.0.4    oai-lab   <none>           <none>
+pod/oai-lab-dn-6fd59798b7-q7pwr       1/1     Running     0          2m12s   10.244.0.13   oai-lab   <none>           <none>
+
+NAME                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE   SELECTOR
+service/oai-gnb-rfsim   ClusterIP   10.99.23.202    <none>        4043/TCP   28m   oai-lab/component=gnb
+service/oai-lab-db      ClusterIP   10.110.33.211   <none>        3306/TCP   28m   oai-lab/component=db
+
+NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/oai-lab-artifacts   Bound    pvc-141274dc-9c5e-4e62-981f-20eb6cbbc9c8   2Gi        RWO            standard       <unset>                 28m   Filesystem
+persistentvolumeclaim/oai-lab-db          Bound    pvc-ebe23898-2419-4f10-95b5-af257e8e7a61   2Gi        RWO            standard       <unset>                 28m   Filesystem
+
+NAME                                  STATUS     COMPLETIONS   DURATION   AGE    CONTAINERS      IMAGES                           SELECTOR
+job.batch/oai-lab-bootstrap-client    Complete   1/1           13s        2m9s   probe           oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=517c88ae-fb1b-4783-88e8-b5c052d7e5b8
+job.batch/oai-lab-bootstrap-radio     Complete   1/1           7s         2m9s   radio-probe     oai-lab-radio:b715742212936699   batch.kubernetes.io/controller-uid=6709adf4-2a9c-4f8c-8af4-b2140a54ae19
+job.batch/oai-lab-bootstrap-server    Complete   1/1           14s        2m9s   probe           oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=4eb2d5bf-00e5-431d-bb27-bda8dbfd5e2d
+job.batch/oai-lab-bootstrap-ue-tun    Complete   1/1           8s         2m9s   ue-tun-probe    oai-lab-tools:b715742212936699   batch.kubernetes.io/controller-uid=47a4e72c-b00f-4a8b-aaa5-9389271be1db
+job.batch/oai-lab-bootstrap-upf-bpf   Complete   1/1           6s         2m9s   upf-bpf-probe   oai-lab-upf:b715742212936699     batch.kubernetes.io/controller-uid=b5adde80-2c32-4811-a1e2-2b95745e49b5

@@ -1,0 +1,1363 @@
+networks:
+  cp:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-cp
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.162.0/24
+      driver: default
+    name: br-cp
+  db:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-db
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.165.0/24
+      driver: default
+    name: br-db
+  meas:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 1
+      com.docker.network.bridge.gateway_mode_ipv4: nat-unprotected
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-meas
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.166.0/24
+      driver: default
+    name: br-meas
+  mgmt:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-mgmt
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.160.0/24
+      driver: default
+    name: br-mgmt
+  n2:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-n2
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 192.168.62.0/24
+      driver: default
+    name: br-n2
+  n3:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-n3
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 192.168.63.0/24
+      driver: default
+    name: br-n3
+  n4:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-n4
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.163.0/24
+      driver: default
+    name: br-n4
+  n6:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-n6
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.161.0/24
+      driver: default
+    name: br-n6
+  n9:
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: 0
+      com.docker.network.bridge.gateway_mode_ipv4: routed
+      com.docker.network.bridge.gateway_mode_ipv6: routed
+      com.docker.network.bridge.name: br-n9
+      com.docker.network.driver.mtu: 1500
+    ipam:
+      config:
+        - subnet: 172.25.164.0/24
+      driver: default
+    name: br-n9
+services:
+  amf:
+    annotations:
+      5gdeploy.ip_cp: 172.25.162.11
+      5gdeploy.ip_db: 172.25.165.11
+      5gdeploy.ip_n2: 192.168.62.11
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        msg Listing IP addresses
+        ip addr list up || /usr/sbin/ifconfig || true
+        msg Starting oai_amf
+        exec ./bin/oai_amf -c ./etc/config.yaml -o
+    container_name: amf
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: amf
+    image: oaisoftwarealliance/oai-amf:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.11
+        mac_address: 52:de:ac:19:a2:0b
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.11
+        mac_address: 52:de:ac:19:a5:0b
+      n2:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n2
+        ipv4_address: 192.168.62.11
+        mac_address: 52:de:c0:a8:3e:0b
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./cp-cfg/config.yaml
+        target: /openair-amf/etc/config.yaml
+        type: bind
+  ausf:
+    annotations:
+      5gdeploy.ip_cp: 172.25.162.12
+      5gdeploy.ip_db: 172.25.165.12
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        msg Listing IP addresses
+        ip addr list up || /usr/sbin/ifconfig || true
+        msg Starting oai_ausf
+        exec ./bin/oai_ausf -c ./etc/config.yaml -o
+    container_name: ausf
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: ausf
+    image: oaisoftwarealliance/oai-ausf:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.12
+        mac_address: 52:de:ac:19:a2:0c
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.12
+        mac_address: 52:de:ac:19:a5:0c
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./cp-cfg/config.yaml
+        target: /openair-ausf/etc/config.yaml
+        type: bind
+  bridge:
+    annotations:
+      5gdeploy.every_host: '1'
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/ash
+      - /action.sh
+    container_name: bridge
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    healthcheck:
+      interval: 31s
+      start_period: 30s
+      test:
+        - CMD
+        - test
+        - '-f'
+        - /run/5gdeploy-bridge-is-healthy
+    image: 5gdeploy.localhost/bridge
+    init: true
+    network_mode: host
+    networks: {}
+    ports: []
+    stop_signal: SIGTERM
+    sysctls: {}
+    volumes:
+      - read_only: true
+        source: bridge.sh
+        target: /action.sh
+        type: bind
+  cpufreq:
+    annotations:
+      5gdeploy.every_host: '1'
+    cap_add: []
+    command:
+      - /bin/ash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        CLEANUPS='set -euo pipefail'
+        cleanup() { msg Performing cleanup; ash -c "$$CLEANUPS"; trap - EXIT SIGTERM; }
+        trap cleanup EXIT SIGTERM
+
+        if [[ -f /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]]; then
+          msg Setting CPUFreq governor
+          echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+        else
+          msg Unable to set CPUFreq governor
+        fi
+
+        msg Idling
+        tail -f &
+        wait $$!
+    container_name: cpufreq
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: cpufreq
+    image: alpine:3.21
+    init: true
+    network_mode: none
+    networks: {}
+    ports: []
+    privileged: true
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes: []
+  dn_internet:
+    annotations:
+      5gdeploy.cpus: '1'
+      5gdeploy.dn: 01FFFFFF_nist-dnn
+      5gdeploy.ip_mgmt: 172.25.160.2
+      5gdeploy.ip_n6: 172.25.161.2
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/ash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        IFNAME=$$(ip -o addr show to 172.25.160.2 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif mgmt to appear
+          with_retry ip link show dev mgmt &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != mgmt ]]; then
+          die Found 172.25.160.2 on $$IFNAME instead of mgmt
+        fi
+        msg Disabling TX checksum offload on mgmt
+        ethtool --offload mgmt tx off || msg Cannot disable offload on mgmt, outgoing packets may get dropped
+        IFNAME=$$(ip -o addr show to 172.25.161.2 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n6 to appear
+          with_retry ip link show dev n6 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n6 ]]; then
+          die Found 172.25.161.2 on $$IFNAME instead of n6
+        fi
+        msg Disabling TX checksum offload on n6
+        ethtool --offload n6 tx off || msg Cannot disable offload on n6, outgoing packets may get dropped
+        unset IFNAME
+        sleep $${NETIF_WAITED:-0}
+        msg Listing IP addresses
+        ip addr list up
+        msg All netifs are ready
+        msg Adding routes for 01FFFFFF:nist-dnn toward UPFs
+        ip route replace 10.1.0.0/16 via 172.25.161.21 metric 1
+        msg Listing IP routes
+        ip route list table all type unicast
+        exec tail -f
+    container_name: dn_internet
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: dn_internet
+    image: 5gdeploy.localhost/dn
+    init: true
+    networks:
+      mgmt:
+        driver_opts:
+          com.docker.network.endpoint.ifname: mgmt
+        ipv4_address: 172.25.160.2
+        mac_address: 52:de:ac:19:a0:02
+      n6:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n6
+        ipv4_address: 172.25.161.2
+        mac_address: 52:de:ac:19:a1:02
+    ports: []
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 1
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes: []
+  dn_vcam:
+    annotations:
+      5gdeploy.cpus: '1'
+      5gdeploy.dn: 8C000000_vcam
+      5gdeploy.ip_mgmt: 172.25.160.3
+      5gdeploy.ip_n6: 172.25.161.3
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/ash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        IFNAME=$$(ip -o addr show to 172.25.160.3 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif mgmt to appear
+          with_retry ip link show dev mgmt &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != mgmt ]]; then
+          die Found 172.25.160.3 on $$IFNAME instead of mgmt
+        fi
+        msg Disabling TX checksum offload on mgmt
+        ethtool --offload mgmt tx off || msg Cannot disable offload on mgmt, outgoing packets may get dropped
+        IFNAME=$$(ip -o addr show to 172.25.161.3 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n6 to appear
+          with_retry ip link show dev n6 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n6 ]]; then
+          die Found 172.25.161.3 on $$IFNAME instead of n6
+        fi
+        msg Disabling TX checksum offload on n6
+        ethtool --offload n6 tx off || msg Cannot disable offload on n6, outgoing packets may get dropped
+        unset IFNAME
+        sleep $${NETIF_WAITED:-0}
+        msg Listing IP addresses
+        ip addr list up
+        msg All netifs are ready
+        msg Adding routes for 8C000000:vcam toward UPFs
+        ip route replace 10.140.0.0/16 via 172.25.161.5 metric 1
+        msg Listing IP routes
+        ip route list table all type unicast
+        exec tail -f
+    container_name: dn_vcam
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: dn_vcam
+    image: 5gdeploy.localhost/dn
+    init: true
+    networks:
+      mgmt:
+        driver_opts:
+          com.docker.network.endpoint.ifname: mgmt
+        ipv4_address: 172.25.160.3
+        mac_address: 52:de:ac:19:a0:03
+      n6:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n6
+        ipv4_address: 172.25.161.3
+        mac_address: 52:de:ac:19:a1:03
+    ports: []
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 1
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes: []
+  dn_vctl:
+    annotations:
+      5gdeploy.cpus: '1'
+      5gdeploy.dn: 8D000000_vctl
+      5gdeploy.ip_mgmt: 172.25.160.4
+      5gdeploy.ip_n6: 172.25.161.4
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/ash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        IFNAME=$$(ip -o addr show to 172.25.160.4 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif mgmt to appear
+          with_retry ip link show dev mgmt &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != mgmt ]]; then
+          die Found 172.25.160.4 on $$IFNAME instead of mgmt
+        fi
+        msg Disabling TX checksum offload on mgmt
+        ethtool --offload mgmt tx off || msg Cannot disable offload on mgmt, outgoing packets may get dropped
+        IFNAME=$$(ip -o addr show to 172.25.161.4 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n6 to appear
+          with_retry ip link show dev n6 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n6 ]]; then
+          die Found 172.25.161.4 on $$IFNAME instead of n6
+        fi
+        msg Disabling TX checksum offload on n6
+        ethtool --offload n6 tx off || msg Cannot disable offload on n6, outgoing packets may get dropped
+        unset IFNAME
+        sleep $${NETIF_WAITED:-0}
+        msg Listing IP addresses
+        ip addr list up
+        msg All netifs are ready
+        msg Adding routes for 8D000000:vctl toward UPFs
+        ip route replace 10.141.0.0/16 via 172.25.161.6 metric 1
+        msg Listing IP routes
+        ip route list table all type unicast
+        exec tail -f
+    container_name: dn_vctl
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: dn_vctl
+    image: 5gdeploy.localhost/dn
+    init: true
+    networks:
+      mgmt:
+        driver_opts:
+          com.docker.network.endpoint.ifname: mgmt
+        ipv4_address: 172.25.160.4
+        mac_address: 52:de:ac:19:a0:04
+      n6:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n6
+        ipv4_address: 172.25.161.4
+        mac_address: 52:de:ac:19:a1:04
+    ports: []
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 1
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes: []
+  grafana:
+    annotations:
+      5gdeploy.ip_meas: 172.25.166.16
+    cap_add: []
+    container_name: grafana
+    depends_on: {}
+    devices: []
+    environment:
+      GF_FEATURE_TOGGLES_ENABLE: autoMigrateOldPanels
+      GF_SECURITY_ADMIN_PASSWORD: grafana
+      GF_SECURITY_ADMIN_USER: admin
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: grafana
+    image: grafana/grafana-oss
+    init: true
+    networks:
+      meas:
+        driver_opts:
+          com.docker.network.endpoint.ifname: meas
+        ipv4_address: 172.25.166.16
+        mac_address: 52:de:ac:19:a6:10
+    ports: []
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: grafana-dashboards
+        target: /var/lib/grafana/dashboards
+        type: bind
+      - read_only: true
+        source: grafana-provisioning
+        target: /etc/grafana/provisioning
+        type: bind
+  nrf:
+    annotations:
+      5gdeploy.ip_cp: 172.25.162.13
+      5gdeploy.ip_db: 172.25.165.13
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        msg Listing IP addresses
+        ip addr list up || /usr/sbin/ifconfig || true
+        msg Starting oai_nrf
+        exec ./bin/oai_nrf -c ./etc/config.yaml -o
+    container_name: nrf
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: nrf
+    image: oaisoftwarealliance/oai-nrf:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.13
+        mac_address: 52:de:ac:19:a2:0d
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.13
+        mac_address: 52:de:ac:19:a5:0d
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./cp-cfg/config.yaml
+        target: /openair-nrf/etc/config.yaml
+        type: bind
+  processexporter:
+    annotations:
+      5gdeploy.every_host: '1'
+      5gdeploy.ip_meas: 172.25.166.14
+    cap_add: []
+    command:
+      - '--procfs=/host/proc'
+      - '-config.path=/config.yml'
+    container_name: processexporter
+    depends_on: {}
+    devices: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: processexporter
+    image: ncabatoff/process-exporter
+    init: true
+    networks:
+      meas:
+        driver_opts:
+          com.docker.network.endpoint.ifname: meas
+        ipv4_address: 172.25.166.14
+        mac_address: 52:de:ac:19:a6:0e
+    ports:
+      - host_ip: 0.0.0.0
+        mode: host
+        protocol: tcp
+        published: '9256'
+        target: 9256
+    privileged: true
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - source: /proc
+        target: /host/proc
+        type: bind
+      - read_only: true
+        source: process-exporter.yml
+        target: /config.yml
+        type: bind
+  prometheus:
+    annotations:
+      5gdeploy.ip_meas: 172.25.166.15
+    cap_add: []
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    container_name: prometheus
+    depends_on: {}
+    devices: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: prometheus
+    image: prom/prometheus
+    init: true
+    networks:
+      meas:
+        driver_opts:
+          com.docker.network.endpoint.ifname: meas
+        ipv4_address: 172.25.166.15
+        mac_address: 52:de:ac:19:a6:0f
+    ports: []
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+        type: bind
+  smf:
+    annotations:
+      5gdeploy.ip_cp: 172.25.162.8
+      5gdeploy.ip_db: 172.25.165.8
+      5gdeploy.ip_n4: 172.25.163.8
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        msg Listing IP addresses
+        ip addr list up || /usr/sbin/ifconfig || true
+        msg Starting oai_smf
+        exec ./bin/oai_smf -c ./etc/config.yaml -o
+    container_name: smf
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts:
+      upf1.node.5gcn.mnc01.mcc001.3gppnetwork.org: 172.25.163.21
+      upf140.node.5gcn.mnc01.mcc001.3gppnetwork.org: 172.25.163.5
+      upf141.node.5gcn.mnc01.mcc001.3gppnetwork.org: 172.25.163.6
+    hostname: smf
+    image: oaisoftwarealliance/oai-smf:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.8
+        mac_address: 52:de:ac:19:a2:08
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.8
+        mac_address: 52:de:ac:19:a5:08
+      n4:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n4
+        ipv4_address: 172.25.163.8
+        mac_address: 52:de:ac:19:a3:08
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./cp-cfg/config.yaml
+        target: /openair-smf/etc/config.yaml
+        type: bind
+  sql:
+    annotations:
+      5gdeploy.ip_db: 172.25.165.7
+    cap_add: []
+    command:
+      - mysqld
+      - '--max_connections=1000'
+      - '--character-set-server=utf8'
+      - '--collation-server=utf8_general_ci'
+    container_name: sql
+    depends_on: {}
+    devices: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: sql
+    image: mariadb:10.6
+    init: true
+    networks:
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.7
+        mac_address: 52:de:ac:19:a5:07
+    ports: []
+    stop_signal: SIGTERM
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: cp-sql
+        target: /docker-entrypoint-initdb.d
+        type: bind
+  udm:
+    annotations:
+      5gdeploy.ip_cp: 172.25.162.9
+      5gdeploy.ip_db: 172.25.165.9
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        msg Listing IP addresses
+        ip addr list up || /usr/sbin/ifconfig || true
+        msg Starting oai_udm
+        exec ./bin/oai_udm -c ./etc/config.yaml -o
+    container_name: udm
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: udm
+    image: oaisoftwarealliance/oai-udm:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.9
+        mac_address: 52:de:ac:19:a2:09
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.9
+        mac_address: 52:de:ac:19:a5:09
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./cp-cfg/config.yaml
+        target: /openair-udm/etc/config.yaml
+        type: bind
+  udr:
+    annotations:
+      5gdeploy.ip_cp: 172.25.162.10
+      5gdeploy.ip_db: 172.25.165.10
+    cap_add:
+      - NET_ADMIN
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        msg Listing IP addresses
+        ip addr list up || /usr/sbin/ifconfig || true
+        msg Starting oai_udr
+        exec ./bin/oai_udr -c ./etc/config.yaml -o
+    container_name: udr
+    depends_on: {}
+    devices: []
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: udr
+    image: oaisoftwarealliance/oai-udr:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.10
+        mac_address: 52:de:ac:19:a2:0a
+      db:
+        driver_opts:
+          com.docker.network.endpoint.ifname: db
+        ipv4_address: 172.25.165.10
+        mac_address: 52:de:ac:19:a5:0a
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./cp-cfg/config.yaml
+        target: /openair-udr/etc/config.yaml
+        type: bind
+  upf1:
+    annotations:
+      5gdeploy.cpus: '2'
+      5gdeploy.ip_cp: 172.25.162.21
+      5gdeploy.ip_n3: 192.168.63.21
+      5gdeploy.ip_n4: 172.25.163.21
+      5gdeploy.ip_n6: 172.25.161.21
+      5gdeploy.ip_n9: 172.25.164.21
+    cap_add:
+      - NET_ADMIN
+      - BPF
+      - PERFMON
+      - SYS_RESOURCE
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        IFNAME=$$(ip -o addr show to 172.25.162.21 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif cp to appear
+          with_retry ip link show dev cp &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != cp ]]; then
+          die Found 172.25.162.21 on $$IFNAME instead of cp
+        fi
+        IFNAME=$$(ip -o addr show to 192.168.63.21 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n3 to appear
+          with_retry ip link show dev n3 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n3 ]]; then
+          die Found 192.168.63.21 on $$IFNAME instead of n3
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.163.21 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n4 to appear
+          with_retry ip link show dev n4 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n4 ]]; then
+          die Found 172.25.163.21 on $$IFNAME instead of n4
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.161.21 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n6 to appear
+          with_retry ip link show dev n6 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n6 ]]; then
+          die Found 172.25.161.21 on $$IFNAME instead of n6
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.164.21 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n9 to appear
+          with_retry ip link show dev n9 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n9 ]]; then
+          die Found 172.25.164.21 on $$IFNAME instead of n9
+        fi
+        unset IFNAME
+        sleep $${NETIF_WAITED:-0}
+        msg Listing IP addresses
+        ip addr list up
+        msg All netifs are ready
+        msg Adding routes for 01FFFFFF:nist-dnn toward DN in table 5000
+        ip rule add from 10.1.0.0/16 priority 100 table 5000
+        ip route replace default via 172.25.161.2 table 5000 metric 1
+        msg Listing IP rules
+        ip rule list
+        msg Listing IP routes
+        ip route list table all type unicast
+        msg Starting oai_upf
+        exec ./bin/oai_upf -c ./etc/config.yaml -o
+    container_name: upf1
+    depends_on: {}
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: upf1
+    image: oai-upf-research:local
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.21
+        mac_address: 52:de:ac:19:a2:15
+      n3:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n3
+        ipv4_address: 192.168.63.21
+        mac_address: 52:de:c0:a8:3f:15
+      n4:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n4
+        ipv4_address: 172.25.163.21
+        mac_address: 52:de:ac:19:a3:15
+      n6:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n6
+        ipv4_address: 172.25.161.21
+        mac_address: 52:de:ac:19:a1:15
+      n9:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n9
+        ipv4_address: 172.25.164.21
+        mac_address: 52:de:ac:19:a4:15
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 1
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./up-cfg/upf1.yaml
+        target: /openair-upf/etc/config.yaml
+        type: bind
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  upf140:
+    annotations:
+      5gdeploy.cpus: '2'
+      5gdeploy.ip_cp: 172.25.162.5
+      5gdeploy.ip_n3: 192.168.63.5
+      5gdeploy.ip_n4: 172.25.163.5
+      5gdeploy.ip_n6: 172.25.161.5
+      5gdeploy.ip_n9: 172.25.164.5
+    cap_add:
+      - NET_ADMIN
+      - BPF
+      - PERFMON
+      - SYS_RESOURCE
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        IFNAME=$$(ip -o addr show to 172.25.162.5 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif cp to appear
+          with_retry ip link show dev cp &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != cp ]]; then
+          die Found 172.25.162.5 on $$IFNAME instead of cp
+        fi
+        IFNAME=$$(ip -o addr show to 192.168.63.5 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n3 to appear
+          with_retry ip link show dev n3 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n3 ]]; then
+          die Found 192.168.63.5 on $$IFNAME instead of n3
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.163.5 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n4 to appear
+          with_retry ip link show dev n4 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n4 ]]; then
+          die Found 172.25.163.5 on $$IFNAME instead of n4
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.161.5 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n6 to appear
+          with_retry ip link show dev n6 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n6 ]]; then
+          die Found 172.25.161.5 on $$IFNAME instead of n6
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.164.5 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n9 to appear
+          with_retry ip link show dev n9 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n9 ]]; then
+          die Found 172.25.164.5 on $$IFNAME instead of n9
+        fi
+        unset IFNAME
+        sleep $${NETIF_WAITED:-0}
+        msg Listing IP addresses
+        ip addr list up
+        msg All netifs are ready
+        msg Adding routes for 8C000000:vcam toward DN in table 5001
+        ip rule add from 10.140.0.0/16 priority 100 table 5001
+        ip route replace default via 172.25.161.3 table 5001 metric 1
+        msg Listing IP rules
+        ip rule list
+        msg Listing IP routes
+        ip route list table all type unicast
+        msg Starting oai_upf
+        exec ./bin/oai_upf -c ./etc/config.yaml -o
+    container_name: upf140
+    depends_on: {}
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: upf140
+    image: oaisoftwarealliance/oai-upf:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.5
+        mac_address: 52:de:ac:19:a2:05
+      n3:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n3
+        ipv4_address: 192.168.63.5
+        mac_address: 52:de:c0:a8:3f:05
+      n4:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n4
+        ipv4_address: 172.25.163.5
+        mac_address: 52:de:ac:19:a3:05
+      n6:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n6
+        ipv4_address: 172.25.161.5
+        mac_address: 52:de:ac:19:a1:05
+      n9:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n9
+        ipv4_address: 172.25.164.5
+        mac_address: 52:de:ac:19:a4:05
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 1
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./up-cfg/upf140.yaml
+        target: /openair-upf/etc/config.yaml
+        type: bind
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  upf141:
+    annotations:
+      5gdeploy.cpus: '2'
+      5gdeploy.ip_cp: 172.25.162.6
+      5gdeploy.ip_n3: 192.168.63.6
+      5gdeploy.ip_n4: 172.25.163.6
+      5gdeploy.ip_n6: 172.25.161.6
+      5gdeploy.ip_n9: 172.25.164.6
+    cap_add:
+      - NET_ADMIN
+      - BPF
+      - PERFMON
+      - SYS_RESOURCE
+    command:
+      - /bin/bash
+      - '-c'
+      - |-
+        set -euo pipefail
+        msg() { echo -ne "\e[35m[5gdeploy] \e[94m"; echo -n "$$*"; echo -e "\e[0m"; }
+        die() { msg "$$*"; exit 1; }
+        with_retry() { while ! "$$@"; do sleep 0.2; done }
+        IFNAME=$$(ip -o addr show to 172.25.162.6 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif cp to appear
+          with_retry ip link show dev cp &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != cp ]]; then
+          die Found 172.25.162.6 on $$IFNAME instead of cp
+        fi
+        IFNAME=$$(ip -o addr show to 192.168.63.6 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n3 to appear
+          with_retry ip link show dev n3 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n3 ]]; then
+          die Found 192.168.63.6 on $$IFNAME instead of n3
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.163.6 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n4 to appear
+          with_retry ip link show dev n4 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n4 ]]; then
+          die Found 172.25.163.6 on $$IFNAME instead of n4
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.161.6 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n6 to appear
+          with_retry ip link show dev n6 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n6 ]]; then
+          die Found 172.25.161.6 on $$IFNAME instead of n6
+        fi
+        IFNAME=$$(ip -o addr show to 172.25.164.6 | awk '{ print $$2 }')
+        if [[ -z $$IFNAME ]]; then
+          msg Waiting for netif n9 to appear
+          with_retry ip link show dev n9 &>/dev/null
+          NETIF_WAITED=1
+        elif [[ $$IFNAME != n9 ]]; then
+          die Found 172.25.164.6 on $$IFNAME instead of n9
+        fi
+        unset IFNAME
+        sleep $${NETIF_WAITED:-0}
+        msg Listing IP addresses
+        ip addr list up
+        msg All netifs are ready
+        msg Adding routes for 8D000000:vctl toward DN in table 5002
+        ip rule add from 10.141.0.0/16 priority 100 table 5002
+        ip route replace default via 172.25.161.4 table 5002 metric 1
+        msg Listing IP rules
+        ip rule list
+        msg Listing IP routes
+        ip route list table all type unicast
+        msg Starting oai_upf
+        exec ./bin/oai_upf -c ./etc/config.yaml -o
+    container_name: upf141
+    depends_on: {}
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    entrypoint: []
+    environment:
+      HTTPS_PROXY: ''
+      HTTP_PROXY: ''
+      http_proxy: ''
+      https_proxy: ''
+    extra_hosts: {}
+    hostname: upf141
+    image: oaisoftwarealliance/oai-upf:v2.2.0
+    init: true
+    networks:
+      cp:
+        driver_opts:
+          com.docker.network.endpoint.ifname: cp
+        ipv4_address: 172.25.162.6
+        mac_address: 52:de:ac:19:a2:06
+      n3:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n3
+        ipv4_address: 192.168.63.6
+        mac_address: 52:de:c0:a8:3f:06
+      n4:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n4
+        ipv4_address: 172.25.163.6
+        mac_address: 52:de:ac:19:a3:06
+      n6:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n6
+        ipv4_address: 172.25.161.6
+        mac_address: 52:de:ac:19:a1:06
+      n9:
+        driver_opts:
+          com.docker.network.endpoint.ifname: n9
+        ipv4_address: 172.25.164.6
+        mac_address: 52:de:ac:19:a4:06
+    ports: []
+    stop_signal: SIGQUIT
+    sysctls:
+      net.ipv4.conf.all.arp_filter: 1
+      net.ipv4.conf.all.forwarding: 1
+      net.ipv4.conf.all.rp_filter: 2
+      net.ipv4.conf.default.rp_filter: 2
+      net.ipv6.conf.all.forwarding: 0
+      net.ipv6.conf.default.disable_ipv6: 1
+    volumes:
+      - read_only: true
+        source: ./up-cfg/upf141.yaml
+        target: /openair-upf/etc/config.yaml
+        type: bind
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+volumes: {}

@@ -1,0 +1,8 @@
+{
+  "status": "BLOCKED",
+  "error": "Insufficient disk space; no cache will be deleted automatically",
+  "diskFreeGiB": 17.47,
+  "diskRequiredGiB": 25,
+  "imageBuilt": false,
+  "runtimeRetested": false
+}

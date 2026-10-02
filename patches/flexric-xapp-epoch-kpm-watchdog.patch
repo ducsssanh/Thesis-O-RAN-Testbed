@@ -1,0 +1,175 @@
+--- a/examples/xApp/c/monitor/urr_receiver.h
++++ b/examples/xApp/c/monitor/urr_receiver.h
+@@ -6,7 +6,7 @@
+   uint64_t seid,ur_seqn,urr_id;
+   bool has_urr_id;
+   uint64_t ul_bytes,dl_bytes,total_bytes,ul_packets,dl_packets,total_packets,duration_seconds;
+-  char supi[96],dnn[96],observed_at[64],schema_version[24],run_id[96],enrichment_source[48];
++  char session_epoch[33],supi[96],dnn[96],observed_at[64],schema_version[24],run_id[96],enrichment_source[48];
+ } urr_record_t;
+ int urr_receiver_start(void);
+ void urr_receiver_stop(void);
+--- a/examples/xApp/c/monitor/urr_receiver.c
++++ b/examples/xApp/c/monitor/urr_receiver.c
+@@ -81,7 +81,15 @@
+   for(size_t i=0;i<json_object_array_length(triggers);i++)if(!json_object_is_type(json_object_array_get_idx(triggers,i),json_type_string))return 0;
+   if(!json_object_object_get_ex(o,"snssai",&snssai) || !json_object_is_type(snssai,json_type_object))return 0;
+   if(!uint_field(snssai,"sst",&n) || !string_field(snssai,"sd"))return 0;
++  /* session_epoch (producer schema 1.1.0) is optional: [0-9TZ]{1,32} */
++  json_object *epoch=NULL;
++  if(json_object_object_get_ex(o,"session_epoch",&epoch)){
++    if(!json_object_is_type(epoch,json_type_string))return 0;
++    const char *e=json_object_get_string(epoch);size_t len=strlen(e);
++    if(len==0 || len>32 || strspn(e,"0123456789TZ")!=len)return 0;
++  }
+   memset(record,0,sizeof(*record));record->seid=seid;record->ur_seqn=seq;
++  if(epoch)copy_field(o,"session_epoch",record->session_epoch,sizeof(record->session_epoch));
+   if(!json_object_is_type(id,json_type_null)){record->has_urr_id=true;uint_field(o,"urr_id",&record->urr_id);}
+   uint_field(o,"ul_bytes",&record->ul_bytes);uint_field(o,"dl_bytes",&record->dl_bytes);uint_field(o,"total_bytes",&record->total_bytes);
+   uint_field(o,"ul_packets",&record->ul_packets);uint_field(o,"dl_packets",&record->dl_packets);uint_field(o,"total_packets",&record->total_packets);
+@@ -136,7 +144,9 @@
+     json_object_put(o);return reply(c,400,"{\"error\":\"invalid event ID\"}");
+   }
+   const char *raw=json_object_to_json_string_ext(report,JSON_C_TO_STRING_PLAIN);
+-  char expected[128];snprintf(expected,sizeof(expected),"%llu:%llu",(unsigned long long)record.seid,(unsigned long long)record.ur_seqn);
++  char expected[128];
++  if(record.session_epoch[0])snprintf(expected,sizeof(expected),"%llu:%s:%llu",(unsigned long long)record.seid,record.session_epoch,(unsigned long long)record.ur_seqn);
++  else snprintf(expected,sizeof(expected),"%llu:%llu",(unsigned long long)record.seid,(unsigned long long)record.ur_seqn);
+   if(strcmp(id+strlen(job)+1,expected)!=0){pthread_mutex_lock(&lock);error_count++;pthread_mutex_unlock(&lock);json_object_put(o);return reply(c,400,"{\"error\":\"event ID mismatch\"}");}
+   pthread_mutex_lock(&lock);
+   sqlite3_stmt *q=NULL;int status=500;
+--- a/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
++++ b/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
+@@ -44,6 +44,8 @@
+ #include <stdlib.h>
+ #include <time.h>
+ #include <unistd.h>
++#include <stdatomic.h>
++#include <sys/stat.h>
+ #include "urr_receiver.h"
+ 
+ // Set to the interval in milliseconds at which the xApp should write to the CSV file
+@@ -359,8 +361,18 @@
+     fprintf(stderr, "CSV line buffer is full, cannot prepend timestamp and offset.\n");
+   }
+ }
++// The xApp may be restarted within a run (KPM watchdog): keep existing rows
++// and only write the header to an empty file.
++static bool csv_has_content(const char *path) {
++  struct stat st;
++  return stat(path, &st) == 0 && st.st_size > 0;
++}
++
+ static void write_csv_header_to_file() {
+   if (is_cell_metric) {
++    if (!csv_wrote_cell_header && csv_cell_file_path[0] != '\0' && csv_has_content(csv_cell_file_path)) {
++      csv_wrote_cell_header = true;
++    }
+     if (!csv_wrote_cell_header && csv_cell_file_path[0] != '\0') {
+       FILE *file = fopen(csv_cell_file_path, "w");
+       if (file == NULL) {
+@@ -374,6 +386,9 @@
+       printf("CSV cell header written to file: %s\n", csv_cell_file_path);
+     }
+   } else {
++    if (!csv_wrote_header && csv_file_path != NULL && csv_has_content(csv_file_path)) {
++      csv_wrote_header = true;
++    }
+     if (!csv_wrote_header && csv_file_path != NULL) {
+       FILE *file = fopen(csv_file_path, "w");
+       if (file == NULL) {
+@@ -766,8 +781,47 @@
+          (unsigned)(cfg_slicing_sd & 0xFFFFFFu));
+ }
+ 
++// KPM watchdog. Subscriptions are made once, to the E2 nodes connected at
++// startup; when the gNB restarts it reconnects to the RIC but this xApp keeps
++// a dead subscription and KPM stops silently. If no indication arrives for
++// KPM_STALE_S seconds the process exits, and Kubernetes restarts it to
++// subscribe again. KPM_STALE_S=0 disables the watchdog.
++static _Atomic int64_t last_kpm_us;
++
++static void* kpm_watchdog(void* arg) {
++  int64_t const stale_us = *(int64_t*)arg;
++  for (;;) {
++    sleep(1);
++    int64_t const idle = time_now_us() - atomic_load(&last_kpm_us);
++    if (idle > stale_us) {
++      fprintf(stderr, "[xApp] No KPM indication for %" PRId64 " s; exiting to resubscribe\n", idle / 1000000);
++      fflush(NULL);
++      _exit(3);
++    }
++  }
++  return NULL;
++}
++
++static void start_kpm_watchdog(void) {
++  static int64_t stale_us;
++  char const* env = getenv("KPM_STALE_S");
++  long const stale_s = env ? strtol(env, NULL, 10) : 10;
++  if (stale_s <= 0) {
++    printf("[xApp] KPM watchdog disabled\n");
++    return;
++  }
++  stale_us = (int64_t)stale_s * 1000000;
++  atomic_store(&last_kpm_us, time_now_us());
++  pthread_t t;
++  int const rc = pthread_create(&t, NULL, kpm_watchdog, &stale_us);
++  assert(rc == 0);
++  pthread_detach(t);
++  printf("[xApp] KPM watchdog: exit after %ld s without indications\n", stale_s);
++}
++
+ static void sm_cb_kpm(sm_ag_if_rd_t const *rd, global_e2_node_id_t const *node_id) {
+   assert(rd != NULL);
++  atomic_store(&last_kpm_us, time_now_us());
+   assert(rd->type == INDICATION_MSG_AGENT_IF_ANS_V0);
+   assert(rd->ind.type == KPM_STATS_V3_0);
+ 
+@@ -1058,6 +1112,7 @@
+     fprintf(stderr, "URR HTTPS receiver failed to start\n");
+     return EXIT_FAILURE;
+   }
++
+   is_cell_metric = false;
+   csv_wrote_header = false;
+   csv_append_name_to_csv_header("Time", "ISO 8601");
+@@ -1084,11 +1139,18 @@
+   sleep(1);
+   init_kpm_meas_unit_hash_table();
+ 
++  // Wait for an E2 node instead of failing: after a gNB restart the xApp may
++  // start before the gNB has reconnected to the RIC.
+   e2_node_arr_xapp_t nodes = e2_nodes_xapp_api();
++  for (int waited = 0; nodes.len == 0; ++waited) {
++    if (waited % 10 == 0)
++      printf("[xApp] Waiting for an E2 node to connect to the RIC\n");
++    free_e2_node_arr_xapp(&nodes);
++    sleep(1);
++    nodes = e2_nodes_xapp_api();
++  }
+   defer({ free_e2_node_arr_xapp(&nodes); });
+ 
+-  assert(nodes.len > 0);
+-
+   printf("Connected E2 nodes = %d\n", nodes.len);
+ 
+   pthread_mutexattr_t attr = {0};
+@@ -1135,6 +1197,8 @@
+   // END KPM
+   ////////////
+ 
++  start_kpm_watchdog();
++
+   xapp_wait_end_api();
+ 
+   for (int i = 0; i < nodes.len; ++i) {
+@@ -1155,6 +1219,7 @@
+   while (try_stop_xapp_api() == false)
+     usleep(1000);
+ 
+-  printf("Test xApp run SUCCESSFULLY\n");
+   urr_receiver_stop();
++
++  printf("Test xApp run SUCCESSFULLY\n");
+ }

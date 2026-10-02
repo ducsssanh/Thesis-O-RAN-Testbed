@@ -1,0 +1,11 @@
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+deployment "oai-lab-dn" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 16:59:07 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 9
+TEST SUITE: None
+Subscriber seed completed

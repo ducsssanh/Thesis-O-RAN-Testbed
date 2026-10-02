@@ -1,0 +1,1517 @@
+[
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:31:57.469182000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:31:57.469182000 UTC",
+          "frame.time_epoch": "1790515917.469182000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000000000",
+          "frame.time_delta_displayed": "0.000000000",
+          "frame.time_relative": "0.000000000",
+          "frame.number": "1",
+          "frame.len": "72",
+          "frame.cap_len": "72",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "12:6a:b5:70:ca:06",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "12:6a:b5:70:ca:06",
+            "eth.dst.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "56:b6:f1:52:12:f0",
+          "eth.src_tree": {
+            "eth.src_resolved": "56:b6:f1:52:12:f0",
+            "eth.src.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "58",
+          "ip.id": "0xb6bd",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xfb9a",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.src_host": "172.30.24.10",
+          "ip.host": "172.30.24.10",
+          "ip.dst": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.dst_host": "172.30.24.20",
+          "ip.host": "172.30.24.20"
+        },
+        "udp": {
+          "udp.srcport": "57760",
+          "udp.dstport": "8805",
+          "udp.port": "57760",
+          "udp.port": "8805",
+          "udp.length": "38",
+          "udp.checksum": "0x8892",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "0.000000000",
+            "udp.time_delta": "0.000000000"
+          },
+          "udp.payload": "20:05:00:1a:58:ed:61:00:00:3c:00:05:00:ac:1e:18:0a:00:60:00:04:ee:63:99:4d:00:59:00:01:03"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "5",
+          "pfcp.length": "26",
+          "pfcp.seqno": "5827937",
+          "pfcp.spare_oct": "0",
+          "Node ID : IPv4 address: 172.30.24.10": {
+            "pfcp.ie_type": "60",
+            "pfcp.ie_len": "5",
+            "pfcp.spare_h1": "0",
+            "pfcp.node_id_type": "0",
+            "pfcp.node_id_ipv4": "172.30.24.10"
+          },
+          "Recovery Time Stamp : Sep 27, 2026 13:31:57.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 27, 2026 13:31:57.000000000 UTC"
+          },
+          "CP Function Features : ": {
+            "pfcp.ie_type": "89",
+            "pfcp.ie_len": "1",
+            "pfcp.cp_function_features.uiaur": "0",
+            "pfcp.cp_function_features.ardr": "0",
+            "pfcp.cp_function_features.mpas": "0",
+            "pfcp.cp_function_features.bundl": "0",
+            "pfcp.cp_function_features.sset": "0",
+            "pfcp.cp_function_features.epfar": "0",
+            "pfcp.cp_function_features.ovrl": "1",
+            "pfcp.cp_function_features.load": "1"
+          }
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:31:57.469481000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:31:57.469481000 UTC",
+          "frame.time_epoch": "1790515917.469481000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000299000",
+          "frame.time_delta_displayed": "0.000299000",
+          "frame.time_relative": "0.000299000",
+          "frame.number": "2",
+          "frame.len": "84",
+          "frame.cap_len": "84",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "56:b6:f1:52:12:f0",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "56:b6:f1:52:12:f0",
+            "eth.dst.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "12:6a:b5:70:ca:06",
+          "eth.src_tree": {
+            "eth.src_resolved": "12:6a:b5:70:ca:06",
+            "eth.src.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "70",
+          "ip.id": "0xb6b9",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xfb92",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.src_host": "172.30.24.20",
+          "ip.host": "172.30.24.20",
+          "ip.dst": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.dst_host": "172.30.24.10",
+          "ip.host": "172.30.24.10"
+        },
+        "udp": {
+          "udp.srcport": "8805",
+          "udp.dstport": "57760",
+          "udp.port": "8805",
+          "udp.port": "57760",
+          "udp.length": "50",
+          "udp.checksum": "0x889e",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "0.000299000",
+            "udp.time_delta": "0.000299000"
+          },
+          "udp.payload": "20:06:00:26:58:ed:61:00:00:3c:00:05:00:ac:1e:18:14:00:13:00:01:01:00:60:00:04:ee:62:b0:dd:00:2b:00:08:10:00:00:00:00:00:00:00"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "6",
+          "pfcp.length": "38",
+          "pfcp.seqno": "5827937",
+          "pfcp.spare_oct": "0",
+          "Node ID : IPv4 address: 172.30.24.20": {
+            "pfcp.ie_type": "60",
+            "pfcp.ie_len": "5",
+            "pfcp.spare_h1": "0",
+            "pfcp.node_id_type": "0",
+            "pfcp.node_id_ipv4": "172.30.24.20"
+          },
+          "Cause : Request accepted(success)": {
+            "pfcp.ie_type": "19",
+            "pfcp.ie_len": "1",
+            "pfcp.cause": "1"
+          },
+          "Recovery Time Stamp : Sep 26, 2026 21:00:13.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 26, 2026 21:00:13.000000000 UTC"
+          },
+          "UP Function Features : ": {
+            "pfcp.ie_type": "43",
+            "pfcp.ie_len": "8",
+            "pfcp.up_function_features.treu": "0",
+            "pfcp.up_function_features.heeu": "0",
+            "pfcp.up_function_features.pfdm": "0",
+            "pfcp.up_function_features.ftup": "1",
+            "pfcp.up_function_features.trst": "0",
+            "pfcp.up_function_features.dlbd": "0",
+            "pfcp.up_function_features.ddnd": "0",
+            "pfcp.up_function_features.bucp": "0",
+            "pfcp.up_function_features.epfar": "0",
+            "pfcp.up_function_features.pfde": "0",
+            "pfcp.up_function_features.frrt": "0",
+            "pfcp.up_function_features.trace": "0",
+            "pfcp.up_function_features.quoac": "0",
+            "pfcp.up_function_features.udbc": "0",
+            "pfcp.up_function_features.pdiu": "0",
+            "pfcp.up_function_features.empu": "0",
+            "pfcp.up_function_features.gcom": "0",
+            "pfcp.up_function_features.bundl": "0",
+            "pfcp.up_function_features.mte_n4": "0",
+            "pfcp.up_function_features.mnop": "0",
+            "pfcp.up_function_features.sset": "0",
+            "pfcp.up_function_features.ueip": "0",
+            "pfcp.up_function_features.adpdp": "0",
+            "pfcp.up_function_features.dpdra": "0",
+            "pfcp.up_function_features.mptcp": "0",
+            "pfcp.up_function_features.tsn": "0",
+            "pfcp.up_function_features.ip6pl": "0",
+            "pfcp.up_function_features.iptv": "0",
+            "pfcp.up_function_features.norp": "0",
+            "pfcp.up_function_features.vtime": "0",
+            "pfcp.up_function_features.rttl": "0",
+            "pfcp.up_function_features.mpas": "0",
+            "pfcp.up_function_features.rds": "0",
+            "pfcp.up_function_features.ddds": "0",
+            "pfcp.up_function_features.ethar": "0",
+            "pfcp.up_function_features.ciot": "0",
+            "pfcp.up_function_features.mtedt": "0",
+            "pfcp.up_function_features.gpqm": "0",
+            "pfcp.up_function_features.qfqm": "0",
+            "pfcp.up_function_features.atsss_ll": "0",
+            "pfcp.up_function_features.dnsts": "0",
+            "pfcp.up_function_features.iprep": "0",
+            "pfcp.up_function_features.resps": "0",
+            "pfcp.up_function_features.upber": "0",
+            "pfcp.up_function_features.l2tp": "0",
+            "pfcp.up_function_features.nspoc": "0",
+            "pfcp.up_function_features.quasf": "0",
+            "pfcp.up_function_features.rttwp": "0",
+            "pfcp.up_function_features.mpquic": "0",
+            "pfcp.up_function_features.afsfc": "0",
+            "pfcp.up_function_features.upidp": "0",
+            "pfcp.up_function_features.ratp": "0",
+            "pfcp.up_function_features.eppi": "0",
+            "pfcp.up_function_features.mbsn4": "0",
+            "pfcp.up_function_features.mbsn4": "0",
+            "pfcp.up_function_features.drqos": "0",
+            "pfcp.up_function_features.eml4s": "0",
+            "pfcp.up_function_features.detnet": "0",
+            "pfcp.up_function_features.qmcon": "0",
+            "pfcp.up_function_features.n6jedb": "0",
+            "pfcp.up_function_features.drtsc": "0",
+            "pfcp.up_function_features.tscts": "0",
+            "pfcp.up_function_features.dbdm": "0",
+            "pfcp.up_function_features.redsm": "0"
+          },
+          "pfcp.response_to": "1",
+          "pfcp.response_time": "0.000299000"
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:07.495686000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:07.495686000 UTC",
+          "frame.time_epoch": "1790515927.495686000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "10.026205000",
+          "frame.time_delta_displayed": "10.026205000",
+          "frame.time_relative": "10.026504000",
+          "frame.number": "3",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "12:6a:b5:70:ca:06",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "12:6a:b5:70:ca:06",
+            "eth.dst.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "56:b6:f1:52:12:f0",
+          "eth.src_tree": {
+            "eth.src_resolved": "56:b6:f1:52:12:f0",
+            "eth.src.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0xd7ed",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xda78",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.src_host": "172.30.24.10",
+          "ip.host": "172.30.24.10",
+          "ip.dst": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.dst_host": "172.30.24.20",
+          "ip.host": "172.30.24.20"
+        },
+        "udp": {
+          "udp.srcport": "57760",
+          "udp.dstport": "8805",
+          "udp.port": "57760",
+          "udp.port": "8805",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "10.026504000",
+            "udp.time_delta": "10.026205000"
+          },
+          "udp.payload": "20:01:00:0c:58:ed:62:00:00:60:00:04:ee:63:99:57"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "1",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827938",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 27, 2026 13:32:07.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 27, 2026 13:32:07.000000000 UTC"
+          }
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:07.495932000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:07.495932000 UTC",
+          "frame.time_epoch": "1790515927.495932000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000246000",
+          "frame.time_delta_displayed": "0.000246000",
+          "frame.time_relative": "10.026750000",
+          "frame.number": "4",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "56:b6:f1:52:12:f0",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "56:b6:f1:52:12:f0",
+            "eth.dst.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "12:6a:b5:70:ca:06",
+          "eth.src_tree": {
+            "eth.src_resolved": "12:6a:b5:70:ca:06",
+            "eth.src.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0xbc8c",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xf5d9",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.src_host": "172.30.24.20",
+          "ip.host": "172.30.24.20",
+          "ip.dst": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.dst_host": "172.30.24.10",
+          "ip.host": "172.30.24.10"
+        },
+        "udp": {
+          "udp.srcport": "8805",
+          "udp.dstport": "57760",
+          "udp.port": "8805",
+          "udp.port": "57760",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "10.026750000",
+            "udp.time_delta": "0.000246000"
+          },
+          "udp.payload": "20:02:00:0c:58:ed:62:00:00:60:00:04:ee:62:b0:dd"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "2",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827938",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 26, 2026 21:00:13.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 26, 2026 21:00:13.000000000 UTC"
+          },
+          "pfcp.response_to": "3",
+          "pfcp.response_time": "0.000246000"
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:17.496422000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:17.496422000 UTC",
+          "frame.time_epoch": "1790515937.496422000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "10.000490000",
+          "frame.time_delta_displayed": "10.000490000",
+          "frame.time_relative": "20.027240000",
+          "frame.number": "5",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "12:6a:b5:70:ca:06",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "12:6a:b5:70:ca:06",
+            "eth.dst.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "56:b6:f1:52:12:f0",
+          "eth.src_tree": {
+            "eth.src_resolved": "56:b6:f1:52:12:f0",
+            "eth.src.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0xe59c",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xccc9",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.src_host": "172.30.24.10",
+          "ip.host": "172.30.24.10",
+          "ip.dst": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.dst_host": "172.30.24.20",
+          "ip.host": "172.30.24.20"
+        },
+        "udp": {
+          "udp.srcport": "57760",
+          "udp.dstport": "8805",
+          "udp.port": "57760",
+          "udp.port": "8805",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "20.027240000",
+            "udp.time_delta": "10.000490000"
+          },
+          "udp.payload": "20:01:00:0c:58:ed:63:00:00:60:00:04:ee:63:99:61"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "1",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827939",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 27, 2026 13:32:17.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 27, 2026 13:32:17.000000000 UTC"
+          }
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:17.496701000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:17.496701000 UTC",
+          "frame.time_epoch": "1790515937.496701000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000279000",
+          "frame.time_delta_displayed": "0.000279000",
+          "frame.time_relative": "20.027519000",
+          "frame.number": "6",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "56:b6:f1:52:12:f0",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "56:b6:f1:52:12:f0",
+            "eth.dst.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "12:6a:b5:70:ca:06",
+          "eth.src_tree": {
+            "eth.src_resolved": "12:6a:b5:70:ca:06",
+            "eth.src.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0xc892",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xe9d3",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.src_host": "172.30.24.20",
+          "ip.host": "172.30.24.20",
+          "ip.dst": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.dst_host": "172.30.24.10",
+          "ip.host": "172.30.24.10"
+        },
+        "udp": {
+          "udp.srcport": "8805",
+          "udp.dstport": "57760",
+          "udp.port": "8805",
+          "udp.port": "57760",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "20.027519000",
+            "udp.time_delta": "0.000279000"
+          },
+          "udp.payload": "20:02:00:0c:58:ed:63:00:00:60:00:04:ee:62:b0:dd"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "2",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827939",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 26, 2026 21:00:13.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 26, 2026 21:00:13.000000000 UTC"
+          },
+          "pfcp.response_to": "5",
+          "pfcp.response_time": "0.000279000"
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:27.497137000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:27.497137000 UTC",
+          "frame.time_epoch": "1790515947.497137000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "10.000436000",
+          "frame.time_delta_displayed": "10.000436000",
+          "frame.time_relative": "30.027955000",
+          "frame.number": "7",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "12:6a:b5:70:ca:06",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "12:6a:b5:70:ca:06",
+            "eth.dst.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "56:b6:f1:52:12:f0",
+          "eth.src_tree": {
+            "eth.src_resolved": "56:b6:f1:52:12:f0",
+            "eth.src.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0xed88",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xc4dd",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.src_host": "172.30.24.10",
+          "ip.host": "172.30.24.10",
+          "ip.dst": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.dst_host": "172.30.24.20",
+          "ip.host": "172.30.24.20"
+        },
+        "udp": {
+          "udp.srcport": "57760",
+          "udp.dstport": "8805",
+          "udp.port": "57760",
+          "udp.port": "8805",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "30.027955000",
+            "udp.time_delta": "10.000436000"
+          },
+          "udp.payload": "20:01:00:0c:58:ed:64:00:00:60:00:04:ee:63:99:6b"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "1",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827940",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 27, 2026 13:32:27.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 27, 2026 13:32:27.000000000 UTC"
+          }
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:27.497351000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:27.497351000 UTC",
+          "frame.time_epoch": "1790515947.497351000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000214000",
+          "frame.time_delta_displayed": "0.000214000",
+          "frame.time_relative": "30.028169000",
+          "frame.number": "8",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "56:b6:f1:52:12:f0",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "56:b6:f1:52:12:f0",
+            "eth.dst.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "12:6a:b5:70:ca:06",
+          "eth.src_tree": {
+            "eth.src_resolved": "12:6a:b5:70:ca:06",
+            "eth.src.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0xe43f",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xce26",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.src_host": "172.30.24.20",
+          "ip.host": "172.30.24.20",
+          "ip.dst": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.dst_host": "172.30.24.10",
+          "ip.host": "172.30.24.10"
+        },
+        "udp": {
+          "udp.srcport": "8805",
+          "udp.dstport": "57760",
+          "udp.port": "8805",
+          "udp.port": "57760",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "30.028169000",
+            "udp.time_delta": "0.000214000"
+          },
+          "udp.payload": "20:02:00:0c:58:ed:64:00:00:60:00:04:ee:62:b0:dd"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "2",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827940",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 26, 2026 21:00:13.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 26, 2026 21:00:13.000000000 UTC"
+          },
+          "pfcp.response_to": "7",
+          "pfcp.response_time": "0.000214000"
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:37.497822000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:37.497822000 UTC",
+          "frame.time_epoch": "1790515957.497822000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "10.000471000",
+          "frame.time_delta_displayed": "10.000471000",
+          "frame.time_relative": "40.028640000",
+          "frame.number": "9",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "12:6a:b5:70:ca:06",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "12:6a:b5:70:ca:06",
+            "eth.dst.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "56:b6:f1:52:12:f0",
+          "eth.src_tree": {
+            "eth.src_resolved": "56:b6:f1:52:12:f0",
+            "eth.src.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0x1080",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xa1e6",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.src_host": "172.30.24.10",
+          "ip.host": "172.30.24.10",
+          "ip.dst": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.dst_host": "172.30.24.20",
+          "ip.host": "172.30.24.20"
+        },
+        "udp": {
+          "udp.srcport": "57760",
+          "udp.dstport": "8805",
+          "udp.port": "57760",
+          "udp.port": "8805",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "40.028640000",
+            "udp.time_delta": "10.000471000"
+          },
+          "udp.payload": "20:01:00:0c:58:ed:65:00:00:60:00:04:ee:63:99:75"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "1",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827941",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 27, 2026 13:32:37.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 27, 2026 13:32:37.000000000 UTC"
+          }
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:37.498117000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:37.498117000 UTC",
+          "frame.time_epoch": "1790515957.498117000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000295000",
+          "frame.time_delta_displayed": "0.000295000",
+          "frame.time_relative": "40.028935000",
+          "frame.number": "10",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "56:b6:f1:52:12:f0",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "56:b6:f1:52:12:f0",
+            "eth.dst.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "12:6a:b5:70:ca:06",
+          "eth.src_tree": {
+            "eth.src_resolved": "12:6a:b5:70:ca:06",
+            "eth.src.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0x0730",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0xab36",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.src_host": "172.30.24.20",
+          "ip.host": "172.30.24.20",
+          "ip.dst": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.dst_host": "172.30.24.10",
+          "ip.host": "172.30.24.10"
+        },
+        "udp": {
+          "udp.srcport": "8805",
+          "udp.dstport": "57760",
+          "udp.port": "8805",
+          "udp.port": "57760",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "40.028935000",
+            "udp.time_delta": "0.000295000"
+          },
+          "udp.payload": "20:02:00:0c:58:ed:65:00:00:60:00:04:ee:62:b0:dd"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "2",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827941",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 26, 2026 21:00:13.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 26, 2026 21:00:13.000000000 UTC"
+          },
+          "pfcp.response_to": "9",
+          "pfcp.response_time": "0.000295000"
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:47.498904000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:47.498904000 UTC",
+          "frame.time_epoch": "1790515967.498904000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "10.000787000",
+          "frame.time_delta_displayed": "10.000787000",
+          "frame.time_relative": "50.029722000",
+          "frame.number": "11",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "12:6a:b5:70:ca:06",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "12:6a:b5:70:ca:06",
+            "eth.dst.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "56:b6:f1:52:12:f0",
+          "eth.src_tree": {
+            "eth.src_resolved": "56:b6:f1:52:12:f0",
+            "eth.src.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0x377a",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0x7aec",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.src_host": "172.30.24.10",
+          "ip.host": "172.30.24.10",
+          "ip.dst": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.dst_host": "172.30.24.20",
+          "ip.host": "172.30.24.20"
+        },
+        "udp": {
+          "udp.srcport": "57760",
+          "udp.dstport": "8805",
+          "udp.port": "57760",
+          "udp.port": "8805",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "50.029722000",
+            "udp.time_delta": "10.000787000"
+          },
+          "udp.payload": "20:01:00:0c:58:ed:66:00:00:60:00:04:ee:63:99:7f"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "1",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827942",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 27, 2026 13:32:47.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 27, 2026 13:32:47.000000000 UTC"
+          }
+        }
+      }
+    }
+  },
+  {
+    "_index": "packets-2026-09-27",
+    "_type": "doc",
+    "_score": null,
+    "_source": {
+      "layers": {
+        "frame": {
+          "frame.encap_type": "1",
+          "frame.time": "Sep 27, 2026 13:32:47.499193000 UTC",
+          "frame.time_utc": "Sep 27, 2026 13:32:47.499193000 UTC",
+          "frame.time_epoch": "1790515967.499193000",
+          "frame.offset_shift": "0.000000000",
+          "frame.time_delta": "0.000289000",
+          "frame.time_delta_displayed": "0.000289000",
+          "frame.time_relative": "50.030011000",
+          "frame.number": "12",
+          "frame.len": "58",
+          "frame.cap_len": "58",
+          "frame.marked": "0",
+          "frame.ignored": "0",
+          "frame.protocols": "eth:ethertype:ip:udp:pfcp"
+        },
+        "eth": {
+          "eth.dst": "56:b6:f1:52:12:f0",
+          "eth.dst_tree": {
+            "eth.dst_resolved": "56:b6:f1:52:12:f0",
+            "eth.dst.oui": "5682929",
+            "eth.addr": "56:b6:f1:52:12:f0",
+            "eth.addr_resolved": "56:b6:f1:52:12:f0",
+            "eth.addr.oui": "5682929",
+            "eth.dst.lg": "1",
+            "eth.lg": "1",
+            "eth.dst.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.src": "12:6a:b5:70:ca:06",
+          "eth.src_tree": {
+            "eth.src_resolved": "12:6a:b5:70:ca:06",
+            "eth.src.oui": "1206965",
+            "eth.addr": "12:6a:b5:70:ca:06",
+            "eth.addr_resolved": "12:6a:b5:70:ca:06",
+            "eth.addr.oui": "1206965",
+            "eth.src.lg": "1",
+            "eth.lg": "1",
+            "eth.src.ig": "0",
+            "eth.ig": "0"
+          },
+          "eth.type": "0x0800"
+        },
+        "ip": {
+          "ip.version": "4",
+          "ip.hdr_len": "20",
+          "ip.dsfield": "0x00",
+          "ip.dsfield_tree": {
+            "ip.dsfield.dscp": "0",
+            "ip.dsfield.ecn": "0"
+          },
+          "ip.len": "44",
+          "ip.id": "0x185b",
+          "ip.flags": "0x02",
+          "ip.flags_tree": {
+            "ip.flags.rb": "0",
+            "ip.flags.df": "1",
+            "ip.flags.mf": "0"
+          },
+          "ip.frag_offset": "0",
+          "ip.ttl": "64",
+          "ip.proto": "17",
+          "ip.checksum": "0x9a0b",
+          "ip.checksum.status": "2",
+          "ip.src": "172.30.24.20",
+          "ip.addr": "172.30.24.20",
+          "ip.src_host": "172.30.24.20",
+          "ip.host": "172.30.24.20",
+          "ip.dst": "172.30.24.10",
+          "ip.addr": "172.30.24.10",
+          "ip.dst_host": "172.30.24.10",
+          "ip.host": "172.30.24.10"
+        },
+        "udp": {
+          "udp.srcport": "8805",
+          "udp.dstport": "57760",
+          "udp.port": "8805",
+          "udp.port": "57760",
+          "udp.length": "24",
+          "udp.checksum": "0x8884",
+          "udp.checksum.status": "2",
+          "udp.stream": "0",
+          "Timestamps": {
+            "udp.time_relative": "50.030011000",
+            "udp.time_delta": "0.000289000"
+          },
+          "udp.payload": "20:02:00:0c:58:ed:66:00:00:60:00:04:ee:62:b0:dd"
+        },
+        "pfcp": {
+          "pfcp.flags": "0x20",
+          "pfcp.flags_tree": {
+            "pfcp.version": "1",
+            "pfcp.spare_b4": "0",
+            "pfcp.spare_b3": "0",
+            "pfcp.fo_flag": "0",
+            "pfcp.mp_flag": "0",
+            "pfcp.s": "0"
+          },
+          "pfcp.msg_type": "2",
+          "pfcp.length": "12",
+          "pfcp.seqno": "5827942",
+          "pfcp.spare_oct": "0",
+          "Recovery Time Stamp : Sep 26, 2026 21:00:13.000000000 UTC": {
+            "pfcp.ie_type": "96",
+            "pfcp.ie_len": "4",
+            "pfcp.recovery_time_stamp": "Sep 26, 2026 21:00:13.000000000 UTC"
+          },
+          "pfcp.response_to": "11",
+          "pfcp.response_time": "0.000289000"
+        }
+      }
+    }
+  }
+]

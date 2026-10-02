@@ -1,0 +1,4 @@
+start 1 
+cycle 1: killed pod/oai-nr-ue-7d8db466c8-hb744; before=[1 ] new=2 after=[2 ]
+mode=gnb final=[2 ] replaced=[ 1   2 ] missing-deletion=[]
+PASS
