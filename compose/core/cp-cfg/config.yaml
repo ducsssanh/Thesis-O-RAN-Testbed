@@ -1,0 +1,162 @@
+amf:
+  amf_name: 'amf'
+  emergency_support: false
+  plmn_support_list:
+    - mcc: '001'
+      mnc: '01'
+      nssai:
+        - sd: 'FFFFFF'
+          sst: 1
+        - sd: '000000'
+          sst: 140
+        - sd: '000000'
+          sst: 141
+      tac: '0x0007'
+  relative_capacity: 30
+  served_guami_list:
+    - amf_pointer: '00'
+      amf_region_id: '01'
+      amf_set_id: '000'
+      mcc: '001'
+      mnc: '01'
+  statistics_timer_interval: 20
+  support_features_options:
+    enable_nssf: false
+    enable_simple_scenario: false
+    enable_smf_selection: true
+  supported_encryption_algorithms:
+    - 'NEA0'
+    - 'NEA1'
+    - 'NEA2'
+  supported_integrity_algorithms:
+    - 'NIA1'
+    - 'NIA2'
+database:
+  connection_timeout: 300
+  database_name: 'oai_db'
+  generate_random: true
+  host: '172.25.165.7'
+  password: 'oai'
+  type: 'mysql'
+  user: 'oai'
+dnns:
+  - dnn: 'nist-dnn'
+    ipv4_subnet: '10.1.0.0/16'
+    pdu_session_type: 'IPV4'
+  - dnn: 'vcam'
+    ipv4_subnet: '10.140.0.0/16'
+    pdu_session_type: 'IPV4'
+  - dnn: 'vctl'
+    ipv4_subnet: '10.141.0.0/16'
+    pdu_session_type: 'IPV4'
+http_version: 2
+log_level:
+  general: 'debug'
+nfs:
+  amf:
+    host: '172.25.162.11'
+    n2:
+      interface_name: 'n2'
+      port: 38412
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+  ausf:
+    host: '172.25.162.12'
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+  nrf:
+    host: '172.25.162.13'
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+  smf:
+    host: '172.25.162.8'
+    n4:
+      interface_name: 'n4'
+      port: 8805
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+  udm:
+    host: '172.25.162.9'
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+  udr:
+    host: '172.25.162.10'
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+register_nf:
+  general: true
+smf:
+  ims:
+    pcscf_ipv4: '127.0.0.1'
+  local_subscription_infos:
+    - dnn: 'nist-dnn'
+      qos_profile:
+        5qi: 6
+      single_nssai:
+        sd: 'FFFFFF'
+        sst: 1
+    - dnn: 'vcam'
+      qos_profile:
+        5qi: 6
+      single_nssai:
+        sd: '000000'
+        sst: 140
+    - dnn: 'vctl'
+      qos_profile:
+        5qi: 6
+      single_nssai:
+        sd: '000000'
+        sst: 141
+  smf_info:
+    sNssaiSmfInfoList:
+      - dnnSmfInfoList:
+          - dnn: 'nist-dnn'
+        sNssai:
+          sd: 'FFFFFF'
+          sst: 1
+      - dnnSmfInfoList:
+          - dnn: 'vcam'
+        sNssai:
+          sd: '000000'
+          sst: 140
+      - dnnSmfInfoList:
+          - dnn: 'vctl'
+        sNssai:
+          sd: '000000'
+          sst: 141
+  support_features:
+    use_local_pcc_rules: true
+    use_local_subscription_info: true
+  ue_dns:
+    primary_ipv4: '172.21.3.100'
+    secondary_ipv4: '8.8.8.8'
+  ue_mtu: 1500
+  upfs:
+    - config:
+        enable_usage_reporting: true
+      host: '172.25.163.21'
+    - config:
+        enable_usage_reporting: true
+      host: '172.25.163.5'
+    - config:
+        enable_usage_reporting: true
+      host: '172.25.163.6'
+snssais:
+  - sd: 'FFFFFF'
+    sst: 1
+  - sd: '000000'
+    sst: 140
+  - sd: '000000'
+    sst: 141

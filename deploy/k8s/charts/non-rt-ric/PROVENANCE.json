@@ -1,0 +1,8 @@
+{
+  "component": "O-RAN SC Information Coordination Service",
+  "version": "1.6.1",
+  "registry": "nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-plt-informationcoordinatorservice",
+  "manifestDigest": "sha256:531eb929b9ee7b28fda5ffd17ed72f0c0d9c6466823c1223040fdae9c40795b6",
+  "referenceChart": "/RAN_Intelligent_Controllers/Non-Real-Time-RIC/dep/smo-install/oran_oom/informationservice",
+  "integration": "Self-contained lab chart with filesystem persistence and HTTPS; no OOM common dependency"
+}

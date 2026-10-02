@@ -1,0 +1,28 @@
+2026-09-27 13:12:24+00:00 [Note] [Entrypoint]: Entrypoint script for MariaDB Server 1:10.6.28+maria~ubu2204 started.
+2026-09-27 13:12:25+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2026-09-27 13:12:25+00:00 [Note] [Entrypoint]: Entrypoint script for MariaDB Server 1:10.6.28+maria~ubu2204 started.
+2026-09-27 13:12:25+00:00 [Note] [Entrypoint]: MariaDB upgrade not required
+2026-09-27 13:12:25 0 [Note] Starting MariaDB 10.6.28-MariaDB-ubu2204 source revision 210ab6edf47fa73f3b77e974ed2e9357ccdd051c server_uid V8GQHeU9Z3iqGyWF3KI3pK1iwcY= as process 1
+2026-09-27 13:12:25 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2026-09-27 13:12:25 0 [Note] InnoDB: Number of pools: 1
+2026-09-27 13:12:25 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2026-09-27 13:12:25 0 [Note] mariadbd: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2026-09-27 13:12:25 0 [Note] InnoDB: Using liburing
+2026-09-27 13:12:25 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+2026-09-27 13:12:25 0 [Note] InnoDB: Completed initialization of buffer pool
+2026-09-27 13:12:25 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=42110,42110
+2026-09-27 13:12:25 0 [Note] InnoDB: To recover: 64 pages
+2026-09-27 13:12:25 0 [Note] InnoDB: 128 rollback segments are active.
+2026-09-27 13:12:25 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2026-09-27 13:12:25 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2026-09-27 13:12:25 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2026-09-27 13:12:25 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2026-09-27 13:12:25 0 [Note] InnoDB: 10.6.28 started; log sequence number 228941; transaction id 123
+2026-09-27 13:12:25 0 [Note] Plugin 'FEEDBACK' is disabled.
+2026-09-27 13:12:25 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2026-09-27 13:12:25 0 [Note] InnoDB: Buffer pool(s) load completed at 260927 13:12:25
+2026-09-27 13:12:25 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2026-09-27 13:12:25 0 [Note] Server socket created on IP: '0.0.0.0'.
+2026-09-27 13:12:25 0 [Note] Server socket created on IP: '::'.
+2026-09-27 13:12:25 0 [Note] mariadbd: ready for connections.
+Version: '10.6.28-MariaDB-ubu2204'  socket: '/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution

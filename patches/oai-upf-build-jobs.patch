@@ -1,0 +1,23 @@
+--- a/docker/Dockerfile.upf.ubuntu
++++ b/docker/Dockerfile.upf.ubuntu
+@@ -48,6 +48,7 @@
+ # BUILDER IMAGE
+ #---------------------------------------------------------------------
+ FROM oai-upf-base AS oai-upf-builder
++ARG BUILD_CPUSET=""
+ # Copy the rest of source code
+ COPY . /openair-upf
+ # Building UPF
+@@ -65,7 +66,11 @@
+     ldconfig; \
+     fi && \
+     if [ "$BPF_DEBUG" = "true" ]; then BUILD_ARGS="$BUILD_ARGS --bpf-debug"; fi && \
+-    ./build_upf --clean --Verbose --build-type Release --jobs ${BUILD_ARGS}; \
++    if [ -n "$BUILD_CPUSET" ]; then \
++      taskset -c "$BUILD_CPUSET" ./build_upf --clean --Verbose --build-type Release --jobs ${BUILD_ARGS}; \
++    else \
++      ./build_upf --clean --Verbose --build-type Release --jobs ${BUILD_ARGS}; \
++    fi; \
+     ldd /openair-upf/build/upf/build/upf && \
+     mv /openair-upf/build/upf/build/upf /openair-upf/build/upf/build/oai_upf && \
+     echo "end of UPF build"

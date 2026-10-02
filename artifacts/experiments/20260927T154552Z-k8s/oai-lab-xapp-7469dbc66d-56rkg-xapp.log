@@ -1,0 +1,1 @@
+xapp_kpm_moni_write_to_csv: /source/flexric/src/xApp/db/db.c:115: init_db_xapp: Assertion `db_filename != NULL' failed.

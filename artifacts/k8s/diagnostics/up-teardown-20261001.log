@@ -1,0 +1,39 @@
+==> Linting /home/ducsssanh/6G/O-RAN/DATN/Codebase/deploy/k8s/chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+Preflight passed; runtime BPF attachment will be checked during up.
+* [oai-lab] minikube v1.38.1 on Ubuntu 24.04
+  - KUBECONFIG=/home/ducsssanh/.kube/config
+* Kubernetes 1.35.1 is now available. If you would like to upgrade, specify: --kubernetes-version=v1.35.1
+* Using the docker driver based on existing profile
+* Starting "oai-lab" primary control-plane node in "oai-lab" cluster
+* Pulling base image v0.0.50 ...
+! Failing to connect to https://registry.k8s.io/ from inside the minikube container
+* To pull new external images, you may need to configure a proxy: https://minikube.sigs.k8s.io/docs/reference/networking/proxy/
+* Preparing Kubernetes v1.33.13 on containerd 2.2.1 ...
+* Verifying Kubernetes components...
+  - Using image gcr.io/k8s-minikube/storage-provisioner:v5
+* Enabled addons: storage-provisioner, default-storageclass
+
+! /usr/local/bin/kubectl is version 1.35.1, which may have incompatibilities with Kubernetes 1.33.13.
+  - Want kubectl v1.33.13? Try 'minikube kubectl -- get pods -A'
+* To connect to this cluster, use:  --context=oai-lab
+customresourcedefinition.apiextensions.k8s.io/network-attachment-definitions.k8s.cni.cncf.io unchanged
+clusterrole.rbac.authorization.k8s.io/multus unchanged
+clusterrolebinding.rbac.authorization.k8s.io/multus unchanged
+serviceaccount/multus unchanged
+configmap/multus-daemon-config unchanged
+daemonset.apps/kube-multus-ds unchanged
+daemon set "kube-multus-ds" successfully rolled out
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Thu Oct  1 15:44:05 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 106
+TEST SUITE: None
+Waiting for 1 pods to be ready...
+error: timed out waiting for the condition
+FAIL: Command failed: minikube ['--profile', 'oai-lab']
+

@@ -1,0 +1,25 @@
+{
+  "sourceHash": "4355f1dd430e9914",
+  "images": {
+    "tools": {
+      "image": "oai-lab-tools:30e854d39b1192d1",
+      "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+      "repoDigests": []
+    },
+    "upf": {
+      "image": "oai-lab-upf:teardown-5f1ab8b55a95",
+      "id": "sha256:b949128ade74769449e66897f0601077138020ad310a3393d2bf925db7f1ca77",
+      "repoDigests": []
+    },
+    "radio": {
+      "image": "oai-lab-radio:30e854d39b1192d1",
+      "id": "sha256:fa863eceb039b119daa09a123f559e766ead54f78076dfb98c9f67e34016b225",
+      "repoDigests": []
+    },
+    "smf": {
+      "image": "oai-lab-smf:v2.2.0-lab-837721c2",
+      "id": "sha256:d1a14696dd05d79324f0638713fa2bde211517e4abeb9589e42e58e86d3d243a",
+      "repoDigests": []
+    }
+  }
+}

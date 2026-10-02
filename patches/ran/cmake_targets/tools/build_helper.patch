@@ -1,0 +1,42 @@
+diff --git a/cmake_targets/tools/build_helper b/cmake_targets/tools/build_helper
+index 05eeeba6ca..a9e9e9bec7 100755
+--- a/cmake_targets/tools/build_helper
++++ b/cmake_targets/tools/build_helper
+@@ -17,6 +17,7 @@ case "$OS_DISTRO" in
+   centos) OS_BASEDISTRO="fedora"; INSTALLER="dnf"; CMAKE="cmake3" ;; # CentOS Stream
+   debian) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
+   ubuntu) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
++  linuxmint) OS_BASEDISTRO="debian"; INSTALLER="apt-get"; CMAKE="cmake" ;;
+ esac
+ KERNEL_VERSION=$(uname -r | cut -d '.' -f1)
+ KERNEL_MAJOR=$(uname -r | cut -d '.' -f2)
+@@ -73,6 +74,21 @@ echo_info()    { cecho "$*" $blue         ;}
+ # Examples:
+ #   debian8.5
+ get_distribution_release() {
++    if [[ $OS_DISTRO == "linuxmint" ]]; then
++        if [[ $OS_RELEASE == 23* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="26.04"
++        elif [[ $OS_RELEASE == 22* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="24.04"
++        elif [[ $OS_RELEASE == 21* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="22.04"
++        elif [[ $OS_RELEASE == 20* ]]; then
++            OS_DISTRO="ubuntu"
++            OS_RELEASE="20.04"
++        fi
++    fi
+     if [[ ! -z "$OS_DISTRO$OS_RELEASE" ]]; then
+         echo "$OS_DISTRO$OS_RELEASE"
+     else
+@@ -86,6 +102,7 @@ check_supported_distribution() {
+         "ubuntu26.04") return 0 ;;
+         "ubuntu24.04") return 0 ;;
+         "ubuntu22.04") return 0 ;;
++        "ubuntu20.04") return 0 ;;
+         "debian11")    return 0 ;;
+         "debian12")    return 0 ;;
+         "fedora43")    return 0 ;;

@@ -1,0 +1,26 @@
+[oai-smf/capture]
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0@if91        UP             10.244.0.72/16 fe80::582c:a5ff:fe3a:1bf0/64 
+n4@if92          UP             172.30.24.10/24 fe80::54b6:f1ff:fe52:12f0/64 
+default via 10.244.0.1 dev eth0 
+10.244.0.0/16 dev eth0 proto kernel scope link src 10.244.0.72 
+172.30.24.0/24 dev n4 proto kernel scope link src 172.30.24.10 
+[oai-upf/upf]
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0@if93        UP             10.244.0.73/16 fe80::d8c1:d7ff:fec2:4599/64 
+n3@if94          UP             172.30.23.10/24 fe80::10e9:caff:fe5d:2f54/64 
+n4@if95          UP             172.30.24.20/24 fe80::106a:b5ff:fe70:ca06/64 
+n6@if96          UP             172.30.26.20/24 fe80::d4d5:dcff:fe92:d261/64 
+default via 10.244.0.1 dev eth0 
+10.244.0.0/16 dev eth0 proto kernel scope link src 10.244.0.73 
+172.30.23.0/24 dev n3 proto kernel scope link src 172.30.23.10 
+172.30.24.0/24 dev n4 proto kernel scope link src 172.30.24.20 
+172.30.26.0/24 dev n6 proto kernel scope link src 172.30.26.20 
+[oai-lab-dn/dn]
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+eth0@if20        UP             10.244.0.40/16 fe80::bcb4:30ff:feca:dbdd/64 
+n6@if26          UP             172.30.26.10/24 fe80::caa:b9ff:fed2:d28f/64 
+default via 10.244.0.1 dev eth0 
+10.1.0.0/16 via 172.30.26.20 dev n6 
+10.244.0.0/16 dev eth0 proto kernel scope link src 10.244.0.40 
+172.30.26.0/24 dev n6 proto kernel scope link src 172.30.26.10 

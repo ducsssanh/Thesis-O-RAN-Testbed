@@ -1,0 +1,10 @@
+**/.git
+**/build
+**/ran_build
+**/CMakeFiles
+**/__pycache__
+**/*.o
+**/*.a
+artifacts
+src/5gdeploy
+src/oai-upf

@@ -1,0 +1,14 @@
+apiVersion: v2
+name: oai-ran
+version: 0.1.0
+type: application
+description: OAI lab ran release
+dependencies:
+- name: oai-gnb
+  version: 2.4.0
+  repository: file://../../vendor/oai-5g-ran/oai-gnb
+  condition: oai-gnb.enabled
+- name: oai-nr-ue
+  version: 2.4.0
+  repository: file://../../vendor/oai-5g-ran/oai-nr-ue
+  condition: oai-nr-ue.enabled

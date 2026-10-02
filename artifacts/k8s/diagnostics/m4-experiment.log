@@ -1,0 +1,18 @@
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 23:57:47 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 104
+TEST SUITE: None
+Release "oai-lab" has been upgraded. Happy Helming!
+NAME: oai-lab
+LAST DEPLOYED: Sun Sep 27 23:57:56 2026
+NAMESPACE: oai-lab
+STATUS: deployed
+REVISION: 105
+TEST SUITE: None
+Waiting for deployment "oai-nr-ue" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-nr-ue" successfully rolled out
+deployment "oai-lab-xapp" successfully rolled out
+FAIL: ul has no positive receiver traffic report

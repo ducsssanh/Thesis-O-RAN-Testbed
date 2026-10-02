@@ -1,0 +1,17 @@
+{{/* lab.rendered */}}
+{{- if not .Values.global.lab }}
+# SPDX-License-Identifier: MIT
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-configmap
+  labels:
+    app: {{ .Release.Name }}
+    {{- include "oai-gnb.labels" . | nindent 4 }}
+data:
+  config.yaml: |-
+{{ (.Files.Glob "config.yaml").AsConfig | nindent 2 }}
+
+{{- end }}

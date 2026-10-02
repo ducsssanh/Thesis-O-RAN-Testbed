@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "runId": "20260927T163834Z-k8s",
+  "nrfProfiles": {
+    "UDR": [
+      {
+        "name": "OAI-UDR",
+        "status": "REGISTERED"
+      }
+    ],
+    "UDM": [
+      {
+        "name": "OAI-UDM",
+        "status": "REGISTERED"
+      }
+    ],
+    "AUSF": [
+      {
+        "name": "OAI-AUSF",
+        "status": "REGISTERED"
+      }
+    ],
+    "AMF": [
+      {
+        "name": "amf",
+        "status": "REGISTERED"
+      }
+    ],
+    "SMF": [
+      {
+        "name": "OAI-SMF",
+        "status": "REGISTERED"
+      }
+    ],
+    "UPF": [
+      {
+        "name": "OAI-UPF",
+        "status": "REGISTERED"
+      }
+    ]
+  },
+  "pfcp": {
+    "associationSequence": 3204604,
+    "heartbeatPairs": 2,
+    "ie43Length8": true
+  },
+  "smfDecoderErrorCount": 0,
+  "dnReturnRoute": {
+    "destination": "10.1.0.0/16",
+    "via": "172.30.26.20"
+  },
+  "xdp": [
+    {
+      "xdp": [
+        {
+          "devname": "n3",
+          "ifindex": 3,
+          "mode": "generic",
+          "id": 8117
+        },
+        {
+          "devname": "n6",
+          "ifindex": 5,
+          "mode": "generic",
+          "id": 8124
+        }
+      ],
+      "tc": [],
+      "flow_dissector": [],
+      "netfilter": []
+    }
+  ]
+}

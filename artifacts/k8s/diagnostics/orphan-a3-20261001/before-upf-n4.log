@@ -1,0 +1,41 @@
+[2026-10-01 12:16:41.388] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x1              │
+[2026-10-01 12:16:42.162] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x1               │
+[2026-10-01 12:17:04.776] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x1               │
+[2026-10-01 12:17:04.776] [upf_app] [debug] [N4] Delete Session: seid 0x1 - Deleting eBPF data-path pipeline
+[2026-10-01 12:17:04.776] [upf_app] [info] [N4] Delete Session: seid 0x1 - eBPF data-path pipeline deleted successfully
+[2026-10-01 12:17:04.776] [upf_app] [info] [N4] Delete Session: seid 0x1 - Session removed from registry
+[2026-10-01 12:17:10.566] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x2              │
+[2026-10-01 12:17:11.408] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x2               │
+[2026-10-01 12:17:12.524] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x2               │
+[2026-10-01 12:17:12.524] [upf_app] [debug] [N4] Delete Session: seid 0x2 - Deleting eBPF data-path pipeline
+[2026-10-01 12:17:12.524] [upf_app] [info] [N4] Delete Session: seid 0x2 - eBPF data-path pipeline deleted successfully
+[2026-10-01 12:17:12.524] [upf_app] [info] [N4] Delete Session: seid 0x2 - Session removed from registry
+[2026-10-01 12:17:17.236] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x3              │
+[2026-10-01 12:17:18.083] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x3               │
+[2026-10-01 12:17:19.548] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x3               │
+[2026-10-01 12:17:19.548] [upf_app] [debug] [N4] Delete Session: seid 0x3 - Deleting eBPF data-path pipeline
+[2026-10-01 12:17:19.548] [upf_app] [info] [N4] Delete Session: seid 0x3 - eBPF data-path pipeline deleted successfully
+[2026-10-01 12:17:19.548] [upf_app] [info] [N4] Delete Session: seid 0x3 - Session removed from registry
+[2026-10-01 12:17:23.887] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x4              │
+[2026-10-01 12:17:24.721] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:00.929] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:01.758] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:02.562] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:03.388] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:16.822] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:21:16.822] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:21:26.829] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:21:28.850] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:33.851] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:21:38.859] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:21:44.640] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:21:49.643] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:21:54.642] [upf_app] [info] │             Received N4_SESSION_REPORT_RESPONSE seid 0x4               │
+[2026-10-01 12:26:43.840] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x5              │
+[2026-10-01 12:26:44.619] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x5               │
+[2026-10-01 12:30:36.742] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x5               │
+[2026-10-01 12:30:57.086] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x6              │
+[2026-10-01 12:30:57.959] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x6               │
+[2026-10-01 13:32:51.843] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x6               │
+[2026-10-01 13:35:11.489] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x7              │
+[2026-10-01 13:35:12.305] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x7               │

@@ -1,0 +1,122 @@
+diff --git a/docker/Dockerfile.smf.ubuntu b/docker/Dockerfile.smf.ubuntu
+index d77f216..d4c57bb 100644
+--- a/docker/Dockerfile.smf.ubuntu
++++ b/docker/Dockerfile.smf.ubuntu
+@@ -61,6 +61,7 @@ RUN ./build_smf --install-deps --force
+ # BUILDER IMAGE
+ #---------------------------------------------------------------------
+ FROM oai-smf-base AS oai-smf-builder
++ARG BUILD_CPUSET=""
+ # Copying source code
+ COPY . /openair-smf
+ # Building SMF
+@@ -73,7 +74,11 @@ RUN  if [ "$ENABLE_LTTNG" = "true" ]; then DEBIAN_FRONTEND=noninteractive apt-ge
+         ./build_smf --clean --Verbose --build-type Release --jobs --lttng; \
+     else \
+         ldconfig && \
+-        ./build_smf --clean --Verbose --build-type Release --jobs; \
++        if [ -n "$BUILD_CPUSET" ]; then \
++          taskset -c "$BUILD_CPUSET" ./build_smf --clean --Verbose --build-type Release --jobs; \
++        else \
++          ./build_smf --clean --Verbose --build-type Release --jobs; \
++        fi; \
+     fi && \
+     ldd /openair-smf/build/smf/build/smf && \
+     mv /openair-smf/build/smf/build/smf /openair-smf/build/smf/build/oai_smf
+diff --git a/src/smf_app/smf_app.cpp b/src/smf_app/smf_app.cpp
+index 1da6a57..3adee4d 100644
+--- a/src/smf_app/smf_app.cpp
++++ b/src/smf_app/smf_app.cpp
+@@ -1090,7 +1090,9 @@ void smf_app::handle_pdu_session_create_sm_context_request(
+   if (is_scid_2_smf_context(supi, pdu_session_id) &&
+       (request_type.compare("INITIAL_REQUEST") == 0)) {
+     // Remove smf_pdu_session (including all flows associated to this session)
+-    sc->remove_pdu_session(pdu_session_id);
++    // and its N4 session(s) in the UPF(s); removing it only locally leaves an
++    // orphan session in the UPF datapath
++    sc->release_stale_pdu_session(pdu_session_id);
+     Logger::smf_app().warn(
+         "PDU Session already existed (SUPI %s, PDU Session ID %d)", supi,
+         pdu_session_id);
+diff --git a/src/smf_app/smf_context.cpp b/src/smf_app/smf_context.cpp
+index d9ecf84..0066151 100644
+--- a/src/smf_app/smf_context.cpp
++++ b/src/smf_app/smf_context.cpp
+@@ -3468,6 +3468,56 @@ bool smf_context::remove_pdu_session(const pdu_session_id_t& psi) {
+   return (pdu_sessions.erase(psi) > 0);
+ }
+ 
++//------------------------------------------------------------------------------
++bool smf_context::release_stale_pdu_session(const pdu_session_id_t& psi) {
++  std::shared_ptr<smf_pdu_session> sp = {};
++  if (!find_pdu_session(psi, sp)) return false;
++
++  // Already released (Release SM Context clears the session, keeping it in the
++  // list): no N4 session left in the UPF and resources already deallocated
++  if (sp->up_fseid.seid == 0) return remove_pdu_session(psi);
++
++  std::shared_ptr<upf_graph> graph = {};
++  if (sp->get_session_handler())
++    graph = sp->get_session_handler()->get_session_graph();
++
++  if (graph) {
++    // Same traversal as session_release_sm_context_procedure, but without an
++    // N11 transaction: the response is discarded (no matching procedure)
++    graph->start_asynch_dfs_procedure(false);
++    while (true) {
++      std::vector<std::shared_ptr<qos_upf_edge>> dl_edges;
++      std::vector<std::shared_ptr<qos_upf_edge>> ul_edges;
++      std::shared_ptr<pfcp_association> upf = {};
++      while (!graph->dfs_next_upf(dl_edges, ul_edges, upf))
++        ;
++      if (!upf) break;
++
++      auto n4 = std::make_shared<itti_n4_session_deletion_request>(
++          TASK_SMF_APP, TASK_SMF_N4);
++      n4->seid = sp->up_fseid.seid;
++      n4->trxn_id =
++          oai::utils::uint_uid_generator<uint64_t>::get_instance().get_uid();
++      n4->r_endpoint =
++          endpoint(upf->node_id.u1.ipv4_address, pfcp::default_port);
++      Logger::smf_app().info(
++          "Release stale PDU Session (SUPI %s, PDU Session ID %d): sending N4 "
++          "Session Deletion Request, UP SEID " SEID_FMT,
++          supi.c_str(), psi, n4->seid);
++      if (RETURNok != itti_inst->send_msg(n4)) {
++        Logger::smf_app().error(
++            "Could not send ITTI message %s to task TASK_SMF_N4",
++            n4->get_msg_name());
++      }
++    }
++    sp->deallocate_ressources(sp->get_dnn());
++  } else {
++    Logger::smf_app().warn(
++        "Stale PDU Session (Id %d) has no UPF graph, removing locally", psi);
++  }
++  return remove_pdu_session(psi);
++}
++
+ //------------------------------------------------------------------------------
+ size_t smf_context::get_number_pdu_sessions() const {
+   std::shared_lock lock(m_pdu_sessions_mutex);
+diff --git a/src/smf_app/smf_context.hpp b/src/smf_app/smf_context.hpp
+index ba4d555..c1b2d61 100644
+--- a/src/smf_app/smf_context.hpp
++++ b/src/smf_app/smf_context.hpp
+@@ -906,6 +906,16 @@ class smf_context : public std::enable_shared_from_this<smf_context> {
+    */
+   bool remove_pdu_session(const pdu_session_id_t& psi);
+ 
++  /*
++   * Release a PDU Session superseded by a colliding INITIAL_REQUEST (e.g. the
++   * UE re-registers after losing its context): send N4 Session Deletion to
++   * every UPF of the session (fire-and-forget), release its resources and
++   * remove it from the PDU Session List
++   * @param [const pdu_session_id_t &] psi: PDU Session ID
++   * @return bool: return true if the session existed, otherwise return false
++   */
++  bool release_stale_pdu_session(const pdu_session_id_t& psi);
++
+   /*
+    * Get number of pdu sessions associated with this context
+    * @param void

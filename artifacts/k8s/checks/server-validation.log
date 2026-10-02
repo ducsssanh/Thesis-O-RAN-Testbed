@@ -1,0 +1,99 @@
+serviceaccount/oai-amf created (server dry run)
+serviceaccount/oai-ausf created (server dry run)
+serviceaccount/oai-flexric created (server dry run)
+serviceaccount/oai-gnb created (server dry run)
+serviceaccount/oai-nr-ue created (server dry run)
+serviceaccount/oai-nrf created (server dry run)
+serviceaccount/oai-smf created (server dry run)
+serviceaccount/oai-udm created (server dry run)
+serviceaccount/oai-udr created (server dry run)
+serviceaccount/oai-upf created (server dry run)
+Warning: resource configmaps/oai-lab-bootstrap is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+configmap/oai-lab-bootstrap configured (server dry run)
+Warning: resource configmaps/oai-lab-config is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+configmap/oai-lab-config configured (server dry run)
+Warning: resource persistentvolumeclaims/oai-lab-db is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+persistentvolumeclaim/oai-lab-db configured (server dry run)
+Warning: resource persistentvolumeclaims/oai-lab-artifacts is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+persistentvolumeclaim/oai-lab-artifacts configured (server dry run)
+service/oai-amf created (server dry run)
+service/oai-ausf created (server dry run)
+service/oai-flexric created (server dry run)
+service/oai-ran created (server dry run)
+service/oai-nrf created (server dry run)
+service/oai-smf created (server dry run)
+service/oai-udm created (server dry run)
+service/oai-udr created (server dry run)
+service/oai-upf created (server dry run)
+Warning: resource services/oai-gnb-rfsim is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+service/oai-gnb-rfsim configured (server dry run)
+Warning: resource services/oai-lab-db is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+service/oai-lab-db configured (server dry run)
+deployment.apps/oai-amf created (server dry run)
+deployment.apps/oai-ausf created (server dry run)
+deployment.apps/oai-flexric created (server dry run)
+deployment.apps/oai-gnb created (server dry run)
+deployment.apps/oai-nr-ue created (server dry run)
+deployment.apps/oai-nrf created (server dry run)
+deployment.apps/oai-smf created (server dry run)
+deployment.apps/oai-udm created (server dry run)
+deployment.apps/oai-udr created (server dry run)
+deployment.apps/oai-upf created (server dry run)
+Warning: resource deployments/oai-lab-dn is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+deployment.apps/oai-lab-dn configured (server dry run)
+deployment.apps/oai-lab-xapp created (server dry run)
+Warning: resource statefulsets/oai-lab-db is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+statefulset.apps/oai-lab-db configured (server dry run)
+Warning: resource jobs/oai-lab-bootstrap-server is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+job.batch/oai-lab-bootstrap-server configured (server dry run)
+Warning: resource jobs/oai-lab-bootstrap-client is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+job.batch/oai-lab-bootstrap-client configured (server dry run)
+Warning: resource jobs/oai-lab-bootstrap-upf-bpf is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+job.batch/oai-lab-bootstrap-upf-bpf configured (server dry run)
+Warning: resource jobs/oai-lab-bootstrap-ue-tun is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+job.batch/oai-lab-bootstrap-ue-tun configured (server dry run)
+Warning: resource jobs/oai-lab-bootstrap-radio is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+job.batch/oai-lab-bootstrap-radio configured (server dry run)
+job.batch/oai-lab-subscriber created (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-server-e2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-server-e2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-server-n2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-server-n2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-server-n3 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-server-n3 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-server-n4 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-server-n4 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-server-n6 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-server-n6 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-client-e2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-client-e2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-client-n2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-client-n2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-client-n3 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-client-n3 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-client-n4 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-client-n4 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-bootstrap-client-n6 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-bootstrap-client-n6 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-flexric-e2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-flexric-e2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-gnb-e2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-gnb-e2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-xapp-e2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-xapp-e2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-amf-n2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-amf-n2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-gnb-n2 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-gnb-n2 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-gnb-n3 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-gnb-n3 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-upf-n3 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-upf-n3 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-smf-n4 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-smf-n4 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-upf-n4 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-upf-n4 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-dn-n6 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-dn-n6 configured (server dry run)
+Warning: resource network-attachment-definitions/oai-upf-n6 is missing the kubectl.kubernetes.io/last-applied-configuration annotation which is required by kubectl apply. kubectl apply should only be used on resources created declaratively by either kubectl create --save-config or kubectl apply. The missing annotation will be patched automatically.
+networkattachmentdefinition.k8s.cni.cncf.io/oai-upf-n6 configured (server dry run)

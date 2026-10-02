@@ -1,0 +1,138 @@
+{
+  "dataNetworks": [
+    {
+      "dnn": "nist-dnn",
+      "snssai": "01FFFFFF",
+      "subnet": "10.1.0.0/16",
+      "type": "IPv4"
+    },
+    {
+      "dnn": "vcam",
+      "snssai": "8C000000",
+      "subnet": "10.140.0.0/16",
+      "type": "IPv4"
+    },
+    {
+      "dnn": "vctl",
+      "snssai": "8D000000",
+      "subnet": "10.141.0.0/16",
+      "type": "IPv4"
+    }
+  ],
+  "dataPaths": [
+    [
+      "upf1",
+      {
+        "dnn": "nist-dnn",
+        "snssai": "01FFFFFF"
+      }
+    ],
+    [
+      "upf140",
+      {
+        "dnn": "vcam",
+        "snssai": "8C000000"
+      }
+    ],
+    [
+      "upf141",
+      {
+        "dnn": "vctl",
+        "snssai": "8D000000"
+      }
+    ],
+    [
+      "gnb0",
+      "upf1"
+    ],
+    [
+      "gnb0",
+      "upf140"
+    ],
+    [
+      "gnb0",
+      "upf141"
+    ]
+  ],
+  "gnbIdLength": 24,
+  "gnbs": [
+    {
+      "name": "gnb0"
+    }
+  ],
+  "plmn": "001-01",
+  "subscribers": [
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEEFF",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456780"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF00",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456790"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF01",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456791"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF02",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456792"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF03",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456793"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF04",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456794"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF05",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456795"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF06",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456796"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF07",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456797"
+    },
+    {
+      "count": 1,
+      "k": "00112233445566778899AABBCCDDEF08",
+      "opc": "63BFA50EE6523365FF14C1F45F88737D",
+      "supi": "001010123456798"
+    }
+  ],
+  "tac": "000007",
+  "upfs": [
+    {
+      "name": "upf1"
+    },
+    {
+      "name": "upf140"
+    },
+    {
+      "name": "upf141"
+    }
+  ]
+}

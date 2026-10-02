@@ -1,0 +1,437 @@
+{
+  "images": [
+    {
+      "id": "sha256:409467f978b4a30fe717012736557d637f66371452c3b279c02b943b367a141c",
+      "repoTags": [
+        "docker.io/kindest/kindnetd:v20250512-df8de77b"
+      ],
+      "repoDigests": [
+        "docker.io/kindest/kindnetd@sha256:07a4b3fe0077a0ae606cc0a200fc25a28fa64dcc30b8d311b461089969449f9a"
+      ],
+      "size": "44375501",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:b116e155074440ffd9e449559433feb4cd2341eb3554b1da1c638c976e56451d",
+      "repoTags": [
+        "docker.io/library/busybox:1.36.1"
+      ],
+      "repoDigests": [
+        "docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662"
+      ],
+      "size": "2217006",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:a4db78e7d1d202786b2cc212092425aa639d0010e1f6be6ada781e1b78d95a88",
+      "repoTags": [
+        "docker.io/library/mariadb:10.6"
+      ],
+      "repoDigests": [],
+      "size": "115747468",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:4fadb2de2fe3f4ee963123e5dc5cd28e366c5d1d8fa82a87244dd867899207ea",
+      "repoTags": [
+        "docker.io/library/oai-lab-a1-ei-adapter:22774468a7bcd87e"
+      ],
+      "repoDigests": [],
+      "size": "3930887",
+      "uid": {
+        "value": "65532"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:42a0081d994a5cf378a89444ee22a9d22c46c5859ae5b33bc532f81f8dff73fc",
+      "repoTags": [
+        "docker.io/library/oai-lab-a1-ei-adapter:742c42929f1f81e9"
+      ],
+      "repoDigests": [],
+      "size": "3919511",
+      "uid": {
+        "value": "65532"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:766162641aca90f22abbcefc78fd0d3d34478e502cad0e090750c62dd1e1c969",
+      "repoTags": [
+        "docker.io/library/oai-lab-a1-ei-adapter:90d0a1309d54b0bd"
+      ],
+      "repoDigests": [],
+      "size": "3918787",
+      "uid": {
+        "value": "65532"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:fa863eceb039b119daa09a123f559e766ead54f78076dfb98c9f67e34016b225",
+      "repoTags": [
+        "docker.io/library/oai-lab-radio:30e854d39b1192d1"
+      ],
+      "repoDigests": [],
+      "size": "1197999253",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:0edd9c4b78e63efc4d7e5dbfc249ffe0924047f00b38df69a617ff0db49d6f64",
+      "repoTags": [
+        "docker.io/library/oai-lab-radio:6d454cfc648a83a3"
+      ],
+      "repoDigests": [],
+      "size": "1199814879",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:9b83b7584e9c63e0e8bb0369ea77e6645d8afb2209f04a5cc026f811cb009b26",
+      "repoTags": [
+        "docker.io/library/oai-lab-radio:ab3bf500e5cb08be"
+      ],
+      "repoDigests": [],
+      "size": "3990094368",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:f0108b64f93ce3b5fa0e22f9fb5c2bcf19a0577904f8c6f075d08ab01aab38b5",
+      "repoTags": [
+        "docker.io/library/oai-lab-radio:b715742212936699"
+      ],
+      "repoDigests": [],
+      "size": "1197940905",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9",
+      "repoTags": [
+        "docker.io/library/oai-lab-smf:v2.2.0-ie43-771248b5"
+      ],
+      "repoDigests": [],
+      "size": "85595649",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+      "repoTags": [
+        "docker.io/library/oai-lab-tools:30e854d39b1192d1",
+        "docker.io/library/oai-lab-tools:f4aafed83d8c25ea"
+      ],
+      "repoDigests": [],
+      "size": "114694730",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:b95d7ff1cf74429101c13ad39a6bafd41b9b19a6d171a4a5503c8c15e4939b87",
+      "repoTags": [
+        "docker.io/library/oai-lab-tools:b715742212936699"
+      ],
+      "repoDigests": [],
+      "size": "114694560",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:70759e6efcda1d997f69c49a4e6872a2f694e6404572329b63d93c4c15f9768f",
+      "repoTags": [
+        "docker.io/library/oai-lab-upf:30e854d39b1192d1"
+      ],
+      "repoDigests": [],
+      "size": "128162021",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:8cc7ddb487df9bb06eaec4bdff18f66db964f241364fa13e057c63ed0c200095",
+      "repoTags": [
+        "docker.io/library/oai-lab-upf:354c74ac438fa0df"
+      ],
+      "repoDigests": [],
+      "size": "120377484",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:5e75f06b1e508cba0a328f4cac68887837102ef737709bf018f6087a87c0ccdb",
+      "repoTags": [
+        "docker.io/library/oai-lab-upf:b715742212936699"
+      ],
+      "repoDigests": [],
+      "size": "120377484",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:39738b19b2bbc63aa4387f7cff3883b2c630828a95e7ea0c39435339cd558ff5",
+      "repoTags": [
+        "docker.io/library/oai-lab-upf:cp-assoc-20260928"
+      ],
+      "repoDigests": [],
+      "size": "128162292",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:9ac5cce7e61f6b87e9979b4e5a962cd50f22583fc7ba9f281abb46a3eb984c41",
+      "repoTags": [
+        "docker.io/library/oai-lab-upf:qfi-f6d0516adf20"
+      ],
+      "repoDigests": [],
+      "size": "128160959",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:af95515169e2c2024646ce8a306a8e9c7df3bf2662278d95b7a3c63b3a05e420",
+      "repoTags": [
+        "docker.io/library/oai-lab-upf:teardown-3cfc4e014b9b"
+      ],
+      "repoDigests": [],
+      "size": "128159841",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:b9469fcf1eb03d2e29d91e7250ae4c1ee5c1142da2f8fc6e80f34d55e0badcf1",
+      "repoTags": [
+        "docker.io/library/oai-lab-urr-ei-producer:46e6e605470b7f9c"
+      ],
+      "repoDigests": [],
+      "size": "3933771",
+      "uid": {
+        "value": "65532"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:33df8bb09333ed4e808949e3a620cd182fcb4fc9e6fc43d26add597aee06b3f6",
+      "repoTags": [
+        "docker.io/library/oai-lab-urr-ei-producer:69f9985726898ba5"
+      ],
+      "repoDigests": [],
+      "size": "3933729",
+      "uid": {
+        "value": "65532"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:ac5da67dcefbc4e65967ad318f111e12420fb3ef7a3226e774f7842aefc0ab87",
+      "repoTags": [
+        "docker.io/library/oai-lab-xapp:dc3a036d6734068e"
+      ],
+      "repoDigests": [],
+      "size": "621499891",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:89f5127b8c96d453ffb62272d9ef2e5c272b19afd562304c03ce1b66344ad9e6",
+      "repoTags": [
+        "docker.io/oaisoftwarealliance/oai-amf:v2.2.0"
+      ],
+      "repoDigests": [],
+      "size": "73776378",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:d3bcf7f7bb28c876534ca9839c1f918a4421033b2de9caa6419c8bd2e6927a07",
+      "repoTags": [
+        "docker.io/oaisoftwarealliance/oai-ausf:v2.2.0"
+      ],
+      "repoDigests": [],
+      "size": "58091958",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:8cd7c45b2c06d09da0082c8033c05c2d6c70069d38e01e1c90c1c9139a85037c",
+      "repoTags": [
+        "docker.io/oaisoftwarealliance/oai-nrf:v2.2.0"
+      ],
+      "repoDigests": [],
+      "size": "59552727",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:85b2365fe370e27eb10729de28396a41ab43bbc0f34dcd3b8d3bcfb1180167f5",
+      "repoTags": [
+        "docker.io/oaisoftwarealliance/oai-smf:v2.2.0"
+      ],
+      "repoDigests": [],
+      "size": "65679478",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:0df0be3b859bb0d4dd3a99822c7090b2ddd5145c12a5a0fbaf48bfe2fdecf71e",
+      "repoTags": [
+        "docker.io/oaisoftwarealliance/oai-udm:v2.2.0"
+      ],
+      "repoDigests": [],
+      "size": "59199410",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:58b625dedfeb99e16cc56df572fd1b0cf468766446997dd80e799f5bbb69e51a",
+      "repoTags": [
+        "docker.io/oaisoftwarealliance/oai-udr:v2.2.0"
+      ],
+      "repoDigests": [],
+      "size": "64626845",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:6e38f40d628db3002f5617342c8872c935de530d867d0f709a2fbda1a302a562",
+      "repoTags": [
+        "gcr.io/k8s-minikube/storage-provisioner:v5"
+      ],
+      "repoDigests": [
+        "gcr.io/k8s-minikube/storage-provisioner@sha256:18eb69d1418e854ad5a19e399310e52808a8321e4c441c1dddad8977a0d7a944"
+      ],
+      "size": "9058936",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:71cc59f009b7a9a8fef6c47be0a49594330eac05e666445b2e250ccf6868879c",
+      "repoTags": [
+        "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick"
+      ],
+      "repoDigests": [
+        "ghcr.io/k8snetworkplumbingwg/multus-cni@sha256:a60a21ee1d00c9f215b0b2fa03b3d5e384ab7ddb9ea0d231d36aef220e95a69c"
+      ],
+      "size": "195697159",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:c0deafca248bd52977c9a6f936049b28586576fc16af066059a70c0a5f149968",
+      "repoTags": [],
+      "repoDigests": [
+        "nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-plt-informationcoordinatorservice@sha256:531eb929b9ee7b28fda5ffd17ed72f0c0d9c6466823c1223040fdae9c40795b6"
+      ],
+      "size": "187482672",
+      "username": "nonrtric",
+      "pinned": false
+    },
+    {
+      "id": "sha256:1cf5f116067c67da67f97bff78c4bbc76913f59057c18627b96facaced73ea0b",
+      "repoTags": [
+        "registry.k8s.io/coredns/coredns:v1.12.0"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/coredns/coredns@sha256:40384aa1f5ea6bfdc77997d243aec73da05f27aed0c5e9d65bfa98933c519d97"
+      ],
+      "size": "20939036",
+      "username": "nonroot",
+      "pinned": false
+    },
+    {
+      "id": "sha256:8cb12dd0c3e42c6d0175d09a060358cbb68a3ecc2ba4dbb00327c7d760e1425d",
+      "repoTags": [
+        "registry.k8s.io/etcd:3.5.24-0"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/etcd@sha256:251e7e490f64859d329cd963bc879dc04acf3d7195bb52c4c50b4a07bedf37d6"
+      ],
+      "size": "23716032",
+      "uid": {
+        "value": "0"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:c6da26c9ccff7b201d4b2470111b74251ff796bd09c351cd1f6c444c773f6d6e",
+      "repoTags": [
+        "registry.k8s.io/kube-apiserver:v1.33.13"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/kube-apiserver@sha256:576c504089365f4540dce71901ecd49a6802a1fb1f59e42d5e96b422a80b5beb"
+      ],
+      "size": "30234437",
+      "uid": {
+        "value": "0"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:3a279ce8de018c1855edc9bece89a0ea65e19b2d1c5f2cf6de79ca02e18183a5",
+      "repoTags": [
+        "registry.k8s.io/kube-controller-manager:v1.33.13"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/kube-controller-manager@sha256:fad93ee836fd44975c3d4d2e13356955584a2e8e88b8ecff014191fab2649266"
+      ],
+      "size": "27770920",
+      "uid": {
+        "value": "0"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:eeb94ec1ed4cac5ea5289512f72b589c7822f2fd9e23628ef79b2c7ade441a83",
+      "repoTags": [
+        "registry.k8s.io/kube-proxy:v1.33.13"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/kube-proxy@sha256:dc4788df776179d96e5a106ad64cf6aa1086108a0323950d68a27f9bfaca9bce"
+      ],
+      "size": "32041137",
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:7ba818331dd4219684752b2195f5d64d6f687996582005282de88521938d65ff",
+      "repoTags": [
+        "registry.k8s.io/kube-scheduler:v1.33.13"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/kube-scheduler@sha256:ccb3926e60fb6ad34abe2434aebdc3394adc9aa9fa1d4f288bdff54ebb5d741d"
+      ],
+      "size": "21880166",
+      "uid": {
+        "value": "0"
+      },
+      "username": "",
+      "pinned": false
+    },
+    {
+      "id": "sha256:873ed75102791e5b0b8a7fcd41606c92fcec98d56d05ead4ac5131650004c136",
+      "repoTags": [
+        "registry.k8s.io/pause:3.10"
+      ],
+      "repoDigests": [
+        "registry.k8s.io/pause@sha256:ee6521f290b2168b6e0935a181d4cff9be1ac3f505666ef0e3c98fae8199917a"
+      ],
+      "size": "320368",
+      "uid": {
+        "value": "65535"
+      },
+      "username": "",
+      "pinned": true
+    }
+  ]
+}

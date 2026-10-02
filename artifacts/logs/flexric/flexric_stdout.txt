@@ -1,0 +1,30 @@
+[UTIL]: Setting the config -c file to /home/ducsssanh/6G/O-RAN/DATN/Codebase/configs/flexric/flexric.conf
+[UTIL]: Setting path -p for the shared libraries to /home/ducsssanh/6G/O-RAN/DATN/Codebase/src/flexric/build/flexric_libraries/lib/flexric/
+[NEAR-RIC]: nearRT-RIC IP Address = 127.0.0.1, PORT = 36421
+[NEAR-RIC]: Initializing 
+[NEAR-RIC]: Loading SM ID = 143 with def = RLC_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 142 with def = MAC_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 3 with def = ORAN-E2SM-RC 
+[NEAR-RIC]: Loading SM ID = 144 with def = PDCP_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 145 with def = SLICE_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 2 with def = ORAN-E2SM-KPM 
+[NEAR-RIC]: Loading SM ID = 146 with def = TC_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 148 with def = GTP_STATS_V0 
+[iApp]: Initializing ... 
+[iApp]: nearRT-RIC IP Address = 127.0.0.1, PORT = 36422
+[NEAR-RIC]: Initializing Task Manager with 2 threads 
+[E2AP]: E2 SETUP-REQUEST rx from PLMN   1. 1 Node ID 3584 RAN type ngran_gNB
+[NEAR-RIC]: Accepting RAN function ID 2 with def = ORAN-E2SM-KPM 
+[NEAR-RIC]: Accepting RAN function ID 3 with def = ORAN-E2SM-RC 
+[NEAR-RIC]: Accepting RAN function ID 142 with def = MAC_STATS_V0 
+[NEAR-RIC]: Accepting RAN function ID 143 with def = RLC_STATS_V0 
+[NEAR-RIC]: Accepting RAN function ID 144 with def = PDCP_STATS_V0 
+[NEAR-RIC]: Accepting RAN function ID 145 with def = SLICE_STATS_V0 
+[NEAR-RIC]: Accepting RAN function ID 146 with def = TC_STATS_V0 
+[NEAR-RIC]: Accepting RAN function ID 148 with def = GTP_STATS_V0 
+Error detected = Interrupted system call 
+epoll_wait() returned -1: errno 4, Interrupted system call
+[E2AP]: SCTP_SHUTDOWN_EVENT 
+[NEAR-RIC]: Removing E2 Node MCC 1 MNC 1 NB_ID 3584 
+
+Signal 15 caught.

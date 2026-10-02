@@ -1,0 +1,29 @@
+oai-lab API ready; no Helm upgrade or bootstrap was run
+Experiment 20260929T095943Z-m35: checking workloads and PFCP capture
+PFCP capture ready; UE and DN traffic will run at 10M for 120 s per direction
+UL started: oai-nr-ue → oai-lab-dn (receiver result pending)
+UL client running: 15 s elapsed; receiver not yet validated
+UL client running: 30 s elapsed; receiver not yet validated
+UL client running: 45 s elapsed; receiver not yet validated
+UL client running: 60 s elapsed; receiver not yet validated
+UL client running: 75 s elapsed; receiver not yet validated
+UL client running: 90 s elapsed; receiver not yet validated
+UL client running: 105 s elapsed; receiver not yet validated
+UL client running: 120 s elapsed; receiver not yet validated
+UL receiver: 157290000 bytes, 0.0% loss
+DL started: oai-lab-dn → oai-nr-ue (receiver result pending)
+DL client running: 15 s elapsed; receiver not yet validated
+DL client running: 30 s elapsed; receiver not yet validated
+DL client running: 45 s elapsed; receiver not yet validated
+DL client running: 60 s elapsed; receiver not yet validated
+DL client running: 75 s elapsed; receiver not yet validated
+DL client running: 90 s elapsed; receiver not yet validated
+DL client running: 105 s elapsed; receiver not yet validated
+DL client running: 120 s elapsed; receiver not yet validated
+DL receiver: 157290000 bytes, 0.0% loss
+UL/DL complete; flushing PFCP capture and exporting artifacts
+Artifacts exported; checking PFCP, XDP and KPM
+PFCP/XDP/KPM gate PASS; checking real A1-EI delivery and correlation
+oai-lab API ready; no Helm upgrade or bootstrap was run
+A1-EI gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates

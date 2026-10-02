@@ -1,0 +1,37 @@
+--- a/pfcp/3gpp_29.244.hpp
++++ b/pfcp/3gpp_29.244.hpp
+@@ -2581,19 +2581,22 @@
+   }
+   //--------
+   void load_from(std::istream& is) {
+-    // tlv.load_from(is);
+-    //    if (tlv.get_length() != 2) {
+-    if (tlv.get_length() > 6) {
++    const auto length = tlv.get_length();
++    if (length < 2) {
+       throw pfcp_tlv_bad_length_exception(
+-          tlv.type, tlv.get_length(), __FILE__, __LINE__);
+-    }
+-    is.read(reinterpret_cast<char*>(&u1.b), sizeof(u1.b));
+-    is.read(reinterpret_cast<char*>(&u2.b), sizeof(u2.b));
+-    is.read(reinterpret_cast<char*>(&u3.b), sizeof(u3.b));
+-    is.read(reinterpret_cast<char*>(&u4.b), sizeof(u4.b));
+-    if (tlv.get_length() > 4) {
+-      is.read(reinterpret_cast<char*>(&u5.b), sizeof(u5.b));
+-      is.read(reinterpret_cast<char*>(&u6.b), sizeof(u6.b));
++          tlv.type, length, __FILE__, __LINE__);
++    }
++    // This release understands six octets. Consume extensions without
++    // interpreting them, so the next IE remains aligned in the stream.
++    uint8_t* known[] = {&u1.b, &u2.b, &u3.b, &u4.b, &u5.b, &u6.b};
++    for (auto octet : known) *octet = 0;
++    for (unsigned i = 0; i < length; ++i) {
++      uint8_t octet = 0;
++      if (!is.read(reinterpret_cast<char*>(&octet), sizeof(octet))) {
++        throw pfcp_tlv_bad_length_exception(
++            tlv.type, length, __FILE__, __LINE__);
++      }
++      if (i < 6) *known[i] = octet;
+     }
+   }
+   //--------

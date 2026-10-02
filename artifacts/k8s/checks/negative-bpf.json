@@ -1,0 +1,6 @@
+{
+  "test": "BPF without privileges must fail",
+  "status": "PASS",
+  "observedExitCode": 255,
+  "log": "{\"error\":\"missing CAP_SYS_ADMIN, CAP_BPF, CAP_NET_ADMIN, CAP_PERFMON, required for full feature probing; run as root or use 'unprivileged'\"}\n"
+}

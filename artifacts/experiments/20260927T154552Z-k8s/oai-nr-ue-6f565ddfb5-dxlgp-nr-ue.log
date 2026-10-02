@@ -1,0 +1,93 @@
+CMDLINE: "/opt/oai/bin/nr-uesoftmodem" "-O" "/config/ue.conf" "--rfsim" "--rfsimulator.serveraddr" "10.99.23.202" "--rfsimulator.options" "chanmod" "-r" "106" "--numerology" "1" "--band" "78" "-C" "3619200000" 
+[UTIL]   running in SA mode (no --phy-test, --do-ra, --nsa option present)
+[0m[UTIL]   threadCreate() for Tpool0_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool1_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool2_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool3_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool4_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool5_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool6_-1: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for Tpool7_-1: creating thread with affinity ffffffff, priority 97
+[0m[OPT]    OPT disabled
+[0m[HW]     Version: Branch:  Abrev. Hash:  Date: 
+[0m[NR_RRC] create TASK_RRC_NRUE 
+[0m[UTIL]   threadCreate() for TASK_RRC_NRUE: creating thread with affinity ffffffff, priority 50
+[0m[UTIL]   threadCreate() for TASK_NAS_NRUE: creating thread with affinity ffffffff, priority 50
+[0m[SIM]    UICC simulation: IMSI=[REDACTED], IMEISV=6754567890123413, Ki=[REDACTED], OPc=[REDACTED]
+[0m[SIM]    overriding potential uicc0.dnn/nssai_sst/nssai_sd from uicc0.pdu_sessions
+[0m[SIM]    will request PDU session ID 1, type 1, DNN nist-dnn, NSSAI 1.ffffff
+[0m[NR_MAC] [UE0] Initializing MAC
+[0m[NR_MAC] Initializing dl and ul config_request. num_slots = 20
+[0m[RLC]    Activated srb0 for UE 0
+[0m[UTIL]   threadCreate() for time source iq samples: creating thread with affinity ffffffff, priority 2
+[0m[UTIL]   time manager configuration: [time source: iq_samples] [mode: standalone] [server IP: 127.0.0.1} [server port: 7374] (server IP/port not used)
+[0m[PHY]    Set UE nb_rx_antenna 1, nb_tx_antenna 1, threequarter_fs 0, ofdm_offset_divisor 8
+[0m[PHY]    SA init parameters. DL freq 3619200000 UL offset 0 SSB numerology 1 N_RB_DL 106
+[0m[PHY]    Init: N_RB_DL 106, first_carrier_offset 1412, nb_prefix_samples 144,nb_prefix_samples0 176, ofdm_symbol_size 2048
+[0m[93m[PHY]    samples_per_subframe 61440/per second 61440000, wCP 57344
+[0m[PHY]    Set UE_fo_compensation 0, UE_scan_carrier 0, UE_no_timing_correction 0 
+, chest-freq 0, chest-time 0
+[0m[UTIL]   threadCreate() for SYNC__actor: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for DL__actor: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for DL__actor: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for DL__actor: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for DL__actor: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for UL__actor: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for UL__actor: creating thread with affinity ffffffff, priority 97
+[0m[PHY]    Initializing UE vars for gNB TXant 1, UE RXant 1
+[0m[PHY]    prs_config configuration NOT found..!! Skipped configuring UE for the PRS reception
+[0m[PHY]    HW: Configuring ru_id 0, sample_rate 61440000.000000, tx/rx num_channels 1/1, duplex_mode TDD
+[0m[PHY]    HW: Configuring channel 0 (rf_chain 0): setting tx_freq 3619200000 Hz, rx_freq 3619200000 Hz, tune_offset 0
+[0m[PHY]    HW: Configuring channel 0 (rf_chain 0): setting tx_gain 0, rx_gain 110
+[0m[UTIL]   threadCreate() for ru_start_thread: creating thread with affinity ffffffff, priority 97
+[0m[93m[HW]     Warning: rfsimulator parameters should be provided as array elements!
+[0m[OCM]    Channel Model (inside of new_channel_desc_scm)=23
+
+[0m[OCM]    [CHANNEL] Getting new channel descriptor, nb_tx 1, nb_rx 1, nb_taps 1, channel_length 1
+[0m[OCM]    Model rfsimu_channel_enB0 type AWGN allocated from config file, list modellist_rfsimu_1
+[0m[OCM]    Channel Model (inside of new_channel_desc_scm)=23
+
+[0m[OCM]    [CHANNEL] Getting new channel descriptor, nb_tx 1, nb_rx 1, nb_taps 1, channel_length 1
+[0m[OCM]    Model rfsimu_channel_enB1 type AWGN allocated from config file, list modellist_rfsimu_1
+[0m[OCM]    Channel Model (inside of new_channel_desc_scm)=23
+
+[0m[OCM]    [CHANNEL] Getting new channel descriptor, nb_tx 1, nb_rx 1, nb_taps 1, channel_length 1
+[0m[OCM]    Model rfsimu_channel_ue0 type AWGN allocated from config file, list modellist_rfsimu_1
+[0m[OCM]    Channel Model (inside of new_channel_desc_scm)=23
+
+[0m[OCM]    [CHANNEL] Getting new channel descriptor, nb_tx 1, nb_rx 1, nb_taps 1, channel_length 1
+[0m[OCM]    Model rfsimu_channel_du1 type AWGN allocated from config file, list modellist_rfsimu_1
+[0m[OCM]    Channel Model (inside of new_channel_desc_scm)=23
+
+[0m[OCM]    [CHANNEL] Getting new channel descriptor, nb_tx 1, nb_rx 1, nb_taps 1, channel_length 1
+[0m[OCM]    Model rfsimu_channel_du2 type AWGN allocated from config file, list modellist_rfsimu_1
+[0m[OCM]    Channel Model (inside of new_channel_desc_scm)=23
+
+[0m[OCM]    [CHANNEL] Getting new channel descriptor, nb_tx 1, nb_rx 1, nb_taps 1, channel_length 1
+[0m[OCM]    Model rfsimu_channel_du3 type AWGN allocated from config file, list modellist_rfsimu_1
+[0m[HW]     Running as client: will connect to a rfsimulator server side
+[0m[HW]     [RAU] has loaded RFSIMULATOR device.
+[0m[HW]     Trying to connect to 10.99.23.202:4043
+[0m[HW]     Connection to 10.99.23.202:4043 established
+[0m[HW]     Random channel rfsimu_channel_enB0 in rfsimulator activated
+[0m[32m[HW]     RFsim: Number of antennas changed from 0 to 1
+[0m[PHY]    Intializing UE Threads for instance 0 ...
+[0m[UTIL]   threadCreate() for UEthread_0: creating thread with affinity ffffffff, priority 97
+[0m[UTIL]   threadCreate() for L1_UE_stats_0: creating thread with affinity ffffffff, priority 1
+[0m[CONFIG] function config_libconfig_init returned 0
+AWGN: ricean_factor 0.000000
+AWGN: ricean_factor 0.000000
+AWGN: ricean_factor 0.000000
+AWGN: ricean_factor 0.000000
+AWGN: ricean_factor 0.000000
+AWGN: ricean_factor 0.000000
+Initializing random number generator, seed 16064583323295466368
+TYPE <CTRL-C> TO TERMINATE
+[93m[NR_PHY] called by: /source/ran/executables/nr-ue.c:120 nrL1_UE_stats_thread() Exiting OAI softmodem: _Assert_Exit_
+
+Assertion (fd != ((void *)0)) failed!
+In nrL1_UE_stats_thread() /source/ran/executables/nr-ue.c:120
+Cannot open nrL1_UE_stats-0.log
+
+Exiting execution
+[0m

@@ -1,0 +1,113 @@
+Trying to read .yaml configuration file: /config/config.yaml
+LTTNG Tracing disabled at build-time!
+[2026-09-27 15:24:45.369] [common] [start] Options parsed
+[2026-09-27 15:24:45.371] [common] [debug] Parsing the configuration file, file type YAML.
+[2026-09-27 15:24:45.371] [config ] [info] Reading NF configuration from /config/config.yaml
+[2026-09-27 15:24:45.378] [config ] [debug] Unknown NF amf in configuration. Ignored
+[2026-09-27 15:24:45.378] [config ] [debug] Unknown NF ausf in configuration. Ignored
+[2026-09-27 15:24:45.378] [config ] [debug] Unknown NF smf in configuration. Ignored
+[2026-09-27 15:24:45.378] [config ] [debug] Unknown NF udm in configuration. Ignored
+[2026-09-27 15:24:45.378] [config ] [debug] Unknown NF upf in configuration. Ignored
+[2026-09-27 15:24:45.378] [config ] [debug] Validating configuration of log_level
+[2026-09-27 15:24:45.378] [config ] [debug] Validating configuration of register_nf
+[2026-09-27 15:24:45.378] [config ] [debug] Validating configuration of http_version
+[2026-09-27 15:24:45.378] [config ] [debug] Validating configuration of http_request_timeout
+[2026-09-27 15:24:45.378] [config ] [debug] Validating configuration of NRF
+[2026-09-27 15:24:45.379] [config ] [debug] Validating configuration of UDR
+[2026-09-27 15:24:45.380] [config ] [debug] Validating configuration of database
+[2026-09-27 15:24:45.380] [config ] [info] ==== OPENAIRINTERFACE udr vBranch: HEAD Abrev. Hash: 18efa74 Date: Wed Dec 10 23:51:37 2025 +0100 ====
+[2026-09-27 15:24:45.380] [config ] [info] Basic Configuration:
+[2026-09-27 15:24:45.380] [config ] [info]   - log_level..................................: debug
+[2026-09-27 15:24:45.380] [config ] [info]   - register_nf................................: Yes
+[2026-09-27 15:24:45.380] [config ] [info]   - http_version...............................: 1
+[2026-09-27 15:24:45.380] [config ] [info]   TLS:
+[2026-09-27 15:24:45.380] [config ] [info]     - Enable TLS.................................: No
+[2026-09-27 15:24:45.380] [config ] [info]   - HTTP Request Timeout.......................: 3000 (ms)
+[2026-09-27 15:24:45.380] [config ] [info]     UDR:
+[2026-09-27 15:24:45.380] [config ] [info]     - host.....................................: 10.244.0.55
+[2026-09-27 15:24:45.380] [config ] [info]     - sbi
+[2026-09-27 15:24:45.380] [config ] [info]       + URL....................................: 10.244.0.55:80
+[2026-09-27 15:24:45.380] [config ] [info]       + API Version............................: v1
+[2026-09-27 15:24:45.380] [config ] [info]       + IPv4 Address ..........................: 10.244.0.55
+[2026-09-27 15:24:45.380] [config ] [info]     - UDR Name.................................: oai-udr
+[2026-09-27 15:24:45.380] [config ] [info]   Database:
+[2026-09-27 15:24:45.380] [config ] [info]     - Host.....................................: oai-lab-db
+[2026-09-27 15:24:45.380] [config ] [info]     - Port.....................................: 3306
+[2026-09-27 15:24:45.380] [config ] [info]     - Database Type............................: mysql
+[2026-09-27 15:24:45.380] [config ] [info]     - User.....................................: oai
+[2026-09-27 15:24:45.380] [config ] [info]     - Password.................................: 07587be8973ac8a0e0b16aca51e523463eee11c8c727d7d4
+[2026-09-27 15:24:45.380] [config ] [info]     - Database Name............................: oai_db
+[2026-09-27 15:24:45.380] [config ] [info]     - Connection Timeout.......................: 300
+[2026-09-27 15:24:45.380] [config ] [info] Peer NF Configuration:
+[2026-09-27 15:24:45.380] [config ] [info]   NRF:
+[2026-09-27 15:24:45.380] [config ] [info]     - host.....................................: oai-nrf
+[2026-09-27 15:24:45.380] [config ] [info]     - sbi
+[2026-09-27 15:24:45.380] [config ] [info]       + URL....................................: oai-nrf:80
+[2026-09-27 15:24:45.380] [config ] [info]       + API Version............................: v1
+[2026-09-27 15:24:45.380] [udr_nrf] [info] HTTP Client successfully initiated on interface eth0 with timeout 3000 ms, HTTP version 1
+[2026-09-27 15:24:45.380] [udr_app] [start] Starting...
+[2026-09-27 15:24:45.380] [udr_db] [debug] Initializing MySQL DB ...
+[2026-09-27 15:24:45.381] [udr_db] [debug] Done!
+[2026-09-27 15:24:45.381] [udr_db] [debug] Connecting to MySQL DB
+[2026-09-27 15:24:45.384] [udr_db] [info] Connected to MySQL DB
+[2026-09-27 15:24:45.385] [udr_app] [debug] - NF instance info
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Instance ID: 93a4ecc3-acaf-4ceb-89aa-d61d03cfa89c
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Instance name: OAI-UDR
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Instance type: UDR
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Instance fqdn: 
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Status: REGISTERED
+[2026-09-27 15:24:45.385] [udr_app] [debug]     HeartBeat timer: 50
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Priority: 1
+[2026-09-27 15:24:45.385] [udr_app] [debug]     Capacity: 100
+[2026-09-27 15:24:45.385] [udr_app] [debug]     IPv4 Addr:
+[2026-09-27 15:24:45.385] [udr_app] [debug]         10.244.0.55
+[2026-09-27 15:24:45.385] [udr_app] [debug] 	UDR Info
+[2026-09-27 15:24:45.385] [udr_app] [debug] 		GroupId: oai-udr-testgroupid
+[2026-09-27 15:24:45.385] [udr_app] [debug] 		 SupiRanges: Start - 208950000000131, End - , Pattern - ^imsi-20895[31-131]{6}$
+[2026-09-27 15:24:45.385] [udr_app] [debug] 		 GpsiRanges: Start - 752740000, End - 752749999, Pattern - ^gpsi-75274[0-9]{4}$
+[2026-09-27 15:24:45.385] [udr_app] [debug] 		 Data Set Id: 0210
+[2026-09-27 15:24:45.385] [udr_app] [debug] 		 Data Set Id: 9876
+[2026-09-27 15:24:45.385] [udr_app] [info] NRF TASK Created 
+[2026-09-27 15:24:45.385] [udr_app] [debug] udr profile to JSON:
+ {"capacity":100,"fqdn":"","heartBeatTimer":50,"ipv4Addresses":["10.244.0.55"],"nfInstanceId":"93a4ecc3-acaf-4ceb-89aa-d61d03cfa89c","nfInstanceName":"OAI-UDR","nfStatus":"REGISTERED","nfType":"UDR","priority":1,"sNssais":[],"udrInfo":{"DataSetId":["0210","9876"],"externalGroupIdentifiersRanges":[],"gpsiRanges":[{"end":"752749999","pattern":"^gpsi-75274[0-9]{4}$","start":"752740000"}],"groupId":"oai-udr-testgroupid","supiRanges":[{"end":"","pattern":"^imsi-20895[31-131]{6}$","start":"208950000000131"}]}}
+[2026-09-27 15:24:45.385] [udr_nrf] [info] Sending NF Registration request
+[2026-09-27 15:24:45.385] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:24:45.386] [udr_server] [info] HTTP1 Server started
+[2026-09-27 15:24:55.477] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:24:55.478] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:25:05.621] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:25:05.621] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:25:15.754] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:25:15.754] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:25:25.839] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:25:25.839] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:25:35.916] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:25:35.916] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:25:45.972] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:25:45.972] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:25:56.055] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:25:56.055] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:26:06.135] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:26:06.135] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:26:16.197] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:26:16.197] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:26:26.270] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:26:26.270] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:26:36.350] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:26:36.350] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:26:46.420] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:26:46.420] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:26:56.485] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:26:56.485] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:27:06.539] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:27:06.539] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:27:16.620] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:27:16.620] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:27:26.682] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:27:26.682] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:27:36.806] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:27:36.806] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:27:46.930] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:27:46.930] [udr_nrf] [debug] Send a simple HTTP request
+[2026-09-27 15:27:57.069] [udr_nrf] [info] Sending NF Heartbeat Request
+[2026-09-27 15:27:57.069] [udr_nrf] [debug] Send a simple HTTP request

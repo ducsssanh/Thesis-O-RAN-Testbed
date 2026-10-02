@@ -1,0 +1,1051 @@
+CSV file path provided: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+CSV cell file path constructed: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+[UTIL]: Setting the config -c file to /tmp/flexric.conf
+[UTIL]: Setting path -p for the shared libraries to /opt/oai/sm/
+[xAapp]: Initializing ... 
+[xApp]: nearRT-RIC IP Address = 172.30.27.10, PORT = 36422
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/librlc_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/libmac_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/librc_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/libpdcp_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/libslice_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/libkpm_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/libtc_sm.so 
+[E2 AGENT]: Opening plugin from path = /opt/oai/sm/libgtp_sm.so 
+[NEAR-RIC]: Loading SM ID = 143 with def = RLC_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 142 with def = MAC_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 3 with def = ORAN-E2SM-RC 
+[NEAR-RIC]: Loading SM ID = 144 with def = PDCP_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 145 with def = SLICE_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 2 with def = ORAN-E2SM-KPM 
+[NEAR-RIC]: Loading SM ID = 146 with def = TC_STATS_V0 
+[NEAR-RIC]: Loading SM ID = 148 with def = GTP_STATS_V0 
+[xApp]: E42 SETUP-REQUEST tx
+[xApp]: E42 SETUP-RESPONSE rx 
+[xApp]: xApp ID = 7 
+Connected E2 nodes = 1
+[xApp] Using S-NSSAI SST=1 SD=ffffff (env SST/SD can override)
+[xApp]: E42 RIC SUBSCRIPTION REQUEST tx RAN_FUNC_ID 2 RIC_REQ_ID 1 
+[xApp]: SUBSCRIPTION RESPONSE rx
+[xApp]: Successfully subscribed to RAN_FUNC_ID 2 
+[xApp]: E42 RIC SUBSCRIPTION REQUEST tx RAN_FUNC_ID 2 RIC_REQ_ID 2 
+[xApp]: SUBSCRIPTION RESPONSE rx
+[xApp]: Successfully subscribed to RAN_FUNC_ID 2 
+
+      1 KPM ind_msg latency = 7 [ms]
+CSV cell header written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Skipping first sample to avoid incorrect initial values.
+
+      2 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 1
+
+      3 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 2
+
+      4 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV header written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 3
+
+      5 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 4
+
+      6 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 5
+
+      7 KPM ind_msg latency = 10 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 6
+
+      8 KPM ind_msg latency = 2 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 7
+
+      9 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 8
+
+     10 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 9
+
+     11 KPM ind_msg latency = 11 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 10
+
+     12 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 11
+
+     13 KPM ind_msg latency = 10 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 12
+
+     14 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 13
+
+     15 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 14
+
+     16 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 15
+
+     17 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 16
+
+     18 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 17
+
+     19 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 18
+
+     20 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 19
+
+     21 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 20
+
+     22 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 21
+
+     23 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 22
+
+     24 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 23
+
+     25 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 24
+
+     26 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 25
+
+     27 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 26
+
+     28 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 27
+
+     29 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 28
+
+     30 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 29
+
+     31 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 30
+
+     32 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 31
+
+     33 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 32
+
+     34 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 33
+
+     35 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 34
+
+     36 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 35
+
+     37 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 36
+
+     38 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 37
+
+     39 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 38
+
+     40 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 39
+
+     41 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 40
+
+     42 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 41
+
+     43 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 42
+
+     44 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 43
+
+     45 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 44
+
+     46 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 45
+
+     47 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 46
+
+     48 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 47
+
+     49 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 48
+
+     50 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 49
+
+     51 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 50
+
+     52 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 51
+
+     53 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 52
+
+     54 KPM ind_msg latency = 2 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 53
+
+     55 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 54
+
+     56 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 55
+
+     57 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 56
+
+     58 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 57
+
+     59 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 58
+
+     60 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 59
+
+     61 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 60
+
+     62 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 61
+
+     63 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 62
+
+     64 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 63
+
+     65 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 64
+
+     66 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 65
+
+     67 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 66
+
+     68 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 67
+
+     69 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 68
+
+     70 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 69
+
+     71 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 70
+
+     72 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 71
+
+     73 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 72
+
+     74 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 73
+
+     75 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 74
+
+     76 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 75
+
+     77 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 76
+
+     78 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 77
+
+     79 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 78
+
+     80 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 79
+
+     81 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 80
+
+     82 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 81
+
+     83 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 82
+
+     84 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 83
+
+     85 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 84
+
+     86 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 85
+
+     87 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 86
+
+     88 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 87
+
+     89 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 88
+
+     90 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 89
+
+     91 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 90
+
+     92 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 91
+
+     93 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 92
+
+     94 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 93
+
+     95 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 94
+
+     96 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 95
+
+     97 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 96
+
+     98 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 97
+
+     99 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 98
+
+    100 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 99
+
+    101 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 100
+
+    102 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 101
+
+    103 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 102
+
+    104 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 103
+
+    105 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 104
+
+    106 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 105
+
+    107 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 106
+
+    108 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 107
+
+    109 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 108
+
+    110 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 109
+
+    111 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 110
+
+    112 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 111
+
+    113 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 112
+
+    114 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 113
+
+    115 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 114
+
+    116 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 115
+
+    117 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 116
+
+    118 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 117
+
+    119 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 118
+
+    120 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 119
+
+    121 KPM ind_msg latency = 5 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 120
+
+    122 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 121
+
+    123 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 122
+
+    124 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 123
+
+    125 KPM ind_msg latency = 12 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 124
+
+    126 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 125
+
+    127 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 126
+
+    128 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 127
+
+    129 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 128
+
+    130 KPM ind_msg latency = 4 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 129
+
+    131 KPM ind_msg latency = 10 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 130
+
+    132 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 131
+
+    133 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 132
+
+    134 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 133
+
+    135 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 134
+
+    136 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 135
+
+    137 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 136
+
+    138 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 137
+
+    139 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 138
+
+    140 KPM ind_msg latency = 2 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 139
+
+    141 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 140
+
+    142 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 141
+
+    143 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 142
+
+    144 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 143
+
+    145 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 144
+
+    146 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 145
+
+    147 KPM ind_msg latency = 10 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 146
+
+    148 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 147
+
+    149 KPM ind_msg latency = 11 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 148
+
+    150 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 149
+
+    151 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 150
+
+    152 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 151
+
+    153 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 152
+
+    154 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 153
+
+    155 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 154
+
+    156 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 155
+
+    157 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 156
+
+    158 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 157
+
+    159 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 158
+
+    160 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 159
+
+    161 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 160
+
+    162 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 161
+
+    163 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 162
+
+    164 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 163
+
+    165 KPM ind_msg latency = 15 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 164
+
+    166 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 165
+
+    167 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 166
+
+    168 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 167
+
+    169 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 168
+
+    170 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 169
+
+    171 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 170
+
+    172 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 171
+
+    173 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 172
+
+    174 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 173
+
+    175 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 174
+
+    176 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 175
+
+    177 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 176
+
+    178 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 177
+
+    179 KPM ind_msg latency = 12 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 178
+
+    180 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 179
+
+    181 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 180
+
+    182 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 181
+
+    183 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 182
+
+    184 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 183
+
+    185 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 184
+
+    186 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 185
+
+    187 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 186
+
+    188 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 187
+
+    189 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 188
+
+    190 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 189
+
+    191 KPM ind_msg latency = 7 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 190
+
+    192 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 191
+
+    193 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 192
+
+    194 KPM ind_msg latency = 3 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 193
+
+    195 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 194
+
+    196 KPM ind_msg latency = 0 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 195
+
+    197 KPM ind_msg latency = 6 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 196
+
+    198 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 197
+
+    199 KPM ind_msg latency = 8 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 198
+
+    200 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 199
+
+    201 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 200
+
+    202 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv
+Samples collected = 201
+
+    203 KPM ind_msg latency = 9 [ms]
+CSV cell line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics_Cells.csv
+Samples collected = 202
+
+    204 KPM ind_msg latency = 1 [ms]
+UE ID type = gNB, amf_ue_ngap_id = 1
+ran_ue_id = 1
+CSV line written to file: /artifacts/runs/20260927T163834Z-k8s/KPI_Metrics.csv

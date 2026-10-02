@@ -1,0 +1,790 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.upf.ubuntu
+#1 transferring dockerfile: 5.93kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:jammy
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 57B done
+#3 DONE 0.0s
+
+#4 [oai-upf-base  1/10] FROM docker.io/library/ubuntu:jammy
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 484.46kB 0.2s done
+#5 DONE 0.2s
+
+#6 [oai-upf-base  5/10] COPY ./build/scripts /openair-upf/build/scripts/
+#6 CACHED
+
+#7 [oai-upf-base  8/10] COPY ./build/cmake_modules /openair-upf/cmake_modules/
+#7 CACHED
+
+#8 [oai-upf-base  6/10] COPY ./build/common-build /openair-upf/build/common-build
+#8 CACHED
+
+#9 [oai-upf-base  2/10] RUN apt-get update &&     DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes &&     DEBIAN_FRONTEND=noninteractive apt-get install --yes     cmake     psmisc     git     && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [oai-upf-base  4/10] WORKDIR /openair-upf
+#10 CACHED
+
+#11 [oai-upf-base  7/10] COPY ./build/upf/CMakeLists.txt /openair-upf/build/upf/CMakeLists.txt
+#11 CACHED
+
+#12 [oai-upf-base  9/10] WORKDIR /openair-upf/build/scripts
+#12 CACHED
+
+#13 [oai-upf-base 10/10] RUN ./build_upf --install-deps --force
+#13 CACHED
+
+#14 [oai-upf-builder 1/3] COPY . /openair-upf
+#14 CACHED
+
+#15 [oai-upf-base  3/10] RUN git config --global https.postBuffer 123289600 &&     git config --global http.sslverify false
+#15 CACHED
+
+#16 [oai-upf-builder 2/3] WORKDIR /openair-upf/build/scripts
+#16 CACHED
+
+#17 [oai-upf-builder 3/3] RUN  if [ "false" = "true" ]; then apt-get update &&     DEBIAN_FRONTEND=noninteractive apt-get install --yes     libstdc++-12-dev     lttng-modules-dkms     liblttng-ust-dev     lttng-tools &&     ldconfig &&     BUILD_ARGS="--lttng";     else     ldconfig;     fi &&     if [ "false" = "true" ]; then BUILD_ARGS=" --bpf-debug"; fi &&     if [ -n "0" ]; then       taskset -c "0" ./build_upf --clean --Verbose --build-type Release --jobs ;     else       ./build_upf --clean --Verbose --build-type Release --jobs ;     fi;     ldd /openair-upf/build/upf/build/upf &&     mv /openair-upf/build/upf/build/upf /openair-upf/build/upf/build/oai_upf &&     echo "end of UPF build"
+#17 0.272 /openair-upf /openair-upf/build/scripts
+#17 0.272 /openair-upf/build/scripts
+#17 0.291 Clean the build generated files (build from scratch)
+#17 0.291 CMake build process verbose
+#17 0.294 Cleaning UPF: generated configuration files, obj files, executable
+#17 0.295 mkdir: created directory 'build'
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./acct.h' to '/usr/include/x86_64-linux-gnu/sys/acct.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./auxv.h' to '/usr/include/x86_64-linux-gnu/sys/auxv.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./bitypes.h' to '/usr/include/x86_64-linux-gnu/sys/bitypes.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./cdefs.h' to '/usr/include/x86_64-linux-gnu/sys/cdefs.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./debugreg.h' to '/usr/include/x86_64-linux-gnu/sys/debugreg.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./dir.h' to '/usr/include/x86_64-linux-gnu/sys/dir.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./elf.h' to '/usr/include/x86_64-linux-gnu/sys/elf.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./epoll.h' to '/usr/include/x86_64-linux-gnu/sys/epoll.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./errno.h' to '/usr/include/x86_64-linux-gnu/sys/errno.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./eventfd.h' to '/usr/include/x86_64-linux-gnu/sys/eventfd.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./fanotify.h' to '/usr/include/x86_64-linux-gnu/sys/fanotify.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./fcntl.h' to '/usr/include/x86_64-linux-gnu/sys/fcntl.h': File exists
+#17 0.297 cp: cannot create symbolic link '/usr/include/sys/./file.h' to '/usr/include/x86_64-linux-gnu/sys/file.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./fsuid.h' to '/usr/include/x86_64-linux-gnu/sys/fsuid.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./gmon.h' to '/usr/include/x86_64-linux-gnu/sys/gmon.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./gmon_out.h' to '/usr/include/x86_64-linux-gnu/sys/gmon_out.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./inotify.h' to '/usr/include/x86_64-linux-gnu/sys/inotify.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./io.h' to '/usr/include/x86_64-linux-gnu/sys/io.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./ioctl.h' to '/usr/include/x86_64-linux-gnu/sys/ioctl.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./ipc.h' to '/usr/include/x86_64-linux-gnu/sys/ipc.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./kd.h' to '/usr/include/x86_64-linux-gnu/sys/kd.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./klog.h' to '/usr/include/x86_64-linux-gnu/sys/klog.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./mman.h' to '/usr/include/x86_64-linux-gnu/sys/mman.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./mount.h' to '/usr/include/x86_64-linux-gnu/sys/mount.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./msg.h' to '/usr/include/x86_64-linux-gnu/sys/msg.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./mtio.h' to '/usr/include/x86_64-linux-gnu/sys/mtio.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./param.h' to '/usr/include/x86_64-linux-gnu/sys/param.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./pci.h' to '/usr/include/x86_64-linux-gnu/sys/pci.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./perm.h' to '/usr/include/x86_64-linux-gnu/sys/perm.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./personality.h' to '/usr/include/x86_64-linux-gnu/sys/personality.h': File exists
+#17 0.298 cp: -r not specified; omitting directory '/usr/include/x86_64-linux-gnu/sys/platform'
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./poll.h' to '/usr/include/x86_64-linux-gnu/sys/poll.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./prctl.h' to '/usr/include/x86_64-linux-gnu/sys/prctl.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./procfs.h' to '/usr/include/x86_64-linux-gnu/sys/procfs.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./profil.h' to '/usr/include/x86_64-linux-gnu/sys/profil.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./ptrace.h' to '/usr/include/x86_64-linux-gnu/sys/ptrace.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./queue.h' to '/usr/include/x86_64-linux-gnu/sys/queue.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./quota.h' to '/usr/include/x86_64-linux-gnu/sys/quota.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./random.h' to '/usr/include/x86_64-linux-gnu/sys/random.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./raw.h' to '/usr/include/x86_64-linux-gnu/sys/raw.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./reboot.h' to '/usr/include/x86_64-linux-gnu/sys/reboot.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./reg.h' to '/usr/include/x86_64-linux-gnu/sys/reg.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./resource.h' to '/usr/include/x86_64-linux-gnu/sys/resource.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./rseq.h' to '/usr/include/x86_64-linux-gnu/sys/rseq.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./select.h' to '/usr/include/x86_64-linux-gnu/sys/select.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./sem.h' to '/usr/include/x86_64-linux-gnu/sys/sem.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./sendfile.h' to '/usr/include/x86_64-linux-gnu/sys/sendfile.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./shm.h' to '/usr/include/x86_64-linux-gnu/sys/shm.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./signal.h' to '/usr/include/x86_64-linux-gnu/sys/signal.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./signalfd.h' to '/usr/include/x86_64-linux-gnu/sys/signalfd.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./single_threaded.h' to '/usr/include/x86_64-linux-gnu/sys/single_threaded.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./socket.h' to '/usr/include/x86_64-linux-gnu/sys/socket.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./socketvar.h' to '/usr/include/x86_64-linux-gnu/sys/socketvar.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./soundcard.h' to '/usr/include/x86_64-linux-gnu/sys/soundcard.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./stat.h' to '/usr/include/x86_64-linux-gnu/sys/stat.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./statfs.h' to '/usr/include/x86_64-linux-gnu/sys/statfs.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./statvfs.h' to '/usr/include/x86_64-linux-gnu/sys/statvfs.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./swap.h' to '/usr/include/x86_64-linux-gnu/sys/swap.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./syscall.h' to '/usr/include/x86_64-linux-gnu/sys/syscall.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./sysinfo.h' to '/usr/include/x86_64-linux-gnu/sys/sysinfo.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./syslog.h' to '/usr/include/x86_64-linux-gnu/sys/syslog.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./sysmacros.h' to '/usr/include/x86_64-linux-gnu/sys/sysmacros.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./termios.h' to '/usr/include/x86_64-linux-gnu/sys/termios.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./time.h' to '/usr/include/x86_64-linux-gnu/sys/time.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./timeb.h' to '/usr/include/x86_64-linux-gnu/sys/timeb.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./timerfd.h' to '/usr/include/x86_64-linux-gnu/sys/timerfd.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./times.h' to '/usr/include/x86_64-linux-gnu/sys/times.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./timex.h' to '/usr/include/x86_64-linux-gnu/sys/timex.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./ttychars.h' to '/usr/include/x86_64-linux-gnu/sys/ttychars.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./ttydefaults.h' to '/usr/include/x86_64-linux-gnu/sys/ttydefaults.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./types.h' to '/usr/include/x86_64-linux-gnu/sys/types.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./ucontext.h' to '/usr/include/x86_64-linux-gnu/sys/ucontext.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./uio.h' to '/usr/include/x86_64-linux-gnu/sys/uio.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./un.h' to '/usr/include/x86_64-linux-gnu/sys/un.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./unistd.h' to '/usr/include/x86_64-linux-gnu/sys/unistd.h': File exists
+#17 0.298 cp: cannot create symbolic link '/usr/include/sys/./user.h' to '/usr/include/x86_64-linux-gnu/sys/user.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./utsname.h' to '/usr/include/x86_64-linux-gnu/sys/utsname.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./vfs.h' to '/usr/include/x86_64-linux-gnu/sys/vfs.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./vlimit.h' to '/usr/include/x86_64-linux-gnu/sys/vlimit.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./vm86.h' to '/usr/include/x86_64-linux-gnu/sys/vm86.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./vt.h' to '/usr/include/x86_64-linux-gnu/sys/vt.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./wait.h' to '/usr/include/x86_64-linux-gnu/sys/wait.h': File exists
+#17 0.299 cp: cannot create symbolic link '/usr/include/sys/./xattr.h' to '/usr/include/x86_64-linux-gnu/sys/xattr.h': File exists
+#17 0.301 OS_BASE = debian
+#17 0.338 -- The C compiler identification is GNU 11.4.0
+#17 0.374 -- The CXX compiler identification is GNU 11.4.0
+#17 0.380 -- Detecting C compiler ABI info
+#17 0.423 -- Detecting C compiler ABI info - done
+#17 0.428 -- Check for working C compiler: /usr/bin/cc - skipped
+#17 0.428 -- Detecting C compile features
+#17 0.428 -- Detecting C compile features - done
+#17 0.430 -- Detecting CXX compiler ABI info
+#17 0.480 -- Detecting CXX compiler ABI info - done
+#17 0.485 -- Check for working CXX compiler: /usr/bin/c++ - skipped
+#17 0.486 -- Detecting CXX compile features
+#17 0.486 -- Detecting CXX compile features - done
+#17 0.487 Build type is Release
+#17 0.487 Architecture is x86_64
+#17 0.489 -- Found Git: /usr/bin/git (found version "2.34.1") 
+#17 0.489 git found: /usr/bin/git
+#17 0.491 fatal: not a git repository (or any of the parent directories): .git
+#17 0.492 fatal: not a git repository (or any of the parent directories): .git
+#17 0.493 fatal: not a git repository (or any of the parent directories): .git
+#17 0.496 -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+#17 0.497 -- Checking for one of the modules 'libconfig++'
+#17 0.523 -- Looking for include file pthread.h
+#17 0.568 -- Looking for include file pthread.h - found
+#17 0.568 -- Looking for pthread_create in pthreads
+#17 0.602 -- Looking for pthread_create in pthreads - not found
+#17 0.602 -- Looking for pthread_create in pthread
+#17 0.643 -- Looking for pthread_create in pthread - found
+#17 0.644 -- Found Threads: TRUE  
+#17 0.681 -- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "7.81.0")  
+#17 0.684   (required)
+#17 0.684   (not required)
+#17 2.076 -- Configuring done
+#17 2.125 -- Generating done
+#17 2.127 -- Build files have been written to: /openair-upf/build/upf/build
+#17 2.132 [1;34mCompilation log for /openair-upf/build/upf/build/upf is here: /openair-upf/build/log/upf.txt[00m
+#17 2.175 [  0%] Building CXX object udp/CMakeFiles/UDP.dir/udp.cpp.o
+#17 7.441 [  0%] Linking CXX static library libUDP.a
+#17 7.486 [  0%] Built target UDP
+#17 7.497 [  1%] Building CXX object utils/CMakeFiles/CN_UTILS.dir/async_shell_cmd.cpp.o
+#17 12.04 [  1%] Linking CXX static library libCN_UTILS.a
+#17 12.08 [  1%] Built target CN_UTILS
+#17 12.10 [  1%] Building CXX object pfcp/CMakeFiles/PFCP.dir/openair-upf/src/common-src/pfcp/3gpp_29.244.cpp.o
+#17 23.27 [  1%] Building CXX object pfcp/CMakeFiles/PFCP.dir/pfcp.cpp.o
+#17 31.31 [  1%] Linking CXX static library libPFCP.a
+#17 31.38 [  1%] Built target PFCP
+#17 31.39 [  2%] Building C object upf_app/kernel/CMakeFiles/eth_broadcast_tc.dir/tc/eth_broadcast_tc_kern.c.o
+#17 31.42 In file included from /openair-upf/src/upf_app/kernel/tc/eth_broadcast_tc_kern.c:33:
+#17 31.42 /openair-upf/src/upf_app/kernel/tc/eth_broadcast.h:89:12: warning: declaration of 'struct bpf_map' will not be visible outside of this function [-Wvisibility]
+#17 31.42     struct bpf_map* map, void* key, void* value, struct callback_ctx* ctx) {
+#17 31.42            ^
+#17 31.45 1 warning generated.
+#17 31.45 [  2%] Linking C static library libeth_broadcast_tc.a
+#17 31.51 [  2%] Built target eth_broadcast_tc
+#17 31.53 [  3%] Building C object upf_app/kernel/CMakeFiles/xdp_n3_entry_xdp_obj.dir/xdp/xdp_n3_entry_kern.c.o
+#17 31.57 [  3%] Linking C static library libxdp_n3_entry_xdp_obj.a
+#17 31.64 [  3%] Built target xdp_n3_entry_xdp_obj
+#17 31.65 [  3%] Building C object upf_app/kernel/CMakeFiles/xdp_n6_entry_xdp_obj.dir/xdp/xdp_n6_entry_kern.c.o
+#17 31.70 [  4%] Linking C static library libxdp_n6_entry_xdp_obj.a
+#17 31.76 [  4%] Built target xdp_n6_entry_xdp_obj
+#17 31.77 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_n3_eth_entry_xdp_obj.dir/xdp/xdp_n3_eth_entry_kern.c.o
+#17 31.83 [  4%] Linking C static library libxdp_n3_eth_entry_xdp_obj.a
+#17 31.89 [  4%] Built target xdp_n3_eth_entry_xdp_obj
+#17 31.90 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_n6_eth_entry_xdp_obj.dir/xdp/xdp_n6_eth_entry_kern.c.o
+#17 31.99 [  4%] Linking C static library libxdp_n6_eth_entry_xdp_obj.a
+#17 32.05 [  4%] Built target xdp_n6_eth_entry_xdp_obj
+#17 32.06 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_session_lookup_ip_xdp_obj.dir/xdp/xdp_session_lookup_ip_kern.c.o
+#17 32.10 [  4%] Linking C static library libxdp_session_lookup_ip_xdp_obj.a
+#17 32.17 [  4%] Built target xdp_session_lookup_ip_xdp_obj
+#17 32.18 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_session_lookup_eth_xdp_obj.dir/xdp/xdp_session_lookup_eth_kern.c.o
+#17 32.23 [  5%] Linking C static library libxdp_session_lookup_eth_xdp_obj.a
+#17 32.30 [  5%] Built target xdp_session_lookup_eth_xdp_obj
+#17 32.31 [  5%] Building C object upf_app/kernel/CMakeFiles/xdp_pdr_match_xdp_obj.dir/xdp/xdp_pdr_match_kern.c.o
+#17 32.59 [  6%] Linking C static library libxdp_pdr_match_xdp_obj.a
+#17 32.66 [  6%] Built target xdp_pdr_match_xdp_obj
+#17 32.67 [  7%] Building C object upf_app/kernel/CMakeFiles/xdp_far_apply_xdp_obj.dir/xdp/xdp_far_apply_kern.c.o
+#17 32.75 [  7%] Linking C static library libxdp_far_apply_xdp_obj.a
+#17 32.82 [  7%] Built target xdp_far_apply_xdp_obj
+#17 32.83 [  7%] Building C object upf_app/kernel/CMakeFiles/xdp_qer_apply_xdp_obj.dir/xdp/xdp_qer_apply_kern.c.o
+#17 32.88 [  7%] Linking C static library libxdp_qer_apply_xdp_obj.a
+#17 32.95 [  7%] Built target xdp_qer_apply_xdp_obj
+#17 32.96 [  7%] Building C object upf_app/kernel/CMakeFiles/xdp_urr_apply_xdp_obj.dir/xdp/xdp_urr_apply_kern.c.o
+#17 33.03 [  8%] Linking C static library libxdp_urr_apply_xdp_obj.a
+#17 33.10 [  8%] Built target xdp_urr_apply_xdp_obj
+#17 33.11 [  8%] Building C object upf_app/kernel/CMakeFiles/xdp_bar_apply_xdp_obj.dir/xdp/xdp_bar_apply_kern.c.o
+#17 33.15 [  8%] Linking C static library libxdp_bar_apply_xdp_obj.a
+#17 33.21 [  8%] Built target xdp_bar_apply_xdp_obj
+#17 33.22 [  8%] Building C object upf_app/kernel/CMakeFiles/xdp_mar_apply_xdp_obj.dir/xdp/xdp_mar_apply_kern.c.o
+#17 33.27 [  8%] Linking C static library libxdp_mar_apply_xdp_obj.a
+#17 33.33 [  8%] Built target xdp_mar_apply_xdp_obj
+#17 33.34 [  8%] Building C object upf_app/kernel/CMakeFiles/qer_tc.dir/tc/qer_tc_kern.c.o
+#17 33.39 [  8%] Linking C static library libqer_tc.a
+#17 33.45 [  8%] Built target qer_tc
+#17 33.46 [  8%] Built target upf_xdp_all
+#17 33.48 [  8%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/UserPlaneComponent.cpp.o
+#17 40.47 [  8%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/UrrReportConsumer.cpp.o
+#17 48.21 [  9%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/Configuration.cpp.o
+#17 56.66 [  9%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/SignalHandler.cpp.o
+#17 56.84 [  9%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/SessionProgramManager.cpp.o
+#17 66.75 [  9%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/SessionManager.cpp.o
+#17 78.54 [ 10%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/control/SessionPrograms.cpp.o
+#17 85.32 [ 10%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/helpers/CmdRunner.cpp.o
+#17 85.53 [ 10%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/helpers/GetNicInformation.cpp.o
+#17 89.31 [ 10%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/helpers/NextHopFinder.cpp.o
+#17 94.68 [ 11%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/helpers/SdfFilterParser.cpp.o
+#17 102.4 [ 11%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/far_apply_user.cpp.o
+#17 107.9 [ 11%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/mar_apply_user.cpp.o
+#17 115.0 [ 11%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/qer_tc_user.cpp.o
+#17 123.2 [ 11%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/eth_broadcast_tc_user.cpp.o
+#17 129.2 [ 12%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/qer_apply_user.cpp.o
+#17 134.9 [ 12%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/urr_apply_user.cpp.o
+#17 142.7 [ 12%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/bar_apply_user.cpp.o
+#17 149.8 [ 12%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/pdr_match_user.cpp.o
+#17 157.2 [ 13%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/upf_xdp_user.cpp.o
+#17 165.6 [ 13%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/session_lookup_ip_user.cpp.o
+#17 170.9 [ 13%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/session_lookup_eth_user.cpp.o
+#17 176.4 [ 13%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/n3_entry_user.cpp.o
+#17 182.1 [ 14%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/n6_entry_user.cpp.o
+#17 187.9 [ 14%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/n3_eth_entry_user.cpp.o
+#17 193.9 [ 14%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/n6_eth_entry_user.cpp.o
+#17 199.9 [ 14%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/BPFProgram.cpp.o
+#17 204.8 [ 14%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/wrappers/BPFMap.cpp.o
+#17 208.5 [ 15%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/wrappers/BPFMaps.cpp.o
+#17 213.6 [ 15%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/utils/bpf_utils.cpp.o
+#17 218.5 [ 15%] Building CXX object upf_app/CMakeFiles/UPF_XDP.dir/user/utils/net_utils.cpp.o
+#17 223.4 [ 15%] Linking CXX static library libUPF_XDP.a
+#17 223.7 [ 15%] Built target UPF_XDP
+#17 223.8 [ 16%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/UserPlaneComponent.cpp.o
+#17 230.6 [ 16%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/UrrReportConsumer.cpp.o
+#17 238.3 [ 16%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/Configuration.cpp.o
+#17 246.5 [ 16%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/SignalHandler.cpp.o
+#17 246.7 [ 17%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/SessionProgramManager.cpp.o
+#17 256.6 [ 17%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/SessionManager.cpp.o
+#17 268.6 [ 17%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/control/SessionPrograms.cpp.o
+#17 275.3 [ 17%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/helpers/CmdRunner.cpp.o
+#17 275.6 [ 18%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/helpers/GetNicInformation.cpp.o
+#17 279.3 [ 18%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/helpers/NextHopFinder.cpp.o
+#17 284.9 [ 18%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/helpers/SdfFilterParser.cpp.o
+#17 293.2 [ 18%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/far_apply_user.cpp.o
+#17 298.8 [ 19%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/mar_apply_user.cpp.o
+#17 305.9 [ 19%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/qer_tc_user.cpp.o
+#17 314.4 [ 19%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/eth_broadcast_tc_user.cpp.o
+#17 320.9 [ 19%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/qer_apply_user.cpp.o
+#17 326.9 [ 19%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/urr_apply_user.cpp.o
+#17 333.9 [ 20%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/bar_apply_user.cpp.o
+#17 340.8 [ 20%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/pdr_match_user.cpp.o
+#17 348.1 [ 20%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/upf_xdp_user.cpp.o
+#17 356.4 [ 20%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/session_lookup_ip_user.cpp.o
+#17 361.8 [ 21%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/session_lookup_eth_user.cpp.o
+#17 367.3 [ 21%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/n3_entry_user.cpp.o
+#17 373.0 [ 21%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/n6_entry_user.cpp.o
+#17 378.9 [ 21%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/n3_eth_entry_user.cpp.o
+#17 384.8 [ 22%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/n6_eth_entry_user.cpp.o
+#17 390.9 [ 22%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/BPFProgram.cpp.o
+#17 395.8 [ 22%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/wrappers/BPFMap.cpp.o
+#17 399.7 [ 22%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/wrappers/BPFMaps.cpp.o
+#17 405.1 [ 22%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/utils/bpf_utils.cpp.o
+#17 410.2 [ 23%] Building CXX object upf_app/CMakeFiles/UPF_TC.dir/user/utils/net_utils.cpp.o
+#17 415.4 [ 23%] Linking CXX static library libUPF_TC.a
+#17 415.8 [ 23%] Built target UPF_TC
+#17 415.8 [ 23%] Building CXX object app/CMakeFiles/APP.dir/upf_pfcp_association.cpp.o
+#17 423.9 [ 23%] Building CXX object app/CMakeFiles/APP.dir/upf_app.cpp.o
+#17 433.4 [ 23%] Building CXX object app/CMakeFiles/APP.dir/upf_config.cpp.o
+#17 441.0 [ 23%] Building CXX object app/CMakeFiles/APP.dir/upf_n4.cpp.o
+#17 451.7 [ 24%] Building CXX object app/CMakeFiles/APP.dir/upf_profile.cpp.o
+#17 458.5 [ 24%] Building CXX object app/CMakeFiles/APP.dir/upf_nrf.cpp.o
+#17 468.8 [ 24%] Building CXX object app/CMakeFiles/APP.dir/upf_config_yaml.cpp.o
+#17 480.6 [ 24%] Linking CXX static library libAPP.a
+#17 480.7 [ 24%] Built target APP
+#17 480.7 [ 24%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_far.cpp.o
+#17 488.8 [ 25%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_pdr.cpp.o
+#17 497.6 [ 25%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_qer.cpp.o
+#17 505.5 [ 25%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_urr.cpp.o
+#17 507.0 [ 25%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_bar.cpp.o
+#17 508.5 [ 26%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_mar.cpp.o
+#17 510.1 [ 26%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_session.cpp.o
+#17 519.2 [ 26%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_switch.cpp.o
+#17 530.2 [ 26%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/simple_switch.cpp.o
+#17 538.8 [ 27%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/openair-upf/src/upf_app/framed_routing/FramedRouting.cpp.o
+#17 546.6 [ 27%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/openair-upf/src/upf_app/framed_routing/LocalRouting.cpp.o
+#17 551.0 [ 27%] Linking CXX static library libSIMPLE_SWITCH.a
+#17 551.1 [ 27%] Built target SIMPLE_SWITCH
+#17 551.1 [ 27%] Building CXX object gtpv1u/CMakeFiles/GTPV1U.dir/3gpp_29.281.cpp.o
+#17 556.3 [ 27%] Building CXX object gtpv1u/CMakeFiles/GTPV1U.dir/gtpv1u.cpp.o
+#17 561.6 [ 28%] Linking CXX static library libGTPV1U.a
+#17 561.7 [ 28%] Built target GTPV1U
+#17 561.7 [ 29%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/oai_upf/main.cpp.o
+#17 572.1 [ 29%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/upf_app/utils/startup_banner.cpp.o
+#17 578.0 [ 29%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/oai_upf/options.cpp.o
+#17 578.2 [ 29%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/itti/itti.cpp.o
+#17 583.0 [ 30%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/itti/itti_msg.cpp.o
+#17 586.9 [ 30%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/common/sbi_helper.cpp.o
+#17 593.9 [ 30%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/config/config.cpp.o
+#17 599.8 [ 30%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/config/config_types.cpp.o
+#17 608.9 [ 30%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/logger/nf-tp.cpp.o
+#17 609.0 [ 31%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/logger/lttng_logger_base.cpp.o
+#17 612.7 [ 31%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/logger/spd_logger_base.cpp.o
+#17 616.9 [ 31%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/logger/logger_base.cpp.o
+#17 620.9 [ 31%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/http/http_client.cpp.o
+#17 627.4 [ 32%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AanfInfo.cpp.o
+#17 628.5 [ 32%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AccessTokenErr.cpp.o
+#17 629.5 [ 32%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AccessTokenReq.cpp.o
+#17 631.4 [ 32%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AccessTokenRsp.cpp.o
+#17 632.5 [ 33%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AccessType.cpp.o
+#17 633.4 [ 33%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AfEvent.cpp.o
+#17 634.2 [ 33%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AfEventExposureData.cpp.o
+#17 635.5 [ 33%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AfEvent_anyOf.cpp.o
+#17 636.5 [ 33%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AmfCond.cpp.o
+#17 637.5 [ 34%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AmfInfo.cpp.o
+#17 639.4 [ 34%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AnNodeType.cpp.o
+#17 640.2 [ 34%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AnNodeType_anyOf.cpp.o
+#17 641.1 [ 34%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Arp.cpp.o
+#17 642.1 [ 35%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Atom.cpp.o
+#17 643.2 [ 35%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AtsssCapability.cpp.o
+#17 644.1 [ 35%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/AusfInfo.cpp.o
+#17 645.8 [ 35%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/BootstrappingInfo.cpp.o
+#17 647.3 [ 36%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/BsfInfo.cpp.o
+#17 649.3 [ 36%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ChangeItem.cpp.o
+#17 650.4 [ 36%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ChangeType.cpp.o
+#17 651.2 [ 36%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ChangeType_anyOf.cpp.o
+#17 652.2 [ 37%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ChfInfo.cpp.o
+#17 653.8 [ 37%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/CivicAddress.cpp.o
+#17 655.5 [ 37%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Cnf.cpp.o
+#17 656.7 [ 37%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/CnfUnit.cpp.o
+#17 657.9 [ 37%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/CollocatedNfInstance.cpp.o
+#17 658.9 [ 38%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/CollocatedNfType.cpp.o
+#17 659.7 [ 38%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/CollocatedNfType_anyOf.cpp.o
+#17 660.6 [ 38%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ComplexQuery.cpp.o
+#17 662.0 [ 38%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ConditionEventType.cpp.o
+#17 662.9 [ 39%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ConditionEventType_anyOf.cpp.o
+#17 663.8 [ 39%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DataSetId.cpp.o
+#17 664.6 [ 39%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DataSetId_anyOf.cpp.o
+#17 665.5 [ 39%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DccfCond.cpp.o
+#17 667.4 [ 40%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DccfInfo.cpp.o
+#17 669.2 [ 40%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DefSubServiceInfo.cpp.o
+#17 670.3 [ 40%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DefaultNotificationSubscription.cpp.o
+#17 671.8 [ 40%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Dnf.cpp.o
+#17 673.1 [ 40%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnfUnit.cpp.o
+#17 674.3 [ 41%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnEasdfInfoItem.cpp.o
+#17 675.4 [ 41%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnInfoItem.cpp.o
+#17 676.3 [ 41%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnMbSmfInfoItem.cpp.o
+#17 677.3 [ 41%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnSmfInfoItem.cpp.o
+#17 682.1 [ 42%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnSmfInfoItem_dnaiList_inner.cpp.o
+#17 682.9 [ 42%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnSmfInfoItem_dnn.cpp.o
+#17 683.7 [ 42%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnTsctsfInfoItem.cpp.o
+#17 684.7 [ 42%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/DnnUpfInfoItem.cpp.o
+#17 690.6 [ 43%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/EasdfInfo.cpp.o
+#17 692.2 [ 43%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/EllipsoidArc.cpp.o
+#17 693.2 [ 43%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/EllipsoidArc_allOf.cpp.o
+#17 694.2 [ 43%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/EventId.cpp.o
+#17 695.0 [ 43%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/EventId_anyOf.cpp.o
+#17 696.0 [ 44%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ExtSnssai.cpp.o
+#17 697.2 [ 44%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ExternalClientType.cpp.o
+#17 698.0 [ 44%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ExternalClientType_anyOf.cpp.o
+#17 699.0 [ 44%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ExternalMbsServiceArea.cpp.o
+#17 700.5 [ 45%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/GeographicArea.cpp.o
+#17 701.7 [ 45%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/GeographicalCoordinates.cpp.o
+#17 702.6 [ 45%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/GmlcInfo.cpp.o
+#17 703.9 [ 45%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Guami.cpp.o
+#17 704.9 [ 46%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/GuamiListCond.cpp.o
+#17 706.1 [ 46%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Helpers.cpp.o
+#17 709.8 [ 46%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/HssInfo.cpp.o
+#17 711.4 [ 46%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IdentityRange.cpp.o
+#17 712.4 [ 47%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ImsiRange.cpp.o
+#17 713.4 [ 47%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/InterfaceUpfInfoItem.cpp.o
+#17 718.6 [ 47%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/InternalGroupIdRange.cpp.o
+#17 719.6 [ 47%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/InvalidParam.cpp.o
+#17 720.6 [ 47%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IpAddr.cpp.o
+#17 721.6 [ 48%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IpEndPoint.cpp.o
+#17 722.6 [ 48%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IpIndex.cpp.o
+#17 723.4 [ 48%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IpReachability.cpp.o
+#17 724.3 [ 48%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IpReachability_anyOf.cpp.o
+#17 725.2 [ 49%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Ipv4AddressRange.cpp.o
+#17 726.2 [ 49%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Ipv6Addr.cpp.o
+#17 727.0 [ 49%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Ipv6Prefix.cpp.o
+#17 727.8 [ 49%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Ipv6PrefixRange.cpp.o
+#17 728.8 [ 50%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/IwmscInfo.cpp.o
+#17 730.4 [ 50%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Link.cpp.o
+#17 731.4 [ 50%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/LinksValueSchema.cpp.o
+#17 732.4 [ 50%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/LmfInfo.cpp.o
+#17 734.6 [ 50%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbSmfInfo.cpp.o
+#17 736.9 [ 51%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbUpfInfo.cpp.o
+#17 739.2 [ 51%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsMediaComp.cpp.o
+#17 740.5 [ 51%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsMediaCompRm.cpp.o
+#17 741.8 [ 51%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsMediaInfo.cpp.o
+#17 743.0 [ 52%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsQoSReq.cpp.o
+#17 744.0 [ 52%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsServiceArea.cpp.o
+#17 745.5 [ 52%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsServiceAreaInfo.cpp.o
+#17 746.7 [ 52%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsServiceInfo.cpp.o
+#17 747.9 [ 53%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsServiceType.cpp.o
+#17 748.8 [ 53%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsServiceType_anyOf.cpp.o
+#17 749.6 [ 53%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSession.cpp.o
+#17 751.9 [ 53%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionActivityStatus.cpp.o
+#17 752.7 [ 54%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionActivityStatus_anyOf.cpp.o
+#17 753.6 [ 54%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionEvent.cpp.o
+#17 754.5 [ 54%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionEventType.cpp.o
+#17 755.3 [ 54%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionEventType_anyOf.cpp.o
+#17 756.2 [ 54%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionId.cpp.o
+#17 757.3 [ 55%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MbsSessionSubscription.cpp.o
+#17 758.6 [ 55%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MediaType.cpp.o
+#17 759.4 [ 55%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MediaType_anyOf.cpp.o
+#17 760.4 [ 55%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MfafInfo.cpp.o
+#17 762.2 [ 56%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MlAnalyticsInfo.cpp.o
+#17 763.7 [ 56%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/MnpfInfo.cpp.o
+#17 764.9 [ 56%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/N1MessageClass.cpp.o
+#17 765.7 [ 56%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/N1MessageClass_anyOf.cpp.o
+#17 766.6 [ 57%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/N2InformationClass.cpp.o
+#17 767.4 [ 57%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/N2InformationClass_anyOf.cpp.o
+#17 768.4 [ 57%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/N2InterfaceAmfInfo.cpp.o
+#17 769.7 [ 57%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFProfile.cpp.o
+#17 785.0 [ 57%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFService.cpp.o
+#17 788.6 [ 58%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFServiceStatus.cpp.o
+#17 789.4 [ 58%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFServiceVersion.cpp.o
+#17 790.4 [ 58%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFStatus.cpp.o
+#17 791.2 [ 58%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFStatus_anyOf.cpp.o
+#17 792.1 [ 59%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFType.cpp.o
+#17 792.9 [ 59%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NFType_anyOf.cpp.o
+#17 794.0 [ 59%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Ncgi.cpp.o
+#17 795.0 [ 59%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NcgiTai.cpp.o
+#17 796.2 [ 60%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NefCond.cpp.o
+#17 798.0 [ 60%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NefInfo.cpp.o
+#17 800.2 [ 60%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NetworkNodeDiameterAddress.cpp.o
+#17 801.2 [ 60%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NetworkSliceCond.cpp.o
+#17 802.5 [ 61%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfGroupCond.cpp.o
+#17 803.4 [ 61%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfGroupListCond.cpp.o
+#17 804.6 [ 61%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfInfo.cpp.o
+#17 805.5 [ 61%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfInstanceIdCond.cpp.o
+#17 806.5 [ 61%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfInstanceIdListCond.cpp.o
+#17 807.6 [ 62%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfInstanceInfo.cpp.o
+#17 808.8 [ 62%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfServiceInstance.cpp.o
+#17 809.8 [ 62%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfServiceSetCond.cpp.o
+#17 810.8 [ 62%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfSetCond.cpp.o
+#17 811.7 [ 63%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NfTypeCond.cpp.o
+#17 812.6 [ 63%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NoProfileMatchInfo.cpp.o
+#17 813.9 [ 63%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NoProfileMatchReason.cpp.o
+#17 814.7 [ 63%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NoProfileMatchReason_anyOf.cpp.o
+#17 815.6 [ 64%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NotifCondition.cpp.o
+#17 816.8 [ 64%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NotificationData.cpp.o
+#17 825.6 [ 64%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NotificationEventType.cpp.o
+#17 826.5 [ 64%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NotificationEventType_anyOf.cpp.o
+#17 827.4 [ 64%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NotificationType.cpp.o
+#17 828.2 [ 65%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NotificationType_anyOf.cpp.o
+#17 829.2 [ 65%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo.cpp.o
+#17 840.8 [ 65%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedAanfInfoList_value_value.cpp.o
+#17 841.9 [ 65%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedAmfInfo_value.cpp.o
+#17 843.8 [ 66%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedAusfInfo_value.cpp.o
+#17 845.5 [ 66%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedBsfInfo_value.cpp.o
+#17 847.5 [ 66%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedChfInfo_value.cpp.o
+#17 849.1 [ 66%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedGmlcInfo_value.cpp.o
+#17 850.4 [ 67%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedHssInfoList_value_value.cpp.o
+#17 852.0 [ 67%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedLmfInfo_value.cpp.o
+#17 854.3 [ 67%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedMbSmfInfoList_value_value.cpp.o
+#17 856.7 [ 67%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedNefInfo_value.cpp.o
+#17 858.9 [ 68%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedNwdafInfo_value.cpp.o
+#17 861.2 [ 68%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedPcfInfo_value.cpp.o
+#17 862.9 [ 68%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedPcscfInfoList_value_value.cpp.o
+#17 864.9 [ 68%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedScpInfoList_value.cpp.o
+#17 867.5 [ 68%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedSeppInfoList_value.cpp.o
+#17 869.1 [ 69%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedSmfInfo_value.cpp.o
+#17 871.3 [ 69%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedUdmInfo_value.cpp.o
+#17 873.3 [ 69%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedUdrInfo_value.cpp.o
+#17 875.2 [ 69%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedUdsfInfo_value.cpp.o
+#17 876.7 [ 70%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NrfInfo_servedUpfInfo_value.cpp.o
+#17 879.5 [ 70%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NsacfCapability.cpp.o
+#17 880.5 [ 70%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NsacfInfo.cpp.o
+#17 882.1 [ 70%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NssaafInfo.cpp.o
+#17 883.5 [ 71%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NwdafCapability.cpp.o
+#17 884.5 [ 71%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NwdafCond.cpp.o
+#17 886.8 [ 71%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NwdafEvent.cpp.o
+#17 887.7 [ 71%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NwdafEvent_anyOf.cpp.o
+#17 888.7 [ 71%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/NwdafInfo.cpp.o
+#17 891.0 [ 72%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/OptionsResponse.cpp.o
+#17 892.0 [ 72%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PatchItem.cpp.o
+#17 893.1 [ 72%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PatchOperation.cpp.o
+#17 894.0 [ 72%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PatchOperation_anyOf.cpp.o
+#17 895.0 [ 73%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PcfInfo.cpp.o
+#17 896.7 [ 73%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PcscfInfo.cpp.o
+#17 898.7 [ 73%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PduSessionType.cpp.o
+#17 899.5 [ 73%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PduSessionType_anyOf.cpp.o
+#17 900.5 [ 74%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PfdData.cpp.o
+#17 901.6 [ 74%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PlmnId.cpp.o
+#17 902.6 [ 74%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PlmnIdNid.cpp.o
+#17 903.6 [ 74%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PlmnOauth2.cpp.o
+#17 904.7 [ 74%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PlmnRange.cpp.o
+#17 905.8 [ 75%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PlmnSnssai.cpp.o
+#17 907.0 [ 75%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Point.cpp.o
+#17 908.0 [ 75%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointAltitude.cpp.o
+#17 908.9 [ 75%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointAltitudeUncertainty.cpp.o
+#17 910.0 [ 76%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointAltitudeUncertainty_allOf.cpp.o
+#17 911.0 [ 76%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointAltitude_allOf.cpp.o
+#17 911.9 [ 76%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointUncertaintyCircle.cpp.o
+#17 912.9 [ 76%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointUncertaintyCircle_allOf.cpp.o
+#17 913.8 [ 77%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointUncertaintyEllipse.cpp.o
+#17 914.8 [ 77%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PointUncertaintyEllipse_allOf.cpp.o
+#17 915.7 [ 77%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Point_allOf.cpp.o
+#17 916.7 [ 77%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Polygon.cpp.o
+#17 917.8 [ 78%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Polygon_allOf.cpp.o
+#17 918.9 [ 78%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PreemptionCapability.cpp.o
+#17 919.7 [ 78%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PreemptionCapability_anyOf.cpp.o
+#17 920.6 [ 78%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PreemptionVulnerability.cpp.o
+#17 921.4 [ 78%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PreemptionVulnerability_anyOf.cpp.o
+#17 922.3 [ 79%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/PreferredSearch.cpp.o
+#17 923.3 [ 79%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ProSeCapability.cpp.o
+#17 924.4 [ 79%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ProblemDetails.cpp.o
+#17 926.0 [ 79%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/QueryParamCombination.cpp.o
+#17 927.2 [ 80%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/QueryParameter.cpp.o
+#17 928.2 [ 80%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/RatType.cpp.o
+#17 929.1 [ 80%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/RatType_anyOf.cpp.o
+#17 930.2 [ 80%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/RedirectResponse.cpp.o
+#17 931.3 [ 81%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ReservPriority.cpp.o
+#17 932.1 [ 81%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ReservPriority_anyOf.cpp.o
+#17 933.0 [ 81%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpCapability.cpp.o
+#17 933.9 [ 81%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpCapability_anyOf.cpp.o
+#17 934.8 [ 81%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpDomainCond.cpp.o
+#17 936.1 [ 82%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpDomainConnectivity.cpp.o
+#17 937.2 [ 82%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpDomainInfo.cpp.o
+#17 938.7 [ 82%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpDomainRoutingInfoNotification.cpp.o
+#17 939.8 [ 82%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpDomainRoutingInfoSubscription.cpp.o
+#17 940.9 [ 83%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpDomainRoutingInformation.cpp.o
+#17 942.0 [ 83%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ScpInfo.cpp.o
+#17 944.9 [ 83%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SdRange.cpp.o
+#17 945.9 [ 83%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SearchResult.cpp.o
+#17 955.7 [ 84%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SeppInfo.cpp.o
+#17 957.3 [ 84%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ServiceName.cpp.o
+#17 958.1 [ 84%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ServiceNameCond.cpp.o
+#17 959.1 [ 84%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ServiceNameListCond.cpp.o
+#17 960.2 [ 85%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/ServiceName_anyOf.cpp.o
+#17 961.5 [ 85%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SharedDataIdRange.cpp.o
+#17 962.6 [ 85%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SmfInfo.cpp.o
+#17 969.0 [ 85%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Snssai.cpp.o
+#17 974.2 [ 85%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiEasdfInfoItem.cpp.o
+#17 975.5 [ 86%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiExtension.cpp.o
+#17 976.6 [ 86%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiInfoItem.cpp.o
+#17 977.8 [ 86%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiMbSmfInfoItem.cpp.o
+#17 979.0 [ 86%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiSmfInfoItem.cpp.o
+#17 984.6 [ 87%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiTsctsfInfoItem.cpp.o
+#17 985.8 [ 87%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SnssaiUpfInfoItem.cpp.o
+#17 991.2 [ 87%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Ssm.cpp.o
+#17 992.2 [ 87%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Status.cpp.o
+#17 993.0 [ 88%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Status_anyOf.cpp.o
+#17 994.0 [ 88%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/StoredSearchResult.cpp.o
+#17 1003.4 [ 88%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SubscrCond.cpp.o
+#17 1006.8 [ 88%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SubscriptionContext.cpp.o
+#17 1008.6 [ 88%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SubscriptionData.cpp.o
+#17 1010.0 [ 89%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SuciInfo.cpp.o
+#17 1011.3 [ 89%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SupiRange.cpp.o
+#17 1012.4 [ 89%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SupportedGADShapes.cpp.o
+#17 1013.2 [ 89%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/SupportedGADShapes_anyOf.cpp.o
+#17 1014.3 [ 90%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TacRange.cpp.o
+#17 1015.3 [ 90%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Tai.cpp.o
+#17 1016.3 [ 90%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TaiRange.cpp.o
+#17 1017.5 [ 90%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/Tmgi.cpp.o
+#17 1018.5 [ 91%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TmgiRange.cpp.o
+#17 1019.5 [ 91%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TngfInfo.cpp.o
+#17 1020.8 [ 91%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TransportProtocol.cpp.o
+#17 1021.7 [ 91%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TransportProtocol_anyOf.cpp.o
+#17 1022.6 [ 92%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TrustAfInfo.cpp.o
+#17 1024.3 [ 92%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TsctsfInfo.cpp.o
+#17 1026.2 [ 92%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TunnelAddress.cpp.o
+#17 1027.2 [ 92%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/TwifInfo.cpp.o
+#17 1028.6 [ 92%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UPInterfaceType.cpp.o
+#17 1029.7 [ 93%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UPInterfaceType_anyOf.cpp.o
+#17 1030.7 [ 93%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UdmInfo.cpp.o
+#17 1032.9 [ 93%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UdrInfo.cpp.o
+#17 1034.8 [ 93%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UdsfInfo.cpp.o
+#17 1036.3 [ 94%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UeContextInfoClass.cpp.o
+#17 1037.1 [ 94%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UeContextInfoClass_anyOf.cpp.o
+#17 1038.1 [ 94%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UnTrustAfInfo.cpp.o
+#17 1039.5 [ 94%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UncertaintyEllipse.cpp.o
+#17 1040.5 [ 95%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UncertaintyEllipsoid.cpp.o
+#17 1041.6 [ 95%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UpfCond.cpp.o
+#17 1043.1 [ 95%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UpfInfo.cpp.o
+#17 1050.2 [ 95%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UriList.cpp.o
+#17 1051.3 [ 95%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UriScheme.cpp.o
+#17 1052.1 [ 96%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/UriScheme_anyOf.cpp.o
+#17 1053.0 [ 96%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/V2xCapability.cpp.o
+#17 1054.0 [ 96%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/VendorSpecificFeature.cpp.o
+#17 1055.0 [ 96%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/WAgfInfo.cpp.o
+#17 1056.3 [ 97%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/model/r_5GDdnmfInfo.cpp.o
+#17 1057.2 [ 97%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/3gpp_conversions.cpp.o
+#17 1062.9 [ 97%] Building C object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/backtrace.c.o
+#17 1062.9 [ 97%] Building C object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/bstr/bstrlib.c.o
+#17 1063.4 [ 98%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/conversions.cpp.o
+#17 1073.3 [ 98%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/fqdn.cpp.o
+#17 1080.3 [ 98%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/if.cpp.o
+#17 1085.0 [ 98%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/mime_parser.cpp.o
+#17 1091.9 [ 99%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/output_wrapper.cpp.o
+#17 1096.3 [ 99%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/pid_file.cpp.o
+#17 1100.7 [ 99%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/sdf_conversions.cpp.o
+#17 1108.1 [ 99%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/string.cpp.o
+#17 1114.3 [ 99%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/thread_sched.cpp.o
+#17 1118.6 [100%] Building CXX object CMakeFiles/upf.dir/openair-upf/src/common-src/utils/utils.cpp.o
+#17 1123.9 [100%] Linking CXX executable upf
+#17 1125.5 [100%] Built target upf
+#17 1125.5 [32mupf compiled[00m
+#17 1125.5 '/openair-upf/build/upf/build/upf' -> '/usr/local/bin/upf'
+#17 1125.5 [32mupf installed[00m
+#17 1125.5 	linux-vdso.so.1 (0x00007ffdf06c2000)
+#17 1125.5 	libbpf.so.1 => /openair-upf/src/../build/ext/libbpf/src/libbpf.so.1 (0x000076c245130000)
+#17 1125.5 	libglog.so.0 => /lib/x86_64-linux-gnu/libglog.so.0 (0x000076c2450f3000)
+#17 1125.5 	libdouble-conversion.so.3 => /lib/x86_64-linux-gnu/libdouble-conversion.so.3 (0x000076c2450de000)
+#17 1125.5 	libfmt.so.9 => /usr/local/lib/libfmt.so.9 (0x000076c2450b9000)
+#17 1125.5 	libyaml-cpp.so.0.8 => /usr/local/lib/libyaml-cpp.so.0.8 (0x000076c244f8d000)
+#17 1125.5 	libcpr.so.1 => /usr/local/lib/libcpr.so.1 (0x000076c244e63000)
+#17 1125.5 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x000076c244c37000)
+#17 1125.5 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x000076c244b50000)
+#17 1125.5 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x000076c244b30000)
+#17 1125.5 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000076c244907000)
+#17 1125.5 	/lib64/ld-linux-x86-64.so.2 (0x000076c246116000)
+#17 1125.5 	libelf.so.1 => /lib/x86_64-linux-gnu/libelf.so.1 (0x000076c2448e9000)
+#17 1125.5 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x000076c2448cb000)
+#17 1125.5 	libunwind.so.8 => /lib/x86_64-linux-gnu/libunwind.so.8 (0x000076c2448b0000)
+#17 1125.5 	libgflags.so.2.2 => /lib/x86_64-linux-gnu/libgflags.so.2.2 (0x000076c244887000)
+#17 1125.5 	libcurl-gnutls.so.4 => /lib/x86_64-linux-gnu/libcurl-gnutls.so.4 (0x000076c2447e5000)
+#17 1125.5 	libssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x000076c244741000)
+#17 1125.5 	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x000076c2442fb000)
+#17 1125.5 	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x000076c2442d0000)
+#17 1125.5 	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x000076c2442cb000)
+#17 1125.5 	libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x000076c2442a1000)
+#17 1125.5 	libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x000076c244280000)
+#17 1125.5 	librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x000076c24425f000)
+#17 1125.5 	libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x000076c2441f1000)
+#17 1125.5 	libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x000076c2441dd000)
+#17 1125.5 	libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x000076c244197000)
+#17 1125.5 	libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x000076c243faa000)
+#17 1125.5 	libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x000076c243f56000)
+#17 1125.5 	libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x000076c243ef4000)
+#17 1125.5 	liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x000076c243ee3000)
+#17 1125.5 	libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x000076c243e14000)
+#17 1125.5 	libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x000076c243e06000)
+#17 1125.5 	libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x000076c243c5c000)
+#17 1125.5 	libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x000076c243c12000)
+#17 1125.5 	libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x000076c243b90000)
+#17 1125.5 	libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x000076c243a55000)
+#17 1125.5 	libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x000076c243a3d000)
+#17 1125.5 	libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x000076c243972000)
+#17 1125.5 	libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x000076c243941000)
+#17 1125.5 	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x000076c24393b000)
+#17 1125.5 	libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x000076c24392d000)
+#17 1125.5 	libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x000076c243912000)
+#17 1125.5 	libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x000076c2438ef000)
+#17 1125.5 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x000076c2438e0000)
+#17 1125.5 	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x000076c2438d9000)
+#17 1125.5 	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x000076c2438c6000)
+#17 1125.5 end of UPF build
+#17 DONE 1125.7s
+
+#18 [oai-upf  2/10] RUN apt-get update &&     DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes &&     DEBIAN_FRONTEND=noninteractive apt-get install --yes     tzdata     psmisc     net-tools     iproute2     ethtool     arping     libllvm14     libnl-3-200     libnl-route-3-200     sudo     iptables     netbase     libgssapi-krb5-2     libldap-2.?-?     libgoogle-glog0v5     libdouble-conversion3     libconfig++9v5     librtmp1     libpsl5     libnghttp2-14     libcurl?-gnutls     libboost-thread1.7?.0     && if [ "false" = "true" ]; then DEBIAN_FRONTEND=noninteractive apt-get install --yes liblttng-ust-dev; fi     && rm -rf /var/lib/apt/lists/*
+#18 CACHED
+
+#19 [oai-upf  3/10] WORKDIR /openair-upf/bin
+#19 CACHED
+
+#20 [oai-upf  4/10] COPY --from=oai-upf-builder     /usr/local/sbin/bpftool     /openair-upf/build/upf/build/oai_upf     /openair-upf/build/upf/build/upf_app/kernel/CMakeFiles/qer_tc.dir/tc/qer_tc_kern.c.o     /openair-upf/scripts/healthcheck.sh     /openair-upf/scripts/entrypoint.sh     ./
+#20 DONE 0.4s
+
+#21 [oai-upf  5/10] WORKDIR /usr/local/lib
+#21 DONE 0.0s
+
+#22 [oai-upf  6/10] COPY --from=oai-upf-builder     /usr/local/lib/libfmt.so     /usr/local/lib/libyaml-cpp.so.0.?     /usr/local/lib/libcpr.so.1     /usr/lib/?-linux-gnu/libbfd-2.3?-system.so     /usr/lib/?-linux-gnu/libopcodes-2.3?-system.so     /openair-upf/build/ext/libbpf/src/libbpf.so.1     ./
+#22 DONE 0.6s
+
+#23 [oai-upf  7/10] RUN ldconfig &&     echo "ldd /openair-upf/bin/oai_upf" &&     ldd /openair-upf/bin/oai_upf &&     echo "ldd /openair-upf/bin/bpftool" &&     ldd /openair-upf/bin/bpftool
+#23 0.310 ldd /openair-upf/bin/oai_upf
+#23 0.317 	linux-vdso.so.1 (0x00007ffeb82f8000)
+#23 0.317 	libbpf.so.1 => /usr/local/lib/libbpf.so.1 (0x000073973d874000)
+#23 0.317 	libglog.so.0 => /lib/x86_64-linux-gnu/libglog.so.0 (0x000073973d83c000)
+#23 0.317 	libdouble-conversion.so.3 => /lib/x86_64-linux-gnu/libdouble-conversion.so.3 (0x000073973d827000)
+#23 0.317 	libfmt.so.9 => /usr/local/lib/libfmt.so.9 (0x000073973d802000)
+#23 0.317 	libyaml-cpp.so.0.8 => /usr/local/lib/libyaml-cpp.so.0.8 (0x000073973d6d6000)
+#23 0.317 	libcpr.so.1 => /usr/local/lib/libcpr.so.1 (0x000073973d5ac000)
+#23 0.317 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x000073973d380000)
+#23 0.317 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x000073973d299000)
+#23 0.317 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x000073973d279000)
+#23 0.317 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000073973d050000)
+#23 0.317 	/lib64/ld-linux-x86-64.so.2 (0x000073973e85a000)
+#23 0.317 	libelf.so.1 => /lib/x86_64-linux-gnu/libelf.so.1 (0x000073973d032000)
+#23 0.317 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x000073973d014000)
+#23 0.317 	libunwind.so.8 => /lib/x86_64-linux-gnu/libunwind.so.8 (0x000073973cff9000)
+#23 0.317 	libgflags.so.2.2 => /lib/x86_64-linux-gnu/libgflags.so.2.2 (0x000073973cfd0000)
+#23 0.317 	libcurl-gnutls.so.4 => /lib/x86_64-linux-gnu/libcurl-gnutls.so.4 (0x000073973cf2e000)
+#23 0.317 	libssl.so.3 => /lib/x86_64-linux-gnu/libssl.so.3 (0x000073973ce8a000)
+#23 0.317 	libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x000073973ca44000)
+#23 0.317 	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x000073973ca19000)
+#23 0.317 	libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x000073973ca14000)
+#23 0.317 	libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x000073973c9ea000)
+#23 0.317 	libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x000073973c9c9000)
+#23 0.317 	librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x000073973c9a8000)
+#23 0.317 	libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x000073973c93a000)
+#23 0.317 	libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x000073973c926000)
+#23 0.317 	libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x000073973c8e0000)
+#23 0.317 	libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x000073973c6f3000)
+#23 0.317 	libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x000073973c69f000)
+#23 0.317 	libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x000073973c63d000)
+#23 0.317 	liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x000073973c62c000)
+#23 0.317 	libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x000073973c55d000)
+#23 0.317 	libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x000073973c54f000)
+#23 0.317 	libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x000073973c3a5000)
+#23 0.317 	libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x000073973c35b000)
+#23 0.317 	libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x000073973c2d9000)
+#23 0.317 	libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x000073973c19e000)
+#23 0.317 	libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x000073973c186000)
+#23 0.317 	libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x000073973c0bb000)
+#23 0.317 	libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x000073973c08a000)
+#23 0.317 	libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x000073973c084000)
+#23 0.317 	libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x000073973c076000)
+#23 0.317 	libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x000073973c05b000)
+#23 0.317 	libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x000073973c038000)
+#23 0.317 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x000073973c029000)
+#23 0.317 	libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x000073973c022000)
+#23 0.317 	libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x000073973c00f000)
+#23 0.317 ldd /openair-upf/bin/bpftool
+#23 0.324 	linux-vdso.so.1 (0x00007ffdd61a6000)
+#23 0.324 	libelf.so.1 => /lib/x86_64-linux-gnu/libelf.so.1 (0x000078eb605ff000)
+#23 0.324 	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x000078eb605e3000)
+#23 0.324 	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x000078eb605d8000)
+#23 0.324 	libLLVM-14.so.1 => /lib/x86_64-linux-gnu/libLLVM-14.so.1 (0x000078eb59d06000)
+#23 0.324 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x000078eb59add000)
+#23 0.324 	/lib64/ld-linux-x86-64.so.2 (0x000078eb606b9000)
+#23 0.324 	libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x000078eb59ace000)
+#23 0.324 	libedit.so.2 => /lib/x86_64-linux-gnu/libedit.so.2 (0x000078eb59a94000)
+#23 0.324 	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x000078eb599ad000)
+#23 0.324 	libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x000078eb5997b000)
+#23 0.324 	libxml2.so.2 => /lib/x86_64-linux-gnu/libxml2.so.2 (0x000078eb59799000)
+#23 0.324 	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x000078eb5956d000)
+#23 0.324 	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x000078eb5954b000)
+#23 0.324 	libbsd.so.0 => /lib/x86_64-linux-gnu/libbsd.so.0 (0x000078eb59533000)
+#23 0.324 	libicuuc.so.70 => /lib/x86_64-linux-gnu/libicuuc.so.70 (0x000078eb59338000)
+#23 0.324 	liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x000078eb5930d000)
+#23 0.324 	libmd.so.0 => /lib/x86_64-linux-gnu/libmd.so.0 (0x000078eb59300000)
+#23 0.324 	libicudata.so.70 => /lib/x86_64-linux-gnu/libicudata.so.70 (0x000078eb576e0000)
+#23 DONE 0.4s
+
+#24 [oai-upf  8/10] WORKDIR /openair-upf/etc
+#24 DONE 0.0s
+
+#25 [oai-upf  9/10] COPY --from=oai-upf-builder /openair-upf/etc/config.yaml .
+#25 DONE 0.1s
+
+#26 [oai-upf 10/10] WORKDIR /openair-upf
+#26 DONE 0.0s
+
+#27 exporting to image
+#27 exporting layers 0.1s done
+#27 writing image sha256:9ac5cce7e61f6b87e9979b4e5a962cd50f22583fc7ba9f281abb46a3eb984c41 done
+#27 naming to docker.io/library/oai-lab-upf:qfi-f6d0516adf20 done
+#27 DONE 0.1s

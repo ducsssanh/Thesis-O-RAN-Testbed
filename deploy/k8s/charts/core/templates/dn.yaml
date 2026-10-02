@@ -1,0 +1,41 @@
+{{- $offloadImage := .Values.global.lab.workloads.upf.image -}}
+{{- with .Values.dn -}}
+{{- $offloadImage = default $offloadImage .offloadImage -}}
+{{- end -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: oai-lab-dn}
+spec:
+  replicas: {{ .Values.replicas | default 0 }}
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {oai-lab/component: dn}
+  template:
+    metadata:
+      labels: {oai-lab/component: dn}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" .Values.global.lab "nf" "dn") | quote }}
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+        # N6 uses XDP-SKB on the UPF. Complete the inner UDP checksum before
+        # the DN's veth hands packets to the UPF; otherwise CHECKSUM_PARTIAL
+        # packets reach the UE with an invalid inner checksum.
+        - name: n6-tx-checksum-off
+          image: {{ $offloadImage | quote }}
+          imagePullPolicy: IfNotPresent
+          command: [/usr/sbin/ethtool, -K, n6, tx, "off"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {add: [NET_ADMIN], drop: [ALL]}
+      containers:
+        - name: dn
+          image: {{ .Values.global.lab.toolsImage | quote }}
+          command: [sh, -ec]
+          args:
+            - ip route replace {{ .Values.global.lab.ueSubnet }} via {{ .Values.global.lab.networks.n6.addresses.upf }} dev n6; exec sleep infinity
+          securityContext: {capabilities: {add: [NET_ADMIN, NET_RAW], drop: [ALL]}}
+          volumeMounts: [{name: artifacts, mountPath: /artifacts}]
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim: {claimName: oai-lab-artifacts}

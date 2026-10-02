@@ -1,0 +1,127 @@
+{{- if .Values.bootstrapTestEnabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: oai-lab-bootstrap}
+data:
+  bootstrap.py: |
+    {{- .Files.Get "files/bootstrap.py" | nindent 4 }}
+{{- range $side := list "server" "client" }}
+{{- $attachments := list }}
+{{- range $name,$network := $.Values.global.lab.networks }}
+{{- $nad := printf "oai-bootstrap-%s-%s" $side $name }}
+{{- $attachments = append $attachments (dict "name" $nad "interface" $name) }}
+---
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: {{ $nad }}}
+spec:
+  config: {{ toJson (dict "cniVersion" "0.3.1" "type" "bridge" "bridge" $network.bridge "isGateway" false "ipam" (dict "type" "static" "addresses" (list (dict "address" (printf "%s.%s/%s" (regexReplaceAll "\\.[0-9]+/[0-9]+$" $network.subnet "") (ternary "250" "251" (eq $side "server")) (last (splitList "/" $network.subnet))))))) | quote }}
+{{- end }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-{{ $side }}}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ toJson $attachments | quote }}
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: probe
+          image: {{ $.Values.global.lab.toolsImage | quote }}
+          command: [python3, /probe/bootstrap.py]
+          env: [{name: SIDE, value: {{ $side }}}]
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 128Mi}}
+          volumeMounts:
+            - {name: config, mountPath: /config, readOnly: true}
+            - {name: probe, mountPath: /probe, readOnly: true}
+      volumes:
+        - name: config
+          configMap: {name: oai-lab-config}
+        - name: probe
+          configMap: {name: oai-lab-bootstrap}
+{{- end }}
+{{- end }}
+{{- if .Values.bootstrapTestEnabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-upf-bpf}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: upf-bpf-probe
+          image: {{ .Values.global.lab.workloads.upf.image | quote }}
+          command: [/openair-upf/bin/bpftool, -j, feature, probe, kernel]
+          securityContext: {privileged: true, capabilities: {drop: [ALL], add: [NET_ADMIN, NET_RAW]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 500m, memory: 256Mi}}
+{{- end }}
+{{- if .Values.bootstrapTestEnabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-ue-tun}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 60
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: ue-tun-probe
+          image: {{ .Values.global.lab.toolsImage | quote }}
+          command: [python3, -c]
+          args:
+            - 'import os,fcntl,struct,json; fd=os.open("/dev/net/tun",os.O_RDWR); fcntl.ioctl(fd,0x400454ca,struct.pack("16sH",b"oai-probe",0x1001)); os.close(fd); print(json.dumps({"status":"PASS","tun":True,"privileged":False}))'
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL], add: [NET_ADMIN]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 128Mi}}
+          volumeMounts: [{name: tun, mountPath: /dev/net/tun}]
+      volumes:
+        - name: tun
+          hostPath: {path: /dev/net/tun, type: CharDevice}
+{{- end }}
+{{- if .Values.bootstrapTestEnabled }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-radio}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 60
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: radio-probe
+          image: {{ .Values.global.lab.workloads.gnb.image | quote }}
+          command: [sh, -ec]
+          args:
+            - |
+              for binary in nr-softmodem nr-uesoftmodem nearRT-RIC xapp_kpm_moni_write_to_csv; do
+                test -x "/opt/oai/bin/$binary"
+                ldd "/opt/oai/bin/$binary" > /tmp/ldd.txt
+                if grep -q 'not found' /tmp/ldd.txt; then cat /tmp/ldd.txt; exit 1; fi
+              done
+              test -r /opt/oai/sm/libkpm_sm.so
+              test -r /source/flexric/build/28_552_kpm_meas.txt
+              for library in /opt/oai/sm/*.so /opt/oai/ran/*.so; do
+                ldd "$library" > /tmp/ldd.txt
+                if grep -q 'not found' /tmp/ldd.txt; then cat /tmp/ldd.txt; exit 1; fi
+              done
+              echo '{"status":"PASS","binaries":4,"sharedLibraries":"resolved"}'
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 500m, memory: 256Mi}}
+{{- end }}

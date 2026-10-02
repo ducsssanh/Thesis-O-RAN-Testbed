@@ -1,0 +1,6 @@
+binary=true help_rc=0
+
+Usage:  smf  [OPTIONS]...
+  -h, --help                   Print help and exit
+  -c, --libconfigcfg filename  Read the application configuration from this file.
+  -o, --stdoutlog              Send the application logs to STDOUT fd.

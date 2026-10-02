@@ -1,0 +1,1 @@
+Error from server (BadRequest): previous terminated container "smf" in pod "oai-smf-665cb7cfbc-sdv46" not found

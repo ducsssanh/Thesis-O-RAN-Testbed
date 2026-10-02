@@ -1,0 +1,155 @@
+global:
+  lab:
+    profile: oai-lab
+    namespace: oai-lab
+    cpus: 8
+    memoryMiB: 16384
+    kubernetesVersion: v1.33.13
+    minDiskGiB: 25
+    minRetainedDiskGiB: 5
+    secretName: oai-lab-credentials
+    plmn:
+      mcc: '001'
+      mnc: '01'
+    tac: 7
+    slice:
+      sst: 1
+      sd: FFFFFF
+      dnn: nist-dnn
+    ueSubnet: 10.1.0.0/16
+    xdpMode: skb
+    usageReporting: true
+    toolsImage: oai-lab-tools:unbuilt
+    dbImage: mariadb:10.6
+    artifactSize: 2Gi
+    dbSize: 2Gi
+    radio:
+      band: 78
+      prbs: 106
+      numerology: 1
+      frequency: 3619200000
+    experiment:
+      rate: 10M
+      duration: 120
+      periodMs: 1000
+      timeout: 180
+    networks:
+      n2:
+        subnet: 172.30.22.0/24
+        bridge: oai-n2
+        addresses:
+          amf: 172.30.22.10
+          gnb: 172.30.22.20
+      n3:
+        subnet: 172.30.23.0/24
+        bridge: oai-n3
+        addresses:
+          upf: 172.30.23.10
+          gnb: 172.30.23.20
+      n4:
+        subnet: 172.30.24.0/24
+        bridge: oai-n4
+        addresses:
+          smf: 172.30.24.10
+          upf: 172.30.24.20
+      n6:
+        subnet: 172.30.26.0/24
+        bridge: oai-n6
+        addresses:
+          dn: 172.30.26.10
+          upf: 172.30.26.20
+      e2:
+        subnet: 172.30.27.0/24
+        bridge: oai-e2
+        addresses:
+          flexric: 172.30.27.10
+          gnb: 172.30.27.20
+          xapp: 172.30.27.30
+    workloads:
+      nrf:
+        image: oaisoftwarealliance/oai-nrf:v2.2.0
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      udr:
+        image: oaisoftwarealliance/oai-udr:v2.2.0
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      udm:
+        image: oaisoftwarealliance/oai-udm:v2.2.0
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      ausf:
+        image: oaisoftwarealliance/oai-ausf:v2.2.0
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      amf:
+        image: oaisoftwarealliance/oai-amf:v2.2.0
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      smf:
+        image: oaisoftwarealliance/oai-smf:v2.2.0
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      upf:
+        image: oai-lab-upf:unbuilt
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      flexric:
+        image: oai-lab-flexric:unbuilt
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: '2'
+          memory: 1Gi
+      gnb:
+        image: oai-lab-gnb:unbuilt
+        requests:
+          cpu: '2'
+          memory: 2Gi
+        limits:
+          cpu: '4'
+          memory: 4Gi
+      nr-ue:
+        image: oai-lab-nr-ue:unbuilt
+        requests:
+          cpu: '2'
+          memory: 2Gi
+        limits:
+          cpu: '4'
+          memory: 4Gi
+replicas: 0
+seedEnabled: false
+xappEnabled: false
+oai-gnb:
+  enabled: false
+oai-nr-ue:
+  enabled: false

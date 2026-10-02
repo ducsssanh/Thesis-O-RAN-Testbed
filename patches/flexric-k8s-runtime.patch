@@ -1,0 +1,13 @@
+diff --git a/src/xApp/db/db.c b/src/xApp/db/db.c
+--- a/src/xApp/db/db.c
++++ b/src/xApp/db/db.c
+@@ -112,7 +112,9 @@
+ void init_db_xapp(db_xapp_t* db, char const* db_filename)
+ {
+   assert(db != NULL);
++#ifdef SQLITE3_XAPP
+   assert(db_filename != NULL);
++#endif
+ 
+   init_db_gen(&db->handler, db_filename);
+ 

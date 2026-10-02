@@ -1,0 +1,392 @@
+[
+  {
+    "namespace": "istio-system",
+    "kind": "Deployment",
+    "name": "istio-ingressgateway",
+    "replicas": 1
+  },
+  {
+    "namespace": "istio-system",
+    "kind": "Deployment",
+    "name": "istiod",
+    "replicas": 1
+  },
+  {
+    "namespace": "mariadb-operator",
+    "kind": "Deployment",
+    "name": "mariadb-operator",
+    "replicas": 1
+  },
+  {
+    "namespace": "mariadb-operator",
+    "kind": "Deployment",
+    "name": "mariadb-operator-cert-controller",
+    "replicas": 1
+  },
+  {
+    "namespace": "mariadb-operator",
+    "kind": "Deployment",
+    "name": "mariadb-operator-webhook",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "a1-sim-osc-0",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "a1-sim-osc-1",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "a1-sim-std-0",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "a1-sim-std-1",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "a1-sim-std2-0",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "a1-sim-std2-1",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "capifcore",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "controlpanel",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "dmeparticipant",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "nonrtricgateway",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "oran-nonrtric-kong",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "servicemanager",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "Deployment",
+    "name": "topology",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-cps-core",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-cps-temporal",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-dcae-ves-collector",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-ncmp-dmi-plugin",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-apex-pdp",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-api",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-clamp-ac-a1pms-ppnt",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-clamp-ac-http-ppnt",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-clamp-ac-k8s-ppnt",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-clamp-ac-kserve-ppnt",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-clamp-ac-pf-ppnt",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-clamp-runtime-acm",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-pap",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-postgres-primary",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-policy-postgres-replica",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-postgres-primary",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-postgres-replica",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-sdnc-ansible-server",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-sdnc-web",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "Deployment",
+    "name": "onap-strimzi-entity-operator",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "bundle-server",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "focom-to-teiv-adapter",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "keycloak",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "keycloak-proxy",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "ncmp-to-teiv-adapter",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "opa",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "redpanda-console",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "topology-exposure",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "Deployment",
+    "name": "topology-ingestion",
+    "replicas": 1
+  },
+  {
+    "namespace": "strimzi-system",
+    "kind": "Deployment",
+    "name": "strimzi-cluster-operator",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "StatefulSet",
+    "name": "dmaapadapterservice",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "StatefulSet",
+    "name": "informationservice",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "StatefulSet",
+    "name": "oran-nonrtric-postgresql",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "StatefulSet",
+    "name": "policymanagementservice",
+    "replicas": 1
+  },
+  {
+    "namespace": "nonrtric",
+    "kind": "StatefulSet",
+    "name": "rappmanager",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "StatefulSet",
+    "name": "mariadb-galera",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "StatefulSet",
+    "name": "onap-cps-temporal-db",
+    "replicas": 1
+  },
+  {
+    "namespace": "onap",
+    "kind": "StatefulSet",
+    "name": "onap-sdnc",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "dfc",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "influxdb2",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "kafka-producer-pm-json2influx",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "kafka-producer-pm-json2kafka",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "kafka-producer-pm-xml2json",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "minio",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "oran-smo-postgresql",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "pm-producer-json2kafka",
+    "replicas": 1
+  },
+  {
+    "namespace": "smo",
+    "kind": "StatefulSet",
+    "name": "pmlog",
+    "replicas": 1
+  }
+]

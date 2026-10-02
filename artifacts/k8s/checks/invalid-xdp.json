@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "exitCode": 1,
+  "test": "actual UPF binary rejects invalid YAML mode before BPF loading"
+}

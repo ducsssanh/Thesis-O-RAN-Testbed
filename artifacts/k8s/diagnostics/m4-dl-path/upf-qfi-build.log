@@ -1,0 +1,292 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.upf.ubuntu
+#1 transferring dockerfile: 5.93kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:jammy
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 57B done
+#3 DONE 0.0s
+
+#4 [oai-upf-base  1/10] FROM docker.io/library/ubuntu:jammy
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 578.10kB 0.2s done
+#5 DONE 0.2s
+
+#6 [oai-upf-base  6/10] COPY ./build/common-build /openair-upf/build/common-build
+#6 CACHED
+
+#7 [oai-upf-base  7/10] COPY ./build/upf/CMakeLists.txt /openair-upf/build/upf/CMakeLists.txt
+#7 CACHED
+
+#8 [oai-upf-base  2/10] RUN apt-get update &&     DEBIAN_FRONTEND=noninteractive apt-get upgrade --yes &&     DEBIAN_FRONTEND=noninteractive apt-get install --yes     cmake     psmisc     git     && rm -rf /var/lib/apt/lists/*
+#8 CACHED
+
+#9 [oai-upf-base  9/10] WORKDIR /openair-upf/build/scripts
+#9 CACHED
+
+#10 [oai-upf-base  3/10] RUN git config --global https.postBuffer 123289600 &&     git config --global http.sslverify false
+#10 CACHED
+
+#11 [oai-upf-base  5/10] COPY ./build/scripts /openair-upf/build/scripts/
+#11 CACHED
+
+#12 [oai-upf-base  4/10] WORKDIR /openair-upf
+#12 CACHED
+
+#13 [oai-upf-base  8/10] COPY ./build/cmake_modules /openair-upf/cmake_modules/
+#13 CACHED
+
+#14 [oai-upf-base 10/10] RUN ./build_upf --install-deps --force
+#14 CACHED
+
+#15 [oai-upf-builder 1/3] COPY . /openair-upf
+#15 DONE 0.8s
+
+#16 [oai-upf-builder 2/3] WORKDIR /openair-upf/build/scripts
+#16 DONE 0.1s
+
+#17 [oai-upf-builder 3/3] RUN  if [ "false" = "true" ]; then apt-get update &&     DEBIAN_FRONTEND=noninteractive apt-get install --yes     libstdc++-12-dev     lttng-modules-dkms     liblttng-ust-dev     lttng-tools &&     ldconfig &&     BUILD_ARGS="--lttng";     else     ldconfig;     fi &&     if [ "false" = "true" ]; then BUILD_ARGS=" --bpf-debug"; fi &&     if [ -n "0-2" ]; then       taskset -c "0-2" ./build_upf --clean --Verbose --build-type Release --jobs ;     else       ./build_upf --clean --Verbose --build-type Release --jobs ;     fi;     ldd /openair-upf/build/upf/build/upf &&     mv /openair-upf/build/upf/build/upf /openair-upf/build/upf/build/oai_upf &&     echo "end of UPF build"
+#17 0.430 /openair-upf /openair-upf/build/scripts
+#17 0.430 /openair-upf/build/scripts
+#17 0.444 Clean the build generated files (build from scratch)
+#17 0.444 CMake build process verbose
+#17 0.448 Cleaning UPF: generated configuration files, obj files, executable
+#17 0.450 mkdir: created directory 'build'
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./acct.h' to '/usr/include/x86_64-linux-gnu/sys/acct.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./auxv.h' to '/usr/include/x86_64-linux-gnu/sys/auxv.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./bitypes.h' to '/usr/include/x86_64-linux-gnu/sys/bitypes.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./cdefs.h' to '/usr/include/x86_64-linux-gnu/sys/cdefs.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./debugreg.h' to '/usr/include/x86_64-linux-gnu/sys/debugreg.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./dir.h' to '/usr/include/x86_64-linux-gnu/sys/dir.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./elf.h' to '/usr/include/x86_64-linux-gnu/sys/elf.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./epoll.h' to '/usr/include/x86_64-linux-gnu/sys/epoll.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./errno.h' to '/usr/include/x86_64-linux-gnu/sys/errno.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./eventfd.h' to '/usr/include/x86_64-linux-gnu/sys/eventfd.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./fanotify.h' to '/usr/include/x86_64-linux-gnu/sys/fanotify.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./fcntl.h' to '/usr/include/x86_64-linux-gnu/sys/fcntl.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./file.h' to '/usr/include/x86_64-linux-gnu/sys/file.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./fsuid.h' to '/usr/include/x86_64-linux-gnu/sys/fsuid.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./gmon.h' to '/usr/include/x86_64-linux-gnu/sys/gmon.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./gmon_out.h' to '/usr/include/x86_64-linux-gnu/sys/gmon_out.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./inotify.h' to '/usr/include/x86_64-linux-gnu/sys/inotify.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./io.h' to '/usr/include/x86_64-linux-gnu/sys/io.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./ioctl.h' to '/usr/include/x86_64-linux-gnu/sys/ioctl.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./ipc.h' to '/usr/include/x86_64-linux-gnu/sys/ipc.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./kd.h' to '/usr/include/x86_64-linux-gnu/sys/kd.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./klog.h' to '/usr/include/x86_64-linux-gnu/sys/klog.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./mman.h' to '/usr/include/x86_64-linux-gnu/sys/mman.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./mount.h' to '/usr/include/x86_64-linux-gnu/sys/mount.h': File exists
+#17 0.455 cp: cannot create symbolic link '/usr/include/sys/./msg.h' to '/usr/include/x86_64-linux-gnu/sys/msg.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./mtio.h' to '/usr/include/x86_64-linux-gnu/sys/mtio.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./param.h' to '/usr/include/x86_64-linux-gnu/sys/param.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./pci.h' to '/usr/include/x86_64-linux-gnu/sys/pci.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./perm.h' to '/usr/include/x86_64-linux-gnu/sys/perm.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./personality.h' to '/usr/include/x86_64-linux-gnu/sys/personality.h': File exists
+#17 0.456 cp: -r not specified; omitting directory '/usr/include/x86_64-linux-gnu/sys/platform'
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./poll.h' to '/usr/include/x86_64-linux-gnu/sys/poll.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./prctl.h' to '/usr/include/x86_64-linux-gnu/sys/prctl.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./procfs.h' to '/usr/include/x86_64-linux-gnu/sys/procfs.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./profil.h' to '/usr/include/x86_64-linux-gnu/sys/profil.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./ptrace.h' to '/usr/include/x86_64-linux-gnu/sys/ptrace.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./queue.h' to '/usr/include/x86_64-linux-gnu/sys/queue.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./quota.h' to '/usr/include/x86_64-linux-gnu/sys/quota.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./random.h' to '/usr/include/x86_64-linux-gnu/sys/random.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./raw.h' to '/usr/include/x86_64-linux-gnu/sys/raw.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./reboot.h' to '/usr/include/x86_64-linux-gnu/sys/reboot.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./reg.h' to '/usr/include/x86_64-linux-gnu/sys/reg.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./resource.h' to '/usr/include/x86_64-linux-gnu/sys/resource.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./rseq.h' to '/usr/include/x86_64-linux-gnu/sys/rseq.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./select.h' to '/usr/include/x86_64-linux-gnu/sys/select.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./sem.h' to '/usr/include/x86_64-linux-gnu/sys/sem.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./sendfile.h' to '/usr/include/x86_64-linux-gnu/sys/sendfile.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./shm.h' to '/usr/include/x86_64-linux-gnu/sys/shm.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./signal.h' to '/usr/include/x86_64-linux-gnu/sys/signal.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./signalfd.h' to '/usr/include/x86_64-linux-gnu/sys/signalfd.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./single_threaded.h' to '/usr/include/x86_64-linux-gnu/sys/single_threaded.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./socket.h' to '/usr/include/x86_64-linux-gnu/sys/socket.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./socketvar.h' to '/usr/include/x86_64-linux-gnu/sys/socketvar.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./soundcard.h' to '/usr/include/x86_64-linux-gnu/sys/soundcard.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./stat.h' to '/usr/include/x86_64-linux-gnu/sys/stat.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./statfs.h' to '/usr/include/x86_64-linux-gnu/sys/statfs.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./statvfs.h' to '/usr/include/x86_64-linux-gnu/sys/statvfs.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./swap.h' to '/usr/include/x86_64-linux-gnu/sys/swap.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./syscall.h' to '/usr/include/x86_64-linux-gnu/sys/syscall.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./sysinfo.h' to '/usr/include/x86_64-linux-gnu/sys/sysinfo.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./syslog.h' to '/usr/include/x86_64-linux-gnu/sys/syslog.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./sysmacros.h' to '/usr/include/x86_64-linux-gnu/sys/sysmacros.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./termios.h' to '/usr/include/x86_64-linux-gnu/sys/termios.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./time.h' to '/usr/include/x86_64-linux-gnu/sys/time.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./timeb.h' to '/usr/include/x86_64-linux-gnu/sys/timeb.h': File exists
+#17 0.456 cp: cannot create symbolic link '/usr/include/sys/./timerfd.h' to '/usr/include/x86_64-linux-gnu/sys/timerfd.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./times.h' to '/usr/include/x86_64-linux-gnu/sys/times.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./timex.h' to '/usr/include/x86_64-linux-gnu/sys/timex.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./ttychars.h' to '/usr/include/x86_64-linux-gnu/sys/ttychars.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./ttydefaults.h' to '/usr/include/x86_64-linux-gnu/sys/ttydefaults.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./types.h' to '/usr/include/x86_64-linux-gnu/sys/types.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./ucontext.h' to '/usr/include/x86_64-linux-gnu/sys/ucontext.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./uio.h' to '/usr/include/x86_64-linux-gnu/sys/uio.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./un.h' to '/usr/include/x86_64-linux-gnu/sys/un.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./unistd.h' to '/usr/include/x86_64-linux-gnu/sys/unistd.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./user.h' to '/usr/include/x86_64-linux-gnu/sys/user.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./utsname.h' to '/usr/include/x86_64-linux-gnu/sys/utsname.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./vfs.h' to '/usr/include/x86_64-linux-gnu/sys/vfs.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./vlimit.h' to '/usr/include/x86_64-linux-gnu/sys/vlimit.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./vm86.h' to '/usr/include/x86_64-linux-gnu/sys/vm86.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./vt.h' to '/usr/include/x86_64-linux-gnu/sys/vt.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./wait.h' to '/usr/include/x86_64-linux-gnu/sys/wait.h': File exists
+#17 0.457 cp: cannot create symbolic link '/usr/include/sys/./xattr.h' to '/usr/include/x86_64-linux-gnu/sys/xattr.h': File exists
+#17 0.459 OS_BASE = debian
+#17 0.542 -- The C compiler identification is GNU 11.4.0
+#17 0.601 -- The CXX compiler identification is GNU 11.4.0
+#17 0.609 -- Detecting C compiler ABI info
+#17 0.657 -- Detecting C compiler ABI info - done
+#17 0.661 -- Check for working C compiler: /usr/bin/cc - skipped
+#17 0.662 -- Detecting C compile features
+#17 0.663 -- Detecting C compile features - done
+#17 0.666 -- Detecting CXX compiler ABI info
+#17 0.716 -- Detecting CXX compiler ABI info - done
+#17 0.722 -- Check for working CXX compiler: /usr/bin/c++ - skipped
+#17 0.722 -- Detecting CXX compile features
+#17 0.722 -- Detecting CXX compile features - done
+#17 0.723 Build type is Release
+#17 0.723 Architecture is x86_64
+#17 0.730 -- Found Git: /usr/bin/git (found version "2.34.1") 
+#17 0.730 git found: /usr/bin/git
+#17 0.732 fatal: not a git repository (or any of the parent directories): .git
+#17 0.733 fatal: not a git repository (or any of the parent directories): .git
+#17 0.734 fatal: not a git repository (or any of the parent directories): .git
+#17 0.738 -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+#17 0.741 -- Checking for one of the modules 'libconfig++'
+#17 0.771 -- Looking for include file pthread.h
+#17 0.818 -- Looking for include file pthread.h - found
+#17 0.818 -- Looking for pthread_create in pthreads
+#17 0.853 -- Looking for pthread_create in pthreads - not found
+#17 0.853 -- Looking for pthread_create in pthread
+#17 0.899 -- Looking for pthread_create in pthread - found
+#17 0.900 -- Found Threads: TRUE  
+#17 0.951 -- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "7.81.0")  
+#17 0.954   (required)
+#17 0.955   (not required)
+#17 2.347 -- Configuring done
+#17 2.399 -- Generating done
+#17 2.401 -- Build files have been written to: /openair-upf/build/upf/build
+#17 2.405 [1;34mCompilation log for /openair-upf/build/upf/build/upf is here: /openair-upf/build/log/upf.txt[00m
+#17 2.450 [  0%] Building CXX object pfcp/CMakeFiles/PFCP.dir/openair-upf/src/common-src/pfcp/3gpp_29.244.cpp.o
+#17 2.452 [  1%] Building CXX object utils/CMakeFiles/CN_UTILS.dir/async_shell_cmd.cpp.o
+#17 2.452 [  1%] Building CXX object udp/CMakeFiles/UDP.dir/udp.cpp.o
+#17 8.665 [  1%] Linking CXX static library libCN_UTILS.a
+#17 8.800 [  1%] Built target CN_UTILS
+#17 8.804 [  1%] Linking CXX static library libUDP.a
+#17 8.827 [  2%] Building C object upf_app/kernel/CMakeFiles/eth_broadcast_tc.dir/tc/eth_broadcast_tc_kern.c.o
+#17 8.864 [  2%] Built target UDP
+#17 8.877 [  3%] Building C object upf_app/kernel/CMakeFiles/xdp_n3_entry_xdp_obj.dir/xdp/xdp_n3_entry_kern.c.o
+#17 8.911 In file included from /openair-upf/src/upf_app/kernel/tc/eth_broadcast_tc_kern.c:33:
+#17 8.911 /openair-upf/src/upf_app/kernel/tc/eth_broadcast.h:89:12: warning: declaration of 'struct bpf_map' will not be visible outside of this function [-Wvisibility]
+#17 8.911     struct bpf_map* map, void* key, void* value, struct callback_ctx* ctx) {
+#17 8.911            ^
+#17 8.952 1 warning generated.
+#17 8.958 [  3%] Linking C static library libxdp_n3_entry_xdp_obj.a
+#17 8.959 [  3%] Linking C static library libeth_broadcast_tc.a
+#17 9.038 [  3%] Built target eth_broadcast_tc
+#17 9.044 [  3%] Building CXX object pfcp/CMakeFiles/PFCP.dir/pfcp.cpp.o
+#17 9.082 [  3%] Built target xdp_n3_entry_xdp_obj
+#17 9.102 [  3%] Building C object upf_app/kernel/CMakeFiles/xdp_n6_entry_xdp_obj.dir/xdp/xdp_n6_entry_kern.c.o
+#17 9.172 [  4%] Linking C static library libxdp_n6_entry_xdp_obj.a
+#17 9.299 [  4%] Built target xdp_n6_entry_xdp_obj
+#17 9.328 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_n3_eth_entry_xdp_obj.dir/xdp/xdp_n3_eth_entry_kern.c.o
+#17 9.427 [  4%] Linking C static library libxdp_n3_eth_entry_xdp_obj.a
+#17 9.551 [  4%] Built target xdp_n3_eth_entry_xdp_obj
+#17 9.580 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_n6_eth_entry_xdp_obj.dir/xdp/xdp_n6_eth_entry_kern.c.o
+#17 9.714 [  4%] Linking C static library libxdp_n6_eth_entry_xdp_obj.a
+#17 9.863 [  4%] Built target xdp_n6_eth_entry_xdp_obj
+#17 9.893 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_session_lookup_ip_xdp_obj.dir/xdp/xdp_session_lookup_ip_kern.c.o
+#17 9.986 [  4%] Linking C static library libxdp_session_lookup_ip_xdp_obj.a
+#17 10.12 [  4%] Built target xdp_session_lookup_ip_xdp_obj
+#17 10.16 [  4%] Building C object upf_app/kernel/CMakeFiles/xdp_session_lookup_eth_xdp_obj.dir/xdp/xdp_session_lookup_eth_kern.c.o
+#17 10.23 [  5%] Linking C static library libxdp_session_lookup_eth_xdp_obj.a
+#17 10.29 [  5%] Built target xdp_session_lookup_eth_xdp_obj
+#17 10.31 [  5%] Building C object upf_app/kernel/CMakeFiles/xdp_pdr_match_xdp_obj.dir/xdp/xdp_pdr_match_kern.c.o
+#17 10.58 [  6%] Linking C static library libxdp_pdr_match_xdp_obj.a
+#17 10.65 [  6%] Built target xdp_pdr_match_xdp_obj
+#17 10.67 [  7%] Building C object upf_app/kernel/CMakeFiles/xdp_far_apply_xdp_obj.dir/xdp/xdp_far_apply_kern.c.o
+#17 10.75 [  7%] Linking C static library libxdp_far_apply_xdp_obj.a
+#17 10.82 [  7%] Built target xdp_far_apply_xdp_obj
+#17 10.83 [  7%] Building C object upf_app/kernel/CMakeFiles/xdp_qer_apply_xdp_obj.dir/xdp/xdp_qer_apply_kern.c.o
+#17 10.88 [  7%] Linking C static library libxdp_qer_apply_xdp_obj.a
+#17 10.94 [  7%] Built target xdp_qer_apply_xdp_obj
+#17 10.96 [  7%] Building C object upf_app/kernel/CMakeFiles/xdp_urr_apply_xdp_obj.dir/xdp/xdp_urr_apply_kern.c.o
+#17 11.02 [  8%] Linking C static library libxdp_urr_apply_xdp_obj.a
+#17 11.09 [  8%] Built target xdp_urr_apply_xdp_obj
+#17 11.10 [  8%] Building C object upf_app/kernel/CMakeFiles/xdp_bar_apply_xdp_obj.dir/xdp/xdp_bar_apply_kern.c.o
+#17 11.14 [  8%] Linking C static library libxdp_bar_apply_xdp_obj.a
+#17 11.21 [  8%] Built target xdp_bar_apply_xdp_obj
+#17 11.22 [  8%] Building C object upf_app/kernel/CMakeFiles/xdp_mar_apply_xdp_obj.dir/xdp/xdp_mar_apply_kern.c.o
+#17 11.28 [  8%] Linking C static library libxdp_mar_apply_xdp_obj.a
+#17 11.34 [  8%] Built target xdp_mar_apply_xdp_obj
+#17 11.35 [  8%] Building C object upf_app/kernel/CMakeFiles/qer_tc.dir/tc/qer_tc_kern.c.o
+#17 11.41 [  8%] Linking C static library libqer_tc.a
+#17 11.47 [  8%] Built target qer_tc
+#17 11.49 [  8%] Building CXX object app/CMakeFiles/APP.dir/upf_pfcp_association.cpp.o
+#17 18.67 [  8%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_far.cpp.o
+#17 18.98 [  8%] Linking CXX static library libPFCP.a
+#17 19.09 [  8%] Built target PFCP
+#17 19.09 [  8%] Building CXX object app/CMakeFiles/APP.dir/upf_app.cpp.o
+#17 22.56 [  9%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_pdr.cpp.o
+#17 31.62 [  9%] Building CXX object app/CMakeFiles/APP.dir/upf_config.cpp.o
+#17 32.15 [  9%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_qer.cpp.o
+#17 34.33 [  9%] Building CXX object simpleswitch/CMakeFiles/SIMPLE_SWITCH.dir/pfcp_urr.cpp.o
+#17 36.19 [  9%] Building CXX object gtpv1u/CMakeFiles/GTPV1U.dir/3gpp_29.281.cpp.o
+#17 CANCELED
+ERROR: failed to build: failed to solve: Canceled: context canceled
+698021 v0.31.1-desktop.1 /home/ducsssanh/.docker/cli-plugins/docker-buildx buildx build --progress=plain --target oai-upf --build-arg BUILD_CPUSET=0-2 --build-arg GIT_COMMIT=qfi-f6d0516adf20 -f src/oai-upf/docker/Dockerfile.upf.ubuntu -t oai-lab-upf:qfi-f6d0516adf20 src/oai-upf
+github.com/docker/buildx/commands.runBuildWithOptions
+	github.com/docker/buildx/commands/build.go:468
+github.com/docker/buildx/commands.runBuild
+	github.com/docker/buildx/commands/build.go:388
+github.com/docker/buildx/commands.buildCmd.func1
+	github.com/docker/buildx/commands/build.go:504
+github.com/docker/cli/cli-plugins/plugin.RunPlugin.func1.1.2
+	github.com/docker/cli@v29.1.5+incompatible/cli-plugins/plugin/plugin.go:65
+github.com/spf13/cobra.(*Command).execute
+	github.com/spf13/cobra@v1.10.2/command.go:1015
+github.com/spf13/cobra.(*Command).ExecuteC
+	github.com/spf13/cobra@v1.10.2/command.go:1148
+github.com/spf13/cobra.(*Command).Execute
+	github.com/spf13/cobra@v1.10.2/command.go:1071
+github.com/docker/cli/cli-plugins/plugin.RunPlugin
+	github.com/docker/cli@v29.1.5+incompatible/cli-plugins/plugin/plugin.go:80
+main.runPlugin
+	github.com/docker/buildx/cmd/buildx/main.go:66
+main.run
+	github.com/docker/buildx/cmd/buildx/main.go:80
+main.main
+	github.com/docker/buildx/cmd/buildx/main.go:90
+runtime.main
+	runtime/proc.go:285
+runtime.goexit
+	runtime/asm_amd64.s:1693
+
+698021 v0.31.1-desktop.1 /home/ducsssanh/.docker/cli-plugins/docker-buildx buildx build --progress=plain --target oai-upf --build-arg BUILD_CPUSET=0-2 --build-arg GIT_COMMIT=qfi-f6d0516adf20 -f src/oai-upf/docker/Dockerfile.upf.ubuntu -t oai-lab-upf:qfi-f6d0516adf20 src/oai-upf
+google.golang.org/grpc.(*ClientConn).Invoke
+	google.golang.org/grpc@v1.76.0/call.go:35
+github.com/moby/buildkit/api/services/control.(*controlClient).Solve
+	github.com/moby/buildkit@v0.27.0/api/services/control/control_grpc.pb.go:88
+github.com/moby/buildkit/client.(*Client).solve.func2
+	github.com/moby/buildkit@v0.27.0/client/solve.go:319
+golang.org/x/sync/errgroup.(*Group).Go.func1
+	golang.org/x/sync@v0.19.0/errgroup/errgroup.go:93
+runtime.goexit
+	runtime/asm_amd64.s:1693
+
+698021 v0.31.1-desktop.1 /home/ducsssanh/.docker/cli-plugins/docker-buildx buildx build --progress=plain --target oai-upf --build-arg BUILD_CPUSET=0-2 --build-arg GIT_COMMIT=qfi-f6d0516adf20 -f src/oai-upf/docker/Dockerfile.upf.ubuntu -t oai-lab-upf:qfi-f6d0516adf20 src/oai-upf
+github.com/moby/buildkit/client.(*Client).solve.func2
+	github.com/moby/buildkit@v0.27.0/client/solve.go:321
+golang.org/x/sync/errgroup.(*Group).Go.func1
+	golang.org/x/sync@v0.19.0/errgroup/errgroup.go:93
+

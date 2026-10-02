@@ -1,0 +1,653 @@
+[2026-10-01 13:32:51.579] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:32:51.579] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:32:51.579] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:32:51.579] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:32:51.579] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:32:51.579] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:32:51.579] [amf_app] [info] 
+[2026-10-01 13:32:51.585] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:32:51.585] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:32:51.585] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:32:51.585] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:32:51.585] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:32:51.842] [sctp] [debug] SCTP Shutdown Event received
+[2026-10-01 13:32:51.842] [ngap] [debug] Handle a SCTP Shutdown event (association id: 54)
+[2026-10-01 13:32:51.842] [ngap] [debug] Sending ITTI SCTP Shutdown event to TASK_AMF_N2
+[2026-10-01 13:32:51.842] [amf_n2] [info] Received SCTP Shutdown Event, handling
+[2026-10-01 13:32:51.842] [amf_n2] [debug] Handle NG Shutdown ...
+[2026-10-01 13:32:51.842] [amf_app] [debug] Trigger PDU Session UP Deactivation towards SMF
+[2026-10-01 13:32:51.842] [amf_app] [debug] PDU Session ID 1
+[2026-10-01 13:32:51.842] [amf_app] [debug] Promise ID generated 23
+[2026-10-01 13:32:51.842] [amf_app] [debug] Sending ITTI to trigger PDUSessionUpdateSMContextRequest to SMF to task TASK_AMF_SBI
+[2026-10-01 13:32:51.842] [amf_sbi] [info] Receive Nsmf_PDUSessionUpdateSMContext, handling ...
+[2026-10-01 13:32:51.842] [amf_sbi] [debug] Send PDU Session Update SM Context Request to SMF (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 13:32:51.842] [amf_sbi] [debug] smf_info, context location http://10.244.1.169:80/nsmf-pdusession/v1/sm-contexts/6
+[2026-10-01 13:32:51.842] [amf_sbi] [debug] SMF URI: http://10.244.1.169:80/nsmf-pdusession/v1/sm-contexts/6/modify
+[2026-10-01 13:32:51.842] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:32:51.847] [common] [debug] Parsing the message with the Simple Parser
+[2026-10-01 13:32:51.847] [amf_sbi] [info] JSON part 
+[2026-10-01 13:32:51.847] [amf_sbi] [warning] Could not get JSON content from the response
+[2026-10-01 13:32:52.842] [amf_app] [warning] Could not get the HTTP response code
+[2026-10-01 13:32:52.842] [amf_app] [debug] The UE's state (IMSI 001010123456780, State 5GMM-DEREGISTERED) has been successfully updated!
+[2026-10-01 13:32:52.842] [amf_n2] [debug] Signal the UE Loss of Connectivity Event notification for SUPI imsi-001010123456780
+[2026-10-01 13:32:52.842] [amf_n1] [debug] Send request to SBI to trigger UE Loss of Connectivity (SUPI imsi-001010123456780 )
+[2026-10-01 13:32:52.842] [amf_n2] [debug] Removed UE NGAP context with ran_ue_ngap_id 1, gnb_id 3584
+[2026-10-01 13:32:52.842] [amf_n2] [debug] Removed UE NGAP context with amf_ue_ngap_id 6
+[2026-10-01 13:32:52.842] [amf_n2] [warning] No UE NGAP context with ran_ue_ngap_id 1, gnb_id 3584
+[2026-10-01 13:32:52.842] [amf_app] [debug] The gNB's info has been successfully updated!
+[2026-10-01 13:32:52.842] [amf_n2] [debug] Remove gNB with association id 54, gnb_id 0xe00
+[2026-10-01 13:32:52.842] [amf_app] [info] 
+[2026-10-01 13:32:53.828] [sctp] [debug] SCTP Association Change event received
+[2026-10-01 13:32:53.828] [sctp] [debug] Add new association with Id (60)
+[2026-10-01 13:32:53.828] [sctp] [info] ----------------------
+[2026-10-01 13:32:53.828] [sctp] [info] Local addresses: 
+[2026-10-01 13:32:53.828] [sctp] [info]     - IPv4 Addr: 172.30.22.10
+[2026-10-01 13:32:53.828] [sctp] [info] ----------------------
+[2026-10-01 13:32:53.828] [sctp] [info] Peer addresses: 
+[2026-10-01 13:32:53.828] [sctp] [info]     - IPv4 Addr: 172.30.22.20
+[2026-10-01 13:32:53.828] [sctp] [info] ----------------------
+[2026-10-01 13:32:53.828] [ngap] [debug] Ready to handle new NGAP SCTP association request (id 60)
+[2026-10-01 13:32:53.828] [ngap] [debug] Create a new gNB context with assoc_id (60)
+[2026-10-01 13:32:53.828] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 55) from port 33260, on stream 0, PPID 60
+[2026-10-01 13:32:53.828] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (0), instreams (2), outstreams (2)
+[2026-10-01 13:32:53.828] [ngap] [debug] Decoded NGAP message, procedure code 21, present 1
+[2026-10-01 13:32:53.828] [ngap] [debug] [gNB Assoc Id 60] Sending ITTI NG Setup Request message to TASK_AMF_N2
+[2026-10-01 13:32:53.828] [ngap] [debug] Received TAC 0x7
+[2026-10-01 13:32:53.828] [amf_n2] [info] Received NGSetupRequest message, handling
+[2026-10-01 13:32:53.828] [amf_n2] [debug] [gNB Assoc ID 60] Handle NG Setup Request...
+[2026-10-01 13:32:53.828] [amf_n2] [debug] Parameters: assoc_id 60, stream 0
+[2026-10-01 13:32:53.828] [amf_n2] [debug] Update gNB context with assoc id (60)
+[2026-10-01 13:32:53.828] [amf_n2] [debug] RAN Node Info, Global RAN Node ID: 0xe00, MCC 001, MNC 01
+[2026-10-01 13:32:53.828] [amf_n2] [debug] IE RanNodeName: gNB-OAI
+[2026-10-01 13:32:53.828] [amf_n2] [debug] IE DefaultPagingDRX: 0
+[2026-10-01 13:32:53.828] [amf_n2] [debug] TAC configured 7, TAC received 7
+[2026-10-01 13:32:53.828] [amf_n2] [debug] Common PLMN MCC 001, MNC 01
+[2026-10-01 13:32:53.828] [amf_n2] [debug] S-NSSAI from gNB (SST 1, SD FFFFFF)
+[2026-10-01 13:32:53.828] [amf_n2] [debug] S-NSSAI from AMF (SST 1, SD FFFFFF)
+[2026-10-01 13:32:53.828] [amf_n2] [debug] Common S-NSSAI (SST 1, SD FFFFFF)
+[2026-10-01 13:32:53.828] [amf_n2] [debug] GNB PLMN (001, 01) is included in the common PLMNs
+[2026-10-01 13:32:53.828] [amf_n2] [debug] Encoding NG_SETUP_RESPONSE ...
+[2026-10-01 13:32:53.829] [ngap] [debug] Encoded size (45)
+[2026-10-01 13:32:53.829] [sctp] [debug] [Socket 21, Assoc ID 60] Sending buffer 0x70f60400cb80 of 45 bytes on stream 0 with PPID 60
+[2026-10-01 13:32:53.829] [sctp] [debug] Successfully sent 45 bytes on stream 0
+[2026-10-01 13:32:53.829] [amf_n2] [debug] Sending NG_SETUP_RESPONSE Ok
+[2026-10-01 13:32:53.829] [amf_n2] [debug] gNB with gNB_id 0xe00, assoc_id 60 has been attached to AMF
+[2026-10-01 13:32:53.829] [amf_app] [debug] The gNB's info has been successfully updated!
+[2026-10-01 13:32:53.829] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:32:53.829] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:33:01.585] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:33:01.585] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:33:01.585] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:33:01.585] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:33:01.585] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:33:01.585] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:33:01.587] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:33:01.587] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:33:01.587] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:33:01.587] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:33:01.587] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:33:11.579] [amf_app] [info] 
+[2026-10-01 13:33:11.587] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:33:11.587] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:33:11.587] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:33:11.588] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:33:11.588] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:33:11.588] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:33:11.590] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:33:11.590] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:33:11.590] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:33:11.590] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:33:11.590] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:33:21.590] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:33:21.590] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:33:21.590] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:33:21.590] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:33:21.590] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:33:21.590] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:33:21.592] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:33:21.592] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:33:21.592] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:33:21.592] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:33:21.592] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:33:31.579] [amf_app] [info] 
+[2026-10-01 13:33:31.592] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:33:31.592] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:33:31.592] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:33:31.592] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:33:31.592] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:33:31.592] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:33:31.595] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:33:31.595] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:33:31.595] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:33:31.595] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:33:31.595] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:33:41.595] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:33:41.595] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:33:41.595] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:33:41.595] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:33:41.595] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:33:41.595] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:33:41.598] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:33:41.598] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:33:41.598] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:33:41.598] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:33:41.598] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:33:51.579] [amf_app] [info] 
+[2026-10-01 13:33:51.598] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:33:51.598] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:33:51.598] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:33:51.598] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:33:51.598] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:33:51.598] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:33:51.601] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:33:51.601] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:33:51.601] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:33:51.601] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:33:51.601] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:34:01.601] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:34:01.601] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:34:01.601] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:34:01.601] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:34:01.601] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:34:01.601] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:34:01.603] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:34:01.603] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:34:01.603] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:34:01.603] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:34:01.603] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:34:11.579] [amf_app] [info] 
+[2026-10-01 13:34:11.603] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:34:11.603] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:34:11.603] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:34:11.603] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:34:11.603] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:34:11.603] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:34:11.605] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:34:11.605] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:34:11.605] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:34:11.605] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:34:11.605] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:34:21.605] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:34:21.606] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:34:21.606] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:34:21.606] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:34:21.606] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:34:21.606] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:34:21.608] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:34:21.608] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:34:21.608] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:34:21.608] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:34:21.608] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:34:31.579] [amf_app] [info] 
+[2026-10-01 13:34:31.608] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:34:31.608] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:34:31.608] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:34:31.608] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:34:31.608] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:34:31.608] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:34:31.610] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:34:31.610] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:34:31.610] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:34:31.610] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:34:31.610] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:34:41.610] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:34:41.610] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:34:41.610] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:34:41.610] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:34:41.610] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:34:41.610] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:34:41.612] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:34:41.612] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:34:41.612] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:34:41.612] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:34:41.612] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:34:51.579] [amf_app] [info] 
+[2026-10-01 13:34:51.612] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:34:51.612] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:34:51.612] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:34:51.612] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:34:51.612] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:34:51.612] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:34:51.615] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:34:51.615] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:34:51.615] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:34:51.615] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:34:51.615] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:35:01.615] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:35:01.615] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:35:01.615] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:35:01.615] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:35:01.615] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:35:01.615] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:01.617] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:35:01.617] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:35:01.617] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:35:01.617] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:35:01.617] [amf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 13:35:11.152] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 76) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.152] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.152] [ngap] [debug] Decoded NGAP message, procedure code 15, present 1
+[2026-10-01 13:35:11.152] [ngap] [debug] [gNB Assoc ID 60] Sending ITTI Initial UE Message to TASK_AMF_N2
+[2026-10-01 13:35:11.152] [ngap] [debug] Received RanUeNgapId 1 
+[2026-10-01 13:35:11.152] [ngap] [debug] Received TAC 0x7
+[2026-10-01 13:35:11.152] [amf_n2] [info] Received Initial UE Message, handling
+[2026-10-01 13:35:11.152] [amf_n2] [debug] Handle Initial UE Message...
+[2026-10-01 13:35:11.152] [amf_n2] [debug] User Location Info NR (MCC 001, MNC 01, TAC 7) is included in the supported TA List
+[2026-10-01 13:35:11.152] [amf_n2] [warning] No UE NGAP context with ran_ue_ngap_id 1, gnb_id 3584
+[2026-10-01 13:35:11.152] [amf_n2] [debug] Create a new UE NGAP context with ran_ue_ngap_id 1
+[2026-10-01 13:35:11.152] [amf_n2] [debug] 5g_s_tmsi not present
+[2026-10-01 13:35:11.152] [amf_n2] [debug] Store InitialUEMessage for Reroute NAS (if necessary)
+[2026-10-01 13:35:11.152] [ngap] [debug] Encoded size (0)
+[2026-10-01 13:35:11.152] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.152] [amf_app] [debug] Received NAS_SIG_ESTAB_REQ
+[2026-10-01 13:35:11.152] [amf_app] [warning] No existing UE context associated with key app_ue_ranid_1:amfid_7
+[2026-10-01 13:35:11.152] [amf_app] [debug] No existing UE Context, Create a new one with ran_amf_id app_ue_ranid_1:amfid_7
+[2026-10-01 13:35:11.152] [amf_n1] [info] Received UL_NAS_DATA_IND
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Serving network name 5G:mnc001.mcc001.3gppnetwork.org
+[2026-10-01 13:35:11.152] [amf_n1] [warning] No NAS context with amf_ue_ngap_id 7
+[2026-10-01 13:35:11.152] [amf_n1] [warning] No existing nas_context with amf_ue_ngap_id 7
+[2026-10-01 13:35:11.152] [common] [debug] [amf_n1]Received Uplink NAS Message
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Received plain NAS message
+[2026-10-01 13:35:11.152] [common] [debug] [amf_n1]Decoded Plain Message
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Received NAS Signalling Establishment request...
+[2026-10-01 13:35:11.152] [amf_n1] [debug] No existing nas_context with amf_ue_ngap_id 7 --> Create a new one
+[2026-10-01 13:35:11.152] [amf_n1] [debug] NAS message type 0x41
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Received Registration Request message, handling...
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Received IMSI 001010123456780
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Signal the UE Reachability Status Event notification for SUPI imsi-001010123456780
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Send request to SBI to trigger UE Reachability Report (SUPI imsi-001010123456780 )
+[2026-10-01 13:35:11.152] [amf_n1] [info] Associating SUPI (imsi-001010123456780) with NAS context
+[2026-10-01 13:35:11.152] [amf_app] [debug] The UE's Info (IMSI 001010123456780) has been successfully updated!
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Set 5GMM state to COMM-PROC-INIT
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Existing nas_context --> Update
+[2026-10-01 13:35:11.152] [amf_app] [debug] The UE's Info (IMSI 001010123456780) has been successfully updated!
+[2026-10-01 13:35:11.152] [amf_app] [info] 
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Send request to SBI to trigger UE Registration State Report (SUPI imsi-001010123456780 )
+[2026-10-01 13:35:11.152] [amf_n1] [debug] NAS key set identifier: 0x7
+[2026-10-01 13:35:11.152] [amf_n1] [warning] No Optional IE 5GMMCapability available
+[2026-10-01 13:35:11.152] [amf_n1] [debug] No Optional IE RequestedNssai available
+[2026-10-01 13:35:11.152] [amf_n1] [debug] No Optional NAS Container inside Registration Request message
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Update UC context, SUPI imsi-001010123456780
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Start to run Registration Procedure
+[2026-10-01 13:35:11.152] [amf_n1] [debug] SUCI SUPI format IMSI is available
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Authentication vector in nas_context is not available
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Start to generate Authentication Vectors
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Get Authentication Vectors from AUSF
+[2026-10-01 13:35:11.152] [amf_n1] [debug] Promise ID generated 24
+[2026-10-01 13:35:11.152] [amf_sbi] [info] Receive UE Authentication Request message, handling ...
+[2026-10-01 13:35:11.152] [amf_sbi] [debug] Send UE Authentication Request to AUSF 
+[2026-10-01 13:35:11.152] [amf_sbi] [info] Send HTTP message to http://oai-ausf.oai-core.svc.cluster.local:80/nausf-auth/v1/ue-authentications
+[2026-10-01 13:35:11.152] [amf_sbi] [info] HTTP message Body: {"servingNetworkName":"5G:mnc001.mcc001.3gppnetwork.org","supiOrSuci":"imsi-001010123456780"}
+[2026-10-01 13:35:11.152] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.165] [amf_sbi] [info] Get response with HTTP code (201)
+[2026-10-01 13:35:11.165] [amf_app] [debug] Trigger process response: Set promise with ID 24 to ready
+[2026-10-01 13:35:11.165] [amf_n1] [debug] Got result for promise ID 24
+[2026-10-01 13:35:11.165] [amf_n1] [debug] Got UE Authentication from AUSF: {"5gAuthData":{"autn":"80bde536ff7e8000b4c4753bce9656a1","hxresStar":"b67945062c5174c4341d3c217383ea87","rand":"7bf60f33939add99675c0a92057a0eff"},"_links":{"5g-aka":{"href":"http://10.244.1.172:80/nausf-auth/v1/ue-authentications/80bde536ff7e8000b4c4753bce9656a1/5g-aka-confirmation"}},"authType":"5G_AKA"}
+[2026-10-01 13:35:11.165] [amf_app] [debug] Data 7bf60f33939add99675c0a92057a0eff (32 bytes)
+[2026-10-01 13:35:11.165] [amf_app] [debug] Data (formatted):
+[2026-10-01 13:35:11.165] [common] [debug] [amf_n1]5G AV: RAND
+[2026-10-01 13:35:11.165] [amf_app] [debug] Data 80bde536ff7e8000b4c4753bce9656a1 (32 bytes)
+[2026-10-01 13:35:11.165] [amf_app] [debug] Data (formatted):
+[2026-10-01 13:35:11.165] [common] [debug] [amf_n1]5G AV: AUTN
+[2026-10-01 13:35:11.165] [amf_app] [debug] Data b67945062c5174c4341d3c217383ea87 (32 bytes)
+[2026-10-01 13:35:11.165] [amf_app] [debug] Data (formatted):
+[2026-10-01 13:35:11.165] [common] [debug] [amf_n1]5G AV: hxres*
+[2026-10-01 13:35:11.165] [amf_n1] [info] Links is: http://10.244.1.172:80/nausf-auth/v1/ue-authentications/80bde536ff7e8000b4c4753bce9656a1/5g-aka-confirmation
+[2026-10-01 13:35:11.165] [amf_n1] [debug] Received Security Vectors, try to setup security with the UE
+[2026-10-01 13:35:11.165] [amf_n1] [debug] Starting Authentication procedure
+[2026-10-01 13:35:11.165] [amf_n1] [debug] Sending Authentication Request with RAND
+[2026-10-01 13:35:11.165] [common] [debug] [amf_n1]RAND
+[2026-10-01 13:35:11.165] [nas_mm] [debug] Size of Authentication Request message 42
+[2026-10-01 13:35:11.165] [common] [debug] [amf_n1]Authentication-Request message buffer
+[2026-10-01 13:35:11.165] [amf_n1] [debug] amf_ue_ngap_id 7
+[2026-10-01 13:35:11.165] [amf_n2] [info] Received Downlink NAS Transport message, handling
+[2026-10-01 13:35:11.165] [amf_n2] [debug] Handle DL NAS Transport ...
+[2026-10-01 13:35:11.165] [ngap] [debug] Encoded size (66)
+[2026-10-01 13:35:11.166] [sctp] [debug] [Socket 21, Assoc ID 60] Sending buffer 0x70f5f000c340 of 66 bytes on stream 1 with PPID 60
+[2026-10-01 13:35:11.166] [sctp] [debug] Successfully sent 66 bytes on stream 1
+[2026-10-01 13:35:11.166] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.220] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 64) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.220] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.220] [ngap] [debug] Decoded NGAP message, procedure code 46, present 1
+[2026-10-01 13:35:11.220] [ngap] [debug] Sending ITTI Uplink NAS Transport message to TASK_AMF_N2
+[2026-10-01 13:35:11.220] [ngap] [debug] Received TAC 0x7
+[2026-10-01 13:35:11.220] [amf_n2] [info] Received Uplink NAS Transport message, handling
+[2026-10-01 13:35:11.220] [amf_n2] [debug] Handle Uplink NAS Transport...
+[2026-10-01 13:35:11.220] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.220] [amf_n1] [info] Received UL_NAS_DATA_IND
+[2026-10-01 13:35:11.220] [amf_n1] [debug] Serving network name 5G:mnc001.mcc001.3gppnetwork.org
+[2026-10-01 13:35:11.220] [amf_n1] [debug] Existing nas_context with amf_ue_ngap_id 7
+[2026-10-01 13:35:11.220] [common] [debug] [amf_n1]Received Uplink NAS Message
+[2026-10-01 13:35:11.220] [amf_n1] [debug] Received plain NAS message
+[2026-10-01 13:35:11.220] [common] [debug] [amf_n1]Decoded Plain Message
+[2026-10-01 13:35:11.220] [amf_n1] [debug] Received Uplink NAS message...
+[2026-10-01 13:35:11.220] [amf_n1] [debug] Received Authentication Response message, handling...
+[2026-10-01 13:35:11.220] [amf_n1] [info] Found nas_context (0x70f5f4007af0) with amf_ue_ngap_id (7)
+[2026-10-01 13:35:11.220] [amf_n1] [debug] 5G AKA Confirmation from AUSF
+[2026-10-01 13:35:11.220] [common] [debug] [amf_n1]resStar
+[2026-10-01 13:35:11.220] [amf_n1] [info] resStar_s (72439C8CADA51B29D19C962FEFD4CCEB)
+[2026-10-01 13:35:11.220] [amf_n1] [debug] Promise ID generated 25
+[2026-10-01 13:35:11.220] [amf_sbi] [info] Receive UE Authentication Confirmation message, handling ...
+[2026-10-01 13:35:11.220] [amf_sbi] [debug] Send UE Authentication Confirmation to AUSF 
+[2026-10-01 13:35:11.220] [amf_sbi] [info] Send HTTP message to http://10.244.1.172:80/nausf-auth/v1/ue-authentications/80bde536ff7e8000b4c4753bce9656a1/5g-aka-confirmation
+[2026-10-01 13:35:11.220] [amf_sbi] [info] HTTP message Body: {"resStar":"72439C8CADA51B29D19C962FEFD4CCEB"}
+[2026-10-01 13:35:11.220] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.232] [amf_sbi] [info] Get response with HTTP code (200)
+[2026-10-01 13:35:11.232] [amf_app] [debug] Trigger process response: Set promise with ID 25 to ready
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Got result for promise ID 25
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Got ConfirmationDataResponse from AUSF: {"authResult":"AUTHENTICATION_SUCCESS","kseaf":"83d6aefdd49c44089d6bdec6c63b0e58202aad45cf3589016d78723c0ed0b5e3","supi":"imsi-001010123456780"}
+[2026-10-01 13:35:11.232] [amf_app] [debug] Data 83d6aefdd49c44089d6bdec6c63b0e58202aad45cf3589016d78723c0ed0b5e3 (64 bytes)
+[2026-10-01 13:35:11.232] [amf_app] [debug] Data (formatted):
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]5G AV: kseaf
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Deriving Kamf
+[2026-10-01 13:35:11.232] [amf_n1] [debug] derive_kamf ...
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]Kamf
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Authentication successful by network!
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Start Security Mode Control procedure
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Using IntegrityProtectedWithNewSecurityContext for SecurityModeControl message
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Selected AMF NEA: 0x0
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Selected AMF NIA: 0x1
+[2026-10-01 13:35:11.232] [amf_n1] [debug] derive_knas ...
+[2026-10-01 13:35:11.232] [amf_n1] [debug] derive_knas ...
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Encoded ngKSI 0x1
+[2026-10-01 13:35:11.232] [nas_mm] [debug] Size of Security Mode Command message 14
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]Security-Mode-Command message buffer
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Security Context status (is new:  true)
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Encoding nas_message_protected...
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]Parameters for NIA: Knas_int
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Parameters for NIA, count: 0x0
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Parameters for NIA, bearer: 0x1
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Parameters for NIA, direction: 0x1
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]Parameters for NIA, message: 
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Integrity with algorithms: 128-5G-IA1
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]Result for NIA1, mac: 
+[2026-10-01 13:35:11.232] [amf_n1] [debug] Result for NIA1, mac32: 0xf08259a3
+[2026-10-01 13:35:11.232] [amf_n1] [debug] mac32: 0xf08259a3
+[2026-10-01 13:35:11.232] [common] [debug] [amf_n1]Encrypted Security-Mode-Command message buffer
+[2026-10-01 13:35:11.232] [amf_n2] [info] Received Downlink NAS Transport message, handling
+[2026-10-01 13:35:11.232] [amf_n2] [debug] Handle DL NAS Transport ...
+[2026-10-01 13:35:11.232] [ngap] [debug] Encoded size (45)
+[2026-10-01 13:35:11.232] [sctp] [debug] [Socket 21, Assoc ID 60] Sending buffer 0x70f5f4009a30 of 45 bytes on stream 1 with PPID 60
+[2026-10-01 13:35:11.232] [sctp] [debug] Successfully sent 45 bytes on stream 1
+[2026-10-01 13:35:11.232] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.290] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 100) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.290] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.290] [ngap] [debug] Decoded NGAP message, procedure code 46, present 1
+[2026-10-01 13:35:11.290] [ngap] [debug] Sending ITTI Uplink NAS Transport message to TASK_AMF_N2
+[2026-10-01 13:35:11.290] [ngap] [debug] Received TAC 0x7
+[2026-10-01 13:35:11.290] [amf_n2] [info] Received Uplink NAS Transport message, handling
+[2026-10-01 13:35:11.290] [amf_n2] [debug] Handle Uplink NAS Transport...
+[2026-10-01 13:35:11.290] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.290] [amf_n1] [info] Received UL_NAS_DATA_IND
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Serving network name 5G:mnc001.mcc001.3gppnetwork.org
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Existing nas_context with amf_ue_ngap_id 7
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]Received Uplink NAS Message
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Received integrity protected and ciphered with new security context NAS message
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]Parameters for NIA: Knas_int
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Uplink count in uplink: 0
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Parameters for NIA, count: 0x0
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Parameters for NIA, bearer: 0x1
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Parameters for NIA, direction: 0x0
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]Parameters for NIA, message: 
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Integrity with algorithms: 128-5G-IA1
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]Result for NIA1, mac: 
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Result for NIA1, mac32: 0x5a583ce3
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Received mac32 (0x5a583ce3) from the message
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Integrity matched
+[2026-10-01 13:35:11.290] [amf_n1] [debug] nsc.ul_count.overflow 0
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Cipher protected with EA0_5G
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]Decoded Plain Message
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Received Uplink NAS message...
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Received Security Mode Complete message, handling...
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Handling Security Mode Complete ...
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]Security Mode Complete message buffer
+[2026-10-01 13:35:11.290] [nas_mm] [debug] Stored IMEISV in the NAS Context: 6754567890123413
+[2026-10-01 13:35:11.290] [common] [debug] [amf_n1]NAS Message Container
+[2026-10-01 13:35:11.290] [amf_n1] [debug] NAS Message Container, Message Type 0x41
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Registration Request in NAS Message Container
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Optional IE RequestedNssai is not present
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Optional IE UplinkDataStatus is not present
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Optional IE PDUSessionStatus is not present
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Verifying whether this AMF can handle the request...
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Get the Slice Selection Subscription Data from UDM
+[2026-10-01 13:35:11.290] [amf_n1] [debug] Promise ID generated 26
+[2026-10-01 13:35:11.290] [amf_sbi] [info] Receive Slice Selection Subscription Data Retrieval Request, handling ...
+[2026-10-01 13:35:11.290] [amf_sbi] [debug] Send Slice Selection Subscription Data Retrieval to UDM 
+[2026-10-01 13:35:11.291] [amf_sbi] [info] Send HTTP message to http://oai-udm.oai-core.svc.cluster.local:80/nudm-sdm/v1/imsi-001010123456780/nssai?plmn-id={"mcc":"001","mnc":"01"}
+[2026-10-01 13:35:11.291] [amf_sbi] [info] HTTP message Body: 
+[2026-10-01 13:35:11.291] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.297] [amf_sbi] [info] Get response with HTTP code (200)
+[2026-10-01 13:35:11.297] [amf_app] [debug] Trigger process response: Set promise with ID 26 to ready
+[2026-10-01 13:35:11.297] [amf_n1] [debug] Got NSSAI from UDM: {"defaultSingleNssais":[{"sd":"ffffff","sst":1}]}
+[2026-10-01 13:35:11.297] [amf_n1] [debug] Verifying whether this AMF can handle Requested/Subscribed S-NSSAIs
+[2026-10-01 13:35:11.297] [amf_n1] [debug] PLMN info: {"mcc":"001","mnc":"01","slice_list":[{"sd":"FFFFFF","sst":1}],"tac":7}
+[2026-10-01 13:35:11.297] [amf_n1] [debug] Find the common NSSAIs between Requested NSSAIs and Subscribed NSSAIs
+[2026-10-01 13:35:11.297] [amf_n1] [debug] Found S-NSSAI (SST 1, SD ffffff)
+[2026-10-01 13:35:11.297] [amf_n1] [debug] Current AMF can handle the Requested/Subscribed NSSAIs, no need to perform AMF Re-allocation procedure
+[2026-10-01 13:35:11.297] [amf_app] [debug] AMF registers for 3GPP access with UDM
+[2026-10-01 13:35:11.298] [amf_sbi] [info] Receive AMF Registration for 3GPP Access message, handling ...
+[2026-10-01 13:35:11.298] [amf_sbi] [debug] Send AMF Registration for 3GPP Access towards UDM
+[2026-10-01 13:35:11.298] [amf_app] [debug] Discovering PCF for the UE
+[2026-10-01 13:35:11.298] [amf_app] [debug] Perform AM Policy Association with PCF for the UE
+[2026-10-01 13:35:11.298] [amf_sbi] [info] Send HTTP message to http://oai-udm.oai-core.svc.cluster.local:80/nudm-uecm/v1/imsi-001010123456780/registrations/amf-3gpp-access
+[2026-10-01 13:35:11.298] [amf_sbi] [info] HTTP message Body: {"amfInstanceId":"cef00275-cc0c-4c96-9267-dcc1fedbb477","deregCallbackUri":"10.244.1.173:80/namf-callback/v1v1/imsi-001010123456780/deregistration-notification","guami":{"amfId":"010000","plmnId":{"mcc":"001","mnc":"01"}},"initialRegistrationInd":true,"ratType":"NR"}
+[2026-10-01 13:35:11.298] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.298] [amf_n2] [debug] Getting common S-NSSAIs between gNB and AMF
+[2026-10-01 13:35:11.298] [amf_n2] [debug] Getting common S-NSSAIs between gNB and AMF
+[2026-10-01 13:35:11.298] [amf_n2] [debug] Common S-NSSAI (SST 0x1, SD FFFFFF)
+[2026-10-01 13:35:11.298] [amf_n2] [debug] Common S-NSSAI (SST 1, SD 16777215)
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Allowed S-NSSAI (SST 0x1, SD 0xffffff)
+[2026-10-01 13:35:11.298] [amf_app] [debug] Random number generated: 3933645133
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Allocated GUTI 001010100003933645133 (TMSI 3933645133)
+[2026-10-01 13:35:11.298] [nas_mm] [debug] Size of Registration Accept message 49
+[2026-10-01 13:35:11.298] [common] [debug] [amf_n1]Registration-Accept message buffer
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Encoding nas_message_protected...
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Cipher protected with EA0_5G
+[2026-10-01 13:35:11.298] [common] [debug] [amf_n1]Parameters for NIA: Knas_int
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Parameters for NIA, count: 0x1
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Parameters for NIA, bearer: 0x1
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Parameters for NIA, direction: 0x1
+[2026-10-01 13:35:11.298] [common] [debug] [amf_n1]Parameters for NIA, message: 
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Integrity with algorithms: 128-5G-IA1
+[2026-10-01 13:35:11.298] [common] [debug] [amf_n1]Result for NIA1, mac: 
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Result for NIA1, mac32: 0x72db4e2a
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Derive Kgnb ...
+[2026-10-01 13:35:11.298] [common] [debug] [amf_n1]Kamf
+[2026-10-01 13:35:11.298] [amf_n1] [info] UE (IMSI 001010123456780, GUTI 001010100003933645133, current RAN ID 1, current AMF ID 7) has been registered to the network
+[2026-10-01 13:35:11.298] [amf_app] [debug] The UE's state (IMSI 001010123456780, State 5GMM-REGISTERED) has been successfully updated!
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Set 5GMM state to 5GMM-REGISTERED
+[2026-10-01 13:35:11.298] [amf_n2] [info] Received Initial Context Setup Request message, handling
+[2026-10-01 13:35:11.298] [amf_app] [info] 
+[2026-10-01 13:35:11.298] [amf_n2] [debug] Handle Initial Context Setup Request ...
+[2026-10-01 13:35:11.298] [nas_mm] [debug] Set IMEISV InitialContextSetupRequestMsg: 6754567890123413
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Signal the UE Location Report Event notification for SUPI imsi-001010123456780
+[2026-10-01 13:35:11.298] [amf_n1] [debug] Signal the UE Connectivity Status Event notification for SUPI imsi-001010123456780
+[2026-10-01 13:35:11.298] [ngap] [debug] Encoded size (164)
+[2026-10-01 13:35:11.298] [sctp] [debug] [Socket 21, Assoc ID 60] Sending buffer 0x70f604007760 of 164 bytes on stream 1 with PPID 60
+[2026-10-01 13:35:11.298] [sctp] [debug] Successfully sent 164 bytes on stream 1
+[2026-10-01 13:35:11.298] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.303] [amf_sbi] [info] Get response with HTTP code: 404
+[2026-10-01 13:35:11.303] [amf_sbi] [debug] Get response with body
+[2026-10-01 13:35:11.303] [amf_sbi] [info] Receive AM Policy Association message, handling ...
+[2026-10-01 13:35:11.303] [amf_sbi] [debug] Send AM Policy Association to PCF
+[2026-10-01 13:35:11.303] [amf_sbi] [info] Send HTTP message to /npcf-am-policy-control/v1/policies
+[2026-10-01 13:35:11.303] [amf_sbi] [info] HTTP message Body: {"notificationUri":"10.244.1.173:80/namf-callback/v1v1/imsi-001010123456780/PolicyUpdateNotification","supi":"imsi-001010123456780","suppFeat":""}
+[2026-10-01 13:35:11.303] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.304] [amf_sbi] [warning] Cannot get response when calling /npcf-am-policy-control/v1/policies
+[2026-10-01 13:35:11.304] [amf_sbi] [info] Get response with HTTP code: 0
+[2026-10-01 13:35:11.304] [amf_sbi] [debug] Get response with body
+[2026-10-01 13:35:11.424] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 38) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.424] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.424] [ngap] [debug] Decoded NGAP message, procedure code 44, present 1
+[2026-10-01 13:35:11.424] [ngap] [debug] Sending ITTI UE Radio Capability Indication to TASK_AMF_N2
+[2026-10-01 13:35:11.424] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 19) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.424] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.424] [amf_n2] [info] Received UE Radio Capability Indication message, handling
+[2026-10-01 13:35:11.424] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.424] [ngap] [debug] Decoded NGAP message, procedure code 14, present 2
+[2026-10-01 13:35:11.424] [ngap] [debug] Handling Initial Context Setup Response
+[2026-10-01 13:35:11.424] [ngap] [debug] Decode PduSessionResourceSetupResponseList IE error or this IE is not available
+[2026-10-01 13:35:11.424] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.484] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 53) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.484] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.484] [ngap] [debug] Decoded NGAP message, procedure code 46, present 1
+[2026-10-01 13:35:11.484] [ngap] [debug] Sending ITTI Uplink NAS Transport message to TASK_AMF_N2
+[2026-10-01 13:35:11.484] [ngap] [debug] Received TAC 0x7
+[2026-10-01 13:35:11.484] [amf_n2] [info] Received Uplink NAS Transport message, handling
+[2026-10-01 13:35:11.484] [amf_n2] [debug] Handle Uplink NAS Transport...
+[2026-10-01 13:35:11.484] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.484] [amf_n1] [info] Received UL_NAS_DATA_IND
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Serving network name 5G:mnc001.mcc001.3gppnetwork.org
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Existing nas_context with amf_ue_ngap_id 7
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Received Uplink NAS Message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received integrity protected and ciphered NAS message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received integrity protected with new security context NAS message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received integrity protected and ciphered with new security context NAS message
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Parameters for NIA: Knas_int
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Uplink count in uplink: 1
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Parameters for NIA, count: 0x0
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Parameters for NIA, bearer: 0x1
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Parameters for NIA, direction: 0x0
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Parameters for NIA, message: 
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Integrity with algorithms: 128-5G-IA1
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Result for NIA1, mac: 
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Result for NIA1, mac32: 0xe7fb5cab
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received mac32 (0xe7fb5cab) from the message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Integrity matched
+[2026-10-01 13:35:11.484] [amf_n1] [debug] nsc.ul_count.overflow 0
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Cipher protected with EA0_5G
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Decoded Plain Message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received Uplink NAS message...
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received Registration Complete message, handling...
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received Registration Complete message, processing
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Do not sending Configuration Update Command in this version!
+[2026-10-01 13:35:11.484] [sctp] [info] [Assoc_id 60, Socket 21] Received a message (length 80) from port 33260, on stream 1, PPID 60
+[2026-10-01 13:35:11.484] [ngap] [debug] Handling SCTP payload from SCTP Server on assoc_id (60), stream_id (1), instreams (2), outstreams (2)
+[2026-10-01 13:35:11.484] [ngap] [debug] Decoded NGAP message, procedure code 46, present 1
+[2026-10-01 13:35:11.484] [ngap] [debug] Sending ITTI Uplink NAS Transport message to TASK_AMF_N2
+[2026-10-01 13:35:11.484] [ngap] [debug] Received TAC 0x7
+[2026-10-01 13:35:11.484] [amf_n2] [info] Received Uplink NAS Transport message, handling
+[2026-10-01 13:35:11.484] [amf_n2] [debug] Handle Uplink NAS Transport...
+[2026-10-01 13:35:11.484] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.484] [amf_n1] [info] Received UL_NAS_DATA_IND
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Serving network name 5G:mnc001.mcc001.3gppnetwork.org
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Existing nas_context with amf_ue_ngap_id 7
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Received Uplink NAS Message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received integrity protected and ciphered NAS message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received integrity protected with new security context NAS message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received integrity protected and ciphered with new security context NAS message
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Parameters for NIA: Knas_int
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Uplink count in uplink: 2
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Parameters for NIA, count: 0x1
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Parameters for NIA, bearer: 0x1
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Parameters for NIA, direction: 0x0
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Parameters for NIA, message: 
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Integrity with algorithms: 128-5G-IA1
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Result for NIA1, mac: 
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Result for NIA1, mac32: 0x67973d51
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received mac32 (0x67973d51) from the message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Integrity matched
+[2026-10-01 13:35:11.484] [amf_n1] [debug] nsc.ul_count.overflow 0
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Cipher protected with EA0_5G
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Decoded Plain Message
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received Uplink NAS message...
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Received UL NAS Transport message, handling...
+[2026-10-01 13:35:11.484] [amf_n1] [debug] Handling UL NAS Transport
+[2026-10-01 13:35:11.484] [amf_n1] [debug] S_NSSAI for this PDU Session SST 0x1
+[2026-10-01 13:35:11.484] [common] [debug] [amf_n1]Decoded DNN Bit String
+[2026-10-01 13:35:11.484] [amf_sbi] [info] Running ITTI_SMF_PDU_SESSION_CREATE_SM_CTX
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] Handle ITTI SMF_PDU_SESSION_CREATE_SM_CTX
+[2026-10-01 13:35:11.484] [amf_sbi] [info] Find ue_context in amf_app using UE Context Key: app_ue_ranid_1:amfid_7
+[2026-10-01 13:35:11.484] [amf_app] [warning] No PDU Session Context with PDU Session ID 1
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] Create a PDU Session Context
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] PDU Session Context, NSSAI SST (0x1) SD FFFFFF
+[2026-10-01 13:35:11.484] [common] [debug] [amf_sbi]DNN Bit String
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] Requested DNN: nist-dnn
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] NRF NF Discover URI: http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-disc/v1/nf-instances
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] Send NFDiscovery to NRF to discover the available SMFs
+[2026-10-01 13:35:11.484] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-disc/v1/nf-instances?target-nf-type=SMF&requester-nf-type=AMF
+[2026-10-01 13:35:11.484] [amf_sbi] [info] HTTP message Body: 
+[2026-10-01 13:35:11.484] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.487] [amf_sbi] [info] Get response with HTTP code (200)
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] S-NSSAI [SST- 1, SD -FFFFFF] is matched for SMF profile
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] NFDiscovery, SMF Info: Addr 10.244.1.169, Port 80, API Version v1
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] Decoded PTI for PDUSessionEstablishmentRequest(0x1)
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] Handle PDU Session Establishment Request (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] SMF's URI: 10.244.1.169:80/nsmf-pdusession/v1/sm-contexts
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] Message body {"anType":"3GPP_ACCESS","dnn":"nist-dnn","epsInterworkingInd":"NONE","gpsi":"msisdn-10000000000","guami":{"amfId":"010000","plmnId":{"mcc":"001","mnc":"01"}},"n1SmMsg":{"contentId":"n1SmMsg"},"pduSessionId":1,"pei":"imeisv-8670000000000001","ratType":"NR","requestType":"INITIAL_REQUEST","sNssai":{"sd":"FFFFFF","sst":1},"selMode":"VERIFIED","servingNetwork":{"mcc":"001","mnc":"01"},"servingNfId":"cef00275-cc0c-4c96-9267-dcc1fedbb477","smContextStatusUri":"http://10.244.1.173:80/namf-status-notify/v1/pdu-session-release/callback/imsi-001010123456780/1","supi":"imsi-001010123456780","ueLocation":{"nrLocation":{"ncgi":{"nrCellId":"0000e014e","plmnId":{"mcc":"001","mnc":"01"}},"tai":{"plmnId":{"mcc":"001","mnc":"01"},"tac":"7"}}}}
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] Buffer: 2e0101c1ffff91
+[2026-10-01 13:35:11.487] [common] [debug] Input string (14 bytes): 2e0101c1ffff91 
+[2026-10-01 13:35:11.487] [common] [debug] Data (formatted):
+[2026-10-01 13:35:11.487] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.489] [common] [debug] Parsing the message with the Simple Parser
+[2026-10-01 13:35:11.489] [amf_sbi] [info] JSON part 
+[2026-10-01 13:35:11.489] [amf_sbi] [info] Location of the created SMF context: http://10.244.1.169:80/nsmf-pdusession/v1/sm-contexts/7
+[2026-10-01 13:35:11.489] [amf_sbi] [warning] Could not get JSON content from the response
+[2026-10-01 13:35:11.496] [amf_server] [debug] Received a N1N2MessageTrasfer request with ue_ctx_id imsi-001010123456780
+[2026-10-01 13:35:11.496] [common] [debug] Parsing the message with the Simple Parser
+[2026-10-01 13:35:11.496] [common] [debug] Boundary: ----Boundary
+[2026-10-01 13:35:11.496] [common] [debug] Content Type: application/json
+[2026-10-01 13:35:11.496] [common] [debug] Content Id: root
+[2026-10-01 13:35:11.496] [common] [debug] Body: {"n1MessageContainer":{"n1MessageClass":"SM","n1MessageContent":{"contentId":"n1SmMsg"}},"n1n2FailureTxfNotifURI":"http://10.244.1.169:80/nsmf-pdusession/v1/callback/N1N2MsgTxfrFailureNotification/imsi-001010123456780","n2InfoContainer":{"n2InformationClass":"SM","smInfo":{"n2InfoContent":{"ngapData":{"contentId":"n2msg"},"ngapIeType":"PDU_RES_SETUP_REQ"},"pduSessionId":1,"sNssai":{"sd":"ffffff","sst":1}}},"pduSessionId":1}
+[2026-10-01 13:35:11.496] [common] [debug] Content Type: application/vnd.3gpp.5gnas
+[2026-10-01 13:35:11.496] [common] [debug] Content Id: n1SmMsg
+[2026-10-01 13:35:11.496] [common] [debug] Body: .Â
+[2026-10-01 13:35:11.496] [common] [debug] Content Type: application/vnd.3gpp.ngap
+[2026-10-01 13:35:11.496] [common] [debug] Content Id: n2msg
+[2026-10-01 13:35:11.496] [common] [debug] Body: 
+[2026-10-01 13:35:11.496] [amf_server] [debug] Number of MIME parts 3
+[2026-10-01 13:35:11.496] [amf_server] [debug] MIME part: root (size 427 bytes)
+[2026-10-01 13:35:11.496] [amf_server] [debug] MIME part: n1SmMsg (size 88 bytes)
+[2026-10-01 13:35:11.496] [amf_server] [debug] MIME part: n2msg (size 47 bytes)
+[2026-10-01 13:35:11.496] [amf_server] [debug] Receive N1N2MessageTransfer Request, handling...
+[2026-10-01 13:35:11.496] [amf_server] [debug] SUPI imsi-001010123456780
+[2026-10-01 13:35:11.496] [amf_server] [debug] N2InfoContainer is present, handling...
+[2026-10-01 13:35:11.496] [amf_server] [debug] N2 Information Class: SM
+[2026-10-01 13:35:11.496] [amf_server] [debug] n2_content_id: n2msg
+[2026-10-01 13:35:11.496] [amf_server] [debug] NGAP IE Type: PDU_RES_SETUP_REQ
+[2026-10-01 13:35:11.496] [amf_server] [debug] Key for PDU Session Context: SUPI (imsi-001010123456780)
+[2026-10-01 13:35:11.496] [common] [debug] Data input
+[2026-10-01 13:35:11.496] [amf_app] [debug] Msg hex 0000040082000a0c3e800000303e800000008b000a01f0ac1e170a0000000700860001000088000700010000090000
+[2026-10-01 13:35:11.497] [amf_server] [debug] N1MessageContainer is present, handling...
+[2026-10-01 13:35:11.497] [amf_server] [debug] Key for PDU Session Context: SUPI (imsi-001010123456780)
+[2026-10-01 13:35:11.497] [amf_server] [debug] N1 Content Id: n1SmMsg
+[2026-10-01 13:35:11.497] [common] [debug] Data input
+[2026-10-01 13:35:11.497] [amf_app] [debug] Msg hex 2e0101c2110009010006312101010001060603e80603e82905010a010005220101817900060120410101097b000d80000d04ac15036400100205dc251b086e6973742d646e6e056d6e633031066d63633030310467707273
+[2026-10-01 13:35:11.497] [common] [debug] [amf_server]Received N1 SM
+[2026-10-01 13:35:11.497] [amf_app] [debug] Received N1N2_MESSAGE_TRANSFER_REQ
+[2026-10-01 13:35:11.497] [amf_app] [info] Handle ITTI N1N2 Message Transfer Request
+[2026-10-01 13:35:11.497] [nas_mm] [debug] Size of DL NAS Transport message 96
+[2026-10-01 13:35:11.497] [common] [debug] [amf_app]N1N2 message transfer
+[2026-10-01 13:35:11.497] [amf_n1] [info] Received DOWNLINK_NAS_TRANSFER
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Encoding nas_message_protected...
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Cipher protected with EA0_5G
+[2026-10-01 13:35:11.497] [common] [debug] [amf_n1]Parameters for NIA: Knas_int
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Parameters for NIA, count: 0x2
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Parameters for NIA, bearer: 0x1
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Parameters for NIA, direction: 0x1
+[2026-10-01 13:35:11.497] [common] [debug] [amf_n1]Parameters for NIA, message: 
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Integrity with algorithms: 128-5G-IA1
+[2026-10-01 13:35:11.497] [common] [debug] [amf_n1]Result for NIA1, mac: 
+[2026-10-01 13:35:11.497] [amf_n1] [debug] Result for NIA1, mac32: 0x30a13574
+[2026-10-01 13:35:11.497] [amf_n2] [info] Received PDU Session Resource Setup Request message, handling
+[2026-10-01 13:35:11.497] [amf_n2] [debug] Handle PDU Session Resource Setup Request ...
+[2026-10-01 13:35:11.497] [amf_n2] [debug] SUPI (imsi-001010123456780)
+[2026-10-01 13:35:11.497] [amf_n2] [debug] S_NSSAI (SST, SD) 1, FFFFFF
+[2026-10-01 13:35:11.497] [ngap] [debug] Encoded message size ( 196 )
+[2026-10-01 13:35:11.497] [common] [debug] [amf_n2]N2 SM buffer data:
+[2026-10-01 13:35:11.497] [amf_n2] [debug]  (196 bytes) 
+[2026-10-01 13:35:11.497] [sctp] [debug] [Socket 21, Assoc ID 60] Sending buffer 0x70f60400ed40 of 196 bytes on stream 1 with PPID 60
+[2026-10-01 13:35:11.497] [sctp] [debug] Successfully sent 196 bytes on stream 1
+[2026-10-01 13:35:11.497] [ngap] [debug] Free NGAP Message PDU
+[2026-10-01 13:35:11.579] [amf_app] [info] 
+[2026-10-01 13:35:11.617] [amf_app] [debug] Send ITTI msg to SBI task to trigger NRF Heartbeat
+[2026-10-01 13:35:11.617] [amf_sbi] [info] Receive Update NF Instance Request, handling ...
+[2026-10-01 13:35:11.617] [amf_sbi] [debug] Send NF Update to NRF
+[2026-10-01 13:35:11.617] [amf_sbi] [info] Send HTTP message to http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cef00275-cc0c-4c96-9267-dcc1fedbb477
+[2026-10-01 13:35:11.617] [amf_sbi] [info] HTTP message Body: [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}]
+[2026-10-01 13:35:11.617] [amf_sbi] [debug] Send a simple HTTP request
+[2026-10-01 13:35:11.619] [amf_sbi] [info] Get response with HTTP code (204)
+[2026-10-01 13:35:11.619] [amf_sbi] [info] Could not get JSON content from the response
+[2026-10-01 13:35:11.619] [amf_app] [debug] Received SBI_UPDATE_NF_INSTANCE_RESPONSE
+[2026-10-01 13:35:11.619] [amf_app] [debug] Handle NF Update response
+[2026-10-01 13:35:11.619] [amf_app] [debug] Set a timer to the next Heart-beat (10)

@@ -1,0 +1,25 @@
+# Source build, sequential. No dependency on legacy launchers or 5gdeploy.
+FROM ubuntu:24.04 AS flexric-builder
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential gcc-13 g++-13 cmake ninja-build make git sudo python3 python3-dev python3-pip pkg-config autoconf automake libtool bison flex swig libsctp-dev libpcre2-dev libssl-dev libconfig-dev libfftw3-dev libgmp-dev libyaml-cpp-dev libboost-all-dev libblas-dev liblapack-dev liblapacke-dev libjson-c-dev libcurl4-openssl-dev libczmq-dev libzmq3-dev libelf-dev libdw-dev libmicrohttpd-dev libsqlite3-dev zlib1g-dev xxd wget ca-certificates
+RUN git clone https://github.com/mouse07410/asn1c /tmp/asn1c && cd /tmp/asn1c && git checkout 940dd5fa9f3917913fd487b13dfddfacd0ded06e && autoreconf -iv && CFLAGS="-O2 -fno-strict-aliasing" ./configure --prefix=/opt/asn1c && make -j2 && make install && rm -rf /tmp/asn1c
+ENV PATH=/opt/asn1c/bin:$PATH
+COPY src/flexric /source/flexric
+RUN rm -rf /source/flexric/build && cmake -S /source/flexric -B /source/flexric/build -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DCMAKE_INSTALL_PREFIX=/opt/oai -DUNIT_TEST=FALSE && cmake --build /source/flexric/build -j2 --target nearRT-RIC xapp_kpm_moni_write_to_csv mac_sm rlc_sm pdcp_sm slice_sm tc_sm gtp_sm kpm_sm rc_sm && cmake --install /source/flexric/build
+FROM flexric-builder AS xapp
+RUN mkdir -p /opt/oai/bin /opt/oai/sm && cp /source/flexric/build/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv /opt/oai/bin/ && cp -a /opt/oai/lib/flexric/*.so /opt/oai/sm/
+ENV LD_LIBRARY_PATH=/opt/oai/lib:/opt/oai/lib/flexric
+WORKDIR /opt/oai
+
+FROM flexric-builder AS builder
+COPY src/oai-ran /source/ran
+RUN rm -rf /source/ran/cmake_targets/ran_build && cd /source/ran/cmake_targets && ./build_oai --ninja -I -w SIMU
+RUN cd /source/ran/cmake_targets && ./build_oai --build-tool-opt -j2 --ninja --nrUE -w SIMU && ./build_oai --build-tool-opt -j2 --ninja --gNB -w SIMU --build-e2 --cmake-opt -DE2AP_VERSION=E2AP_V3 --cmake-opt -DKPM_VERSION=KPM_V3_00
+RUN mkdir -p /opt/oai/bin /opt/oai/sm /opt/oai/ran && cp /source/ran/cmake_targets/ran_build/build/nr-softmodem /source/ran/cmake_targets/ran_build/build/nr-uesoftmodem /opt/oai/bin/ && cp -a /source/ran/cmake_targets/ran_build/build/*.so /opt/oai/ran/ && cp /source/flexric/build/examples/ric/nearRT-RIC /source/flexric/build/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv /opt/oai/bin/ && cp -a /opt/oai/lib/flexric/*.so /opt/oai/sm/
+# Retain matching runtime libraries from this build environment. Optimization later.
+FROM builder AS radio
+RUN apt-get install -y --no-install-recommends iproute2 iperf procps python3-yaml && cp /source/flexric/build/28_552_kpm_meas.txt /tmp/kpm.txt && rm -rf /var/lib/apt/lists/* /source && mkdir -p /source/flexric/build && mv /tmp/kpm.txt /source/flexric/build/28_552_kpm_meas.txt
+COPY deploy/k8s/images/radio-entrypoint.sh /opt/lab/radio-entrypoint.sh
+ENV LD_LIBRARY_PATH=/opt/oai/ran:/opt/oai/lib:/opt/oai/lib/flexric
+WORKDIR /opt/oai/ran
+ENTRYPOINT ["/opt/lab/radio-entrypoint.sh"]

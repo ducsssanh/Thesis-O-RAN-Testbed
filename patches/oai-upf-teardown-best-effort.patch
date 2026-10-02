@@ -1,0 +1,253 @@
+--- a/src/upf_app/user/wrappers/BPFMap.hpp
++++ b/src/upf_app/user/wrappers/BPFMap.hpp
+@@ -199,6 +199,18 @@
+   int Remove(KeyType& key);
+ 
+   /**
++   * @brief Best-effort delete for teardown paths
++   *
++   * Unlike Remove(), never throws. A missing key (ENOENT) means the entry is
++   * already gone and is not an error; any other failure is logged so the
++   * caller can continue cleaning the remaining maps.
++   *
++   * @return true if an entry was deleted, false if absent or on error
++   */
++  template<class KeyType>
++  bool RemoveIfPresent(KeyType& key);
++
++  /**
+    * @brief Get the name of the BPF map
+    *
+    * Returns the human-readable name assigned during construction.
+@@ -275,6 +287,23 @@
+   return ret;
+ }
+ 
++//------------------------------------------------------------------------------
++template<class KeyType>
++bool BPFMap::RemoveIfPresent(KeyType& key) {
++  int map_fd = bpf_map__fd(bpf_map_);
++  if (bpf_map_delete_elem(map_fd, &key) == 0) {
++    Logger::upf_app().debug(
++        "Remove value from Map '%s': [%s] -> *", name_.c_str(),
++        upf::utils::FormatBPFValue(key).c_str());
++    return true;
++  }
++  if (errno != ENOENT) {
++    Logger::upf_app().error(
++        "Failed to remove key from map '%s': errno=%d (%s)", name_.c_str(),
++        errno, strerror(errno));
++  }
++  return false;
++}
+ 
+ //------------------------------------------------------------------------------
+ template<class KeyType>
+--- a/src/upf_app/user/pdr_match_user.h
++++ b/src/upf_app/user/pdr_match_user.h
+@@ -8,7 +8,10 @@
+ #include <ProgramLifeCycle.hpp>
+ #include <linux/bpf.h>
+ #include <cstdint>
++#include <cstring>
+ #include <memory>
++#include <pipeline_types.h>
++#include <sdf_types.h>
+ #include <vector>
+ #include <xdp_pdr_match_skel.h>
+ #include <wrappers/BPFMap.hpp>
+@@ -39,14 +42,13 @@
+ };
+ 
+ /**
+- * @struct pdr_rule_key
+- * @brief Compound BPF map key: {seid, pdr_id}.
++ * @brief Compound key of rules_match_pdr_map: the kernel's own struct.
++ *
++ * Must be byte-identical to the key the datapath and CreatePipeline use
++ * ({u16 pdr_id; u64 seid}, naturally aligned). A separate packed
++ * {seid, pdr_id} definition made every delete hit the wrong entry.
+  */
+-struct pdr_rule_key {
+-  uint64_t seid;
+-  uint32_t pdr_id;
+-  uint32_t _pad;
+-} __attribute__((packed));
++using pdr_rule_key = struct pdrs_per_session;
+ 
+ /**
+  * @class PdrMatchProgram
+@@ -155,6 +157,14 @@
+       uint64_t seid, const std::vector<std::shared_ptr<pfcp::pfcp_pdr>>& pdrs);
+ 
+   /**
++   * @brief Delete every entry of @p seid from @p map.
++   * @tparam Key the map's exact key type; must have a `seid` member.
++   * @return number of entries deleted
++   */
++  template<class Key>
++  static size_t SweepSeid(const std::shared_ptr<BPFMap>& map, uint64_t seid);
++
++  /**
+    * @brief Populate sdf_filters_map for a single PDR.
+    *
+    * @param seid  PFCP session identifier.
+--- a/src/upf_app/user/pdr_match_user.cpp
++++ b/src/upf_app/user/pdr_match_user.cpp
+@@ -8,6 +8,7 @@
+ #include <wrappers/BPFMap.hpp>
+ #include <wrappers/BPFMaps.h>
+ #include "logger.hpp"
++#include "common_root_types.h"
+ #include "upf_xdp_limits.h"
+ #include "utils/bpf_utils.hpp"
+ #include "SdfFilterParser.hpp"
+@@ -157,10 +158,11 @@
+ 
+ //------------------------------------------------------------------------------
+ pdr_rule_key PdrMatchProgram::MakePdrKey(uint64_t seid, uint32_t pdr_id) {
++  // Hash keys compare every byte, including the padding after pdr_id.
+   pdr_rule_key k;
++  std::memset(&k, 0, sizeof(k));
++  k.pdr_id = static_cast<decltype(k.pdr_id)>(pdr_id);
+   k.seid   = seid;
+-  k.pdr_id = pdr_id;
+-  k._pad   = 0;
+   return k;
+ }
+ 
+@@ -212,14 +214,56 @@
+ }
+ 
+ //------------------------------------------------------------------------------
++template<class Key>
++size_t PdrMatchProgram::SweepSeid(
++    const std::shared_ptr<BPFMap>& map, uint64_t seid) {
++  if (!map) return 0;
++  // Collect first: deleting while iterating a hash map can restart or skip.
++  std::vector<Key> stale;
++  Key cur;
++  Key next;
++  std::memset(&cur, 0, sizeof(cur));
++  std::memset(&next, 0, sizeof(next));
++  int fd    = map->GetFd();
++  bool have = bpf_map_get_next_key(fd, nullptr, &next) == 0;
++  while (have) {
++    if (next.seid == seid) stale.push_back(next);
++    cur  = next;
++    have = bpf_map_get_next_key(fd, &cur, &next) == 0;
++  }
++  size_t removed = 0;
++  for (auto& key : stale) removed += map->RemoveIfPresent(key) ? 1 : 0;
++  return removed;
++}
++
++//------------------------------------------------------------------------------
+ void PdrMatchProgram::RemovePdrRulesMaps(
+     uint64_t seid, const std::vector<std::shared_ptr<pfcp::pfcp_pdr>>& pdrs) {
++  // Best-effort teardown: a missing key is normal and must not abort the rest.
++  Logger::upf_app().debug(
++      "RemovePdrRulesMaps: seid " SEID_FMT " with %zu PDR(s)", seid,
++      pdrs.size());
+   for (const auto& pdr : pdrs) {
+     if (!pdr) continue;
+     pdr_rule_key key = MakePdrKey(seid, pdr->pdr_id.rule_id);
+-    if (rules_match_map_) rules_match_map_->Remove(key);
+-    if (sdf_filter_map_) sdf_filter_map_->Remove(key);
++    if (rules_match_map_ && !rules_match_map_->RemoveIfPresent(key)) {
++      Logger::upf_app().debug(
++          "RemovePdrRulesMaps: PDR %u of seid " SEID_FMT " already absent",
++          pdr->pdr_id.rule_id, seid);
++    }
++  }
++  if (session_pdrs_map_) session_pdrs_map_->RemoveIfPresent(seid);
++
++  // Sweep what the PDR list no longer names (e.g. PDRs removed by an earlier
++  // Session Modification). sdf_filters_map is keyed by {seid, qfi}, not by
++  // PDR, so it is only cleaned here. SEIDs are reused: a leftover entry
++  // would be inherited by the next session with this SEID.
++  size_t swept = SweepSeid<pdr_rule_key>(rules_match_map_, seid) +
++                 SweepSeid<struct session_qfi>(sdf_filter_map_, seid);
++  if (swept > 0) {
++    Logger::upf_app().warn(
++        "RemovePdrRulesMaps: swept %zu stale entries for seid " SEID_FMT,
++        swept, seid);
+   }
+-  if (session_pdrs_map_) session_pdrs_map_->Remove(seid);
+ }
+ 
+--- a/src/upf_app/control/SessionProgramManager.cpp
++++ b/src/upf_app/control/SessionProgramManager.cpp
+@@ -172,20 +172,27 @@
+         current_key = next_key;
+         have_key = session_map->GetNextKey(current_key, next_key) == 0;
+       }
+-      for (auto& key : keys_to_remove) session_map->Remove(key);
++      for (auto& key : keys_to_remove) session_map->RemoveIfPresent(key);
+     }
+ 
+     // Remove the session PDR array plus per-PDR rule and SDF entries while
+     // the PFCP session still carries the list of PDR IDs.
+     auto pdr_program = upf_xdp_program->GetPdrMatchProgram();
+     if (pdr_program) {
+-      pdr_program->RemovePdrRulesMaps(seid, session->pdrs);
++      // session->pdrs is already empty at deletion time; the datapath was
++      // built from the UL/DL lists, so tear down from those.
++      std::vector<std::shared_ptr<pfcp::pfcp_pdr>> pdrs(
++          session->pdrs_uplink.begin(), session->pdrs_uplink.end());
++      pdrs.insert(
++          pdrs.end(), session->pdrs_downlink.begin(),
++          session->pdrs_downlink.end());
++      pdr_program->RemovePdrRulesMaps(seid, pdrs);
+     }
+ 
+     auto rules_en_map =
+         upf_xdp_program->GetMapByName("session_rules_enabled_map");
+     if (rules_en_map) {
+-      rules_en_map->Remove(seid);
++      rules_en_map->RemoveIfPresent(seid);
+     }
+ 
+     // Clean up ETH-specific maps if this was an ETH PDU session
+@@ -195,22 +202,22 @@
+         Logger::upf_app().debug(
+             "Cleaning up ETH PDU maps for seid " SEID_FMT, seid);
+         auto eth_pdrs = upf_xdp_program->GetMapByName("eth_session_pdrs_map");
+-        if (eth_pdrs) eth_pdrs->Remove(seid);
++        if (eth_pdrs) eth_pdrs->RemoveIfPresent(seid);
+       }
+       session_pdu_type_map_.erase(pdu_type_it);
+     }
+ 
+     // Clean up URR/BAR/MAR dedicated config + runtime state maps
+     auto urr_cfg_map = upf_xdp_program->GetMapByName("urr_config_map");
+-    if (urr_cfg_map) urr_cfg_map->Remove(seid);
++    if (urr_cfg_map) urr_cfg_map->RemoveIfPresent(seid);
+     auto urr_vol_map = upf_xdp_program->GetMapByName("urr_volume_counters_map");
+-    if (urr_vol_map) urr_vol_map->Remove(seid);
++    if (urr_vol_map) urr_vol_map->RemoveIfPresent(seid);
+     auto bar_cfg_map = upf_xdp_program->GetMapByName("bar_config_map");
+-    if (bar_cfg_map) bar_cfg_map->Remove(seid);
++    if (bar_cfg_map) bar_cfg_map->RemoveIfPresent(seid);
+     auto bar_st_map = upf_xdp_program->GetMapByName("bar_state_map");
+-    if (bar_st_map) bar_st_map->Remove(seid);
++    if (bar_st_map) bar_st_map->RemoveIfPresent(seid);
+     auto mar_map = upf_xdp_program->GetMapByName("mar_rules_map");
+-    if (mar_map) mar_map->Remove(seid);
++    if (mar_map) mar_map->RemoveIfPresent(seid);
+   }
+ 
+   // Clean up ARP caches
+--- a/src/upf_app/simpleswitch/pfcp_far.cpp
++++ b/src/upf_app/simpleswitch/pfcp_far.cpp
+@@ -108,7 +108,9 @@
+ bool pfcp_far::update(
+     const pfcp::update_far& updated_far, uint8_t& cause_value) {
+   // 3GPP TS 29.244 V17.10.0 Table 7.5.4.3-1 — Update FAR IEs
+-  set(updated_far.apply_action.second);  // §8.2.26 — Sxa+Sxb+Sxc+N4+N4mb (C)
++  // §8.2.26 — Sxa+Sxb+Sxc+N4+N4mb (C). Conditional: an Update FAR without
++  // Apply Action keeps the current action (it must not reset it to 0).
++  if (updated_far.apply_action.first) set(updated_far.apply_action.second);
+ 
+   if (updated_far.update_forwarding_parameters.first) {
+     // Update Forwarding Parameters — grouped IE type=11, Table 7.5.4.3-2

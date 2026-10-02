@@ -1,0 +1,21 @@
+[
+  {
+    "xdp": [
+      {
+        "devname": "n3",
+        "ifindex": 3,
+        "mode": "generic",
+        "id": 5296
+      },
+      {
+        "devname": "n6",
+        "ifindex": 5,
+        "mode": "generic",
+        "id": 5303
+      }
+    ],
+    "tc": [],
+    "flow_dissector": [],
+    "netfilter": []
+  }
+]

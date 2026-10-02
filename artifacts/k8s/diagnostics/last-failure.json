@@ -1,0 +1,5 @@
+{
+  "command": "up",
+  "error": "Command failed: minikube ['--profile', 'oai-lab']\n",
+  "time": "2026-10-01T08:47:06.611552+00:00"
+}

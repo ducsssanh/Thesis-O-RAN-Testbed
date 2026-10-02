@@ -1,0 +1,158 @@
+Name:             oai-smf-665cb7cfbc-sdv46
+Namespace:        oai-lab
+Priority:         0
+Service Account:  default
+Node:             oai-lab/192.168.49.2
+Start Time:       Sun, 27 Sep 2026 20:25:17 +0700
+Labels:           app.kubernetes.io/instance=oai-lab
+                  app.kubernetes.io/name=oai-smf
+                  oai-lab/component=smf
+                  pod-template-hash=665cb7cfbc
+Annotations:      k8s.v1.cni.cncf.io/network-status:
+                    [{
+                        "name": "bridge",
+                        "interface": "eth0",
+                        "ips": [
+                            "10.244.0.59"
+                        ],
+                        "mac": "4e:4d:f6:7d:eb:5b",
+                        "default": true,
+                        "dns": {},
+                        "gateway": [
+                            "10.244.0.1"
+                        ]
+                    },{
+                        "name": "oai-lab/oai-smf-n4",
+                        "interface": "n4",
+                        "ips": [
+                            "172.30.24.10"
+                        ],
+                        "mac": "e2:2c:86:0e:e2:ab",
+                        "dns": {}
+                    }]
+                  k8s.v1.cni.cncf.io/networks: [{"interface":"n4","name":"oai-smf-n4"}]
+                  oai-lab/config-checksum: a87ae88ccfe8c88da5892083a01970af66369d20994803bcf66c9b4a5cd79536
+Status:           Running
+IP:               10.244.0.59
+IPs:
+  IP:           10.244.0.59
+Controlled By:  ReplicaSet/oai-smf-665cb7cfbc
+Init Containers:
+  prepare:
+    Container ID:  containerd://ec3ba36aa39dc0e8e766f7ee95289fc61ca35cf05128f5bea5af1eae9bc07fe8
+    Image:         oai-lab-tools:b715742212936699
+    Image ID:      sha256:b95d7ff1cf74429101c13ad39a6bafd41b9b19a6d171a4a5503c8c15e4939b87
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      python3
+      /opt/lab/runtime.py
+      prepare
+      smf
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Sun, 27 Sep 2026 20:25:20 +0700
+      Finished:     Sun, 27 Sep 2026 20:25:20 +0700
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      POD_IP:        (v1:status.podIP)
+      DB_PASSWORD:  <set to the key 'DB_PASSWORD' in secret 'oai-lab-credentials'>  Optional: false
+    Mounts:
+      /config from runtime (rw)
+      /input from config (ro)
+Containers:
+  smf:
+    Container ID:  containerd://03a76fcf82f8137cb822e13ef0138a1f892d85c596a14f8d5e6c1300bd476b43
+    Image:         oai-lab-smf:v2.2.0-ie43-771248b5
+    Image ID:      sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /openair-smf/bin/oai_smf
+      -c
+      /config/config.yaml
+      -o
+    State:          Running
+      Started:      Sun, 27 Sep 2026 20:25:22 +0700
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     2
+      memory:  1Gi
+    Requests:
+      cpu:        100m
+      memory:     256Mi
+    Readiness:    exec [sh -c awk '$2 ~ /:0050$/ && $4 == "0A" {ok=1} END {exit !ok}' /proc/net/tcp /proc/net/tcp6] delay=0s timeout=1s period=5s #success=1 #failure=3
+    Startup:      exec [sh -c awk '$2 ~ /:0050$/ && $4 == "0A" {ok=1} END {exit !ok}' /proc/net/tcp /proc/net/tcp6] delay=0s timeout=1s period=2s #success=1 #failure=90
+    Environment:  <none>
+    Mounts:
+      /config from runtime (ro)
+  capture:
+    Container ID:  containerd://1f4257471b0ab035c4418479782e0496633784dfd8685dbd73d9a8dddaaa478a
+    Image:         oai-lab-tools:b715742212936699
+    Image ID:      sha256:b95d7ff1cf74429101c13ad39a6bafd41b9b19a6d171a4a5503c8c15e4939b87
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      python3
+      /opt/lab/runtime.py
+      capture
+    State:          Running
+      Started:      Sun, 27 Sep 2026 20:25:25 +0700
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Sun, 27 Sep 2026 20:25:22 +0700
+      Finished:     Sun, 27 Sep 2026 20:25:24 +0700
+    Ready:          True
+    Restart Count:  1
+    Limits:
+      cpu:     250m
+      memory:  256Mi
+    Requests:
+      cpu:        25m
+      memory:     64Mi
+    Environment:  <none>
+    Mounts:
+      /artifacts from artifacts (rw)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      oai-lab-config
+    Optional:  false
+  runtime:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     Memory
+    SizeLimit:  <unset>
+  artifacts:
+    Type:        PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:   oai-lab-artifacts
+    ReadOnly:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason          Age                From               Message
+  ----    ------          ----               ----               -------
+  Normal  Scheduled       57s                default-scheduler  Successfully assigned oai-lab/oai-smf-665cb7cfbc-sdv46 to oai-lab
+  Normal  AddedInterface  55s                multus             Add eth0 [10.244.0.59/16] from bridge
+  Normal  AddedInterface  54s                multus             Add n4 [172.30.24.10/24] from oai-lab/oai-smf-n4
+  Normal  Pulled          54s                kubelet            spec.initContainers{prepare}: Container image "oai-lab-tools:b715742212936699" already present on machine
+  Normal  Created         54s                kubelet            spec.initContainers{prepare}: Created container: prepare
+  Normal  Started         54s                kubelet            spec.initContainers{prepare}: Started container prepare
+  Normal  Pulled          52s                kubelet            spec.containers{smf}: Container image "oai-lab-smf:v2.2.0-ie43-771248b5" already present on machine
+  Normal  Created         52s                kubelet            spec.containers{smf}: Created container: smf
+  Normal  Started         52s                kubelet            spec.containers{smf}: Started container smf
+  Normal  Pulled          49s (x2 over 52s)  kubelet            spec.containers{capture}: Container image "oai-lab-tools:b715742212936699" already present on machine
+  Normal  Created         49s (x2 over 52s)  kubelet            spec.containers{capture}: Created container: capture
+  Normal  Started         49s (x2 over 52s)  kubelet            spec.containers{capture}: Started container capture

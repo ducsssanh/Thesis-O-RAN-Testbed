@@ -1,0 +1,9 @@
+==> Linting /home/ducsssanh/6G/O-RAN/DATN/Codebase/deploy/k8s/chart
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+Build preflight passed.
+Building oai-lab-tools:30e854d39b1192d1
+Building oai-lab-upf:30e854d39b1192d1
+Building oai-lab-radio:30e854d39b1192d1
+Building oai-lab-smf:v2.2.0-ie43-771248b5

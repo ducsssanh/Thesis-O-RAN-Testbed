@@ -1,0 +1,70 @@
+dnns:
+  - dnn: 'nist-dnn'
+    ipv4_subnet: '10.1.0.0/16'
+    pdu_session_type: 'IPV4'
+http_version: 2
+log_level:
+  general: 'debug'
+nfs:
+  nrf:
+    host: '172.25.162.13'
+    sbi:
+      api_version: 'v1'
+      interface_name: 'eth0'
+      port: 8582
+  smf:
+    host: '172.25.162.8'
+    n4:
+      interface_name: 'eth0'
+      port: 8805
+    sbi:
+      api_version: 'v1'
+      interface_name: 'eth0'
+      port: 8582
+  upf:
+    host: '172.25.162.21'
+    n3:
+      interface_name: 'n3'
+      port: 2152
+    n4:
+      interface_name: 'n4'
+      port: 8805
+    n6:
+      interface_name: 'n6'
+    n9:
+      interface_name: 'n9'
+      port: 2152
+    sbi:
+      api_version: 'v1'
+      interface_name: 'cp'
+      port: 8582
+register_nf:
+  general: true
+snssais:
+  - sd: 'FFFFFF'
+    sst: 1
+upf:
+  remote_n6_gw: '172.25.161.2'
+  smfs:
+    - host: '172.25.163.8'
+  support_features:
+    enable_bpf_datapath: true
+    enable_snat: false
+    enable_urr: true
+  upf_info:
+    sNssaiUpfInfoList:
+      - dnnUpfInfoList:
+          - dnn: 'nist-dnn'
+        sNssai:
+          sd: 'FFFFFF'
+          sst: 1
+amf:
+  plmn_support_list:
+    - nssai:
+        - null
+smf:
+  local_subscription_infos:
+    - null
+  smf_info:
+    sNssaiSmfInfoList:
+      - null

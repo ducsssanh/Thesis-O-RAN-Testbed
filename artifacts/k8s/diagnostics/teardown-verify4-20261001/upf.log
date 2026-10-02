@@ -1,0 +1,1740 @@
+Defaulted container "upf" out of: upf, prepare (init)
+
+                  [94m▓▓▓▓▓▓[97m╗  [94m▓▓▓▓▓[97m╗ [94m▓▓[97m╗  [92m▓▓  [97m▓▓  [97m▓▓[92m▓▓▓▓  [92m▓▓[97m▓▓[92m▓▓[97m▓▓[0m
+                 [94m▓▓[97m╔═══[94m▓▓[97m╗[94m▓▓[97m╔══[94m▓▓[97m╗[94m▓▓[97m║  [97m▓▓  [92m▓▓  [92m▓▓  [97m▓▓  [92m▓▓      [0m
+                 [94m▓▓[97m║   [94m▓▓[97m║[94m▓▓▓▓▓▓▓[97m║[94m▓▓[97m║  [92m▓▓  [97m▓▓  [97m▓▓[92m▓▓▓▓  [92m▓▓▓▓[97m▓▓  [0m
+                 [94m▓▓[97m║   [94m▓▓[97m║[94m▓▓[97m╔══[94m▓▓[97m║[94m▓▓[97m║  [97m▓▓  [92m▓▓  [92m▓▓      [97m▓▓      [0m
+                 [97m╚[94m▓▓▓▓▓▓[97m╔╝[94m▓▓[97m║  [94m▓▓[97m║[94m▓▓[97m║  [92m▓▓[97m▓▓[92m▓▓  [92m▓▓      [97m▓▓  [33mv3.0[0m
+                  [97m╚═════╝ ╚═╝  ╚═╝╚═╝[0m
+                 [2;37m───────────────────────────────────────────────────────────────[0m
+                 [96mOpenAirInterface[2;37m  ·  [92mUser Plane Function[2;37m  ·  [92m5G Core · N4[0m
+                 [37m3GPP TS 29.244  ·  PFCP V17.10.0  ·  Release 17[0m
+                 [33m© OpenAirInterface Software Alliance[0m
+
+Trying to read .yaml configuration file: /config/config.yaml
+LTTNG Tracing disabled at build-time!
+[2026-10-01 11:58:28.136] [upf_app] [start] ==============================================================================
+[2026-10-01 11:58:28.136] [upf_app] [start]                      5G User Plane Function (UPF)
+[2026-10-01 11:58:28.136] [upf_app] [start]                         OpenAirInterface
+[2026-10-01 11:58:28.136] [upf_app] [start]                       3GPP Rel-17 Compliant
+[2026-10-01 11:58:28.136] [upf_app] [start] ==============================================================================
+[2026-10-01 11:58:28.136] [upf_app] [start] 
+[2026-10-01 11:58:28.136] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-10-01 11:58:28.136] [upf_app] [start] │                           VERSION INFORMATION                               │
+[2026-10-01 11:58:28.136] [upf_app] [start] ├──────────────────────────────┬──────────────────────────────────────────────┤
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Git Branch                   │                                              │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Git Commit Hash              │                                              │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Git Commit Date              │                                              │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Build Time                   │ 2026-10-01 09:50:31                          │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ 3GPP Release                 │ Rel-17                                       │
+[2026-10-01 11:58:28.136] [upf_app] [start] ├──────────────────────────────┼──────────────────────────────────────────────┤
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Kernel Version               │ 6.8.1-1060-realtime                          │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ libbpf Version               │ 1.5                                          │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Compiler                     │ GCC 11.4.0                                   │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Architecture                 │ x86_64                                       │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ System Uptime                │ 0d 1h 31m                                    │
+[2026-10-01 11:58:28.136] [upf_app] [start] │ UPF Process Uptime           │ 0d 0h 0m                                     │
+[2026-10-01 11:58:28.136] [upf_app] [start] ├──────────────────────────────┼──────────────────────────────────────────────┤
+[2026-10-01 11:58:28.136] [upf_app] [start] │ Bug Reports                  │ openaircn-user@lists.eurecom.fr              │
+[2026-10-01 11:58:28.136] [upf_app] [start] └──────────────────────────────┴──────────────────────────────────────────────┘
+[2026-10-01 11:58:28.136] [upf_app] [start] 
+[2026-10-01 11:58:28.136] [upf_app] [start] Options parsed
+[2026-10-01 11:58:28.137] [config ] [info] Reading NF configuration from /config/config.yaml
+[2026-10-01 11:58:28.142] [config ] [debug] Unknown NF amf in configuration. Ignored
+[2026-10-01 11:58:28.142] [config ] [debug] Unknown NF ausf in configuration. Ignored
+[2026-10-01 11:58:28.142] [config ] [debug] Unknown NF udm in configuration. Ignored
+[2026-10-01 11:58:28.142] [config ] [debug] Unknown NF udr in configuration. Ignored
+[2026-10-01 11:58:28.142] [config ] [debug] Validating configuration of log_level
+[2026-10-01 11:58:28.142] [config ] [debug] Validating configuration of register_nf
+[2026-10-01 11:58:28.142] [config ] [debug] Validating configuration of http_version
+[2026-10-01 11:58:28.142] [config ] [debug] Validating configuration of http_request_timeout
+[2026-10-01 11:58:28.142] [config ] [debug] Validating configuration of NRF
+[2026-10-01 11:58:28.143] [config ] [debug] Validating configuration of SMF
+[2026-10-01 11:58:28.143] [config ] [debug] Validating configuration of UPF Configuration
+[2026-10-01 11:58:28.144] [config ] [debug] Validating configuration of DNN
+[2026-10-01 11:58:28.144] [config ] [debug] Validating configuration of database
+[2026-10-01 11:58:28.144] [common] [debug] Resolving a DNS (name 172.30.26.10)
+[2026-10-01 11:58:28.144] [common] [debug] Resolving DNS Try #0
+[2026-10-01 11:58:28.144] [common] [debug] Resolved a DNS (name 172.30.26.10, protocol http): Ip Addr 172.30.26.10, port 80
+[2026-10-01 11:58:28.144] [config ] [info] Datapath configuration transferred: max_pdu_sessions=100, max_upf_interfaces=4, max_arp_entries=256
+[2026-10-01 11:58:28.144] [config ] [debug] PDN Network validation for UE Subnet:  10.1.0.0 
+[2026-10-01 11:58:28.144] [config ] [debug] IP Pool :  10.1.0.1 - 10.1.255.254
+[2026-10-01 11:58:28.144] [config ] [info] ==== OPENAIRINTERFACE upf vBranch:  Abrev. Hash:  Date:  ====
+[2026-10-01 11:58:28.144] [config ] [info] Basic Configuration:
+[2026-10-01 11:58:28.144] [config ] [info]   - log_level..................................: debug
+[2026-10-01 11:58:28.144] [config ] [info]   - register_nf................................: Yes
+[2026-10-01 11:58:28.144] [config ] [info]   - http_version...............................: 1
+[2026-10-01 11:58:28.144] [config ] [info]   TLS:
+[2026-10-01 11:58:28.144] [config ] [info]     - Enable TLS.................................: No
+[2026-10-01 11:58:28.144] [config ] [info]   - HTTP Request Timeout.......................: 3000 (ms)
+[2026-10-01 11:58:28.144] [config ] [info] UPF Configuration:
+[2026-10-01 11:58:28.144] [config ] [info]   - host.......................................: 10.244.1.152
+[2026-10-01 11:58:28.144] [config ] [info]   - SBI
+[2026-10-01 11:58:28.144] [config ] [info]     + URL......................................: 10.244.1.152:80
+[2026-10-01 11:58:28.144] [config ] [info]     + API Version..............................: v1
+[2026-10-01 11:58:28.144] [config ] [info]     + IPv4 Address ............................: 10.244.1.152
+[2026-10-01 11:58:28.144] [config ] [info]   - N3:
+[2026-10-01 11:58:28.144] [config ] [info]     + Port.....................................: 2152
+[2026-10-01 11:58:28.144] [config ] [info]     + IPv4 Address ............................: 172.30.23.10
+[2026-10-01 11:58:28.144] [config ] [info]     + MTU......................................: 1500
+[2026-10-01 11:58:28.144] [config ] [info]     + Interface name: .........................: n3
+[2026-10-01 11:58:28.144] [config ] [info]     + Network Instance.........................: access.oai.org
+[2026-10-01 11:58:28.144] [config ] [info]   - N4:
+[2026-10-01 11:58:28.144] [config ] [info]     + Port.....................................: 8805
+[2026-10-01 11:58:28.144] [config ] [info]     + IPv4 Address ............................: 172.30.24.20
+[2026-10-01 11:58:28.144] [config ] [info]     + MTU......................................: 1500
+[2026-10-01 11:58:28.144] [config ] [info]     + Interface name: .........................: n4
+[2026-10-01 11:58:28.144] [config ] [info]   - N6:
+[2026-10-01 11:58:28.144] [config ] [info]     + Port.....................................: 2152
+[2026-10-01 11:58:28.144] [config ] [info]     + IPv4 Address ............................: 172.30.26.20
+[2026-10-01 11:58:28.144] [config ] [info]     + MTU......................................: 1500
+[2026-10-01 11:58:28.144] [config ] [info]     + Interface name: .........................: n6
+[2026-10-01 11:58:28.144] [config ] [info]     + Network Instance.........................: core.oai.org
+[2026-10-01 11:58:28.144] [config ] [info]   - Instance ID................................: 0
+[2026-10-01 11:58:28.144] [config ] [info]   - Remote N6 Gateway..........................: 172.30.26.10
+[2026-10-01 11:58:28.144] [config ] [info]   - Support Features:
+[2026-10-01 11:58:28.144] [config ] [info]     XDP mode: skb
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable BPF Datapath......................: Yes
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable QoS Enforcement  (QER)............: No
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable Usage Reporting  (URR)............: Yes
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable Buffering Action (BAR)............: No
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable Multi Access     (MAR)............: No
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable SNAT..............................: No
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable Framed Routing....................: No
+[2026-10-01 11:58:28.144] [config ] [info]     + Enable Ethernet PDU Sessions.............: No
+[2026-10-01 11:58:28.144] [config ] [info]   + upf_info:
+[2026-10-01 11:58:28.144] [config ] [info]     - snssai_upf_info_item:
+[2026-10-01 11:58:28.144] [config ] [info]       + snssai:
+[2026-10-01 11:58:28.144] [config ] [info]         - sst..................................: 1
+[2026-10-01 11:58:28.144] [config ] [info]         - sd...................................: ffffff
+[2026-10-01 11:58:28.145] [config ] [info]       + dnns:
+[2026-10-01 11:58:28.145] [config ] [info]         - dnn..................................: nist-dnn
+[2026-10-01 11:58:28.145] [config ] [info] Peer NF Configuration:
+[2026-10-01 11:58:28.145] [config ] [info]   NRF:
+[2026-10-01 11:58:28.145] [config ] [info]     - host.....................................: oai-nrf.oai-core.svc.cluster.local
+[2026-10-01 11:58:28.145] [config ] [info]     - SBI
+[2026-10-01 11:58:28.145] [config ] [info]       + URL....................................: oai-nrf.oai-core.svc.cluster.local:80
+[2026-10-01 11:58:28.145] [config ] [info]       + API Version............................: v1
+[2026-10-01 11:58:28.145] [config ] [info]   SMF:
+[2026-10-01 11:58:28.145] [config ] [info]     - host.....................................: oai-smf.oai-core.svc.cluster.local
+[2026-10-01 11:58:28.145] [config ] [info]     - SBI
+[2026-10-01 11:58:28.145] [config ] [info]       + URL....................................: oai-smf.oai-core.svc.cluster.local:80
+[2026-10-01 11:58:28.145] [config ] [info]       + API Version............................: v1
+[2026-10-01 11:58:28.145] [config ] [info] DNNs:
+[2026-10-01 11:58:28.145] [config ] [info] - DNN:
+[2026-10-01 11:58:28.145] [config ] [info]     + DNN......................................: nist-dnn
+[2026-10-01 11:58:28.145] [config ] [info]     + PDU session type.........................: IPV4
+[2026-10-01 11:58:28.145] [config ] [info]     + IPv4 subnet..............................: 10.1.0.0/16
+[2026-10-01 11:58:28.145] [config ] [info]     + DNS Settings:
+[2026-10-01 11:58:28.145] [config ] [info]       - primary_dns_ipv4.......................: 8.8.8.8
+[2026-10-01 11:58:28.145] [config ] [info]       - secondary_dns_ipv4.....................: 1.1.1.1
+[2026-10-01 11:58:28.145] [upf_app] [info] HTTP Client successfully initiated on interface eth0 with timeout 3000 ms, HTTP version 1
+[2026-10-01 11:58:28.145] [common] [start] Starting...
+[2026-10-01 11:58:28.145] [common] [start] Started
+[2026-10-01 11:58:28.145] [asc_cmd] [start] Starting...
+[2026-10-01 11:58:28.145] [common] [info] Starting timer_manager_task
+[2026-10-01 11:58:28.146] [asc_cmd] [start] Started
+[2026-10-01 11:58:28.146] [upf_app] [start] UPF initialization started
+[2026-10-01 11:58:28.147] [udp    ] [debug] Creating new listen socket on address 172.30.24.20 and port 8805
+
+[2026-10-01 11:58:28.147] [udp    ] [debug] udp_server::udp_server(172.30.24.20:8805)
+[2026-10-01 11:58:28.147] [udp    ] [debug] Creating new listen socket on address 172.30.24.20 and port 0
+
+[2026-10-01 11:58:28.147] [udp    ] [debug] udp_server::udp_server(172.30.24.20:0)
+[2026-10-01 11:58:28.147] [pfcp   ] [info] pfcp_l4_stack created listening to 172.30.24.20:8805
+[2026-10-01 11:58:28.147] [upf_n4 ] [start] Starting...
+[2026-10-01 11:58:28.148] [upf_n4 ] [start] Started
+[2026-10-01 11:58:28.148] [upf_app] [start] Starting...
+[2026-10-01 11:58:28.149] [upf_app] [debug] - NF instance info
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Instance ID: cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Instance name: OAI-UPF
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Instance type: UPF
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Instance fqdn: 
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Status: REGISTERED
+[2026-10-01 11:58:28.149] [upf_app] [debug]     HeartBeat timer: 50
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Priority: 1
+[2026-10-01 11:58:28.149] [upf_app] [debug]     Capacity: 100
+[2026-10-01 11:58:28.149] [upf_app] [debug]     SNSSAI:
+[2026-10-01 11:58:28.149] [upf_app] [debug]         SST, SD: 1, ffffff
+[2026-10-01 11:58:28.149] [upf_app] [debug]     IPv4 Addr:
+[2026-10-01 11:58:28.149] [upf_app] [debug]         172.30.24.20
+[2026-10-01 11:58:28.149] [upf_app] [debug]     UPF Info:
+[2026-10-01 11:58:28.149] [upf_app] [debug]         SNSSAI (SST 1, SD ffffff)
+[2026-10-01 11:58:28.149] [upf_app] [debug]             DNN nist-dnn
+[2026-10-01 11:58:28.149] [upf_app] [info] Send NF Instance Registration to NRF
+[2026-10-01 11:58:28.149] [upf_app] [debug] UPF profile to JSON:
+ {"capacity":100,"fqdn":"","heartBeatTimer":50,"ipv4Addresses":["172.30.24.20"],"nfInstanceId":"cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b","nfInstanceName":"OAI-UPF","nfStatus":"REGISTERED","nfType":"UPF","priority":1,"sNssais":[{"sd":"ffffff","sst":1}],"upfInfo":{"sNssaiUpfInfoList":[{"dnnUpfInfoList":[{"dnn":"nist-dnn"}],"sNssai":{"sd":"ffffff","sst":1}}]}}
+[2026-10-01 11:58:28.149] [upf_app] [debug] Send NF Instance Registration to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:58:28.149] [upf_app] [debug] Send NF Instance Registration to NRF, msg body: 
+ {"capacity":100,"fqdn":"","heartBeatTimer":50,"ipv4Addresses":["172.30.24.20"],"nfInstanceId":"cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b","nfInstanceName":"OAI-UPF","nfStatus":"REGISTERED","nfType":"UPF","priority":1,"sNssais":[{"sd":"ffffff","sst":1}],"upfInfo":{"sNssaiUpfInfoList":[{"dnnUpfInfoList":[{"dnn":"nist-dnn"}],"sNssai":{"sd":"ffffff","sst":1}}]}}
+[2026-10-01 11:58:28.149] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:58:31.150] [upf_app] [warning] Could not get response from NRF
+[2026-10-01 11:58:31.150] [upf_app] [debug] Set a timer to the next NRF registration try (5)
+[2026-10-01 11:58:31.150] [upf_app] [info] GTP interface: n3
+[2026-10-01 11:58:31.150] [upf_app] [info] Non-GTP interface: n6
+[2026-10-01 11:58:31.150] [upf_app] [info] Setting up User Plane Component
+[2026-10-01 11:58:31.150] [upf_app] [info] UPF_XDPProgram initialized
+[2026-10-01 11:58:31.150] [upf_app] [info] PDU Session type: IP
+[2026-10-01 11:58:31.150] [upf_app] [debug] Initializing N3 Entry XDP Program ...
+[2026-10-01 11:58:31.150] [upf_app] [debug] Initializing N6 Entry XDP Program ...
+[2026-10-01 11:58:31.150] [upf_app] [debug] Initializing SessionLookupIP XDP Program ...
+[2026-10-01 11:58:31.150] [upf_app] [debug] Initializing PDR Match XDP Program ...
+[2026-10-01 11:58:31.150] [upf_app] [debug] Initializing FAR XDP Program ...
+[2026-10-01 11:58:31.150] [upf_app] [debug] Initializing URR XDP Program ...
+[2026-10-01 11:58:31.150] [upf_app] [info] 
+[2026-10-01 11:58:31.150] [upf_app] [info]  Interface attachment (XDP hook)
+[2026-10-01 11:58:31.150] [upf_app] [info]   ├─ N3EntryProgram:            created  (iface=n3, dir=UL, XDP)
+[2026-10-01 11:58:31.150] [upf_app] [info]   └─ N6EntryProgram:            created  (iface=n6, dir=DL, XDP)
+[2026-10-01 11:58:31.150] [upf_app] [info] 
+[2026-10-01 11:58:31.150] [upf_app] [info]  Tail-call pipeline (shared prog_array)
+[2026-10-01 11:58:31.150] [upf_app] [info]   ├─ SessionLookupIPProgram:    created  (session-lkp, XDP, slot=0)
+[2026-10-01 11:58:31.150] [upf_app] [info]   ├─ PdrMatchProgram:           created  (rule-match,  XDP, slot=2)
+[2026-10-01 11:58:31.150] [upf_app] [info]   ├─ FARProgram:                created  (rule-apply,  XDP, slot=3)
+[2026-10-01 11:58:31.150] [upf_app] [info]   └─ URRProgram:                created  (rule-apply,  XDP, slot=5)
+[2026-10-01 11:58:31.150] [upf_app] [info] 
+[2026-10-01 11:58:31.166] [upf_app] [debug] [N3EntryProgram] BPF program loaded successfully
+[2026-10-01 11:58:31.167] [upf_app] [debug] [SessionLookupIPProgram] BPF program loaded successfully
+[2026-10-01 11:58:31.168] [upf_app] [debug] [FARProgram] BPF program loaded successfully
+[2026-10-01 11:58:31.168] [upf_app] [debug] [N6EntryProgram] BPF program loaded successfully
+[2026-10-01 11:58:31.168] [upf_app] [debug] [N6EntryProgram] BPF program attached successfully
+[2026-10-01 11:58:31.168] [upf_app] [debug] Link N6 Entry XDP to interface n6
+[2026-10-01 11:58:31.181] [upf_app] [info] [N6EntryProgram] XDP attached interface=n6 mode=skb program_id=1578
+[2026-10-01 11:58:31.181] [upf_app] [info] [N6EntryProgram] XDP 'xdp_n6_entry' attached to n6 (ifindex=5, mode=skb)
+[2026-10-01 11:58:31.188] [upf_app] [debug] [PdrMatchProgram] BPF program loaded successfully
+[2026-10-01 11:58:31.189] [upf_app] [debug] [URRProgram] BPF program loaded successfully
+[2026-10-01 11:58:31.189] [upf_app] [info] 
+[2026-10-01 11:58:31.189] [upf_app] [info]  Interface attachment (XDP hook)
+[2026-10-01 11:58:31.189] [upf_app] [info]   ├─ N3EntryProgram:              loaded ✓  (3 maps, iface=n3)
+[2026-10-01 11:58:31.189] [upf_app] [info]   └─ N6EntryProgram:              loaded ✓  (3 maps, iface=n6)
+[2026-10-01 11:58:31.189] [upf_app] [info] 
+[2026-10-01 11:58:31.189] [upf_app] [info]  Tail-call pipeline (shared prog_array)
+[2026-10-01 11:58:31.189] [upf_app] [info]   ├─ SessionLookupIPProgram:      loaded ✓  (5 maps)
+[2026-10-01 11:58:31.189] [upf_app] [info]   ├─ PdrMatchProgram:             loaded ✓  (5 maps)
+[2026-10-01 11:58:31.189] [upf_app] [info]   ├─ FARProgram:                  loaded ✓  (8 maps)
+[2026-10-01 11:58:31.189] [upf_app] [info]   └─ URRProgram:                  loaded ✓  (5 maps)
+[2026-10-01 11:58:31.189] [upf_app] [info] 
+[2026-10-01 11:58:31.189] [upf_app] [info] UPF_XDPProgram: all programs loaded
+[2026-10-01 11:58:31.189] [upf_app] [info] UPF_XDPProgram: Maps initialization completed
+[2026-10-01 11:58:31.189] [upf_app] [info] UPF_XDPProgram: attaching IP PDU primary (n3_entry)
+[2026-10-01 11:58:31.189] [upf_app] [debug] [N3EntryProgram] BPF program attached successfully
+[2026-10-01 11:58:31.200] [upf_app] [info] [N3EntryProgram] XDP attached interface=n3 mode=skb program_id=1571
+[2026-10-01 11:58:31.200] [upf_app] [info] [N3EntryProgram] XDP 'xdp_n3_entry' attached to n3 (ifindex=3, mode=skb)
+[2026-10-01 11:58:31.200] [upf_app] [debug]   N3: ip=172.30.23.10  port=2152  iface=n3
+[2026-10-01 11:58:31.200] [upf_app] [debug]   N3: upf_interface_map updated OK
+[2026-10-01 11:58:31.200] [upf_app] [debug]   N6: ip=172.30.26.20  port=0  iface=n6
+[2026-10-01 11:58:31.200] [upf_app] [debug]   N6: upf_interface_map updated OK
+[2026-10-01 11:58:31.200] [upf_app] [debug]   N4: ip=172.30.24.20  port=8805  iface=n4
+[2026-10-01 11:58:31.200] [upf_app] [debug]   N4: upf_interface_map updated OK
+[2026-10-01 11:58:31.200] [upf_app] [info] redirect_interfaces_map populated: DOWNLINK[0]=ifindex(n3)=3  UPLINK[1]=ifindex(n6)=5
+[2026-10-01 11:58:31.201] [upf_app] [info] UPF_XDPProgram::Setup complete
+[2026-10-01 11:58:31.201] [upf_app] [debug] SessionProgramManager initialized
+[2026-10-01 11:58:31.201] [upf_app] [debug] Session observer set
+[2026-10-01 11:58:31.201] [upf_app] [debug] Session Manager initialized
+[2026-10-01 11:58:31.201] [upf_app] [info] Session Manager initialized
+[2026-10-01 11:58:31.201] [upf_app] [info] URR report ring buffer consumer started
+[2026-10-01 11:58:31.201] [upf_app] [info] 
+[2026-10-01 11:58:31.201] [upf_app] [info]  Data Plane setup complete
+[2026-10-01 11:58:31.201] [upf_app] [info]   ├─ PDU Session Type  :  IP
+[2026-10-01 11:58:31.201] [upf_app] [info]   ├─ QoS Enforcement   :  ✗ off
+[2026-10-01 11:58:31.201] [upf_app] [info]   ├─ URR Reporting     :  ✓ on
+[2026-10-01 11:58:31.201] [upf_app] [info]   ├─ BAR Buffering     :  ✗ off
+[2026-10-01 11:58:31.201] [upf_app] [info]   ├─ MAR Steering      :  ✗ off
+[2026-10-01 11:58:31.201] [upf_app] [info]   └─ Pipeline slots    :  4
+[2026-10-01 11:58:31.201] [upf_app] [info] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │                    Data-Path CONFIGURATION SUMMARY                          │
+[2026-10-01 11:58:31.201] [upf_app] [start] └─────────────────────────────────────────────────────────────────────────────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │                      NETWORK INTERFACE CONFIGURATION                        │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────┬──────────────────────┬───────────────────┬───────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ 3GPP Ref Point   │ Interface            │ IP Address        │ ifindex       │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────┼──────────────────────┼───────────────────┼───────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N3 (GTP-U)       │ n3                   │ 172.30.23.10      │ 3             │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N4 (PFCP)        │ n4                   │ 172.30.24.20      │ 4             │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N6 (Data Network)│ n6                   │ 172.30.26.20      │ 5             │
+[2026-10-01 11:58:31.201] [upf_app] [start] └──────────────────┴──────────────────────┴───────────────────┴───────────────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │                         FEATURE CONFIGURATION                               │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┬──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Feature                              │ Status                               │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┼──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ eBPF/XDP Data Plane                  │ ✓ Enabled                            │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ QoS Enforcement (TC-BPF)             │ ✗ Disabled                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Framed Routing                       │ ✗ Disabled                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Usage Reporting (URR)                │ ✓ Enabled                            │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Packet Buffering (BAR)               │ ✗ Disabled                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Multi-Access Steering (MAR)          │ ✗ Disabled                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Ethernet PDU Sessions                │ ✗ Disabled                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] └──────────────────────────────────────┴──────────────────────────────────────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │                       BPF MAP CAPACITY CONFIGURATION                        │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┬──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Map Name                             │ Max Entries                          │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┼──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ session_by_ue_ip_map                 │ 100                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ session_rules_enabled_map            │ 100                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ pdrs_per_session_map                 │ 8                                    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ rules_match_pdr_map                  │ 800                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ sdf_filters_map                      │ 800                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ upf_interface_map                    │ 4                                    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ redirect_interfaces_map              │ 2                                    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ arp_table_map                        │ 256                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ urr_config_map                       │ 100                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ urr_volume_counters_map              │ 100                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ urr_report_ringbuf_map               │ 256 KB (ringbuf)                     │
+[2026-10-01 11:58:31.201] [upf_app] [start] └──────────────────────────────────────┴──────────────────────────────────────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌──────────────────────────────────────┬────────────┬────────────┬────────────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Program                              │ Dispatch   │ Slot       │ Status     │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┴────────────┴────────────┴────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │         PDU Session : IP              N3 = n3              N6 = n6          │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┬────────────┬────────────┬────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N3EntryProgram                       │ XDP hook   │ -          │ ✓ loaded   │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N6EntryProgram                       │ XDP hook   │ -          │ ✓ loaded   │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├─────────────────────────────────────────────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │        Tail-call pipeline  (shared prog_array, XDP driver context)          │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┬────────────┬────────────┬────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ SessionLookupIPProgram               │ tail-call  │ 0          │ ✓ loaded   │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ PdrMatchProgram                      │ tail-call  │ 2          │ ✓ loaded   │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ FARProgram                           │ tail-call  │ 3          │ ✓ loaded   │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ QERProgram                           │ tail-call  │ 4          │ — skipped  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ QERTCProgram                         │ TC hook    │ TC         │ — skipped  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ URRProgram                           │ tail-call  │ 5          │ ✓ loaded   │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ BARProgram                           │ tail-call  │ 6          │ — skipped  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ MARProgram                           │ tail-call  │ 7          │ — skipped  │
+[2026-10-01 11:58:31.201] [upf_app] [start] └──────────────────────────────────────┴────────────┴────────────┴────────────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌───────────────────────────┬────┬────┬────┬────┬────┬────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │ BPF Map                   │ N3 │ N6 │SLk │PDR │FAR │URR │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┴────┴────┴────┴────┴────┴────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │  shared infrastructure                                  │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┬────┬────┬────┬────┬────┬────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ tail_call_progs_map       │ ✓  │ ✓  │ ✓  │    │    │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ packet_context_map        │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ mc_stats_map              │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │ ✓  │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┴────┴────┴────┴────┴────┴────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │  session / pipeline                                     │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┬────┬────┬────┬────┬────┬────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ session_by_ue_ip_map      │    │    │ ✓  │    │    │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ session_rules_enabled_map │    │    │ ✓  │    │    │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ pdrs_per_session_map      │    │    │    │ ✓  │    │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ sdf_filters_map           │    │    │    │ ✓  │    │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ rules_match_pdr_map       │    │    │    │    │ ✓  │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┴────┴────┴────┴────┴────┴────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │  interface / ARP                                        │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┬────┬────┬────┬────┬────┬────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ upf_interface_map         │    │    │    │    │ ✓  │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ redirect_interfaces_map   │    │    │    │    │ ✓  │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ arp_table_map             │    │    │    │    │ ✓  │    │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┴────┴────┴────┴────┴────┴────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │  URR / BAR / MAR                                        │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├───────────────────────────┬────┬────┬────┬────┬────┬────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ urr_config_map            │    │    │    │    │    │ ✓  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ urr_volume_counters_map   │    │    │    │    │    │ ✓  │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ urr_report_ringbuf_map    │    │    │    │    │    │ ✓  │
+[2026-10-01 11:58:31.201] [upf_app] [start] └───────────────────────────┴────┴────┴────┴────┴────┴────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start]                                    [1;38;5;42mOnNewPacket ●[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                                          [38;5;60m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                                          [38;5;60m▼[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m┌─────────────────────────────────────────────────────────────────────────────┐[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m [1;38;5;42mN3EntryProgram[0m  [38;5;241m(GTP-U → DN)[0m                             [38;5;29m[entry-point  XDP][0m [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m [1;38;5;79mN6EntryProgram[0m  [38;5;241m(DN → GTP-U)[0m                             [38;5;29m[entry-point  XDP][0m [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m├─────────────────────────────────────────────────────────────────────────────┤[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mParse direction (GTP-U / UDP)[0m                                              [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mSession lookup (TEID / UE-IP)[0m  [38;5;61m◄──── [session_by_ue_ip_map][0m                [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m└─────────────────────────────────────────────────────────────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                                          [38;5;60m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                   [38;5;60m┌──────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                   [38;5;60m▼[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m┌──────────────────────────────┐               ┌──────────────────────────────┐[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m [1;38;5;111mSessionLookupIPProgram[0m       [38;5;238m│               │[0m [1;38;5;68mPdrMatchProgram[0m              [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;61m[session-lkp  XDP][0m          [38;5;238m│               │[0m  [38;5;25m[rule-match   XDP][0m          [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m├──────────────────────────────┤[0m[38;5;60m─ tail-call ──►[0m[38;5;238m├──────────────────────────────┤[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mGet SEID + PDR list[0m         [38;5;238m│               │[0m  [38;5;241mMatch PDR (TEID/UE-IP/SDF)[0m  [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mGet rules enabled flags[0m     [38;5;238m│               │[0m  [38;5;241mGet matched 3GPP rules[0m      [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m└──────────────────────────────┘               └──────────────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                                                                  [38;5;60m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                                          [38;5;60m┌───────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                                          [38;5;60m▼[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m┌─────────────────────────────────────────────────────────────────────────────┐[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m [1;38;5;173mFARProgram[0m                                               [38;5;25m[rule-apply   XDP][0m [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m├─────────────────────────────────────────────────────────────────────────────┤[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mFAR action (FORW / BUFF / DROP)[0m                                            [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mGTP-U outer header creation[0m    [38;5;61m◄──── [upf_interface_map][0m                   [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mL2 rewrite (ARP resolution)[0m    [38;5;61m◄──── [arp_table_map][0m                       [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mRedirect to N3/N6[0m              [38;5;61m◄──── [redirect_interfaces_map][0m             [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m└─────────────────────────────────────────────────────────────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;239m[URR enabled][0m                          [38;5;60m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                   [38;5;60m┌──────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]                   [38;5;60m▼[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m┌──────────────────────────────┐[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m [1;38;5;42mURRProgram[0m                   [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;61m[rule-apply   XDP][0m          [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m├──────────────────────────────┤[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mVolume/time accounting[0m      [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mThreshold/quota check[0m       [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m│[0m  [38;5;241mReport via ring buffer[0m      [38;5;238m│[0m
+[2026-10-01 11:58:31.201] [upf_app] [start]   [38;5;238m└──────────────────────────────┘[0m
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:31.201] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-10-01 11:58:31.201] [upf_app] [start] │                    eBPF/XDP RUNTIME CONFIGURATION                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┬──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Component                            │ Status                               │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┼──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N3 XDP Mode                          │ SKB (Software)                       │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ N6 XDP Mode                          │ SKB (Software)                       │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ QoS Enforcement (TC-BPF)             │ ✗ Disabled                           │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Total BPF Maps Loaded                │ 75                                   │
+[2026-10-01 11:58:31.201] [upf_app] [start] ├──────────────────────────────────────┼──────────────────────────────────────┤
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Expected Throughput                  │ ~1-2 Gbps (SKB mode)                 │
+[2026-10-01 11:58:31.201] [upf_app] [start] │ Hardware Acceleration                │ SKB fallback                         │
+[2026-10-01 11:58:31.201] [upf_app] [start] └──────────────────────────────────────┴──────────────────────────────────────┘
+[2026-10-01 11:58:31.201] [upf_app] [start] 
+[2026-10-01 11:58:36.150] [upf_app] [info] TIME-OUT event timer id 1
+[2026-10-01 11:58:36.150] [upf_app] [info] Send NF Instance Registration to NRF
+[2026-10-01 11:58:36.150] [upf_app] [debug] UPF profile to JSON:
+ {"capacity":100,"fqdn":"","heartBeatTimer":50,"ipv4Addresses":["172.30.24.20"],"nfInstanceId":"cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b","nfInstanceName":"OAI-UPF","nfStatus":"REGISTERED","nfType":"UPF","priority":1,"sNssais":[{"sd":"ffffff","sst":1}],"upfInfo":{"sNssaiUpfInfoList":[{"dnnUpfInfoList":[{"dnn":"nist-dnn"}],"sNssai":{"sd":"ffffff","sst":1}}]}}
+[2026-10-01 11:58:36.150] [upf_app] [debug] Send NF Instance Registration to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:58:36.150] [upf_app] [debug] Send NF Instance Registration to NRF, msg body: 
+ {"capacity":100,"fqdn":"","heartBeatTimer":50,"ipv4Addresses":["172.30.24.20"],"nfInstanceId":"cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b","nfInstanceName":"OAI-UPF","nfStatus":"REGISTERED","nfType":"UPF","priority":1,"sNssais":[{"sd":"ffffff","sst":1}],"upfInfo":{"sNssaiUpfInfoList":[{"dnnUpfInfoList":[{"dnn":"nist-dnn"}],"sNssai":{"sd":"ffffff","sst":1}}]}}
+[2026-10-01 11:58:36.150] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:58:36.154] [upf_app] [info] Response from NRF, JSON data: 
+ {"capacity":100,"heartBeatTimer":10,"ipv4Addresses":["172.30.24.20"],"json_data":null,"nfInstanceId":"cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b","nfInstanceName":"OAI-UPF","nfServices":[],"nfStatus":"REGISTERED","nfType":"UPF","priority":1,"sNssais":[{"sd":"ffffff","sst":1}],"upfInfo":{"sNssaiUpfInfoList":[{"dnnUpfInfoList":[{"dnn":"nist-dnn"}],"sNssai":{"sd":"ffffff","sst":1}}]}}
+[2026-10-01 11:58:36.154] [upf_app] [debug] - NF instance info
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance ID: cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance name: OAI-UPF
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance type: UPF
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance fqdn: 
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Status: REGISTERED
+[2026-10-01 11:58:36.154] [upf_app] [debug]     HeartBeat timer: 10
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Priority: 1
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Capacity: 100
+[2026-10-01 11:58:36.154] [upf_app] [debug]     SNSSAI:
+[2026-10-01 11:58:36.154] [upf_app] [debug]         SST, SD: 1, ffffff
+[2026-10-01 11:58:36.154] [upf_app] [debug]     IPv4 Addr:
+[2026-10-01 11:58:36.154] [upf_app] [debug]         172.30.24.20
+[2026-10-01 11:58:36.154] [upf_app] [debug]         172.30.24.20
+[2026-10-01 11:58:36.154] [upf_app] [debug]     UPF Info:
+[2026-10-01 11:58:36.154] [upf_app] [debug]         SNSSAI (SST 1, SD ffffff)
+[2026-10-01 11:58:36.154] [upf_app] [debug]             DNN nist-dnn
+[2026-10-01 11:58:36.154] [upf_app] [debug] Updated UPF profile
+[2026-10-01 11:58:36.154] [upf_app] [debug] - NF instance info
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance ID: cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance name: OAI-UPF
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance type: UPF
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Instance fqdn: 
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Status: REGISTERED
+[2026-10-01 11:58:36.154] [upf_app] [debug]     HeartBeat timer: 10
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Priority: 1
+[2026-10-01 11:58:36.154] [upf_app] [debug]     Capacity: 100
+[2026-10-01 11:58:36.154] [upf_app] [debug]     SNSSAI:
+[2026-10-01 11:58:36.154] [upf_app] [debug]         SST, SD: 1, ffffff
+[2026-10-01 11:58:36.154] [upf_app] [debug]     IPv4 Addr:
+[2026-10-01 11:58:36.154] [upf_app] [debug]         172.30.24.20
+[2026-10-01 11:58:36.154] [upf_app] [debug]         172.30.24.20
+[2026-10-01 11:58:36.154] [upf_app] [debug]     UPF Info:
+[2026-10-01 11:58:36.154] [upf_app] [debug]         SNSSAI (SST 1, SD ffffff)
+[2026-10-01 11:58:36.154] [upf_app] [debug]             DNN nist-dnn
+[2026-10-01 11:58:36.154] [upf_app] [start] Started
+[2026-10-01 11:58:36.154] [upf_n4 ] [info] handle_receive(30 bytes)
+[2026-10-01 11:58:36.154] [upf_n4 ] [info] Handle SX ASSOCIATION SETUP REQUEST
+[2026-10-01 11:58:36.201] [upf_app] [start] ==============================================================================
+[2026-10-01 11:58:36.201] [upf_app] [start]                    UPF DATA-PATH INITIALIZATION COMPLETE - READY
+[2026-10-01 11:58:36.201] [upf_app] [start]          Waiting for PFCP Session Establishment requests on N4...
+[2026-10-01 11:58:36.201] [upf_app] [start] ==============================================================================
+[2026-10-01 11:58:36.201] [upf_app] [start] 
+[2026-10-01 11:58:41.154] [upf_n4 ] [info] TIME-OUT event timer id 4
+[2026-10-01 11:58:41.154] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:58:41.154] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:58:41.154] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:58:46.154] [upf_app] [info] TIME-OUT event timer id 2
+[2026-10-01 11:58:46.154] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:58:46.154] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:58:46.154] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:58:46.154] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:58:46.154] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] TIME-OUT event timer id 7
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] TIME-OUT event timer id 8
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:58:46.154] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:58:46.206] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:58:46.206] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:58:51.154] [upf_n4 ] [info] TIME-OUT event timer id 11
+[2026-10-01 11:58:51.154] [upf_n4 ] [info] TIME-OUT event timer id 12
+[2026-10-01 11:58:51.154] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:58:51.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:58:51.155] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:58:56.154] [upf_n4 ] [info] TIME-OUT event timer id 17
+[2026-10-01 11:58:56.155] [upf_n4 ] [info] TIME-OUT event timer id 18
+[2026-10-01 11:58:56.155] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:58:56.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:58:56.155] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:58:56.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:58:56.155] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:58:56.206] [upf_app] [info] TIME-OUT event timer id 14
+[2026-10-01 11:58:56.206] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:58:56.206] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:58:56.206] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:58:56.206] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:58:56.206] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:58:56.208] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:58:56.208] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:59:01.155] [upf_n4 ] [info] TIME-OUT event timer id 21
+[2026-10-01 11:59:01.155] [upf_n4 ] [info] TIME-OUT event timer id 23
+[2026-10-01 11:59:01.155] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:01.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:01.155] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] TIME-OUT event timer id 27
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] TIME-OUT event timer id 28
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:06.155] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:06.208] [upf_app] [info] TIME-OUT event timer id 24
+[2026-10-01 11:59:06.208] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:59:06.208] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:59:06.208] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:59:06.208] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:59:06.208] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:59:06.210] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:59:06.210] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:59:11.155] [upf_n4 ] [info] TIME-OUT event timer id 31
+[2026-10-01 11:59:11.155] [upf_n4 ] [info] TIME-OUT event timer id 33
+[2026-10-01 11:59:11.155] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:11.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:11.155] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] TIME-OUT event timer id 37
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] TIME-OUT event timer id 38
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:16.155] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:16.210] [upf_app] [info] TIME-OUT event timer id 34
+[2026-10-01 11:59:16.210] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:59:16.210] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:59:16.210] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:59:16.210] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:59:16.210] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:59:16.213] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:59:16.213] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:59:21.155] [upf_n4 ] [info] TIME-OUT event timer id 42
+[2026-10-01 11:59:21.155] [upf_n4 ] [info] TIME-OUT event timer id 43
+[2026-10-01 11:59:21.155] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:21.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:21.156] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] TIME-OUT event timer id 47
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] TIME-OUT event timer id 48
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:26.156] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:26.213] [upf_app] [info] TIME-OUT event timer id 44
+[2026-10-01 11:59:26.213] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:59:26.213] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:59:26.213] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:59:26.213] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:59:26.213] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:59:26.215] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:59:26.215] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:59:31.156] [upf_n4 ] [info] TIME-OUT event timer id 52
+[2026-10-01 11:59:31.156] [upf_n4 ] [info] TIME-OUT event timer id 53
+[2026-10-01 11:59:31.156] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:31.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:31.156] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] TIME-OUT event timer id 57
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] TIME-OUT event timer id 58
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:36.156] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:36.215] [upf_app] [info] TIME-OUT event timer id 54
+[2026-10-01 11:59:36.215] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:59:36.215] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:59:36.215] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:59:36.215] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:59:36.215] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:59:36.217] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:59:36.217] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:59:41.156] [upf_n4 ] [info] TIME-OUT event timer id 62
+[2026-10-01 11:59:41.156] [upf_n4 ] [info] TIME-OUT event timer id 63
+[2026-10-01 11:59:41.156] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:41.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:41.156] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] TIME-OUT event timer id 67
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] TIME-OUT event timer id 68
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:46.156] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:46.217] [upf_app] [info] TIME-OUT event timer id 64
+[2026-10-01 11:59:46.217] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:59:46.217] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:59:46.217] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:59:46.217] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:59:46.217] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:59:46.219] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:59:46.219] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 11:59:51.156] [upf_n4 ] [info] TIME-OUT event timer id 72
+[2026-10-01 11:59:51.156] [upf_n4 ] [info] TIME-OUT event timer id 73
+[2026-10-01 11:59:51.156] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:51.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:51.157] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] TIME-OUT event timer id 77
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] TIME-OUT event timer id 78
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 11:59:56.157] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 11:59:56.219] [upf_app] [info] TIME-OUT event timer id 74
+[2026-10-01 11:59:56.219] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 11:59:56.219] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 11:59:56.219] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 11:59:56.219] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 11:59:56.219] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 11:59:56.221] [upf_app] [info] Got successful response from NRF
+[2026-10-01 11:59:56.221] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:00:01.157] [upf_n4 ] [info] TIME-OUT event timer id 82
+[2026-10-01 12:00:01.157] [upf_n4 ] [info] TIME-OUT event timer id 83
+[2026-10-01 12:00:01.157] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:01.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:01.157] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] TIME-OUT event timer id 87
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] TIME-OUT event timer id 88
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:06.157] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:06.221] [upf_app] [info] TIME-OUT event timer id 84
+[2026-10-01 12:00:06.221] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:00:06.221] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:00:06.221] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:00:06.221] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:00:06.221] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:00:06.223] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:00:06.223] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:00:11.157] [upf_n4 ] [info] TIME-OUT event timer id 92
+[2026-10-01 12:00:11.157] [upf_n4 ] [info] TIME-OUT event timer id 93
+[2026-10-01 12:00:11.157] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:11.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:11.157] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:16.157] [upf_n4 ] [info] TIME-OUT event timer id 97
+[2026-10-01 12:00:16.157] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:16.157] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:00:16.157] [upf_n4 ] [info] TIME-OUT event timer id 98
+[2026-10-01 12:00:16.157] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:16.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:16.158] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:16.223] [upf_app] [info] TIME-OUT event timer id 94
+[2026-10-01 12:00:16.223] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:00:16.223] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:00:16.223] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:00:16.223] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:00:16.223] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:00:16.226] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:00:16.226] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:00:21.158] [upf_n4 ] [info] TIME-OUT event timer id 102
+[2026-10-01 12:00:21.158] [upf_n4 ] [info] TIME-OUT event timer id 103
+[2026-10-01 12:00:21.158] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:21.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:21.158] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] TIME-OUT event timer id 107
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] TIME-OUT event timer id 108
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:26.158] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:26.226] [upf_app] [info] TIME-OUT event timer id 104
+[2026-10-01 12:00:26.226] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:00:26.226] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:00:26.226] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:00:26.226] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:00:26.226] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:00:26.228] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:00:26.228] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:00:31.158] [upf_n4 ] [info] TIME-OUT event timer id 111
+[2026-10-01 12:00:31.158] [upf_n4 ] [info] TIME-OUT event timer id 113
+[2026-10-01 12:00:31.158] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:31.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:31.158] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] TIME-OUT event timer id 117
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] TIME-OUT event timer id 118
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:36.158] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:36.228] [upf_app] [info] TIME-OUT event timer id 114
+[2026-10-01 12:00:36.228] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:00:36.228] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:00:36.228] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:00:36.228] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:00:36.228] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:00:36.230] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:00:36.230] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:00:41.158] [upf_n4 ] [info] TIME-OUT event timer id 121
+[2026-10-01 12:00:41.158] [upf_n4 ] [info] TIME-OUT event timer id 123
+[2026-10-01 12:00:41.158] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:41.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:41.159] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:46.158] [upf_n4 ] [info] TIME-OUT event timer id 127
+[2026-10-01 12:00:46.159] [upf_n4 ] [info] TIME-OUT event timer id 128
+[2026-10-01 12:00:46.159] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:46.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:46.159] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:00:46.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:46.159] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:46.230] [upf_app] [info] TIME-OUT event timer id 124
+[2026-10-01 12:00:46.230] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:00:46.230] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:00:46.230] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:00:46.230] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:00:46.230] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:00:46.232] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:00:46.232] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:00:51.159] [upf_n4 ] [info] TIME-OUT event timer id 131
+[2026-10-01 12:00:51.159] [upf_n4 ] [info] TIME-OUT event timer id 133
+[2026-10-01 12:00:51.159] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:51.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:51.159] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] TIME-OUT event timer id 137
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] TIME-OUT event timer id 138
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:00:56.159] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:00:56.232] [upf_app] [info] TIME-OUT event timer id 134
+[2026-10-01 12:00:56.232] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:00:56.232] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:00:56.232] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:00:56.232] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:00:56.232] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:00:56.235] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:00:56.235] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:01.159] [upf_n4 ] [info] TIME-OUT event timer id 142
+[2026-10-01 12:01:01.159] [upf_n4 ] [info] TIME-OUT event timer id 143
+[2026-10-01 12:01:01.159] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:01.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:01.159] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] TIME-OUT event timer id 147
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] TIME-OUT event timer id 148
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:06.159] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:06.235] [upf_app] [info] TIME-OUT event timer id 144
+[2026-10-01 12:01:06.235] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:01:06.235] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:01:06.235] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:01:06.235] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:01:06.235] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:01:06.237] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:01:06.237] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:11.159] [upf_n4 ] [info] TIME-OUT event timer id 152
+[2026-10-01 12:01:11.159] [upf_n4 ] [info] TIME-OUT event timer id 153
+[2026-10-01 12:01:11.159] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:11.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:11.160] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] TIME-OUT event timer id 157
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] TIME-OUT event timer id 158
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:16.160] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:16.237] [upf_app] [info] TIME-OUT event timer id 154
+[2026-10-01 12:01:16.237] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:01:16.237] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:01:16.237] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:01:16.237] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:01:16.237] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:01:16.239] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:01:16.239] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:21.160] [upf_n4 ] [info] TIME-OUT event timer id 162
+[2026-10-01 12:01:21.160] [upf_n4 ] [info] TIME-OUT event timer id 163
+[2026-10-01 12:01:21.160] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:21.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:21.160] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] TIME-OUT event timer id 167
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] TIME-OUT event timer id 168
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:26.160] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:26.239] [upf_app] [info] TIME-OUT event timer id 164
+[2026-10-01 12:01:26.239] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:01:26.239] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:01:26.239] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:01:26.239] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:01:26.239] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:01:26.241] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:01:26.241] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:31.160] [upf_n4 ] [info] TIME-OUT event timer id 171
+[2026-10-01 12:01:31.160] [upf_n4 ] [info] TIME-OUT event timer id 173
+[2026-10-01 12:01:31.160] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:31.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:31.160] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:36.160] [upf_n4 ] [info] TIME-OUT event timer id 177
+[2026-10-01 12:01:36.160] [upf_n4 ] [info] TIME-OUT event timer id 178
+[2026-10-01 12:01:36.160] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:36.160] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:36.160] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:01:36.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:36.161] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:36.241] [upf_app] [info] TIME-OUT event timer id 174
+[2026-10-01 12:01:36.241] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:01:36.241] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:01:36.242] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:01:36.242] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:01:36.242] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:01:36.244] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:01:36.244] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:40.223] [upf_n4 ] [info] handle_receive(230 bytes)
+[2026-10-01 12:01:40.223] [upf_app] [info] 
+[2026-10-01 12:01:40.223] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:01:40.223] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x1              │
+[2026-10-01 12:01:40.223] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:01:40.223] [upf_n4 ] [info] pfcp_session::add(far) seid 0x1 FAR=1
+[2026-10-01 12:01:40.223] [upf_n4 ] [info]   └─ Adding new FAR 1 to session 0x1
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Destination Interface: CORE
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Total FARs in session: 1
+[2026-10-01 12:01:40.223] [upf_n4 ] [info] pfcp_session::set(fteid) seid 0x1 
+[2026-10-01 12:01:40.223] [upf_n4 ] [info] pfcp_session::get(fteid) seid 0x1 
+[2026-10-01 12:01:40.223] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x1 PDR=1
+[2026-10-01 12:01:40.223] [upf_n4 ] [info]   └─ Adding new PDR 1 to session 0x1
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Source Interface: ACCESS (Uplink)
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Local F-TEID: 0x1
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Linked FAR: 1
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Linked URR: 1
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Total PDRs in session: 1
+[2026-10-01 12:01:40.223] [upf_n4 ] [info] pfcp_session::add(urr) seid 0x1 URR=1
+[2026-10-01 12:01:40.223] [upf_n4 ] [info]   └─ Adding new URR 1 to session 0x1
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Measurement Method: VOLUM DURAT 
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Reporting Triggers: PERIO VOLTH TIMTH 
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Measurement Period: 10 s
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Volume Threshold DL: 16718206241729413120 bytes
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Time Threshold: 5 s
+[2026-10-01 12:01:40.223] [upf_n4 ] [debug]      • Total URRs in session: 1
+[2026-10-01 12:01:40.223] [upf_app] [info] Establish datapath: create(pdr(s), far(s), qer(s), urr(s), bar(s), mar(s))
+[2026-10-01 12:01:40.223] [upf_app] [debug] Establish Session seid 0x1
+[2026-10-01 12:01:40.223] [upf_app] [debug] [N4] Create session: seid 0x1 - Validating session context
+[2026-10-01 12:01:40.223] [upf_app] [debug] [N4] Create Session: seid 0x1 - Creating eBPF data-path pipeline
+[2026-10-01 12:01:40.223] [upf_app] [debug]   → Uplink PDRs (1 rules):
+[2026-10-01 12:01:40.223] [upf_app] [debug]     • PDR 1: Local F-TEID 0x1 (UPF listens on N3)
+[2026-10-01 12:01:40.223] [upf_app] [info] [eBPF] Create Pipeline - Creating pipeline for session 0x1
+[2026-10-01 12:01:40.223] [upf_app] [debug] [eBPF] Create Pipeline: seid 0x1 - Starting PDR rule 1 establishment
+[2026-10-01 12:01:40.223] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:01:40.223] [upf_app] [debug] Rules enabled SEID=0x1: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:01:40.223] [upf_app] [info] Pipeline created for session 0x1 with 1 PDRs [type = IP, rules = 0x2]
+[2026-10-01 12:01:40.223] [upf_app] [info] [N4] Create Session: seid 0x1 - eBPF data-path pipeline created successfully
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x1                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x1                   │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:01:40.227] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n6' probe='arping -c 2 -w 3 -I n6 172.30.26.10'
+[2026-10-01 12:01:41.068] [upf_n4 ] [info] handle_receive(150 bytes)
+[2026-10-01 12:01:41.068] [upf_app] [info] 
+[2026-10-01 12:01:41.068] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:01:41.068] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x1               │
+[2026-10-01 12:01:41.068] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:01:41.068] [upf_n4 ] [info] pfcp_session::add(far) seid 0x1 FAR=2
+[2026-10-01 12:01:41.068] [upf_n4 ] [info]   └─ Adding new FAR 2 to session 0x1
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Destination Interface: ACCESS
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Outer Header TEID: 0xe7fd33a5
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Remote IP: 172.30.23.20
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Total FARs in session: 2
+[2026-10-01 12:01:41.068] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x1 PDR=2
+[2026-10-01 12:01:41.068] [upf_n4 ] [info]   └─ Adding new PDR 2 to session 0x1
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Source Interface: CORE (Downlink)
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Linked FAR: 2
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Linked URR: 0
+[2026-10-01 12:01:41.068] [upf_n4 ] [debug]      • Total PDRs in session: 2
+[2026-10-01 12:01:41.068] [upf_app] [info] Modify datapath
+[2026-10-01 12:01:41.068] [upf_app] [debug] ModifySession() seid 0x1
+[2026-10-01 12:01:41.068] [upf_app] [info] [N4] Session Modification: seid 0x1
+[2026-10-01 12:01:41.068] [upf_app] [info]   └─ Created: 1 PDR, 1 FAR, 0 QER, 0 URR, 0 BAR, 0 MAR
+[2026-10-01 12:01:41.068] [upf_app] [debug] [N4] Session Modification: seid 0x1 - Applying pipeline updates
+[2026-10-01 12:01:41.068] [upf_app] [debug] [N4] Update Session: seid 0x1 - Modifying eBPF data-path pipeline
+[2026-10-01 12:01:41.068] [upf_app] [debug]   → Updated Uplink PDRs (1 rules):
+[2026-10-01 12:01:41.068] [upf_app] [debug]     • PDR 1: F-TEID 0x1
+[2026-10-01 12:01:41.068] [upf_app] [debug]   → Updated Downlink PDRs (1 rules):
+[2026-10-01 12:01:41.068] [upf_app] [debug]     • PDR 2 → FAR 2: TEID 0xe7fd33a5
+[2026-10-01 12:01:41.068] [upf_app] [info] [eBPF] Modify Pipeline - Updating pipeline for session 0x1
+[2026-10-01 12:01:41.068] [upf_app] [debug] Rules enabled SEID=0x1: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:01:41.068] [upf_app] [debug] Setup URRProgram for SEID=0x1
+[2026-10-01 12:01:41.068] [upf_app] [debug] URRProgram: config map updated SEID=1 URR_ID=1 triggers=0x15
+[2026-10-01 12:01:41.068] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:01:41.068] [upf_app] [debug] No QER associated with PDR 2
+[2026-10-01 12:01:41.068] [upf_app] [info] DL PDR 2: derived QFI 1 from unique ACCESS PDR in session 0x1
+[2026-10-01 12:01:41.068] [upf_app] [info] [eBPF] Modify Pipeline - Pipeline modified for session 0x1 with 2 PDRs (1 uplink TEIDs, 1 downlink TEIDs)
+[2026-10-01 12:01:41.068] [upf_app] [info] [N4] Update Session: seid 0x1 - eBPF data-path pipeline updated successfully
+[2026-10-01 12:01:41.068] [upf_app] [info] [N4] Session Modification: seid 0x1 - Completed successfully [Status: Session updated]
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x1                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x1                   │
+  │ 2      │ 2     │ -     │ -     │ -     │ -     │ 0          │ DL        │ 10.1.0.2        │ FORW       │ ACCESS     │ -     │ GTP → 172.30.23.20:0xe7fd33a5  │ -                              │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:01:41.072] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n3' probe='arping -c 2 -w 3 -I n3 172.30.23.20'
+[2026-10-01 12:01:41.160] [upf_n4 ] [info] TIME-OUT event timer id 181
+[2026-10-01 12:01:41.161] [upf_n4 ] [info] TIME-OUT event timer id 183
+[2026-10-01 12:01:41.161] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:41.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:41.161] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:42.272] [upf_app] [info] retrieveNextHopMAC: 172.30.26.10 -> da:9f:f2:cb:bc:c2 on n6 (attempt 1/3)
+[2026-10-01 12:01:42.272] [upf_app] [debug] ARP: 172.30.26.10 dev n6 lladdr da:9f:f2:cb:bc:c2 [SEID=1]
+[2026-10-01 12:01:43.130] [upf_app] [info] retrieveNextHopMAC: 172.30.23.20 -> c6:a8:fa:2a:63:82 on n3 (attempt 1/3)
+[2026-10-01 12:01:43.130] [upf_app] [debug] ARP: 172.30.23.20 dev n3 lladdr c6:a8:fa:2a:63:82 [SEID=1]
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] TIME-OUT event timer id 189
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] TIME-OUT event timer id 190
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:46.161] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:46.244] [upf_app] [info] TIME-OUT event timer id 184
+[2026-10-01 12:01:46.244] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:01:46.244] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:01:46.244] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:01:46.244] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:01:46.244] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:01:46.246] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:01:46.246] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:51.161] [upf_n4 ] [info] TIME-OUT event timer id 193
+[2026-10-01 12:01:51.161] [upf_n4 ] [info] TIME-OUT event timer id 195
+[2026-10-01 12:01:51.161] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:51.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:51.161] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] TIME-OUT event timer id 199
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] TIME-OUT event timer id 200
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:56.161] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:01:56.246] [upf_app] [info] TIME-OUT event timer id 196
+[2026-10-01 12:01:56.246] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:01:56.246] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:01:56.246] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:01:56.246] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:01:56.246] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:01:56.249] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:01:56.249] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:01:59.716] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:01:59.716] [upf_app] [info] 
+[2026-10-01 12:01:59.716] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:01:59.716] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x1               │
+[2026-10-01 12:01:59.716] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:01:59.716] [upf_app] [info] Delete datapath
+[2026-10-01 12:01:59.716] [upf_app] [info] RemoveSession() seid 0x1
+[2026-10-01 12:01:59.716] [upf_app] [debug] [N4] Delete Session: seid 0x1 - Deleting eBPF data-path pipeline
+[2026-10-01 12:01:59.716] [upf_app] [debug]   → Removing: 2 PDR(s) (1 UL, 1 DL), 2 FAR(s), 0 QER(s)
+[2026-10-01 12:01:59.716] [upf_app] [debug]     • Removing uplink TEID 0x1 (PDR 1)
+[2026-10-01 12:01:59.716] [upf_app] [debug]     • Removing downlink TEID 0xe7fd33a5 (PDR 2 → FAR 2)
+[2026-10-01 12:01:59.716] [upf_app] [info] [eBPF] Remove Pipeline - Cleaning up pipeline for session 0x1
+[2026-10-01 12:01:59.716] [upf_app] [info] Removing pipeline for session 0x1
+[2026-10-01 12:01:59.716] [upf_app] [info] Removing session 0x1
+[2026-10-01 12:01:59.716] [upf_app] [warning] GetNextKey failed for map 'session_by_ue_ip_map': errno=2
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'session_by_ue_ip_map': [167837698] -> *
+[2026-10-01 12:01:59.716] [upf_app] [info] RemovePdrRulesMaps: seid 0x1 with 2 PDR(s)
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'rules_match_pdr_map': [{PDR=1, SEID=0x1}] -> *
+[2026-10-01 12:01:59.716] [upf_app] [info] RemovePdrRulesMaps: PDR 1 key {PDR=1, SEID=0x1} removed=1 errno=2
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'rules_match_pdr_map': [{PDR=2, SEID=0x1}] -> *
+[2026-10-01 12:01:59.716] [upf_app] [info] RemovePdrRulesMaps: PDR 2 key {PDR=2, SEID=0x1} removed=1 errno=2
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'pdrs_per_session_map': [1] -> *
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'session_rules_enabled_map': [1] -> *
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'urr_config_map': [1] -> *
+[2026-10-01 12:01:59.716] [upf_app] [debug] Remove value from Map 'urr_volume_counters_map': [1] -> *
+[2026-10-01 12:01:59.716] [upf_app] [warning] GetMapByName: 'mar_rules_map' not found
+[2026-10-01 12:01:59.716] [upf_app] [info] Pipeline removed for session 0x1
+[2026-10-01 12:01:59.716] [upf_app] [info] [N4] Delete Session: seid 0x1 - eBPF data-path pipeline deleted successfully
+[2026-10-01 12:01:59.716] [upf_app] [info] [N4] Delete Session: seid 0x1 - Session removed from registry
+[2026-10-01 12:02:01.161] [upf_n4 ] [info] TIME-OUT event timer id 203
+[2026-10-01 12:02:01.162] [upf_n4 ] [info] TIME-OUT event timer id 205
+[2026-10-01 12:02:01.162] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:01.162] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:01.162] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] TIME-OUT event timer id 210
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] TIME-OUT event timer id 211
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:06.162] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:06.235] [upf_n4 ] [info] handle_receive(230 bytes)
+[2026-10-01 12:02:06.235] [upf_app] [info] 
+[2026-10-01 12:02:06.235] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:06.235] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x2              │
+[2026-10-01 12:02:06.235] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:06.235] [upf_n4 ] [info] pfcp_session::add(far) seid 0x2 FAR=1
+[2026-10-01 12:02:06.235] [upf_n4 ] [info]   └─ Adding new FAR 1 to session 0x2
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Destination Interface: CORE
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Total FARs in session: 1
+[2026-10-01 12:02:06.235] [upf_n4 ] [info] pfcp_session::set(fteid) seid 0x2 
+[2026-10-01 12:02:06.235] [upf_n4 ] [info] pfcp_session::get(fteid) seid 0x2 
+[2026-10-01 12:02:06.235] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x2 PDR=1
+[2026-10-01 12:02:06.235] [upf_n4 ] [info]   └─ Adding new PDR 1 to session 0x2
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Source Interface: ACCESS (Uplink)
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Local F-TEID: 0x2
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Linked FAR: 1
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Linked URR: 1
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Total PDRs in session: 1
+[2026-10-01 12:02:06.235] [upf_n4 ] [info] pfcp_session::add(urr) seid 0x2 URR=1
+[2026-10-01 12:02:06.235] [upf_n4 ] [info]   └─ Adding new URR 1 to session 0x2
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Measurement Method: VOLUM DURAT 
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Reporting Triggers: PERIO VOLTH TIMTH 
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Measurement Period: 10 s
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Volume Threshold DL: 16718206241729413120 bytes
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Time Threshold: 5 s
+[2026-10-01 12:02:06.235] [upf_n4 ] [debug]      • Total URRs in session: 1
+[2026-10-01 12:02:06.235] [upf_app] [info] Establish datapath: create(pdr(s), far(s), qer(s), urr(s), bar(s), mar(s))
+[2026-10-01 12:02:06.235] [upf_app] [debug] Establish Session seid 0x2
+[2026-10-01 12:02:06.235] [upf_app] [debug] [N4] Create session: seid 0x2 - Validating session context
+[2026-10-01 12:02:06.235] [upf_app] [debug] [N4] Create Session: seid 0x2 - Creating eBPF data-path pipeline
+[2026-10-01 12:02:06.235] [upf_app] [debug]   → Uplink PDRs (1 rules):
+[2026-10-01 12:02:06.235] [upf_app] [debug]     • PDR 1: Local F-TEID 0x2 (UPF listens on N3)
+[2026-10-01 12:02:06.235] [upf_app] [info] [eBPF] Create Pipeline - Creating pipeline for session 0x2
+[2026-10-01 12:02:06.235] [upf_app] [debug] [eBPF] Create Pipeline: seid 0x2 - Starting PDR rule 1 establishment
+[2026-10-01 12:02:06.235] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:02:06.235] [upf_app] [debug] Rules enabled SEID=0x2: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:02:06.235] [upf_app] [info] Pipeline created for session 0x2 with 1 PDRs [type = IP, rules = 0x2]
+[2026-10-01 12:02:06.235] [upf_app] [info] [N4] Create Session: seid 0x2 - eBPF data-path pipeline created successfully
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x2                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x2                   │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:02:06.247] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n6' probe='arping -c 2 -w 3 -I n6 172.30.26.10'
+[2026-10-01 12:02:06.249] [upf_app] [info] TIME-OUT event timer id 206
+[2026-10-01 12:02:06.249] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:02:06.249] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:02:06.249] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:02:06.249] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:02:06.249] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:02:06.251] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:02:06.251] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:02:06.934] [upf_n4 ] [info] handle_receive(150 bytes)
+[2026-10-01 12:02:06.934] [upf_app] [info] 
+[2026-10-01 12:02:06.934] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:06.934] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x2               │
+[2026-10-01 12:02:06.934] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:06.934] [upf_n4 ] [info] pfcp_session::add(far) seid 0x2 FAR=2
+[2026-10-01 12:02:06.934] [upf_n4 ] [info]   └─ Adding new FAR 2 to session 0x2
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Destination Interface: ACCESS
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Outer Header TEID: 0x97d4a75f
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Remote IP: 172.30.23.20
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Total FARs in session: 2
+[2026-10-01 12:02:06.934] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x2 PDR=2
+[2026-10-01 12:02:06.934] [upf_n4 ] [info]   └─ Adding new PDR 2 to session 0x2
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Source Interface: CORE (Downlink)
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Linked FAR: 2
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Linked URR: 0
+[2026-10-01 12:02:06.934] [upf_n4 ] [debug]      • Total PDRs in session: 2
+[2026-10-01 12:02:06.934] [upf_app] [info] Modify datapath
+[2026-10-01 12:02:06.934] [upf_app] [debug] ModifySession() seid 0x2
+[2026-10-01 12:02:06.934] [upf_app] [info] [N4] Session Modification: seid 0x2
+[2026-10-01 12:02:06.934] [upf_app] [info]   └─ Created: 1 PDR, 1 FAR, 0 QER, 0 URR, 0 BAR, 0 MAR
+[2026-10-01 12:02:06.934] [upf_app] [debug] [N4] Session Modification: seid 0x2 - Applying pipeline updates
+[2026-10-01 12:02:06.934] [upf_app] [debug] [N4] Update Session: seid 0x2 - Modifying eBPF data-path pipeline
+[2026-10-01 12:02:06.934] [upf_app] [debug]   → Updated Uplink PDRs (1 rules):
+[2026-10-01 12:02:06.934] [upf_app] [debug]     • PDR 1: F-TEID 0x2
+[2026-10-01 12:02:06.934] [upf_app] [debug]   → Updated Downlink PDRs (1 rules):
+[2026-10-01 12:02:06.934] [upf_app] [debug]     • PDR 2 → FAR 2: TEID 0x97d4a75f
+[2026-10-01 12:02:06.934] [upf_app] [info] [eBPF] Modify Pipeline - Updating pipeline for session 0x2
+[2026-10-01 12:02:06.934] [upf_app] [debug] Rules enabled SEID=0x2: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:02:06.934] [upf_app] [debug] Setup URRProgram for SEID=0x2
+[2026-10-01 12:02:06.934] [upf_app] [debug] URRProgram: config map updated SEID=2 URR_ID=1 triggers=0x15
+[2026-10-01 12:02:06.934] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:02:06.934] [upf_app] [debug] No QER associated with PDR 2
+[2026-10-01 12:02:06.934] [upf_app] [info] DL PDR 2: derived QFI 1 from unique ACCESS PDR in session 0x2
+[2026-10-01 12:02:06.934] [upf_app] [info] [eBPF] Modify Pipeline - Pipeline modified for session 0x2 with 2 PDRs (1 uplink TEIDs, 1 downlink TEIDs)
+[2026-10-01 12:02:06.934] [upf_app] [info] [N4] Update Session: seid 0x2 - eBPF data-path pipeline updated successfully
+[2026-10-01 12:02:06.934] [upf_app] [info] [N4] Session Modification: seid 0x2 - Completed successfully [Status: Session updated]
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x2                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x2                   │
+  │ 2      │ 2     │ -     │ -     │ -     │ -     │ 0          │ DL        │ 10.1.0.2        │ FORW       │ ACCESS     │ -     │ GTP → 172.30.23.20:0x97d4a75f  │ -                              │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:02:06.938] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n3' probe='arping -c 2 -w 3 -I n3 172.30.23.20'
+[2026-10-01 12:02:08.285] [upf_app] [info] retrieveNextHopMAC: 172.30.26.10 -> da:9f:f2:cb:bc:c2 on n6 (attempt 1/3)
+[2026-10-01 12:02:08.285] [upf_app] [debug] ARP: 172.30.26.10 dev n6 lladdr da:9f:f2:cb:bc:c2 [SEID=2]
+[2026-10-01 12:02:08.996] [upf_app] [info] retrieveNextHopMAC: 172.30.23.20 -> c6:a8:fa:2a:63:82 on n3 (attempt 1/3)
+[2026-10-01 12:02:08.996] [upf_app] [debug] ARP: 172.30.23.20 dev n3 lladdr c6:a8:fa:2a:63:82 [SEID=2]
+[2026-10-01 12:02:11.162] [upf_n4 ] [info] TIME-OUT event timer id 214
+[2026-10-01 12:02:11.162] [upf_n4 ] [info] TIME-OUT event timer id 216
+[2026-10-01 12:02:11.162] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:11.162] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:11.162] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] TIME-OUT event timer id 222
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] TIME-OUT event timer id 223
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:16.162] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:16.251] [upf_app] [info] TIME-OUT event timer id 218
+[2026-10-01 12:02:16.251] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:02:16.251] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:02:16.252] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:02:16.252] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:02:16.252] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:02:16.255] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:02:16.255] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:02:21.162] [upf_n4 ] [info] TIME-OUT event timer id 226
+[2026-10-01 12:02:21.163] [upf_n4 ] [info] TIME-OUT event timer id 228
+[2026-10-01 12:02:21.163] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:21.163] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:21.163] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:25.480] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:25.480] [upf_app] [info] 
+[2026-10-01 12:02:25.480] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:25.480] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x2               │
+[2026-10-01 12:02:25.480] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:25.480] [upf_app] [info] Delete datapath
+[2026-10-01 12:02:25.480] [upf_app] [info] RemoveSession() seid 0x2
+[2026-10-01 12:02:25.480] [upf_app] [debug] [N4] Delete Session: seid 0x2 - Deleting eBPF data-path pipeline
+[2026-10-01 12:02:25.480] [upf_app] [debug]   → Removing: 2 PDR(s) (1 UL, 1 DL), 2 FAR(s), 0 QER(s)
+[2026-10-01 12:02:25.480] [upf_app] [debug]     • Removing uplink TEID 0x2 (PDR 1)
+[2026-10-01 12:02:25.480] [upf_app] [debug]     • Removing downlink TEID 0x97d4a75f (PDR 2 → FAR 2)
+[2026-10-01 12:02:25.480] [upf_app] [info] [eBPF] Remove Pipeline - Cleaning up pipeline for session 0x2
+[2026-10-01 12:02:25.480] [upf_app] [info] Removing pipeline for session 0x2
+[2026-10-01 12:02:25.480] [upf_app] [info] Removing session 0x2
+[2026-10-01 12:02:25.480] [upf_app] [warning] GetNextKey failed for map 'session_by_ue_ip_map': errno=2
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'session_by_ue_ip_map': [167837698] -> *
+[2026-10-01 12:02:25.480] [upf_app] [info] RemovePdrRulesMaps: seid 0x2 with 2 PDR(s)
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'rules_match_pdr_map': [{PDR=1, SEID=0x2}] -> *
+[2026-10-01 12:02:25.480] [upf_app] [info] RemovePdrRulesMaps: PDR 1 key {PDR=1, SEID=0x2} removed=1 errno=2
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'rules_match_pdr_map': [{PDR=2, SEID=0x2}] -> *
+[2026-10-01 12:02:25.480] [upf_app] [info] RemovePdrRulesMaps: PDR 2 key {PDR=2, SEID=0x2} removed=1 errno=2
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'pdrs_per_session_map': [2] -> *
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'session_rules_enabled_map': [2] -> *
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'urr_config_map': [2] -> *
+[2026-10-01 12:02:25.480] [upf_app] [debug] Remove value from Map 'urr_volume_counters_map': [2] -> *
+[2026-10-01 12:02:25.480] [upf_app] [warning] GetMapByName: 'mar_rules_map' not found
+[2026-10-01 12:02:25.480] [upf_app] [info] Pipeline removed for session 0x2
+[2026-10-01 12:02:25.480] [upf_app] [info] [N4] Delete Session: seid 0x2 - eBPF data-path pipeline deleted successfully
+[2026-10-01 12:02:25.480] [upf_app] [info] [N4] Delete Session: seid 0x2 - Session removed from registry
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] TIME-OUT event timer id 232
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] TIME-OUT event timer id 233
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:26.163] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:26.255] [upf_app] [info] TIME-OUT event timer id 229
+[2026-10-01 12:02:26.255] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:02:26.255] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:02:26.255] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:02:26.255] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:02:26.255] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:02:26.257] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:02:26.257] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:02:31.163] [upf_n4 ] [info] TIME-OUT event timer id 237
+[2026-10-01 12:02:31.163] [upf_n4 ] [info] TIME-OUT event timer id 239
+[2026-10-01 12:02:31.163] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:31.163] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:31.163] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:32.064] [upf_n4 ] [info] handle_receive(230 bytes)
+[2026-10-01 12:02:32.064] [upf_app] [info] 
+[2026-10-01 12:02:32.064] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:32.064] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x3              │
+[2026-10-01 12:02:32.064] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:32.064] [upf_n4 ] [info] pfcp_session::add(far) seid 0x3 FAR=1
+[2026-10-01 12:02:32.064] [upf_n4 ] [info]   └─ Adding new FAR 1 to session 0x3
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Destination Interface: CORE
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Total FARs in session: 1
+[2026-10-01 12:02:32.064] [upf_n4 ] [info] pfcp_session::set(fteid) seid 0x3 
+[2026-10-01 12:02:32.064] [upf_n4 ] [info] pfcp_session::get(fteid) seid 0x3 
+[2026-10-01 12:02:32.064] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x3 PDR=1
+[2026-10-01 12:02:32.064] [upf_n4 ] [info]   └─ Adding new PDR 1 to session 0x3
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Source Interface: ACCESS (Uplink)
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Local F-TEID: 0x3
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Linked FAR: 1
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Linked URR: 1
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Total PDRs in session: 1
+[2026-10-01 12:02:32.064] [upf_n4 ] [info] pfcp_session::add(urr) seid 0x3 URR=1
+[2026-10-01 12:02:32.064] [upf_n4 ] [info]   └─ Adding new URR 1 to session 0x3
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Measurement Method: VOLUM DURAT 
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Reporting Triggers: PERIO VOLTH TIMTH 
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Measurement Period: 10 s
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Volume Threshold DL: 16718206241729413120 bytes
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Time Threshold: 5 s
+[2026-10-01 12:02:32.064] [upf_n4 ] [debug]      • Total URRs in session: 1
+[2026-10-01 12:02:32.064] [upf_app] [info] Establish datapath: create(pdr(s), far(s), qer(s), urr(s), bar(s), mar(s))
+[2026-10-01 12:02:32.064] [upf_app] [debug] Establish Session seid 0x3
+[2026-10-01 12:02:32.064] [upf_app] [debug] [N4] Create session: seid 0x3 - Validating session context
+[2026-10-01 12:02:32.064] [upf_app] [debug] [N4] Create Session: seid 0x3 - Creating eBPF data-path pipeline
+[2026-10-01 12:02:32.064] [upf_app] [debug]   → Uplink PDRs (1 rules):
+[2026-10-01 12:02:32.064] [upf_app] [debug]     • PDR 1: Local F-TEID 0x3 (UPF listens on N3)
+[2026-10-01 12:02:32.064] [upf_app] [info] [eBPF] Create Pipeline - Creating pipeline for session 0x3
+[2026-10-01 12:02:32.064] [upf_app] [debug] [eBPF] Create Pipeline: seid 0x3 - Starting PDR rule 1 establishment
+[2026-10-01 12:02:32.064] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:02:32.064] [upf_app] [debug] Rules enabled SEID=0x3: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:02:32.064] [upf_app] [info] Pipeline created for session 0x3 with 1 PDRs [type = IP, rules = 0x2]
+[2026-10-01 12:02:32.064] [upf_app] [info] [N4] Create Session: seid 0x3 - eBPF data-path pipeline created successfully
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x3                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x3                   │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:02:32.067] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n6' probe='arping -c 2 -w 3 -I n6 172.30.26.10'
+[2026-10-01 12:02:32.117] [upf_n4 ] [info] handle_receive(150 bytes)
+[2026-10-01 12:02:32.117] [upf_app] [info] 
+[2026-10-01 12:02:32.117] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:32.117] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x3               │
+[2026-10-01 12:02:32.117] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:32.117] [upf_n4 ] [info] pfcp_session::add(far) seid 0x3 FAR=2
+[2026-10-01 12:02:32.117] [upf_n4 ] [info]   └─ Adding new FAR 2 to session 0x3
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Destination Interface: ACCESS
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Outer Header TEID: 0x5d9de407
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Remote IP: 172.30.23.20
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Total FARs in session: 2
+[2026-10-01 12:02:32.117] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x3 PDR=2
+[2026-10-01 12:02:32.117] [upf_n4 ] [info]   └─ Adding new PDR 2 to session 0x3
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Source Interface: CORE (Downlink)
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Linked FAR: 2
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Linked URR: 0
+[2026-10-01 12:02:32.117] [upf_n4 ] [debug]      • Total PDRs in session: 2
+[2026-10-01 12:02:32.117] [upf_app] [info] Modify datapath
+[2026-10-01 12:02:32.117] [upf_app] [debug] ModifySession() seid 0x3
+[2026-10-01 12:02:32.117] [upf_app] [info] [N4] Session Modification: seid 0x3
+[2026-10-01 12:02:32.117] [upf_app] [info]   └─ Created: 1 PDR, 1 FAR, 0 QER, 0 URR, 0 BAR, 0 MAR
+[2026-10-01 12:02:32.117] [upf_app] [debug] [N4] Session Modification: seid 0x3 - Applying pipeline updates
+[2026-10-01 12:02:32.117] [upf_app] [debug] [N4] Update Session: seid 0x3 - Modifying eBPF data-path pipeline
+[2026-10-01 12:02:32.117] [upf_app] [debug]   → Updated Uplink PDRs (1 rules):
+[2026-10-01 12:02:32.117] [upf_app] [debug]     • PDR 1: F-TEID 0x3
+[2026-10-01 12:02:32.117] [upf_app] [debug]   → Updated Downlink PDRs (1 rules):
+[2026-10-01 12:02:32.117] [upf_app] [debug]     • PDR 2 → FAR 2: TEID 0x5d9de407
+[2026-10-01 12:02:32.117] [upf_app] [info] [eBPF] Modify Pipeline - Updating pipeline for session 0x3
+[2026-10-01 12:02:32.117] [upf_app] [debug] Rules enabled SEID=0x3: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:02:32.117] [upf_app] [debug] Setup URRProgram for SEID=0x3
+[2026-10-01 12:02:32.117] [upf_app] [debug] URRProgram: config map updated SEID=3 URR_ID=1 triggers=0x15
+[2026-10-01 12:02:32.117] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:02:32.117] [upf_app] [debug] No QER associated with PDR 2
+[2026-10-01 12:02:32.117] [upf_app] [info] DL PDR 2: derived QFI 1 from unique ACCESS PDR in session 0x3
+[2026-10-01 12:02:32.117] [upf_app] [info] [eBPF] Modify Pipeline - Pipeline modified for session 0x3 with 2 PDRs (1 uplink TEIDs, 1 downlink TEIDs)
+[2026-10-01 12:02:32.117] [upf_app] [info] [N4] Update Session: seid 0x3 - eBPF data-path pipeline updated successfully
+[2026-10-01 12:02:32.117] [upf_app] [info] [N4] Session Modification: seid 0x3 - Completed successfully [Status: Session updated]
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x3                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x3                   │
+  │ 2      │ 2     │ -     │ -     │ -     │ -     │ 0          │ DL        │ 10.1.0.2        │ FORW       │ ACCESS     │ -     │ GTP → 172.30.23.20:0x5d9de407  │ -                              │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:02:32.133] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n3' probe='arping -c 2 -w 3 -I n3 172.30.23.20'
+[2026-10-01 12:02:33.057] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:33.057] [upf_app] [info] 
+[2026-10-01 12:02:33.057] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:33.057] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x3               │
+[2026-10-01 12:02:33.057] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:33.057] [upf_app] [info] Delete datapath
+[2026-10-01 12:02:33.057] [upf_app] [info] RemoveSession() seid 0x3
+[2026-10-01 12:02:33.057] [upf_app] [debug] [N4] Delete Session: seid 0x3 - Deleting eBPF data-path pipeline
+[2026-10-01 12:02:33.057] [upf_app] [debug]   → Removing: 2 PDR(s) (1 UL, 1 DL), 2 FAR(s), 0 QER(s)
+[2026-10-01 12:02:33.057] [upf_app] [debug]     • Removing uplink TEID 0x3 (PDR 1)
+[2026-10-01 12:02:33.057] [upf_app] [debug]     • Removing downlink TEID 0x5d9de407 (PDR 2 → FAR 2)
+[2026-10-01 12:02:33.057] [upf_app] [info] [eBPF] Remove Pipeline - Cleaning up pipeline for session 0x3
+[2026-10-01 12:02:33.057] [upf_app] [info] Removing pipeline for session 0x3
+[2026-10-01 12:02:33.057] [upf_app] [info] Removing session 0x3
+[2026-10-01 12:02:33.057] [upf_app] [warning] GetNextKey failed for map 'session_by_ue_ip_map': errno=2
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'session_by_ue_ip_map': [167837698] -> *
+[2026-10-01 12:02:33.057] [upf_app] [info] RemovePdrRulesMaps: seid 0x3 with 2 PDR(s)
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'rules_match_pdr_map': [{PDR=1, SEID=0x3}] -> *
+[2026-10-01 12:02:33.057] [upf_app] [info] RemovePdrRulesMaps: PDR 1 key {PDR=1, SEID=0x3} removed=1 errno=2
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'rules_match_pdr_map': [{PDR=2, SEID=0x3}] -> *
+[2026-10-01 12:02:33.057] [upf_app] [info] RemovePdrRulesMaps: PDR 2 key {PDR=2, SEID=0x3} removed=1 errno=2
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'pdrs_per_session_map': [3] -> *
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'session_rules_enabled_map': [3] -> *
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'urr_config_map': [3] -> *
+[2026-10-01 12:02:33.057] [upf_app] [debug] Remove value from Map 'urr_volume_counters_map': [3] -> *
+[2026-10-01 12:02:33.057] [upf_app] [warning] GetMapByName: 'mar_rules_map' not found
+[2026-10-01 12:02:33.057] [upf_app] [info] Pipeline removed for session 0x3
+[2026-10-01 12:02:33.057] [upf_app] [info] [N4] Delete Session: seid 0x3 - eBPF data-path pipeline deleted successfully
+[2026-10-01 12:02:33.057] [upf_app] [info] [N4] Delete Session: seid 0x3 - Session removed from registry
+[2026-10-01 12:02:34.157] [upf_app] [info] retrieveNextHopMAC: 172.30.26.10 -> da:9f:f2:cb:bc:c2 on n6 (attempt 1/3)
+[2026-10-01 12:02:34.157] [upf_app] [debug] ARP: 172.30.26.10 dev n6 lladdr da:9f:f2:cb:bc:c2 [SEID=3]
+[2026-10-01 12:02:34.181] [upf_app] [info] retrieveNextHopMAC: 172.30.23.20 -> c6:a8:fa:2a:63:82 on n3 (attempt 1/3)
+[2026-10-01 12:02:34.181] [upf_app] [debug] ARP: 172.30.23.20 dev n3 lladdr c6:a8:fa:2a:63:82 [SEID=3]
+[2026-10-01 12:02:36.163] [upf_n4 ] [info] TIME-OUT event timer id 243
+[2026-10-01 12:02:36.163] [upf_n4 ] [info] TIME-OUT event timer id 244
+[2026-10-01 12:02:36.163] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:36.163] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:36.163] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:02:36.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:36.164] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:36.257] [upf_app] [info] TIME-OUT event timer id 240
+[2026-10-01 12:02:36.257] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:02:36.257] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:02:36.257] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:02:36.257] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:02:36.257] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:02:36.260] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:02:36.260] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:02:38.949] [upf_n4 ] [info] handle_receive(230 bytes)
+[2026-10-01 12:02:38.949] [upf_app] [info] 
+[2026-10-01 12:02:38.949] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:38.949] [upf_app] [info] │             Received N4_SESSION_ESTABLISHMENT_REQUEST seid 0x4              │
+[2026-10-01 12:02:38.949] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:38.949] [upf_n4 ] [info] pfcp_session::add(far) seid 0x4 FAR=1
+[2026-10-01 12:02:38.949] [upf_n4 ] [info]   └─ Adding new FAR 1 to session 0x4
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Destination Interface: CORE
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Total FARs in session: 1
+[2026-10-01 12:02:38.949] [upf_n4 ] [info] pfcp_session::set(fteid) seid 0x4 
+[2026-10-01 12:02:38.949] [upf_n4 ] [info] pfcp_session::get(fteid) seid 0x4 
+[2026-10-01 12:02:38.949] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x4 PDR=1
+[2026-10-01 12:02:38.949] [upf_n4 ] [info]   └─ Adding new PDR 1 to session 0x4
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Source Interface: ACCESS (Uplink)
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Local F-TEID: 0x4
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Linked FAR: 1
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Linked URR: 1
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Total PDRs in session: 1
+[2026-10-01 12:02:38.949] [upf_n4 ] [info] pfcp_session::add(urr) seid 0x4 URR=1
+[2026-10-01 12:02:38.949] [upf_n4 ] [info]   └─ Adding new URR 1 to session 0x4
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Measurement Method: VOLUM DURAT 
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Reporting Triggers: PERIO VOLTH TIMTH 
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Measurement Period: 10 s
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Volume Threshold DL: 16718206241729413120 bytes
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Time Threshold: 5 s
+[2026-10-01 12:02:38.949] [upf_n4 ] [debug]      • Total URRs in session: 1
+[2026-10-01 12:02:38.949] [upf_app] [info] Establish datapath: create(pdr(s), far(s), qer(s), urr(s), bar(s), mar(s))
+[2026-10-01 12:02:38.949] [upf_app] [debug] Establish Session seid 0x4
+[2026-10-01 12:02:38.949] [upf_app] [debug] [N4] Create session: seid 0x4 - Validating session context
+[2026-10-01 12:02:38.949] [upf_app] [debug] [N4] Create Session: seid 0x4 - Creating eBPF data-path pipeline
+[2026-10-01 12:02:38.949] [upf_app] [debug]   → Uplink PDRs (1 rules):
+[2026-10-01 12:02:38.949] [upf_app] [debug]     • PDR 1: Local F-TEID 0x4 (UPF listens on N3)
+[2026-10-01 12:02:38.949] [upf_app] [info] [eBPF] Create Pipeline - Creating pipeline for session 0x4
+[2026-10-01 12:02:38.949] [upf_app] [debug] [eBPF] Create Pipeline: seid 0x4 - Starting PDR rule 1 establishment
+[2026-10-01 12:02:38.949] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:02:38.950] [upf_app] [debug] Rules enabled SEID=0x4: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:02:38.950] [upf_app] [info] Pipeline created for session 0x4 with 1 PDRs [type = IP, rules = 0x2]
+[2026-10-01 12:02:38.950] [upf_app] [info] [N4] Create Session: seid 0x4 - eBPF data-path pipeline created successfully
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x4                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x4                   │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:02:39.016] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n6' probe='arping -c 2 -w 3 -I n6 172.30.26.10'
+[2026-10-01 12:02:39.022] [upf_n4 ] [info] handle_receive(150 bytes)
+[2026-10-01 12:02:39.022] [upf_app] [info] 
+[2026-10-01 12:02:39.022] [upf_app] [info] ╔═════════════════════════════════════════════════════════════════════════════╗
+[2026-10-01 12:02:39.022] [upf_app] [info] │             Received N4_SESSION_MODIFICATION_REQUEST seid 0x4               │
+[2026-10-01 12:02:39.022] [upf_app] [info] ╚═════════════════════════════════════════════════════════════════════════════╝
+[2026-10-01 12:02:39.022] [upf_n4 ] [info] pfcp_session::add(far) seid 0x4 FAR=2
+[2026-10-01 12:02:39.022] [upf_n4 ] [info]   └─ Adding new FAR 2 to session 0x4
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Apply Action: FORW 
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Destination Interface: ACCESS
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Outer Header TEID: 0x26021fa9
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Remote IP: 172.30.23.20
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Total FARs in session: 2
+[2026-10-01 12:02:39.022] [upf_n4 ] [info] pfcp_session::add(pdr) seid 0x4 PDR=2
+[2026-10-01 12:02:39.022] [upf_n4 ] [info]   └─ Adding new PDR 2 to session 0x4
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Source Interface: CORE (Downlink)
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • UE IP Address: 10.1.0.2
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Precedence: 0
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Linked FAR: 2
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Linked URR: 0
+[2026-10-01 12:02:39.022] [upf_n4 ] [debug]      • Total PDRs in session: 2
+[2026-10-01 12:02:39.022] [upf_app] [info] Modify datapath
+[2026-10-01 12:02:39.022] [upf_app] [debug] ModifySession() seid 0x4
+[2026-10-01 12:02:39.022] [upf_app] [info] [N4] Session Modification: seid 0x4
+[2026-10-01 12:02:39.022] [upf_app] [info]   └─ Created: 1 PDR, 1 FAR, 0 QER, 0 URR, 0 BAR, 0 MAR
+[2026-10-01 12:02:39.022] [upf_app] [debug] [N4] Session Modification: seid 0x4 - Applying pipeline updates
+[2026-10-01 12:02:39.022] [upf_app] [debug] [N4] Update Session: seid 0x4 - Modifying eBPF data-path pipeline
+[2026-10-01 12:02:39.022] [upf_app] [debug]   → Updated Uplink PDRs (1 rules):
+[2026-10-01 12:02:39.022] [upf_app] [debug]     • PDR 1: F-TEID 0x4
+[2026-10-01 12:02:39.022] [upf_app] [debug]   → Updated Downlink PDRs (1 rules):
+[2026-10-01 12:02:39.022] [upf_app] [debug]     • PDR 2 → FAR 2: TEID 0x26021fa9
+[2026-10-01 12:02:39.022] [upf_app] [info] [eBPF] Modify Pipeline - Updating pipeline for session 0x4
+[2026-10-01 12:02:39.022] [upf_app] [debug] Rules enabled SEID=0x4: 0x2 [QER=off URR=ON BAR=off MAR=off]
+[2026-10-01 12:02:39.022] [upf_app] [debug] Setup URRProgram for SEID=0x4
+[2026-10-01 12:02:39.022] [upf_app] [debug] URRProgram: config map updated SEID=4 URR_ID=1 triggers=0x15
+[2026-10-01 12:02:39.022] [upf_app] [debug] No QER associated with PDR 1
+[2026-10-01 12:02:39.022] [upf_app] [debug] No QER associated with PDR 2
+[2026-10-01 12:02:39.022] [upf_app] [info] DL PDR 2: derived QFI 1 from unique ACCESS PDR in session 0x4
+[2026-10-01 12:02:39.022] [upf_app] [info] [eBPF] Modify Pipeline - Pipeline modified for session 0x4 with 2 PDRs (1 uplink TEIDs, 1 downlink TEIDs)
+[2026-10-01 12:02:39.022] [upf_app] [info] [N4] Update Session: seid 0x4 - eBPF data-path pipeline updated successfully
+[2026-10-01 12:02:39.022] [upf_app] [info] [N4] Session Modification: seid 0x4 - Completed successfully [Status: Session updated]
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                                                                                PDU SESSION RULES - Session 0x4                                                                                │
+  ├────────┬───────┬───────┬───────┬───────┬───────┬────────────┬───────────┬─────────────────┬────────────┬────────────┬───────┬────────────────────────────────┬────────────────────────────────┤
+  │  PDR   │  FAR  │  QER  │  URR  │  BAR  │  MAR  │ Precedence │ Direction │    UE IPv4      │   Action   │  Dest If   │  QFI  │       Create Outer Hdr         │       Remove Outer Hdr         │
+  ├────────┼───────┼───────┼───────┼───────┼───────┼────────────┼───────────┼─────────────────┼────────────┼────────────┼───────┼────────────────────────────────┼────────────────────────────────┤
+  │ 1      │ 1     │ -     │ 1     │ -     │ -     │ 0          │ UL        │ 10.1.0.2        │ FORW       │ CORE       │ -     │ -                              │ GTP TEID:0x4                   │
+  │ 2      │ 2     │ -     │ -     │ -     │ -     │ 0          │ DL        │ 10.1.0.2        │ FORW       │ ACCESS     │ -     │ GTP → 172.30.23.20:0x26021fa9  │ -                              │
+  └────────┴───────┴───────┴───────┴───────┴───────┴────────────┴───────────┴─────────────────┴────────────┴────────────┴───────┴────────────────────────────────┴────────────────────────────────┘
+
+[2026-10-01 12:02:39.025] [upf_app] [debug] retrieveNextHopMAC: attempt 1/3 on iface='n3' probe='arping -c 2 -w 3 -I n3 172.30.23.20'
+[2026-10-01 12:02:41.075] [upf_app] [info] retrieveNextHopMAC: 172.30.26.10 -> da:9f:f2:cb:bc:c2 on n6 (attempt 1/3)
+[2026-10-01 12:02:41.075] [upf_app] [debug] ARP: 172.30.26.10 dev n6 lladdr da:9f:f2:cb:bc:c2 [SEID=4]
+[2026-10-01 12:02:41.076] [upf_app] [info] retrieveNextHopMAC: 172.30.23.20 -> c6:a8:fa:2a:63:82 on n3 (attempt 1/3)
+[2026-10-01 12:02:41.076] [upf_app] [debug] ARP: 172.30.23.20 dev n3 lladdr c6:a8:fa:2a:63:82 [SEID=4]
+[2026-10-01 12:02:41.163] [upf_n4 ] [info] TIME-OUT event timer id 250
+[2026-10-01 12:02:41.164] [upf_n4 ] [info] TIME-OUT event timer id 252
+[2026-10-01 12:02:41.164] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:41.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:41.164] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] TIME-OUT event timer id 258
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] TIME-OUT event timer id 259
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:46.164] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:46.260] [upf_app] [info] TIME-OUT event timer id 253
+[2026-10-01 12:02:46.260] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:02:46.260] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:02:46.260] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:02:46.260] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:02:46.260] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:02:46.263] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:02:46.263] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:02:51.164] [upf_n4 ] [info] TIME-OUT event timer id 262
+[2026-10-01 12:02:51.164] [upf_n4 ] [info] TIME-OUT event timer id 264
+[2026-10-01 12:02:51.164] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:51.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:51.164] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] TIME-OUT event timer id 268
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] TIME-OUT event timer id 269
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:02:56.164] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:02:56.263] [upf_app] [info] TIME-OUT event timer id 265
+[2026-10-01 12:02:56.263] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:02:56.263] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:02:56.263] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:02:56.263] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:02:56.263] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:02:56.265] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:02:56.265] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:03:01.164] [upf_n4 ] [info] TIME-OUT event timer id 272
+[2026-10-01 12:03:01.164] [upf_n4 ] [info] TIME-OUT event timer id 274
+[2026-10-01 12:03:01.164] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:01.165] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:01.165] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:06.164] [upf_n4 ] [info] TIME-OUT event timer id 278
+[2026-10-01 12:03:06.165] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:06.165] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:03:06.165] [upf_n4 ] [info] TIME-OUT event timer id 279
+[2026-10-01 12:03:06.165] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:06.165] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:06.165] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:06.265] [upf_app] [info] TIME-OUT event timer id 275
+[2026-10-01 12:03:06.265] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:03:06.265] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:03:06.265] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:03:06.265] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:03:06.265] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:03:06.267] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:03:06.267] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:03:11.165] [upf_n4 ] [info] TIME-OUT event timer id 283
+[2026-10-01 12:03:11.165] [upf_n4 ] [info] TIME-OUT event timer id 284
+[2026-10-01 12:03:11.165] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:11.165] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:11.165] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] TIME-OUT event timer id 288
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] TIME-OUT event timer id 289
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:16.165] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:16.267] [upf_app] [info] TIME-OUT event timer id 285
+[2026-10-01 12:03:16.267] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:03:16.267] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:03:16.267] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:03:16.267] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:03:16.267] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:03:16.269] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:03:16.269] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:03:21.165] [upf_n4 ] [info] TIME-OUT event timer id 293
+[2026-10-01 12:03:21.165] [upf_n4 ] [info] TIME-OUT event timer id 294
+[2026-10-01 12:03:21.165] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:21.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:21.166] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:26.165] [upf_n4 ] [info] TIME-OUT event timer id 298
+[2026-10-01 12:03:26.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:26.166] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:03:26.166] [upf_n4 ] [info] TIME-OUT event timer id 299
+[2026-10-01 12:03:26.166] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:26.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:26.166] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:26.269] [upf_app] [info] TIME-OUT event timer id 295
+[2026-10-01 12:03:26.269] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:03:26.269] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:03:26.269] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:03:26.269] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:03:26.269] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:03:26.271] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:03:26.271] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:03:31.166] [upf_n4 ] [info] TIME-OUT event timer id 303
+[2026-10-01 12:03:31.166] [upf_n4 ] [info] TIME-OUT event timer id 304
+[2026-10-01 12:03:31.166] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:31.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:31.166] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] TIME-OUT event timer id 308
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] TIME-OUT event timer id 309
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:36.166] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:36.271] [upf_app] [info] TIME-OUT event timer id 305
+[2026-10-01 12:03:36.271] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:03:36.271] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:03:36.271] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:03:36.271] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:03:36.271] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:03:36.273] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:03:36.273] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:03:41.166] [upf_n4 ] [info] TIME-OUT event timer id 312
+[2026-10-01 12:03:41.166] [upf_n4 ] [info] TIME-OUT event timer id 314
+[2026-10-01 12:03:41.166] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:41.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:41.166] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:46.166] [upf_n4 ] [info] TIME-OUT event timer id 318
+[2026-10-01 12:03:46.166] [upf_n4 ] [info] TIME-OUT event timer id 319
+[2026-10-01 12:03:46.166] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:46.166] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:46.166] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:03:46.167] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:46.167] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:46.273] [upf_app] [info] TIME-OUT event timer id 315
+[2026-10-01 12:03:46.273] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:03:46.273] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:03:46.273] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:03:46.273] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:03:46.273] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:03:46.276] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:03:46.276] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:03:51.166] [upf_n4 ] [info] TIME-OUT event timer id 322
+[2026-10-01 12:03:51.167] [upf_n4 ] [info] TIME-OUT event timer id 324
+[2026-10-01 12:03:51.167] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:51.167] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:51.167] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] TIME-OUT event timer id 328
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] TIME-OUT event timer id 329
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:03:56.167] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:03:56.276] [upf_app] [info] TIME-OUT event timer id 325
+[2026-10-01 12:03:56.276] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:03:56.276] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:03:56.276] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:03:56.276] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:03:56.276] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:03:56.278] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:03:56.278] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:04:01.167] [upf_n4 ] [info] TIME-OUT event timer id 332
+[2026-10-01 12:04:01.167] [upf_n4 ] [info] TIME-OUT event timer id 334
+[2026-10-01 12:04:01.167] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:01.167] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:01.167] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:06.167] [upf_n4 ] [info] TIME-OUT event timer id 338
+[2026-10-01 12:04:06.167] [upf_n4 ] [info] TIME-OUT event timer id 339
+[2026-10-01 12:04:06.167] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:06.167] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:06.167] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:04:06.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:06.168] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:06.279] [upf_app] [info] TIME-OUT event timer id 335
+[2026-10-01 12:04:06.279] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:04:06.279] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:04:06.279] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:04:06.279] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:04:06.279] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:04:06.281] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:04:06.281] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:04:11.167] [upf_n4 ] [info] TIME-OUT event timer id 342
+[2026-10-01 12:04:11.168] [upf_n4 ] [info] TIME-OUT event timer id 344
+[2026-10-01 12:04:11.168] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:11.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:11.168] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] TIME-OUT event timer id 348
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] TIME-OUT event timer id 349
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:16.168] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:16.281] [upf_app] [info] TIME-OUT event timer id 345
+[2026-10-01 12:04:16.281] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:04:16.281] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:04:16.281] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:04:16.281] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:04:16.281] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:04:16.283] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:04:16.283] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:04:21.168] [upf_n4 ] [info] TIME-OUT event timer id 352
+[2026-10-01 12:04:21.168] [upf_n4 ] [info] TIME-OUT event timer id 354
+[2026-10-01 12:04:21.168] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:21.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:21.168] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] TIME-OUT event timer id 358
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] TIME-OUT event timer id 359
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:26.168] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:26.283] [upf_app] [info] TIME-OUT event timer id 355
+[2026-10-01 12:04:26.284] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:04:26.284] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:04:26.284] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:04:26.284] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:04:26.284] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:04:26.286] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:04:26.286] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:04:31.168] [upf_n4 ] [info] TIME-OUT event timer id 362
+[2026-10-01 12:04:31.168] [upf_n4 ] [info] TIME-OUT event timer id 364
+[2026-10-01 12:04:31.168] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:31.169] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:31.169] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] TIME-OUT event timer id 368
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] TIME-OUT event timer id 369
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:36.169] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:36.286] [upf_app] [info] TIME-OUT event timer id 365
+[2026-10-01 12:04:36.286] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:04:36.286] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:04:36.286] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:04:36.286] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:04:36.286] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:04:36.288] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:04:36.288] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:04:41.169] [upf_n4 ] [info] TIME-OUT event timer id 372
+[2026-10-01 12:04:41.169] [upf_n4 ] [info] TIME-OUT event timer id 374
+[2026-10-01 12:04:41.169] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:41.169] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:41.169] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] TIME-OUT event timer id 378
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] TIME-OUT event timer id 379
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:46.169] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:46.288] [upf_app] [info] TIME-OUT event timer id 375
+[2026-10-01 12:04:46.288] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:04:46.288] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:04:46.288] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:04:46.288] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:04:46.288] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:04:46.291] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:04:46.291] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:04:51.169] [upf_n4 ] [info] TIME-OUT event timer id 382
+[2026-10-01 12:04:51.169] [upf_n4 ] [info] TIME-OUT event timer id 384
+[2026-10-01 12:04:51.169] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:51.170] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:51.170] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:56.169] [upf_n4 ] [info] TIME-OUT event timer id 388
+[2026-10-01 12:04:56.170] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:56.170] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:04:56.170] [upf_n4 ] [info] TIME-OUT event timer id 389
+[2026-10-01 12:04:56.170] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:04:56.170] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:04:56.170] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:04:56.291] [upf_app] [info] TIME-OUT event timer id 385
+[2026-10-01 12:04:56.291] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:04:56.291] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:04:56.291] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:04:56.291] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:04:56.291] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:04:56.294] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:04:56.294] [upf_app] [debug] Set a timer to the next Heart-beat (10)
+[2026-10-01 12:05:01.170] [upf_n4 ] [info] TIME-OUT event timer id 393
+[2026-10-01 12:05:01.170] [upf_n4 ] [info] TIME-OUT event timer id 394
+[2026-10-01 12:05:01.170] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:05:01.170] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:05:01.170] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] TIME-OUT event timer id 398
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] Received SX HEARTBEAT REQUEST
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] TIME-OUT event timer id 399
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] PFCP HEARTBEAT PROCEDURE hash 169352876 starting
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] handle_receive(16 bytes)
+[2026-10-01 12:05:06.170] [upf_n4 ] [info] Received SX HEARTBEAT RESPONSE
+[2026-10-01 12:05:06.295] [upf_app] [info] TIME-OUT event timer id 395
+[2026-10-01 12:05:06.295] [upf_app] [debug] Send Heartbeat to NRF
+[2026-10-01 12:05:06.295] [upf_app] [info] Send NF Update to NRF
+[2026-10-01 12:05:06.295] [upf_app] [debug] Send NF Update to NRF (Msg body [{"op":"replace","path":"/nfStatus","value":"REGISTERED"}])
+[2026-10-01 12:05:06.295] [upf_app] [debug] Send NF Update to NRF (NRF URL http://oai-nrf.oai-core.svc.cluster.local:80/nnrf-nfm/v1/nf-instances/cbda591c-36e5-4dc2-a7e4-6b20c4e18f0b)
+[2026-10-01 12:05:06.295] [upf_app] [debug] Send a simple HTTP request
+[2026-10-01 12:05:06.297] [upf_app] [info] Got successful response from NRF
+[2026-10-01 12:05:06.297] [upf_app] [debug] Set a timer to the next Heart-beat (10)

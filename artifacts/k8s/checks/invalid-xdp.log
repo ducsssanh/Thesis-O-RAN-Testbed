@@ -1,0 +1,60 @@
+
+                  [94m▓▓▓▓▓▓[97m╗  [94m▓▓▓▓▓[97m╗ [94m▓▓[97m╗  [92m▓▓  [97m▓▓  [97m▓▓[92m▓▓▓▓  [92m▓▓[97m▓▓[92m▓▓[97m▓▓[0m
+                 [94m▓▓[97m╔═══[94m▓▓[97m╗[94m▓▓[97m╔══[94m▓▓[97m╗[94m▓▓[97m║  [97m▓▓  [92m▓▓  [92m▓▓  [97m▓▓  [92m▓▓      [0m
+                 [94m▓▓[97m║   [94m▓▓[97m║[94m▓▓▓▓▓▓▓[97m║[94m▓▓[97m║  [92m▓▓  [97m▓▓  [97m▓▓[92m▓▓▓▓  [92m▓▓▓▓[97m▓▓  [0m
+                 [94m▓▓[97m║   [94m▓▓[97m║[94m▓▓[97m╔══[94m▓▓[97m║[94m▓▓[97m║  [97m▓▓  [92m▓▓  [92m▓▓      [97m▓▓      [0m
+                 [97m╚[94m▓▓▓▓▓▓[97m╔╝[94m▓▓[97m║  [94m▓▓[97m║[94m▓▓[97m║  [92m▓▓[97m▓▓[92m▓▓  [92m▓▓      [97m▓▓  [33mv3.0[0m
+                  [97m╚═════╝ ╚═╝  ╚═╝╚═╝[0m
+                 [2;37m───────────────────────────────────────────────────────────────[0m
+                 [96mOpenAirInterface[2;37m  ·  [92mUser Plane Function[2;37m  ·  [92m5G Core · N4[0m
+                 [37m3GPP TS 29.244  ·  PFCP V17.10.0  ·  Release 17[0m
+                 [33m© OpenAirInterface Software Alliance[0m
+
+Trying to read .yaml configuration file: /config.yaml
+LTTNG Tracing disabled at build-time!
+[2026-09-26 17:24:03.090] [upf_app] [start] ==============================================================================
+[2026-09-26 17:24:03.090] [upf_app] [start]                      5G User Plane Function (UPF)
+[2026-09-26 17:24:03.090] [upf_app] [start]                         OpenAirInterface
+[2026-09-26 17:24:03.090] [upf_app] [start]                       3GPP Rel-17 Compliant
+[2026-09-26 17:24:03.090] [upf_app] [start] ==============================================================================
+[2026-09-26 17:24:03.090] [upf_app] [start] 
+[2026-09-26 17:24:03.090] [upf_app] [start] ┌─────────────────────────────────────────────────────────────────────────────┐
+[2026-09-26 17:24:03.090] [upf_app] [start] │                           VERSION INFORMATION                               │
+[2026-09-26 17:24:03.090] [upf_app] [start] ├──────────────────────────────┬──────────────────────────────────────────────┤
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Git Branch                   │                                              │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Git Commit Hash              │                                              │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Git Commit Date              │                                              │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Build Time                   │ 2026-09-26 14:58:02                          │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ 3GPP Release                 │ Rel-17                                       │
+[2026-09-26 17:24:03.090] [upf_app] [start] ├──────────────────────────────┼──────────────────────────────────────────────┤
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Kernel Version               │ 6.8.1-1059-realtime                          │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ libbpf Version               │ 1.5                                          │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Compiler                     │ GCC 11.4.0                                   │
+[2026-09-26 17:24:03.090] [upf_app] [start] │ Architecture                 │ x86_64                                       │
+[2026-09-26 17:24:03.091] [upf_app] [start] │ System Uptime                │ 0d 3h 28m                                    │
+[2026-09-26 17:24:03.091] [upf_app] [start] │ UPF Process Uptime           │ 0d 0h 0m                                     │
+[2026-09-26 17:24:03.091] [upf_app] [start] ├──────────────────────────────┼──────────────────────────────────────────────┤
+[2026-09-26 17:24:03.091] [upf_app] [start] │ Bug Reports                  │ openaircn-user@lists.eurecom.fr              │
+[2026-09-26 17:24:03.091] [upf_app] [start] └──────────────────────────────┴──────────────────────────────────────────────┘
+[2026-09-26 17:24:03.091] [upf_app] [start] 
+[2026-09-26 17:24:03.091] [upf_app] [start] Options parsed
+[2026-09-26 17:24:03.091] [config ] [info] Reading NF configuration from /config.yaml
+[2026-09-26 17:24:03.095] [config ] [debug] Unknown NF amf in configuration. Ignored
+[2026-09-26 17:24:03.095] [config ] [debug] Unknown NF ausf in configuration. Ignored
+[2026-09-26 17:24:03.095] [config ] [debug] Unknown NF udm in configuration. Ignored
+[2026-09-26 17:24:03.095] [config ] [debug] Unknown NF udr in configuration. Ignored
+[2026-09-26 17:24:03.095] [config ] [warning] Could not parse upf: xdp_mode must be auto, skb or native
+[2026-09-26 17:24:03.095] [config ] [debug] Validating configuration of log_level
+[2026-09-26 17:24:03.095] [config ] [debug] Validating configuration of register_nf
+[2026-09-26 17:24:03.095] [config ] [debug] Validating configuration of http_version
+[2026-09-26 17:24:03.095] [config ] [debug] Validating configuration of http_request_timeout
+[2026-09-26 17:24:03.095] [config ] [debug] Validating configuration of NRF
+[2026-09-26 17:24:03.096] [config ] [debug] Validating configuration of SMF
+[2026-09-26 17:24:03.096] [config ] [debug] Validating configuration of UPF Configuration
+[2026-09-26 17:24:03.096] [system ] [error] Failed to probe eth0 inet addr: error No such device
+
+[2026-09-26 17:24:03.096] [config ] [error] Validation of UPF Configuration not successful: Error in reading network interface eth0. Make sure it exists
+[2026-09-26 17:24:03.096] [config ] [debug] Validating configuration of DNN
+[2026-09-26 17:24:03.097] [config ] [debug] Validating configuration of database
+[2026-09-26 17:24:03.097] [config ] [error] Configuration validation not successful!
+[2026-09-26 17:24:03.097] [upf_app] [error] Reading the configuration failed. Exiting.

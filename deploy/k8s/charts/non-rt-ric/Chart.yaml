@@ -1,0 +1,5 @@
+apiVersion: v2
+name: non-rt-ric
+version: 0.1.0
+type: application
+description: OAI lab non-rt-ric release

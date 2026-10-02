@@ -1,0 +1,370 @@
+--- a/oai-5g-core/oai-udr/templates/deployment.yaml
++++ b/oai-5g-core/oai-udr/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -155,3 +159,5 @@
+       {{- if .Values.nodeName }}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-udr/templates/configmap.yaml
++++ b/oai-5g-core/oai-udr/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-upf/templates/deployment.yaml
++++ b/oai-5g-core/oai-upf/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -190,3 +194,5 @@
+       {{- if .Values.nodeName }}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-upf/templates/configmap.yaml
++++ b/oai-5g-core/oai-upf/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-upf/templates/nad.yaml
++++ b/oai-5g-core/oai-upf/templates/nad.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if .Values.multus.enabled }}
+@@ -72,3 +74,5 @@
+ {{- end }}
+ {{- end }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-udm/templates/deployment.yaml
++++ b/oai-5g-core/oai-udm/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -157,3 +161,5 @@
+       {{- if .Values.nodeName }}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-udm/templates/configmap.yaml
++++ b/oai-5g-core/oai-udm/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-smf/templates/deployment.yaml
++++ b/oai-5g-core/oai-smf/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -223,3 +227,5 @@
+       {{- if .Values.nodeName }}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-smf/templates/configmap.yaml
++++ b/oai-5g-core/oai-smf/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-smf/templates/nad.yaml
++++ b/oai-5g-core/oai-smf/templates/nad.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if .Values.multus.enabled }}
+@@ -72,3 +74,5 @@
+ {{- end }}
+ {{- end }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-nrf/templates/deployment.yaml
++++ b/oai-5g-core/oai-nrf/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -128,3 +132,5 @@
+       {{- if .Values.nodeName}}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-nrf/templates/configmap.yaml
++++ b/oai-5g-core/oai-nrf/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-ausf/templates/deployment.yaml
++++ b/oai-5g-core/oai-ausf/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -157,3 +161,5 @@
+       {{- if .Values.nodeName}}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-ausf/templates/configmap.yaml
++++ b/oai-5g-core/oai-ausf/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-amf/templates/deployment.yaml
++++ b/oai-5g-core/oai-amf/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -196,3 +200,5 @@
+       {{- if .Values.nodeName}}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-amf/templates/configmap.yaml
++++ b/oai-5g-core/oai-amf/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if not .Values.global }}
+@@ -10,3 +12,5 @@
+ data:
+   {{ (.Files.Glob "config.yaml").AsConfig | indent 2 | trim }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-core/oai-amf/templates/nad.yaml
++++ b/oai-5g-core/oai-amf/templates/nad.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if .Values.multus.enabled }}
+@@ -72,3 +74,5 @@
+ {{- end }}
+ {{- end }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-flexric/templates/deployment.yaml
++++ b/oai-5g-ran/oai-flexric/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -160,3 +164,5 @@
+       {{- if .Values.nodeName }}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-flexric/templates/configmap.yaml
++++ b/oai-5g-ran/oai-flexric/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ ---
+@@ -14,3 +16,5 @@
+       [XAPP]
+       DB_DIR = /flexric/
+       DB_NAME = xapp_db
++
++{{- end }}
+--- a/oai-5g-ran/oai-flexric/templates/nad.yaml
++++ b/oai-5g-ran/oai-flexric/templates/nad.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if .Values.multus.enabled }}
+@@ -68,3 +70,5 @@
+ {{- end }}
+ {{- end }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-gnb/templates/deployment.yaml
++++ b/oai-5g-ran/oai-gnb/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -292,3 +296,5 @@
+           persistentVolumeClaim:
+             claimName: shared-pvc
+         {{- end }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-gnb/templates/configmap.yaml
++++ b/oai-5g-ran/oai-gnb/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ ---
+@@ -11,3 +13,5 @@
+ data:
+   config.yaml: |-
+ {{ (.Files.Glob "config.yaml").AsConfig | nindent 2 }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-gnb/templates/nad.yaml
++++ b/oai-5g-ran/oai-gnb/templates/nad.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: MIT
+ 
+ {{- if .Values.multus.enabled }}
+@@ -72,3 +74,5 @@
+ {{- end }}
+ {{- end }}
+ {{- end }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-nr-ue/templates/deployment.yaml
++++ b/oai-5g-ran/oai-nr-ue/templates/deployment.yaml
+@@ -1,3 +1,7 @@
++{{/* lab.rendered: explicit integration hook; original OAI template below */}}
++{{- if .Values.global.lab }}
++{{ include "lab.nf" . }}
++{{- else }}
+ # SPDX-License-Identifier: MIT
+ 
+ apiVersion: apps/v1
+@@ -173,3 +177,5 @@
+       {{- if .Values.nodeName}}
+       nodeName: {{ .Values.nodeName }}
+       {{- end }}
++
++{{- end }}
+--- a/oai-5g-ran/oai-nr-ue/templates/configmap.yaml
++++ b/oai-5g-ran/oai-nr-ue/templates/configmap.yaml
+@@ -1,3 +1,5 @@
++{{/* lab.rendered */}}
++{{- if not .Values.global.lab }}
+ # SPDX-License-Identifier: LicenseRef-CSSL-1.0
+ 
+ ---
+@@ -27,3 +29,5 @@
+       {{- end }}
+       );
+     }
++
++{{- end }}

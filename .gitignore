@@ -1,0 +1,16 @@
+# Upstream OAI / FlexRIC trees: rebuilt from pinned commits + patches/
+# (scripts/verify-oai-upstream.sh, docs/OAI-UPSTREAM-CHANGES.md)
+/src/oai-ran/
+/src/oai-smf/
+/src/oai-upf/
+/src/flexric/
+/src/5gdeploy/
+
+# Build / tooling output
+__pycache__/
+*.pyc
+node_modules/
+build/
+*.o
+*.a
+.venv/

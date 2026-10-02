@@ -1,0 +1,167 @@
+{
+  "updatedAt": "2026-09-29T16:23:25+07:00",
+  "milestone0": {
+    "status": "PARTIAL",
+    "composeGeneratorCapabilities": "PASS",
+    "composeRuntimeBaseline": "NOT_RUN",
+    "evidence": "baseline/compose.json"
+  },
+  "milestone1": {
+    "status": "COMPLETE",
+    "bootstrap": "PASS",
+    "imageBuild": "PASS",
+    "helmLint": "PASS",
+    "apiServerDryRun": "PASS",
+    "secondaryNetworks": "PASS",
+    "dns": "PASS",
+    "sctp": "PASS",
+    "bpfLoadPermission": "PASS",
+    "unprivilegedUeTun": "PASS",
+    "radioLibraries": "PASS",
+    "unitTests": 15,
+    "evidence": [
+      "bootstrap/bootstrap.json",
+      "bootstrap/bootstrap-client.json",
+      "bootstrap/bootstrap-server.json",
+      "bootstrap/bootstrap-bpf.json",
+      "bootstrap/bootstrap-tun.json",
+      "bootstrap/bootstrap-radio.json",
+      "state/images.json",
+      "bootstrap/node-images.json",
+      "build/source-provenance.json"
+    ]
+  },
+  "milestone2": {
+    "status": "COMPLETE",
+    "databaseSeed": "PASS",
+    "subscriberReseedIdempotence": "PASS",
+    "corePodReadiness": "PASS",
+    "nfRegistration": "PASS",
+    "n4n6Routes": "PASS",
+    "xdpSkbAttach": "PASS",
+    "xdpProgramIds": {
+      "n3": 5296,
+      "n6": 5303
+    },
+    "pfcpAssociation": "PASS",
+    "pfcpHeartbeatPairs": 2,
+    "ie43Length8": "PASS",
+    "decoderPatchTest": "PASS",
+    "smfPatchedBuild": "PASS",
+    "smfPatchedRuntime": "PASS",
+    "smfImage": {
+      "tag": "oai-lab-smf:v2.2.0-ie43-771248b5",
+      "id": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9"
+    },
+    "runId": "20260927T153954Z-k8s",
+    "evidence": [
+      "core/core-gate.json",
+      "core/runtime-verify-final/summary.json",
+      "core/runtime-verify-final/pfcp.pcap",
+      "core/runtime-verify-final/smf.log",
+      "core/runtime-verify-final/upf.log",
+      "state/images.json",
+      "build/smf-build.log"
+    ],
+    "note": "Core milestone complete; integrated CLI gate waits for two matched heartbeat pairs. Capture sidecar restart handling verified. Radio/session/traffic/URR/KPM remain in milestones 3-4.",
+    "integratedCliGate": "PASS",
+    "toolsImage": "oai-lab-tools:f4aafed83d8c25ea"
+  },
+  "milestone3": {
+    "status": "COMPLETE",
+    "runId": "20260927T163834Z-k8s",
+    "ueRegistration": "PASS",
+    "pduSession": "PASS",
+    "ueIPv4": "10.1.0.2",
+    "e2Setup": "PASS",
+    "kpmCollection": "PASS",
+    "kpmSamples": 128,
+    "xappRestarts": 0,
+    "xdpSkbAttachAfterSession": "PASS",
+    "xdpProgramIds": {
+      "n3": 8117,
+      "n6": 8124
+    },
+    "radioImage": {
+      "image": "oai-lab-radio:ab3bf500e5cb08be",
+      "id": "sha256:9b83b7584e9c63e0e8bb0369ea77e6645d8afb2209f04a5cc026f811cb009b26",
+      "repoDigests": []
+    },
+    "evidence": [
+      "experiments/20260927T163834Z-k8s/metadata.json",
+      "experiments/20260927T163834Z-k8s/KPI_Metrics.csv",
+      "experiments/20260927T163834Z-k8s/KPI_Metrics_Cells.csv",
+      "experiments/20260927T163834Z-k8s/pfcp.pcap",
+      "experiments/20260927T163834Z-k8s/xdp.json",
+      "diagnostics/m3-full-up-final.log"
+    ]
+  },
+  "milestone4": {
+    "status": "PARTIAL",
+    "ranE2KpmGate": "PASS",
+    "realUrrPipeline": "PASS",
+    "downlinkOffered": "PASS",
+    "downlinkReceiver": "PASS",
+    "uplinkReceiver": "PASS",
+    "fullRateDurationRun": "PASS",
+    "upfRestartAndRerun": "PASS",
+    "downUpLifecycle": "NOT_RUN",
+    "thermalAbortAfterRanGate": "PASS",
+    "evidence": [
+      "diagnostics/m35-live-urr-pfcp-summary.tsv",
+      "core/ei-gate.json",
+      "diagnostics/m35-dl-smoke-20260929.md",
+      "experiments/20260929T091259Z-m35/acceptance.json",
+      "experiments/20260929T091259Z-m35/ei-correlation.json",
+      "experiments/20260929T091259Z-m35/ul-receiver.csv",
+      "experiments/20260929T091259Z-m35/dl-receiver.csv",
+      "experiments/20260929T091259Z-m35/pfcp.pcap",
+      "diagnostics/m4-upf-restart-recovery.md",
+      "diagnostics/post-restart-ul-receiver.csv",
+      "diagnostics/post-restart-dl-receiver.csv",
+      "experiments/20260929T095943Z-m35/acceptance.json",
+      "experiments/20260929T095943Z-m35/ei-correlation.json"
+    ],
+    "blocker": "Initial and post-UPF-restart 10 Mbit/s x 120 s UL/DL runs passed, including PFCP/SMF/A1-EI/KPM correlation. The down/up lifecycle gate remains.",
+    "foregroundIperfReceiverImplemented": "PASS",
+    "dataplaneCountersImplemented": "PASS",
+    "receiverRunnerRuntimeValidation": "PASS",
+    "runId": "20260929T091259Z-m35",
+    "crossLayerCorrelationOffline": "PASS"
+  },
+  "migrationComplete": false,
+  "milestone35": {
+    "status": "COMPLETE",
+    "runId": "20260928T172739Z-m35",
+    "icsHealthy": "PASS",
+    "informationType": "PASS",
+    "producerRegistered": "PASS",
+    "smfQosMonSubscription": "PASS",
+    "a1EiJobEnabled": "PASS",
+    "realPfcpUsageReport": "PASS",
+    "pfcpReportAccepted": "PASS",
+    "realReportKey": {
+      "seid": 1,
+      "urSeqn": 3
+    },
+    "realReportBytes": {
+      "uplink": 0,
+      "downlink": 681528,
+      "total": 681528
+    },
+    "smfCallbackHttpStatus": 204,
+    "ranE2KpmGateAfterResume": "PASS",
+    "evidence": [
+      "core/ei-gate.json",
+      "diagnostics/m35-live-urr-ran-restart.pcap",
+      "diagnostics/m35-live-urr-pfcp-summary.tsv",
+      "diagnostics/m35-real-report-pipeline/smf-raw.jsonl",
+      "diagnostics/m35-real-report-pipeline/producer-normalized.jsonl",
+      "diagnostics/m35-real-report-pipeline/adapter-urr.jsonl",
+      "diagnostics/m35-real-report-pipeline/real-report-seid1-seq3.json",
+      "diagnostics/m35-core-after-resume.log",
+      "diagnostics/m35-ran-after-node-resume.log"
+    ],
+    "note": "Same (SEID, UR-SEQN) is present in PFCP PCAP, SMF raw QOS_MON callback, producer normalized artifact and A1-EI adapter artifact. PFCP Session Report Response Cause=1. This proves URR delivery, not application-level downlink reception."
+  }
+}

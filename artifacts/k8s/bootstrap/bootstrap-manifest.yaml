@@ -1,0 +1,1152 @@
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: oai-lab-bootstrap}
+data:
+  bootstrap.py: |
+    """Two-pod network checks: Multus interfaces, UDP on every network, SCTP and DNS."""
+    
+    import ipaddress, json, os, selectors, socket, subprocess, time
+    
+    cfg = json.load(open("/config/lab.json"))
+    side = os.environ["SIDE"]
+    offset = 250 if side == "server" else 251
+    address = lambda net, n: str(ipaddress.ip_network(net["subnet"]).network_address + n)
+    interfaces = json.loads(subprocess.check_output(["ip", "-j", "address"], text=True))
+    for name, net in cfg["networks"].items():
+        own = next(i for i in interfaces if i["ifname"] == name)
+        assert any(a.get("local") == address(net, offset) for a in own["addr_info"]), name
+    routes = json.loads(subprocess.check_output(["ip", "-j", "route"], text=True))
+    assert all(
+        r["dev"] == "eth0" for r in routes if r.get("dst") == "default"
+    ), "secondary default route"
+    assert socket.gethostbyname("kubernetes.default.svc.cluster.local")
+    assert socket.gethostbyname("oai-lab-db")
+    assert socket.gethostbyname("oai-gnb-rfsim")
+    if side == "server":
+        sel = selectors.DefaultSelector()
+        for name, net in cfg["networks"].items():
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.bind((address(net, offset), 49000))
+            sel.register(sock, selectors.EVENT_READ, name)
+        sctp = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_SCTP)
+        sctp.bind((address(cfg["networks"]["n2"], offset), 49001))
+        sctp.listen(1)
+        sel.register(sctp, selectors.EVENT_READ, "sctp")
+        seen = set()
+        deadline = time.monotonic() + 120
+        while len(seen) < 6 and time.monotonic() < deadline:
+            for key, _ in sel.select(2):
+                if key.data == "sctp":
+                    conn, _ = key.fileobj.accept()
+                    assert conn.recv(32) == b"oai-lab"
+                    conn.sendall(b"ok")
+                    conn.close()
+                else:
+                    data, peer = key.fileobj.recvfrom(64)
+                    assert data == b"oai-lab"
+                    key.fileobj.sendto(b"ok", peer)
+                seen.add(key.data)
+        assert len(seen) == 6, "secondary/SCTP peers timed out"
+    else:
+        for name, net in cfg["networks"].items():
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.bind((address(net, offset), 0))
+            sock.settimeout(2)
+            for attempt in range(30):
+                try:
+                    sock.sendto(b"oai-lab", (address(net, 250), 49000))
+                    assert sock.recv(32) == b"ok"
+                    break
+                except (socket.timeout, ConnectionRefusedError):
+                    time.sleep(1)
+            else:
+                raise RuntimeError("UDP network failed: " + name)
+            sock.close()
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_SCTP) as sock:
+            sock.settimeout(10)
+            sock.connect((address(cfg["networks"]["n2"], 250), 49001))
+            sock.sendall(b"oai-lab")
+            assert sock.recv(32) == b"ok"
+    print(
+        json.dumps(
+            {
+                "status": "PASS",
+                "side": side,
+                "interfaces": list(cfg["networks"]),
+                "dns": True,
+                "sctp": True,
+                "secondaryDefaultRoute": False,
+            }
+        )
+    )
+---
+# Source: oai-lab/templates/config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oai-lab-config
+data:
+  lab.json: "{\"artifactSize\":\"2Gi\",\"cpus\":8,\"dbImage\":\"mariadb:10.6\",\"dbSize\":\"2Gi\",\"experiment\":{\"duration\":120,\"periodMs\":1000,\"rate\":\"10M\",\"timeout\":180},\"kubernetesVersion\":\"v1.33.13\",\"memoryMiB\":16384,\"minDiskGiB\":25,\"minRetainedDiskGiB\":5,\"namespace\":\"oai-lab\",\"networks\":{\"e2\":{\"addresses\":{\"flexric\":\"172.30.27.10\",\"gnb\":\"172.30.27.20\",\"xapp\":\"172.30.27.30\"},\"bridge\":\"oai-e2\",\"subnet\":\"172.30.27.0/24\"},\"n2\":{\"addresses\":{\"amf\":\"172.30.22.10\",\"gnb\":\"172.30.22.20\"},\"bridge\":\"oai-n2\",\"subnet\":\"172.30.22.0/24\"},\"n3\":{\"addresses\":{\"gnb\":\"172.30.23.20\",\"upf\":\"172.30.23.10\"},\"bridge\":\"oai-n3\",\"subnet\":\"172.30.23.0/24\"},\"n4\":{\"addresses\":{\"smf\":\"172.30.24.10\",\"upf\":\"172.30.24.20\"},\"bridge\":\"oai-n4\",\"subnet\":\"172.30.24.0/24\"},\"n6\":{\"addresses\":{\"dn\":\"172.30.26.10\",\"upf\":\"172.30.26.20\"},\"bridge\":\"oai-n6\",\"subnet\":\"172.30.26.0/24\"}},\"plmn\":{\"mcc\":\"001\",\"mnc\":\"01\"},\"profile\":\"oai-lab\",\"radio\":{\"band\":78,\"frequency\":3619200000,\"numerology\":1,\"prbs\":106},\"secretName\":\"oai-lab-credentials\",\"slice\":{\"dnn\":\"nist-dnn\",\"sd\":\"FFFFFF\",\"sst\":1},\"tac\":7,\"toolsImage\":\"oai-lab-tools:b715742212936699\",\"ueSubnet\":\"10.1.0.0/16\",\"usageReporting\":true,\"workloads\":{\"amf\":{\"image\":\"oaisoftwarealliance/oai-amf:v2.2.0\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"ausf\":{\"image\":\"oaisoftwarealliance/oai-ausf:v2.2.0\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"flexric\":{\"image\":\"oai-lab-radio:b715742212936699\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"gnb\":{\"image\":\"oai-lab-radio:b715742212936699\",\"limits\":{\"cpu\":\"4\",\"memory\":\"4Gi\"},\"requests\":{\"cpu\":\"2\",\"memory\":\"2Gi\"}},\"nr-ue\":{\"image\":\"oai-lab-radio:b715742212936699\",\"limits\":{\"cpu\":\"4\",\"memory\":\"4Gi\"},\"requests\":{\"cpu\":\"2\",\"memory\":\"2Gi\"}},\"nrf\":{\"image\":\"oaisoftwarealliance/oai-nrf:v2.2.0\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"smf\":{\"image\":\"oaisoftwarealliance/oai-smf:v2.2.0\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"udm\":{\"image\":\"oaisoftwarealliance/oai-udm:v2.2.0\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"udr\":{\"image\":\"oaisoftwarealliance/oai-udr:v2.2.0\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"upf\":{\"image\":\"oai-lab-upf:b715742212936699\",\"limits\":{\"cpu\":\"2\",\"memory\":\"1Gi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}}},\"xdpMode\":\"skb\"}"
+  config.yaml: |
+    amf:
+      amf_name: amf
+      emergency_support: false
+      plmn_support_list:
+      - mcc: "001"
+        mnc: "01"
+        tac: 7
+        nssai:
+        - &id001
+          sst: 1
+          sd: "FFFFFF"
+      relative_capacity: 30
+      served_guami_list:
+      - amf_pointer: '00'
+        amf_region_id: '01'
+        amf_set_id: '000'
+        mcc: "001"
+        mnc: "01"
+      statistics_timer_interval: 20
+      support_features_options:
+        enable_nssf: false
+        enable_simple_scenario: true
+        enable_smf_selection: true
+      supported_encryption_algorithms:
+      - NEA0
+      - NEA1
+      - NEA2
+      supported_integrity_algorithms:
+      - NIA1
+      - NIA2
+    database:
+      connection_timeout: 300
+      database_name: oai_db
+      generate_random: false
+      host: oai-lab-db
+      password: __DB_PASSWORD__
+      type: mysql
+      user: oai
+    dnns:
+    - dnn: "nist-dnn"
+      ipv4_subnet: "10.1.0.0/16"
+      pdu_session_type: IPV4
+    http_version: 1
+    log_level:
+      general: debug
+    nfs:
+      amf:
+        host: oai-amf
+        n2:
+          interface_name: n2
+          port: 38412
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+      ausf:
+        host: oai-ausf
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+      nrf:
+        host: oai-nrf
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+      smf:
+        host: oai-smf
+        n4:
+          interface_name: n4
+          port: 8805
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+      udm:
+        host: oai-udm
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+      udr:
+        host: oai-udr
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+      upf:
+        host: oai-upf
+        n3:
+          interface_name: n3
+          port: 2152
+        n4:
+          interface_name: n4
+          port: 8805
+        n6:
+          interface_name: n6
+        sbi:
+          api_version: v1
+          interface_name: eth0
+          port: 80
+    register_nf:
+      general: true
+    smf:
+      ims:
+        pcscf_ipv4: 127.0.0.1
+      local_subscription_infos:
+      - dnn: "nist-dnn"
+        single_nssai: *id001
+        qos_profile:
+          5qi: 9
+      smf_info:
+        sNssaiSmfInfoList:
+        - sNssai: *id001
+          dnnSmfInfoList:
+          - dnn: "nist-dnn"
+      support_features:
+        use_local_pcc_rules: true
+        use_local_subscription_info: true
+      ue_dns:
+        primary_ipv4: 172.21.3.100
+        secondary_ipv4: 8.8.8.8
+      ue_mtu: 1500
+      upfs:
+      - host: "172.30.24.20"
+        config:
+          enable_usage_reporting: true
+    snssais:
+    - *id001
+    upf:
+      remote_n6_gw: "172.30.26.10"
+      smfs:
+      - host: "172.30.24.10"
+      support_features:
+        enable_bpf_datapath: true
+        enable_urr: true
+        enable_snat: false
+        xdp_mode: "skb"
+      upf_info:
+        sNssaiUpfInfoList:
+        - sNssai: *id001
+          dnnUpfInfoList:
+          - dnn: "nist-dnn"
+    
+  gnb.conf: |
+    # SPDX-License-Identifier: LicenseRef-CSSL-1.0
+    
+    Active_gNBs = ( "gNB-OAI");
+    # Asn1_verbosity, choice in: none, info, annoying
+    Asn1_verbosity = "none";
+    
+    gNBs =
+    (
+     {
+        ////////// Identification parameters:
+        gNB_ID    =  0xe00;
+        gNB_name  =  "gNB-OAI";
+    
+        // Tracking area code, 0x0000 and 0xfffe are reserved values
+        tracking_area_code = 7;
+        plmn_list = ({ mcc = 001; mnc = 01; mnc_length = 2; snssaiList = ({ sst = 1; }); });
+    
+        nr_cellid = 12345678L;
+    
+        ////////// Physical parameters:
+    
+        do_CSIRS                                                  = 0;
+        CSI_report_type                                           = "ssb_rsrp"; # ssb_rsrp, ssb_sinr, or cri_rsrp
+        do_SRS                                                    = "periodic";
+    
+        #uess_agg_levels = [0,1,2,2,1]
+        servingCellConfigCommon = (
+        {
+     #spCellConfigCommon
+    
+          physCellId                                                    = 0;
+    
+    #  downlinkConfigCommon
+        #frequencyInfoDL
+          # this is 3600 MHz + 43 PRBs@30kHz SCS (same as initial BWP)
+          absoluteFrequencySSB                                             = 641280;
+          dl_frequencyBand                                                 = 78;
+          # this is 3600 MHz
+          dl_absoluteFrequencyPointA                                       = 640008;
+          #scs-SpecificCarrierList
+            dl_offstToCarrier                                              = 0;
+    # subcarrierSpacing
+    # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+            dl_subcarrierSpacing                                           = 1;
+            dl_carrierBandwidth                                            = 106;
+         #initialDownlinkBWP
+          #genericParameters
+            # this is RBstart=27,L=48 (275*(L-1))+RBstart
+            initialDLBWPlocationAndBandwidth                               = 28875; # 6366 12925 12956 28875 12952
+    # subcarrierSpacing
+    # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+            initialDLBWPsubcarrierSpacing                                   = 1;
+          #pdcch-ConfigCommon
+            initialDLBWPcontrolResourceSetZero                              = 12;
+            initialDLBWPsearchSpaceZero                                     = 0;
+    
+      #uplinkConfigCommon
+         #frequencyInfoUL
+          ul_frequencyBand                                              = 78;
+          #scs-SpecificCarrierList
+          ul_offstToCarrier                                             = 0;
+    # subcarrierSpacing
+    # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+          ul_subcarrierSpacing                                          = 1;
+          ul_carrierBandwidth                                           = 106;
+          pMax                                                          = 20;
+         #initialUplinkBWP
+          #genericParameters
+            initialULBWPlocationAndBandwidth                            = 28875;
+    # subcarrierSpacing
+    # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+            initialULBWPsubcarrierSpacing                               = 1;
+          #rach-ConfigCommon
+            #rach-ConfigGeneric
+              prach_ConfigurationIndex                                  = 98;
+    #prach_msg1_FDM
+    #0 = one, 1=two, 2=four, 3=eight
+              prach_msg1_FDM                                            = 0;
+              prach_msg1_FrequencyStart                                 = 0;
+              zeroCorrelationZoneConfig                                 = 13;
+              preambleReceivedTargetPower                               = -96;
+    #preamblTransMax (0...10) = (3,4,5,6,7,8,10,20,50,100,200)
+              preambleTransMax                                          = 6;
+    #powerRampingStep
+    # 0=dB0,1=dB2,2=dB4,3=dB6
+            powerRampingStep                                            = 1;
+    #ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR
+    #1=oneeighth,2=onefourth,3=half,4=one,5=two,6=four,7=eight,8=sixteen
+            ssb_perRACH_OccasionAndCB_PreamblesPerSSB_PR                = 4;
+    #one (0..15) 4,8,12,16,...60,64
+            ssb_perRACH_OccasionAndCB_PreamblesPerSSB                   = 14;
+    #ra_ContentionResolutionTimer
+    #(0..7) 8,16,24,32,40,48,56,64
+            ra_ContentionResolutionTimer                                = 7;
+            rsrp_ThresholdSSB                                           = 19;
+    #prach-RootSequenceIndex_PR
+    #1 = 839, 2 = 139
+            prach_RootSequenceIndex_PR                                  = 2;
+            prach_RootSequenceIndex                                     = 1;
+            # SCS for msg1, can only be 15 for 30 kHz < 6 GHz, takes precendence over the one derived from prach-ConfigIndex
+            #
+            msg1_SubcarrierSpacing                                      = 1,
+    # restrictedSetConfig
+    # 0=unrestricted, 1=restricted type A, 2=restricted type B
+            restrictedSetConfig                                         = 0,
+    
+            msg3_DeltaPreamble                                          = 1;
+            p0_NominalWithGrant                                         =-90;
+    
+    # pucch-ConfigCommon setup :
+    # pucchGroupHopping
+    # 0 = neither, 1= group hopping, 2=sequence hopping
+            pucchGroupHopping                                           = 0;
+            hoppingId                                                   = 40;
+            p0_nominal                                                  = -90;
+    
+          ssb_PositionsInBurst_Bitmap                                   = 1;
+    
+    # ssb_periodicityServingCell
+    # 0 = ms5, 1=ms10, 2=ms20, 3=ms40, 4=ms80, 5=ms160, 6=spare2, 7=spare1
+          ssb_periodicityServingCell                                    = 2;
+    
+    # dmrs_TypeA_position
+    # 0 = pos2, 1 = pos3
+          dmrs_TypeA_Position                                           = 0;
+    
+    # subcarrierSpacing
+    # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+          subcarrierSpacing                                             = 1;
+    
+    
+      #tdd-UL-DL-ConfigurationCommon
+    # subcarrierSpacing
+    # 0=kHz15, 1=kHz30, 2=kHz60, 3=kHz120
+          referenceSubcarrierSpacing                                    = 1;
+          # pattern1
+          # dl_UL_TransmissionPeriodicity
+          # 0=ms0p5, 1=ms0p625, 2=ms1, 3=ms1p25, 4=ms2, 5=ms2p5, 6=ms5, 7=ms10
+          dl_UL_TransmissionPeriodicity                                 = 6;
+          nrofDownlinkSlots                                             = 7;
+          nrofDownlinkSymbols                                           = 6;
+          nrofUplinkSlots                                               = 2;
+          nrofUplinkSymbols                                             = 4;
+    
+          ssPBCH_BlockPower                                             = -25;
+      }
+    
+      );
+    
+    
+        # ------- SCTP definitions
+        SCTP :
+        {
+            # Number of streams to use in input/output
+            SCTP_INSTREAMS  = 2;
+            SCTP_OUTSTREAMS = 2;
+        };
+    
+    
+        ////////// AMF parameters:
+        amf_ip_address = ({ ipv4 = "172.30.22.10"; });
+    
+    
+        NETWORK_INTERFACES :
+        {
+            GNB_IPV4_ADDRESS_FOR_NG_AMF = "172.30.22.20/24";
+            GNB_IPV4_ADDRESS_FOR_NGU = "172.30.23.20/24";
+            GNB_PORT_FOR_S1U                         = 2152; # Spec 2152
+        };
+    
+      }
+    );
+    
+    MACRLCs = (
+    {
+      tr_s_preference             = "local_L1";
+      tr_n_preference             = "local_RRC";
+      pusch_TargetSNRx10          = 150;
+      pucch_TargetSNRx10          = 200;
+    }
+    );
+    
+    L1s = (
+    {
+      tr_n_preference       = "local_mac";
+      prach_dtx_threshold   = 120;
+      pucch0_dtx_threshold  = 100;
+      ofdm_offset_divisor   = 8; #set this to UINT_MAX for offset 0
+    }
+    );
+    
+    RUs = (
+    {
+      local_rf       = "yes"
+      nb_tx          = 1
+      nb_rx          = 1
+      att_tx         = 12;
+      att_rx         = 12;
+      bands          = [78];
+      max_pdschReferenceSignalPower = -27;
+      max_rxgain                    = 114;
+      eNB_instances  = [0];
+      clock_src = "internal";
+    }
+    );
+    
+    
+    rfsimulator = (
+    {
+      serveraddr = "server";
+      serverport = 4043;
+      options = (); #("saviq"); or/and "chanmod"
+      modelname = "AWGN";
+      IQfile = "/tmp/rfsimulator.iqs";
+    }
+    );
+    
+    security = {
+      # preferred ciphering algorithms
+      # the first one of the list that an UE supports in chosen
+      # valid values: nea0, nea1, nea2, nea3
+      ciphering_algorithms = ( "nea0" );
+    
+      # preferred integrity algorithms
+      # the first one of the list that an UE supports in chosen
+      # valid values: nia0, nia1, nia2, nia3
+      integrity_algorithms = ( "nia2", "nia0" );
+    
+      # setting 'drb_ciphering' to "no" disables ciphering for DRBs, no matter
+      # what 'ciphering_algorithms' configures; same thing for 'drb_integrity'
+      drb_ciphering = "yes";
+      drb_integrity = "no";
+    };
+    
+    log_config :
+    {
+      global_log_level                      ="info";
+      hw_log_level                          ="info";
+      phy_log_level                         ="info";
+      mac_log_level                         ="info";
+      rlc_log_level                         ="info";
+      pdcp_log_level                        ="info";
+      rrc_log_level                         ="info";
+      ngap_log_level                        ="debug";
+      f1ap_log_level                        ="debug";
+    };
+    
+    e2_agent = {
+      near_ric_ip_addr = "172.30.27.10";
+      sm_dir = "/opt/oai/sm/";
+    };
+    
+    vrtsim :
+    {
+      #role = "server";                    # "server" or "client"
+      #client-num-rx-antennas = 1;           # publish expected client RX count
+      #cirdb = 1;                             # Enable CIR DB taps
+      # cirdb_yaml = "/path/to/vrtsim.yaml";
+      # cirdb_file = "/path/to/cir_db.bin";
+      cirdb_model_id = 0;                 # 0..4 for 3GPP TDL-A..E
+      cirdb_ds_ns = 10.0;                 # RMS delay spread in ns (10, 30)
+      cirdb_speed_mps = 1.5;              # UE speed in m/s (1.5, 30)
+    };
+    
+    @include "channelmod_rfsimu.conf"
+    
+  ue.conf: |
+    // SPDX-License-Identifier: LicenseRef-CSSL-1.0
+    uicc0 = {
+     imsi = "__IMSI__";
+     key = "__KEY__";
+     opc = "__OPC__";
+     pdu_sessions = ({ dnn = "nist-dnn"; nssai_sst = 1; nssai_sd = 0xFFFFFF; });
+    };
+    @include "channelmod_rfsimu.conf"
+    
+  channelmod_rfsimu.conf: |
+    # SPDX-License-Identifier: LicenseRef-CSSL-1.0
+    
+    channelmod = {
+      max_chan = 10;
+      modellist = "modellist_rfsimu_1";
+      modellist_rfsimu_1 = (
+        { # DL, modify on UE side
+          model_name     = "rfsimu_channel_enB0"
+          type           = "AWGN";
+          ploss_dB       = 0;
+          noise_power_dB = -10;
+          forgetfact     = 0;
+          offset         = 0;
+          ds_tdl         = 0;
+        },
+        { # DL, modify on UE side
+          model_name     = "rfsimu_channel_enB1"
+          type           = "AWGN";
+          ploss_dB       = 0;
+          noise_power_dB = -10;
+          forgetfact     = 0;
+          offset         = 0;
+          ds_tdl         = 0;
+        },
+        { # UL, modify on gNB side
+          model_name     = "rfsimu_channel_ue0"
+          type           = "AWGN";
+          ploss_dB       = 0;
+          noise_power_dB = -10;
+          forgetfact     = 0;
+          offset         = 0;
+          ds_tdl         = 0;
+        }
+        ,
+        { # DL, modify on UE side
+          model_name     = "rfsimu_channel_du1";
+          type           = "AWGN";
+          ploss_dB       = 0;
+          noise_power_dB = -10;
+          forgetfact     = 0;
+          offset         = 0;
+          ds_tdl         = 0;
+        }
+        ,
+        { # DL, modify on UE side
+          model_name     = "rfsimu_channel_du2";
+          type           = "AWGN";
+          ploss_dB       = 0;
+          noise_power_dB = -10;
+          forgetfact     = 0;
+          offset         = 0;
+          ds_tdl         = 0;
+        }
+        ,
+        { # DL, modify on UE side
+          model_name     = "rfsimu_channel_du3";
+          type           = "AWGN";
+          ploss_dB       = 0;
+          noise_power_dB = -10;
+          forgetfact     = 0;
+          offset         = 0;
+          ds_tdl         = 0;
+        }
+      );
+    };
+    
+  schema.sql: |
+    -- OAI FED v2.2.0 schema, DDL only, local composite subscription key.
+    CREATE TABLE `AccessAndMobilitySubscriptionData` (
+      `ueid` varchar(15) NOT NULL,
+      `servingPlmnid` varchar(15) NOT NULL,
+      `supportedFeatures` varchar(50) DEFAULT NULL,
+      `gpsis` json DEFAULT NULL,
+      `internalGroupIds` json DEFAULT NULL,
+      `sharedVnGroupDataIds` json DEFAULT NULL,
+      `subscribedUeAmbr` json DEFAULT NULL,
+      `nssai` json DEFAULT NULL,
+      `ratRestrictions` json DEFAULT NULL,
+      `forbiddenAreas` json DEFAULT NULL,
+      `serviceAreaRestriction` json DEFAULT NULL,
+      `coreNetworkTypeRestrictions` json DEFAULT NULL,
+      `rfspIndex` int(10) DEFAULT NULL,
+      `subsRegTimer` int(10) DEFAULT NULL,
+      `ueUsageType` int(10) DEFAULT NULL,
+      `mpsPriority` tinyint(1) DEFAULT NULL,
+      `mcsPriority` tinyint(1) DEFAULT NULL,
+      `activeTime` int(10) DEFAULT NULL,
+      `sorInfo` json DEFAULT NULL,
+      `sorInfoExpectInd` tinyint(1) DEFAULT NULL,
+      `sorafRetrieval` tinyint(1) DEFAULT NULL,
+      `sorUpdateIndicatorList` json DEFAULT NULL,
+      `upuInfo` json DEFAULT NULL,
+      `micoAllowed` tinyint(1) DEFAULT NULL,
+      `sharedAmDataIds` json DEFAULT NULL,
+      `odbPacketServices` json DEFAULT NULL,
+      `serviceGapTime` int(10) DEFAULT NULL,
+      `mdtUserConsent` json DEFAULT NULL,
+      `mdtConfiguration` json DEFAULT NULL,
+      `traceData` json DEFAULT NULL,
+      `cagData` json DEFAULT NULL,
+      `stnSr` varchar(50) DEFAULT NULL,
+      `cMsisdn` varchar(50) DEFAULT NULL,
+      `nbIoTUePriority` int(10) DEFAULT NULL,
+      `nssaiInclusionAllowed` tinyint(1) DEFAULT NULL,
+      `rgWirelineCharacteristics` varchar(50) DEFAULT NULL,
+      `ecRestrictionDataWb` json DEFAULT NULL,
+      `ecRestrictionDataNb` tinyint(1) DEFAULT NULL,
+      `expectedUeBehaviourList` json DEFAULT NULL,
+      `primaryRatRestrictions` json DEFAULT NULL,
+      `secondaryRatRestrictions` json DEFAULT NULL,
+      `edrxParametersList` json DEFAULT NULL,
+      `ptwParametersList` json DEFAULT NULL,
+      `iabOperationAllowed` tinyint(1) DEFAULT NULL,
+      `wirelineForbiddenAreas` json DEFAULT NULL,
+      `wirelineServiceAreaRestriction` json DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `Amf3GppAccessRegistration` (
+      `ueid` varchar(15) NOT NULL,
+      `amfInstanceId` varchar(50) NOT NULL,
+      `supportedFeatures` varchar(50) DEFAULT NULL,
+      `purgeFlag` tinyint(1) DEFAULT NULL,
+      `pei` varchar(50) DEFAULT NULL,
+      `imsVoPs` json DEFAULT NULL,
+      `deregCallbackUri` varchar(50) NOT NULL,
+      `amfServiceNameDereg` json DEFAULT NULL,
+      `pcscfRestorationCallbackUri` varchar(50) DEFAULT NULL,
+      `amfServiceNamePcscfRest` json DEFAULT NULL,
+      `initialRegistrationInd` tinyint(1) DEFAULT NULL,
+      `guami` json NOT NULL,
+      `backupAmfInfo` json DEFAULT NULL,
+      `drFlag` tinyint(1) DEFAULT NULL,
+      `ratType` json NOT NULL,
+      `urrpIndicator` tinyint(1) DEFAULT NULL,
+      `amfEeSubscriptionId` varchar(50) DEFAULT NULL,
+      `epsInterworkingInfo` json DEFAULT NULL,
+      `ueSrvccCapability` tinyint(1) DEFAULT NULL,
+      `registrationTime` varchar(50) DEFAULT NULL,
+      `vgmlcAddress` json DEFAULT NULL,
+      `contextInfo` json DEFAULT NULL,
+      `noEeSubscriptionInd` tinyint(1) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `AuthenticationStatus` (
+      `ueid` varchar(20) NOT NULL,
+      `nfInstanceId` varchar(50) NOT NULL,
+      `success` tinyint(1) NOT NULL,
+      `timeStamp` varchar(50) NOT NULL,
+      `authType` varchar(25) NOT NULL,
+      `servingNetworkName` varchar(50) NOT NULL,
+      `authRemovalInd` tinyint(1) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `AuthenticationSubscription` (
+      `ueid` varchar(20) NOT NULL,
+      `authenticationMethod` varchar(25) NOT NULL,
+      `encPermanentKey` varchar(50) DEFAULT NULL,
+      `protectionParameterId` varchar(50) DEFAULT NULL,
+      `sequenceNumber` json DEFAULT NULL,
+      `authenticationManagementField` varchar(50) DEFAULT NULL,
+      `algorithmId` varchar(50) DEFAULT NULL,
+      `encOpcKey` varchar(50) DEFAULT NULL,
+      `encTopcKey` varchar(50) DEFAULT NULL,
+      `vectorGenerationInHss` tinyint(1) DEFAULT NULL,
+      `n5gcAuthMethod` varchar(15) DEFAULT NULL,
+      `rgAuthenticationInd` tinyint(1) DEFAULT NULL,
+      `supi` varchar(20) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `SdmSubscriptions` (
+      `ueid` varchar(15) NOT NULL,
+      `subsId` int(10) UNSIGNED NOT NULL,
+      `nfInstanceId` varchar(50) NOT NULL,
+      `implicitUnsubscribe` tinyint(1) DEFAULT NULL,
+      `expires` varchar(50) DEFAULT NULL,
+      `callbackReference` varchar(50) NOT NULL,
+      `amfServiceName` json DEFAULT NULL,
+      `monitoredResourceUris` json NOT NULL,
+      `singleNssai` json DEFAULT NULL,
+      `dnn` varchar(50) DEFAULT NULL,
+      `subscriptionId` varchar(50) DEFAULT NULL,
+      `plmnId` json DEFAULT NULL,
+      `immediateReport` tinyint(1) DEFAULT NULL,
+      `report` json DEFAULT NULL,
+      `supportedFeatures` varchar(50) DEFAULT NULL,
+      `contextInfo` json DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `SessionManagementSubscriptionData` (
+      `ueid` varchar(15) NOT NULL,
+      `servingPlmnid` varchar(15) NOT NULL,
+      `singleNssai` json NOT NULL,
+      `dnnConfigurations` json DEFAULT NULL,
+      `internalGroupIds` json DEFAULT NULL,
+      `sharedVnGroupDataIds` json DEFAULT NULL,
+      `sharedDnnConfigurationsId` varchar(50) DEFAULT NULL,
+      `odbPacketServices` json DEFAULT NULL,
+      `traceData` json DEFAULT NULL,
+      `sharedTraceDataId` varchar(50) DEFAULT NULL,
+      `expectedUeBehavioursList` json DEFAULT NULL,
+      `suggestedPacketNumDlList` json DEFAULT NULL,
+      `3gppChargingCharacteristics` varchar(50) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `SmfRegistrations` (
+      `ueid` varchar(15) NOT NULL,
+      `subpduSessionId` int(10) NOT NULL,
+      `smfInstanceId` varchar(50) NOT NULL,
+      `smfSetId` varchar(50) DEFAULT NULL,
+      `supportedFeatures` varchar(50) DEFAULT NULL,
+      `pduSessionId` int(10) NOT NULL,
+      `singleNssai` json NOT NULL,
+      `dnn` varchar(50) DEFAULT NULL,
+      `emergencyServices` tinyint(1) DEFAULT NULL,
+      `pcscfRestorationCallbackUri` varchar(50) DEFAULT NULL,
+      `plmnId` json NOT NULL,
+      `pgwFqdn` varchar(50) DEFAULT NULL,
+      `epdgInd` tinyint(1) DEFAULT NULL,
+      `deregCallbackUri` varchar(50) DEFAULT NULL,
+      `registrationReason` json DEFAULT NULL,
+      `registrationTime` varchar(50) DEFAULT NULL,
+      `contextInfo` json DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    CREATE TABLE `SmfSelectionSubscriptionData` (
+      `ueid` varchar(15) NOT NULL,
+      `servingPlmnid` varchar(15) NOT NULL,
+      `supportedFeatures` varchar(50) DEFAULT NULL,
+      `subscribedSnssaiInfos` json DEFAULT NULL,
+      `sharedSnssaiInfosId` varchar(50) DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    ALTER TABLE `AccessAndMobilitySubscriptionData`
+      ADD PRIMARY KEY (`ueid`,`servingPlmnid`) USING BTREE;
+    ALTER TABLE `Amf3GppAccessRegistration`
+      ADD PRIMARY KEY (`ueid`);
+    ALTER TABLE `AuthenticationStatus`
+      ADD PRIMARY KEY (`ueid`);
+    ALTER TABLE `AuthenticationSubscription`
+      ADD PRIMARY KEY (`ueid`);
+    ALTER TABLE `SdmSubscriptions`
+      ADD PRIMARY KEY (`subsId`,`ueid`) USING BTREE;
+    ALTER TABLE `SessionManagementSubscriptionData`
+      ADD PRIMARY KEY (`ueid`,`servingPlmnid`,`singleNssai`(64)) USING BTREE;
+    ALTER TABLE `SmfRegistrations`
+      ADD PRIMARY KEY (`ueid`,`subpduSessionId`) USING BTREE;
+    ALTER TABLE `SmfSelectionSubscriptionData`
+      ADD PRIMARY KEY (`ueid`,`servingPlmnid`) USING BTREE;
+    ALTER TABLE `SdmSubscriptions`
+      MODIFY `subsId` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+---
+# Source: oai-lab/templates/storage.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oai-lab-db
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: {storage: 2Gi}
+---
+# Source: oai-lab/templates/storage.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oai-lab-artifacts
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: {storage: 2Gi}
+---
+# Source: oai-lab/templates/config.yaml
+apiVersion: v1
+kind: Service
+metadata: {name: oai-gnb-rfsim}
+spec:
+  selector: {oai-lab/component: gnb}
+  ports: [{name: rfsim, port: 4043, targetPort: 4043, protocol: TCP}]
+---
+# Source: oai-lab/templates/db.yaml
+apiVersion: v1
+kind: Service
+metadata: {name: oai-lab-db}
+spec:
+  selector: {oai-lab/component: db}
+  ports: [{port: 3306}]
+---
+# Source: oai-lab/templates/dn.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: oai-lab-dn}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {oai-lab/component: dn}
+  template:
+    metadata:
+      labels: {oai-lab/component: dn}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: "[{\"interface\":\"n6\",\"name\":\"oai-dn-n6\"}]"
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: dn
+          image: "oai-lab-tools:b715742212936699"
+          command: [sh, -ec]
+          args:
+            - ip route replace 10.1.0.0/16 via 172.30.26.20 dev n6; exec sleep infinity
+          securityContext: {capabilities: {add: [NET_ADMIN, NET_RAW], drop: [ALL]}}
+          volumeMounts: [{name: artifacts, mountPath: /artifacts}]
+      volumes:
+        - name: artifacts
+          persistentVolumeClaim: {claimName: oai-lab-artifacts}
+---
+# Source: oai-lab/templates/db.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: oai-lab-db}
+spec:
+  serviceName: oai-lab-db
+  replicas: 1
+  selector:
+    matchLabels: {oai-lab/component: db}
+  template:
+    metadata:
+      labels: {oai-lab/component: db}
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: db
+          image: "mariadb:10.6"
+          env:
+            - {name: MARIADB_DATABASE, value: oai_db}
+            - {name: MARIADB_USER, value: oai}
+            - name: MARIADB_PASSWORD
+              valueFrom: {secretKeyRef: {name: oai-lab-credentials, key: DB_PASSWORD}}
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom: {secretKeyRef: {name: oai-lab-credentials, key: DB_ROOT_PASSWORD}}
+          resources: {requests: {cpu: 250m, memory: 256Mi}, limits: {cpu: 1, memory: 1Gi}}
+          startupProbe:
+            exec: {command: [healthcheck.sh, --connect, --innodb_initialized]}
+            failureThreshold: 60
+            periodSeconds: 3
+          readinessProbe:
+            exec: {command: [healthcheck.sh, --connect, --innodb_initialized]}
+          volumeMounts: [{name: data, mountPath: /var/lib/mysql}]
+      volumes:
+        - name: data
+          persistentVolumeClaim: {claimName: oai-lab-db}
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-server}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: "[{\"interface\":\"e2\",\"name\":\"oai-bootstrap-server-e2\"},{\"interface\":\"n2\",\"name\":\"oai-bootstrap-server-n2\"},{\"interface\":\"n3\",\"name\":\"oai-bootstrap-server-n3\"},{\"interface\":\"n4\",\"name\":\"oai-bootstrap-server-n4\"},{\"interface\":\"n6\",\"name\":\"oai-bootstrap-server-n6\"}]"
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: probe
+          image: "oai-lab-tools:b715742212936699"
+          command: [python3, /probe/bootstrap.py]
+          env: [{name: SIDE, value: server}]
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 128Mi}}
+          volumeMounts:
+            - {name: config, mountPath: /config, readOnly: true}
+            - {name: probe, mountPath: /probe, readOnly: true}
+      volumes:
+        - name: config
+          configMap: {name: oai-lab-config}
+        - name: probe
+          configMap: {name: oai-lab-bootstrap}
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-client}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      annotations:
+        k8s.v1.cni.cncf.io/networks: "[{\"interface\":\"e2\",\"name\":\"oai-bootstrap-client-e2\"},{\"interface\":\"n2\",\"name\":\"oai-bootstrap-client-n2\"},{\"interface\":\"n3\",\"name\":\"oai-bootstrap-client-n3\"},{\"interface\":\"n4\",\"name\":\"oai-bootstrap-client-n4\"},{\"interface\":\"n6\",\"name\":\"oai-bootstrap-client-n6\"}]"
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: probe
+          image: "oai-lab-tools:b715742212936699"
+          command: [python3, /probe/bootstrap.py]
+          env: [{name: SIDE, value: client}]
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 128Mi}}
+          volumeMounts:
+            - {name: config, mountPath: /config, readOnly: true}
+            - {name: probe, mountPath: /probe, readOnly: true}
+      volumes:
+        - name: config
+          configMap: {name: oai-lab-config}
+        - name: probe
+          configMap: {name: oai-lab-bootstrap}
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-upf-bpf}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: upf-bpf-probe
+          image: "oai-lab-upf:b715742212936699"
+          command: [/openair-upf/bin/bpftool, -j, feature, probe, kernel]
+          securityContext: {privileged: true, capabilities: {drop: [ALL], add: [NET_ADMIN, NET_RAW]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 500m, memory: 256Mi}}
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-ue-tun}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 60
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: ue-tun-probe
+          image: "oai-lab-tools:b715742212936699"
+          command: [python3, -c]
+          args:
+            - 'import os,fcntl,struct,json; fd=os.open("/dev/net/tun",os.O_RDWR); fcntl.ioctl(fd,0x400454ca,struct.pack("16sH",b"oai-probe",0x1001)); os.close(fd); print(json.dumps({"status":"PASS","tun":True,"privileged":False}))'
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL], add: [NET_ADMIN]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 128Mi}}
+          volumeMounts: [{name: tun, mountPath: /dev/net/tun}]
+      volumes:
+        - name: tun
+          hostPath: {path: /dev/net/tun, type: CharDevice}
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: batch/v1
+kind: Job
+metadata: {name: oai-lab-bootstrap-radio}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 60
+  template:
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: radio-probe
+          image: "oai-lab-radio:b715742212936699"
+          command: [sh, -ec]
+          args:
+            - |
+              for binary in nr-softmodem nr-uesoftmodem nearRT-RIC xapp_kpm_moni_write_to_csv; do
+                test -x "/opt/oai/bin/$binary"
+                ldd "/opt/oai/bin/$binary" > /tmp/ldd.txt
+                if grep -q 'not found' /tmp/ldd.txt; then cat /tmp/ldd.txt; exit 1; fi
+              done
+              test -r /opt/oai/sm/libkpm_sm.so
+              test -r /source/flexric/build/28_552_kpm_meas.txt
+              for library in /opt/oai/sm/*.so /opt/oai/ran/*.so; do
+                ldd "$library" > /tmp/ldd.txt
+                if grep -q 'not found' /tmp/ldd.txt; then cat /tmp/ldd.txt; exit 1; fi
+              done
+              echo '{"status":"PASS","binaries":4,"sharedLibraries":"resolved"}'
+          securityContext: {allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+          resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 500m, memory: 256Mi}}
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-server-e2}
+spec:
+  config: "{\"bridge\":\"oai-e2\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.27.250/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-server-n2}
+spec:
+  config: "{\"bridge\":\"oai-n2\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.22.250/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-server-n3}
+spec:
+  config: "{\"bridge\":\"oai-n3\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.23.250/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-server-n4}
+spec:
+  config: "{\"bridge\":\"oai-n4\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.24.250/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-server-n6}
+spec:
+  config: "{\"bridge\":\"oai-n6\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.26.250/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-client-e2}
+spec:
+  config: "{\"bridge\":\"oai-e2\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.27.251/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-client-n2}
+spec:
+  config: "{\"bridge\":\"oai-n2\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.22.251/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-client-n3}
+spec:
+  config: "{\"bridge\":\"oai-n3\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.23.251/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-client-n4}
+spec:
+  config: "{\"bridge\":\"oai-n4\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.24.251/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/bootstrap.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata: {name: oai-bootstrap-client-n6}
+spec:
+  config: "{\"bridge\":\"oai-n6\",\"cniVersion\":\"0.3.1\",\"ipam\":{\"addresses\":[{\"address\":\"172.30.26.251/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-flexric-e2
+spec:
+  config: "{\"bridge\":\"oai-e2\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.27.10/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-gnb-e2
+spec:
+  config: "{\"bridge\":\"oai-e2\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.27.20/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-xapp-e2
+spec:
+  config: "{\"bridge\":\"oai-e2\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.27.30/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-amf-n2
+spec:
+  config: "{\"bridge\":\"oai-n2\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.22.10/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-gnb-n2
+spec:
+  config: "{\"bridge\":\"oai-n2\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.22.20/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-gnb-n3
+spec:
+  config: "{\"bridge\":\"oai-n3\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.23.20/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-upf-n3
+spec:
+  config: "{\"bridge\":\"oai-n3\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.23.10/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-smf-n4
+spec:
+  config: "{\"bridge\":\"oai-n4\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.24.10/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-upf-n4
+spec:
+  config: "{\"bridge\":\"oai-n4\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.24.20/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-dn-n6
+spec:
+  config: "{\"bridge\":\"oai-n6\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.26.10/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+---
+# Source: oai-lab/templates/networks.yaml
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: oai-upf-n6
+spec:
+  config: "{\"bridge\":\"oai-n6\",\"cniVersion\":\"0.3.1\",\"hairpinMode\":true,\"ipMasq\":false,\"ipam\":{\"addresses\":[{\"address\":\"172.30.26.20/24\"}],\"type\":\"static\"},\"isGateway\":false,\"type\":\"bridge\"}"
+

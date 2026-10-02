@@ -1,0 +1,1 @@
+{"seid": 3, "seq": 8931961, "cause": 1, "cause_text": "Request accepted", "ok": true, "sent_seq": 8931961, "action": "drop", "far_ids": [1, 2], "up_seid": 3, "rtt_ms": 0.388, "sent_at": 1790753607.422325, "peer": "172.30.24.20:8805"}

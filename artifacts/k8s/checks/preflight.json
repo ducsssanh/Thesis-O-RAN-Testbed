@@ -1,0 +1,10 @@
+{
+  "ramAvailableKiB": 27356120,
+  "swapFreeKiB": 16777212,
+  "diskFreeBytes": 53555396608,
+  "diskRequiredGiB": 25,
+  "retainedImages": false,
+  "kernel": "6.8.1-1060-realtime",
+  "sctp": true,
+  "bpf": "load/attach gate required inside UPF"
+}

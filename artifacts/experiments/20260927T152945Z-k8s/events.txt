@@ -1,0 +1,149 @@
+LAST SEEN   TYPE      REASON              OBJECT                                MESSAGE
+2m33s       Warning   Unhealthy           pod/oai-smf-665cb7cfbc-7gbpk          Readiness probe errored and resulted in unknown state: rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing: dial unix /run/containerd/containerd.sock: connect: no such file or directory"
+2m15s       Normal    Killing             pod/oai-smf-665cb7cfbc-7gbpk          Stopping container capture
+2m15s       Normal    Killing             pod/oai-amf-d8d55f69b-fprdb           Stopping container amf
+2m15s       Normal    Killing             pod/oai-nrf-6fbbc5847f-kmw4n          Stopping container nrf
+2m15s       Normal    Killing             pod/oai-upf-58dfbd4b69-cmtmd          Stopping container upf
+2m15s       Normal    Killing             pod/oai-udr-dd54cc7c8-ql7l8           Stopping container udr
+2m15s       Normal    Killing             pod/oai-ausf-54c97f6748-8vnnp         Stopping container ausf
+2m15s       Normal    Killing             pod/oai-smf-665cb7cfbc-7gbpk          Stopping container smf
+2m15s       Normal    Killing             pod/oai-udm-88ff9985-g4vrx            Stopping container udm
+2m14s       Warning   Unhealthy           pod/oai-nrf-6fbbc5847f-kmw4n          Readiness probe errored and resulted in unknown state: rpc error: code = NotFound desc = failed to exec in container: failed to load task: no running task found: task bb285324b42e5ad9977c88a90dbb439e317bd6a31d03b3e57f0e45fd3c7ab59e not found
+2m14s       Warning   Unhealthy           pod/oai-udm-88ff9985-g4vrx            Readiness probe errored and resulted in unknown state: rpc error: code = NotFound desc = failed to exec in container: failed to load task: no running task found: task dbeb1b4dc1296cd6e567a15ccc50c7e58b25a2656f2860afb01046e23ec61b84 not found
+2m11s       Warning   Unhealthy           pod/oai-ausf-54c97f6748-8vnnp         Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+2m11s       Warning   Unhealthy           pod/oai-udr-dd54cc7c8-ql7l8           Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+2m10s       Normal    SuccessfulCreate    job/oai-lab-bootstrap-ue-tun          Created pod: oai-lab-bootstrap-ue-tun-z2xrp
+2m10s       Normal    SuccessfulCreate    job/oai-lab-bootstrap-client          Created pod: oai-lab-bootstrap-client-hc9t7
+2m10s       Warning   Unhealthy           pod/oai-nrf-6fbbc5847f-kmw4n          Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+2m10s       Warning   Unhealthy           pod/oai-udm-88ff9985-g4vrx            Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+2m10s       Normal    Scheduled           pod/oai-lab-bootstrap-server-fx6gd    Successfully assigned oai-lab/oai-lab-bootstrap-server-fx6gd to oai-lab
+2m10s       Normal    SuccessfulCreate    job/oai-lab-bootstrap-radio           Created pod: oai-lab-bootstrap-radio-74dbx
+2m10s       Normal    Scheduled           pod/oai-lab-bootstrap-radio-74dbx     Successfully assigned oai-lab/oai-lab-bootstrap-radio-74dbx to oai-lab
+2m10s       Normal    SuccessfulCreate    job/oai-lab-bootstrap-server          Created pod: oai-lab-bootstrap-server-fx6gd
+2m10s       Normal    Scheduled           pod/oai-lab-bootstrap-upf-bpf-pxnr7   Successfully assigned oai-lab/oai-lab-bootstrap-upf-bpf-pxnr7 to oai-lab
+2m10s       Normal    Scheduled           pod/oai-lab-bootstrap-ue-tun-z2xrp    Successfully assigned oai-lab/oai-lab-bootstrap-ue-tun-z2xrp to oai-lab
+2m10s       Normal    SuccessfulCreate    job/oai-lab-bootstrap-upf-bpf         Created pod: oai-lab-bootstrap-upf-bpf-pxnr7
+2m10s       Normal    Scheduled           pod/oai-lab-bootstrap-client-hc9t7    Successfully assigned oai-lab/oai-lab-bootstrap-client-hc9t7 to oai-lab
+2m8s        Warning   Unhealthy           pod/oai-smf-665cb7cfbc-7gbpk          Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+2m1s        Warning   Unhealthy           pod/oai-upf-58dfbd4b69-cmtmd          Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+116s        Normal    AddedInterface      pod/oai-lab-bootstrap-ue-tun-z2xrp    Add eth0 [10.244.0.78/16] from bridge
+116s        Normal    AddedInterface      pod/oai-lab-bootstrap-radio-74dbx     Add eth0 [10.244.0.76/16] from bridge
+115s        Normal    AddedInterface      pod/oai-lab-bootstrap-upf-bpf-pxnr7   Add eth0 [10.244.0.74/16] from bridge
+115s        Normal    AddedInterface      pod/oai-lab-bootstrap-server-fx6gd    Add eth0 [10.244.0.77/16] from bridge
+114s        Normal    Pulled              pod/oai-lab-bootstrap-ue-tun-z2xrp    Container image "oai-lab-tools:b715742212936699" already present on machine
+114s        Normal    Pulled              pod/oai-lab-bootstrap-radio-74dbx     Container image "oai-lab-radio:b715742212936699" already present on machine
+114s        Normal    Created             pod/oai-lab-bootstrap-ue-tun-z2xrp    Created container: ue-tun-probe
+114s        Normal    Created             pod/oai-lab-bootstrap-upf-bpf-pxnr7   Created container: upf-bpf-probe
+114s        Normal    AddedInterface      pod/oai-lab-bootstrap-client-hc9t7    Add eth0 [10.244.0.75/16] from bridge
+114s        Normal    Pulled              pod/oai-lab-bootstrap-upf-bpf-pxnr7   Container image "oai-lab-upf:b715742212936699" already present on machine
+114s        Normal    Created             pod/oai-lab-bootstrap-radio-74dbx     Created container: radio-probe
+113s        Normal    Started             pod/oai-lab-bootstrap-radio-74dbx     Started container radio-probe
+113s        Normal    Started             pod/oai-lab-bootstrap-upf-bpf-pxnr7   Started container upf-bpf-probe
+113s        Normal    AddedInterface      pod/oai-lab-bootstrap-server-fx6gd    Add e2 [172.30.27.250/24] from oai-lab/oai-bootstrap-server-e2
+113s        Normal    Started             pod/oai-lab-bootstrap-ue-tun-z2xrp    Started container ue-tun-probe
+112s        Normal    AddedInterface      pod/oai-lab-bootstrap-client-hc9t7    Add e2 [172.30.27.251/24] from oai-lab/oai-bootstrap-client-e2
+112s        Warning   Unhealthy           pod/oai-amf-d8d55f69b-fprdb           Readiness probe errored and resulted in unknown state: rpc error: code = Unknown desc = failed to exec in container: container is in CONTAINER_EXITED state
+112s        Normal    AddedInterface      pod/oai-lab-bootstrap-server-fx6gd    Add n2 [172.30.22.250/24] from oai-lab/oai-bootstrap-server-n2
+111s        Normal    AddedInterface      pod/oai-lab-bootstrap-server-fx6gd    Add n3 [172.30.23.250/24] from oai-lab/oai-bootstrap-server-n3
+111s        Normal    AddedInterface      pod/oai-lab-bootstrap-client-hc9t7    Add n2 [172.30.22.251/24] from oai-lab/oai-bootstrap-client-n2
+110s        Normal    AddedInterface      pod/oai-lab-bootstrap-client-hc9t7    Add n3 [172.30.23.251/24] from oai-lab/oai-bootstrap-client-n3
+110s        Normal    AddedInterface      pod/oai-lab-bootstrap-server-fx6gd    Add n4 [172.30.24.250/24] from oai-lab/oai-bootstrap-server-n4
+108s        Normal    AddedInterface      pod/oai-lab-bootstrap-client-hc9t7    Add n4 [172.30.24.251/24] from oai-lab/oai-bootstrap-client-n4
+107s        Normal    AddedInterface      pod/oai-lab-bootstrap-server-fx6gd    Add n6 [172.30.26.250/24] from oai-lab/oai-bootstrap-server-n6
+106s        Normal    AddedInterface      pod/oai-lab-bootstrap-client-hc9t7    Add n6 [172.30.26.251/24] from oai-lab/oai-bootstrap-client-n6
+106s        Normal    Pulled              pod/oai-lab-bootstrap-server-fx6gd    Container image "oai-lab-tools:b715742212936699" already present on machine
+105s        Normal    Pulled              pod/oai-lab-bootstrap-client-hc9t7    Container image "oai-lab-tools:b715742212936699" already present on machine
+105s        Normal    Created             pod/oai-lab-bootstrap-client-hc9t7    Created container: probe
+105s        Normal    Started             pod/oai-lab-bootstrap-server-fx6gd    Started container probe
+105s        Normal    Created             pod/oai-lab-bootstrap-server-fx6gd    Created container: probe
+105s        Normal    Started             pod/oai-lab-bootstrap-client-hc9t7    Started container probe
+105s        Normal    Completed           job/oai-lab-bootstrap-upf-bpf         Job completed
+105s        Normal    Completed           job/oai-lab-bootstrap-ue-tun          Job completed
+104s        Normal    Completed           job/oai-lab-bootstrap-radio           Job completed
+97s         Normal    Completed           job/oai-lab-bootstrap-server          Job completed
+97s         Normal    Completed           job/oai-lab-bootstrap-client          Job completed
+91s         Normal    Scheduled           pod/oai-lab-subscriber-t68n9          Successfully assigned oai-lab/oai-lab-subscriber-t68n9 to oai-lab
+91s         Normal    SuccessfulCreate    job/oai-lab-subscriber                Created pod: oai-lab-subscriber-t68n9
+89s         Normal    AddedInterface      pod/oai-lab-subscriber-t68n9          Add eth0 [10.244.0.79/16] from bridge
+88s         Normal    Created             pod/oai-lab-subscriber-t68n9          Created container: seed
+88s         Normal    Started             pod/oai-lab-subscriber-t68n9          Started container seed
+88s         Normal    Pulled              pod/oai-lab-subscriber-t68n9          Container image "oai-lab-tools:b715742212936699" already present on machine
+83s         Normal    Completed           job/oai-lab-subscriber                Job completed
+81s         Normal    Scheduled           pod/oai-nrf-6fbbc5847f-bkqgh          Successfully assigned oai-lab/oai-nrf-6fbbc5847f-bkqgh to oai-lab
+81s         Normal    ScalingReplicaSet   deployment/oai-nrf                    Scaled up replica set oai-nrf-6fbbc5847f from 0 to 1
+81s         Normal    SuccessfulCreate    replicaset/oai-nrf-6fbbc5847f         Created pod: oai-nrf-6fbbc5847f-bkqgh
+79s         Normal    AddedInterface      pod/oai-nrf-6fbbc5847f-bkqgh          Add eth0 [10.244.0.80/16] from bridge
+78s         Normal    Pulled              pod/oai-nrf-6fbbc5847f-bkqgh          Container image "oai-lab-tools:b715742212936699" already present on machine
+78s         Normal    Created             pod/oai-nrf-6fbbc5847f-bkqgh          Created container: prepare
+78s         Normal    Started             pod/oai-nrf-6fbbc5847f-bkqgh          Started container prepare
+76s         Normal    Started             pod/oai-nrf-6fbbc5847f-bkqgh          Started container nrf
+76s         Normal    Created             pod/oai-nrf-6fbbc5847f-bkqgh          Created container: nrf
+76s         Normal    Pulled              pod/oai-nrf-6fbbc5847f-bkqgh          Container image "oaisoftwarealliance/oai-nrf:v2.2.0" already present on machine
+72s         Normal    Scheduled           pod/oai-udr-dd54cc7c8-225dt           Successfully assigned oai-lab/oai-udr-dd54cc7c8-225dt to oai-lab
+72s         Normal    SuccessfulCreate    replicaset/oai-udr-dd54cc7c8          Created pod: oai-udr-dd54cc7c8-225dt
+72s         Normal    ScalingReplicaSet   deployment/oai-udr                    Scaled up replica set oai-udr-dd54cc7c8 from 0 to 1
+70s         Normal    Started             pod/oai-udr-dd54cc7c8-225dt           Started container prepare
+70s         Normal    Created             pod/oai-udr-dd54cc7c8-225dt           Created container: prepare
+70s         Normal    Pulled              pod/oai-udr-dd54cc7c8-225dt           Container image "oai-lab-tools:b715742212936699" already present on machine
+70s         Normal    AddedInterface      pod/oai-udr-dd54cc7c8-225dt           Add eth0 [10.244.0.81/16] from bridge
+68s         Normal    Started             pod/oai-udr-dd54cc7c8-225dt           Started container udr
+68s         Normal    Pulled              pod/oai-udr-dd54cc7c8-225dt           Container image "oaisoftwarealliance/oai-udr:v2.2.0" already present on machine
+68s         Normal    Created             pod/oai-udr-dd54cc7c8-225dt           Created container: udr
+62s         Normal    SuccessfulCreate    replicaset/oai-udm-88ff9985           Created pod: oai-udm-88ff9985-hd8ht
+62s         Normal    ScalingReplicaSet   deployment/oai-udm                    Scaled up replica set oai-udm-88ff9985 from 0 to 1
+62s         Normal    Scheduled           pod/oai-udm-88ff9985-hd8ht            Successfully assigned oai-lab/oai-udm-88ff9985-hd8ht to oai-lab
+61s         Normal    AddedInterface      pod/oai-udm-88ff9985-hd8ht            Add eth0 [10.244.0.82/16] from bridge
+60s         Normal    Started             pod/oai-udm-88ff9985-hd8ht            Started container prepare
+60s         Normal    Created             pod/oai-udm-88ff9985-hd8ht            Created container: prepare
+60s         Normal    Pulled              pod/oai-udm-88ff9985-hd8ht            Container image "oai-lab-tools:b715742212936699" already present on machine
+58s         Normal    Started             pod/oai-udm-88ff9985-hd8ht            Started container udm
+58s         Normal    Created             pod/oai-udm-88ff9985-hd8ht            Created container: udm
+58s         Normal    Pulled              pod/oai-udm-88ff9985-hd8ht            Container image "oaisoftwarealliance/oai-udm:v2.2.0" already present on machine
+54s         Normal    Scheduled           pod/oai-ausf-54c97f6748-mdxzp         Successfully assigned oai-lab/oai-ausf-54c97f6748-mdxzp to oai-lab
+54s         Normal    SuccessfulCreate    replicaset/oai-ausf-54c97f6748        Created pod: oai-ausf-54c97f6748-mdxzp
+54s         Normal    ScalingReplicaSet   deployment/oai-ausf                   Scaled up replica set oai-ausf-54c97f6748 from 0 to 1
+52s         Normal    AddedInterface      pod/oai-ausf-54c97f6748-mdxzp         Add eth0 [10.244.0.83/16] from bridge
+51s         Normal    Started             pod/oai-ausf-54c97f6748-mdxzp         Started container prepare
+51s         Normal    Created             pod/oai-ausf-54c97f6748-mdxzp         Created container: prepare
+51s         Normal    Pulled              pod/oai-ausf-54c97f6748-mdxzp         Container image "oai-lab-tools:b715742212936699" already present on machine
+50s         Normal    Started             pod/oai-ausf-54c97f6748-mdxzp         Started container ausf
+50s         Normal    Created             pod/oai-ausf-54c97f6748-mdxzp         Created container: ausf
+50s         Normal    Pulled              pod/oai-ausf-54c97f6748-mdxzp         Container image "oaisoftwarealliance/oai-ausf:v2.2.0" already present on machine
+45s         Normal    SuccessfulCreate    replicaset/oai-amf-d8d55f69b          Created pod: oai-amf-d8d55f69b-tskwm
+45s         Normal    ScalingReplicaSet   deployment/oai-amf                    Scaled up replica set oai-amf-d8d55f69b from 0 to 1
+44s         Normal    Scheduled           pod/oai-amf-d8d55f69b-tskwm           Successfully assigned oai-lab/oai-amf-d8d55f69b-tskwm to oai-lab
+42s         Normal    Created             pod/oai-amf-d8d55f69b-tskwm           Created container: prepare
+42s         Normal    AddedInterface      pod/oai-amf-d8d55f69b-tskwm           Add n2 [172.30.22.10/24] from oai-lab/oai-amf-n2
+42s         Normal    AddedInterface      pod/oai-amf-d8d55f69b-tskwm           Add eth0 [10.244.0.84/16] from bridge
+42s         Normal    Pulled              pod/oai-amf-d8d55f69b-tskwm           Container image "oai-lab-tools:b715742212936699" already present on machine
+42s         Normal    Started             pod/oai-amf-d8d55f69b-tskwm           Started container prepare
+41s         Normal    Pulled              pod/oai-amf-d8d55f69b-tskwm           Container image "oaisoftwarealliance/oai-amf:v2.2.0" already present on machine
+41s         Normal    Created             pod/oai-amf-d8d55f69b-tskwm           Created container: amf
+40s         Normal    Started             pod/oai-amf-d8d55f69b-tskwm           Started container amf
+35s         Normal    ScalingReplicaSet   deployment/oai-smf                    Scaled up replica set oai-smf-665cb7cfbc from 0 to 1
+35s         Normal    Scheduled           pod/oai-smf-665cb7cfbc-z2bqr          Successfully assigned oai-lab/oai-smf-665cb7cfbc-z2bqr to oai-lab
+35s         Normal    SuccessfulCreate    replicaset/oai-smf-665cb7cfbc         Created pod: oai-smf-665cb7cfbc-z2bqr
+33s         Normal    AddedInterface      pod/oai-smf-665cb7cfbc-z2bqr          Add eth0 [10.244.0.85/16] from bridge
+33s         Normal    AddedInterface      pod/oai-smf-665cb7cfbc-z2bqr          Add n4 [172.30.24.10/24] from oai-lab/oai-smf-n4
+32s         Normal    Created             pod/oai-smf-665cb7cfbc-z2bqr          Created container: prepare
+32s         Normal    Started             pod/oai-smf-665cb7cfbc-z2bqr          Started container prepare
+32s         Normal    Pulled              pod/oai-smf-665cb7cfbc-z2bqr          Container image "oai-lab-tools:b715742212936699" already present on machine
+31s         Normal    Pulled              pod/oai-smf-665cb7cfbc-z2bqr          Container image "oai-lab-smf:v2.2.0-ie43-771248b5" already present on machine
+31s         Normal    Created             pod/oai-smf-665cb7cfbc-z2bqr          Created container: smf
+30s         Normal    Started             pod/oai-smf-665cb7cfbc-z2bqr          Started container smf
+28s         Normal    Pulled              pod/oai-smf-665cb7cfbc-z2bqr          Container image "oai-lab-tools:b715742212936699" already present on machine
+28s         Normal    Created             pod/oai-smf-665cb7cfbc-z2bqr          Created container: capture
+27s         Normal    Started             pod/oai-smf-665cb7cfbc-z2bqr          Started container capture
+21s         Normal    SuccessfulCreate    replicaset/oai-upf-58dfbd4b69         Created pod: oai-upf-58dfbd4b69-h98kz
+21s         Normal    Scheduled           pod/oai-upf-58dfbd4b69-h98kz          Successfully assigned oai-lab/oai-upf-58dfbd4b69-h98kz to oai-lab
+21s         Normal    ScalingReplicaSet   deployment/oai-upf                    Scaled up replica set oai-upf-58dfbd4b69 from 0 to 1
+20s         Normal    AddedInterface      pod/oai-upf-58dfbd4b69-h98kz          Add eth0 [10.244.0.86/16] from bridge
+19s         Normal    AddedInterface      pod/oai-upf-58dfbd4b69-h98kz          Add n4 [172.30.24.20/24] from oai-lab/oai-upf-n4
+19s         Normal    AddedInterface      pod/oai-upf-58dfbd4b69-h98kz          Add n3 [172.30.23.10/24] from oai-lab/oai-upf-n3
+18s         Normal    Pulled              pod/oai-upf-58dfbd4b69-h98kz          Container image "oai-lab-tools:b715742212936699" already present on machine
+18s         Normal    Created             pod/oai-upf-58dfbd4b69-h98kz          Created container: prepare
+18s         Normal    Started             pod/oai-upf-58dfbd4b69-h98kz          Started container prepare
+18s         Normal    AddedInterface      pod/oai-upf-58dfbd4b69-h98kz          Add n6 [172.30.26.20/24] from oai-lab/oai-upf-n6
+17s         Normal    Pulled              pod/oai-upf-58dfbd4b69-h98kz          Container image "oai-lab-upf:b715742212936699" already present on machine
+16s         Normal    Created             pod/oai-upf-58dfbd4b69-h98kz          Created container: upf
+16s         Normal    Started             pod/oai-upf-58dfbd4b69-h98kz          Started container upf

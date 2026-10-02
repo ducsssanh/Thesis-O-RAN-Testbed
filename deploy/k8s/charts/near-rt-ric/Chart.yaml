@@ -1,0 +1,10 @@
+apiVersion: v2
+name: near-rt-ric
+version: 0.1.0
+type: application
+description: OAI lab near-rt-ric release
+dependencies:
+- name: oai-flexric
+  version: 1.0.0
+  repository: file://../../vendor/oai-5g-ran/oai-flexric
+  condition: oai-flexric.enabled

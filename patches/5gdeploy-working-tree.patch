@@ -1,0 +1,94 @@
+diff --git a/compose/ipalloc.ts b/compose/ipalloc.ts
+index 89cd370..725f530 100644
+--- a/compose/ipalloc.ts
++++ b/compose/ipalloc.ts
+@@ -4,7 +4,7 @@ import { ip2long, long2ip, Netmask } from "netmask";
+ import { assert, YargsCoercedArray, type YargsInfer, type YargsOptions } from "../util/mod.js";
+ 
+ /** Yargs options definition for IPv4 address allocator. */
+-export function ipAllocOptions(dfltSpace = "172.25.192.0/18") {
++export function ipAllocOptions(dfltSpace = "172.25.160.0/20") {
+   const minBitmask = new Netmask(dfltSpace).bitmask;
+   return {
+     "ip-space": {
+diff --git a/netdef/helpers.ts b/netdef/helpers.ts
+index 8d29843..2d16725 100644
+--- a/netdef/helpers.ts
++++ b/netdef/helpers.ts
+@@ -286,7 +286,7 @@ export namespace GNB {
+ export function listGnbs({ gnbs, gnbIdLength }: N.Network): GNB[] {
+   return gnbs.map((gnb, i) => {
+     const {
+-      nci = hexPad(((1 + i) << (36 - gnbIdLength)) | 0xF, 9),
++      nci = hexPad(((3584 + i) << (36 - gnbIdLength)) | 0xF, 9),
+     } = gnb;
+     return {
+       ...gnb,
+diff --git a/oai/download.sh b/oai/download.sh
+index 146aad1..addc247 100644
+--- a/oai/download.sh
++++ b/oai/download.sh
+@@ -5,10 +5,44 @@ FED_TAG=${1:-}
+ FED_TAG=${FED_TAG:-v2.2.0}
+ NWDAF_TAG=${2:-6a1408c9be6f5cf0ddb6c1f1b527a04e36205471}
+ 
+-mkdir -p fed
+-curl -sfLS "https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed/-/archive/${FED_TAG}/oai-cn5g-fed-${FED_TAG}.tar.gz?path=docker-compose" |
+-  tar -C fed -xzv --strip-components=2
++TMP_ROOT=$(mktemp -d)
++trap 'rm -rf "$TMP_ROOT"' EXIT
+ 
+-mkdir -p nwdaf
+-curl -sfLS "https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-nwdaf/-/archive/${NWDAF_TAG}/oai-cn5g-nwdaf-${NWDAF_TAG}.tar.gz?path=docker-compose" |
+-  tar -C nwdaf -xzv --strip-components=2
++download_compose_dir() {
++  local name=$1
++  local repository=$2
++  local ref=$3
++  local archive_url=$4
++  local output_dir=$5
++  local archive_file="$TMP_ROOT/${name}.tar.gz"
++  local checkout_dir="$TMP_ROOT/${name}"
++
++  mkdir -p "$output_dir"
++  if curl -fLS --retry 2 --retry-delay 5 --retry-all-errors \
++      -o "$archive_file" "$archive_url"; then
++    tar -C "$output_dir" -xzv --strip-components=2 -f "$archive_file"
++    return
++  fi
++
++  echo "Archive download for $name failed; falling back to Git fetch." >&2
++  mkdir -p "$checkout_dir"
++  git -C "$checkout_dir" init --quiet
++  git -C "$checkout_dir" remote add origin "$repository"
++  git -C "$checkout_dir" fetch --quiet --depth=1 origin "$ref"
++  git -C "$checkout_dir" checkout --quiet --detach FETCH_HEAD
++  cp -a "$checkout_dir/docker-compose/." "$output_dir/"
++}
++
++download_compose_dir \
++  fed \
++  "https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed.git" \
++  "$FED_TAG" \
++  "https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed/-/archive/${FED_TAG}/oai-cn5g-fed-${FED_TAG}.tar.gz?path=docker-compose" \
++  fed
++
++download_compose_dir \
++  nwdaf \
++  "https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-nwdaf.git" \
++  "$NWDAF_TAG" \
++  "https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-nwdaf/-/archive/${NWDAF_TAG}/oai-cn5g-nwdaf-${NWDAF_TAG}.tar.gz?path=docker-compose" \
++  nwdaf
+diff --git a/scenario/common/phones-vehicles.ts b/scenario/common/phones-vehicles.ts
+index 7c405ef..d5d4b2c 100644
+--- a/scenario/common/phones-vehicles.ts
++++ b/scenario/common/phones-vehicles.ts
+@@ -90,7 +90,7 @@ export function buildNetwork(opts: YargsInfer<typeof cliOptions>, s: ScenarioOpt
+   const network: N.Network = {
+     plmn: "001-01",
+     gnbIdLength: 24,
+-    tac: "000005",
++    tac: "000007",
+     subscribers: [],
+     gnbs: [],
+     upfs: upfs.map((name) => ({ name })),

@@ -1,0 +1,44 @@
+{
+  "backend": "kubernetes-staged",
+  "context": "oai-lab",
+  "runId": "20260929T095943Z-m35",
+  "xdpMode": "skb",
+  "valuesSha256": "c7976e91231bb54467face072396162e066c18333df3d459ac66dfa360af3dc1",
+  "images": {
+    "sourceHash": "30e854d39b1192d1",
+    "images": {
+      "tools": {
+        "image": "oai-lab-tools:30e854d39b1192d1",
+        "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+        "repoDigests": []
+      },
+      "upf": {
+        "image": "oai-lab-upf:qfi-f6d0516adf20",
+        "id": "sha256:9ac5cce7e61f6b87e9979b4e5a962cd50f22583fc7ba9f281abb46a3eb984c41",
+        "repoDigests": []
+      },
+      "radio": {
+        "image": "oai-lab-radio:30e854d39b1192d1",
+        "id": "sha256:fa863eceb039b119daa09a123f559e766ead54f78076dfb98c9f67e34016b225",
+        "repoDigests": []
+      },
+      "smf": {
+        "image": "oai-lab-smf:v2.2.0-ie43-771248b5",
+        "id": "sha256:f6d5b12cdb52ff6aca5332b88ca88bf7c68452e9a0ca48651b99f4b23ba012a9",
+        "repoDigests": [],
+        "sourceCommit": "d18906656ca85b823cc68877e3c545353150c018",
+        "patchSha256": "771248b5f3fda25ed5867a8e3ffaee28b01819e0e36efe4fa647c0c90b045085"
+      }
+    }
+  },
+  "eiImages": {
+    "producer": {
+      "image": "oai-lab-urr-ei-producer:46e6e605470b7f9c",
+      "id": "sha256:b9469fcf1eb03d2e29d91e7250ae4c1ee5c1142da2f8fc6e80f34d55e0badcf1"
+    },
+    "adapter": {
+      "image": "oai-lab-a1-ei-adapter:742c42929f1f81e9",
+      "id": "sha256:42a0081d994a5cf378a89444ee22a9d22c46c5859ae5b33bc532f81f8dff73fc"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+dependencies:
+- name: oai-nrf
+  repository: file://../vendor/oai-5g-core/oai-nrf
+  version: v2.2.0
+- name: oai-udr
+  repository: file://../vendor/oai-5g-core/oai-udr
+  version: v2.2.0
+- name: oai-udm
+  repository: file://../vendor/oai-5g-core/oai-udm
+  version: v2.2.0
+- name: oai-ausf
+  repository: file://../vendor/oai-5g-core/oai-ausf
+  version: v2.2.0
+- name: oai-amf
+  repository: file://../vendor/oai-5g-core/oai-amf
+  version: v2.2.0
+- name: oai-smf
+  repository: file://../vendor/oai-5g-core/oai-smf
+  version: v2.2.0
+- name: oai-upf
+  repository: file://../vendor/oai-5g-core/oai-upf
+  version: v2.2.0
+- name: oai-flexric
+  repository: file://../vendor/oai-5g-ran/oai-flexric
+  version: 1.0.0
+- name: oai-gnb
+  repository: file://../vendor/oai-5g-ran/oai-gnb
+  version: 2.4.0
+- name: oai-nr-ue
+  repository: file://../vendor/oai-5g-ran/oai-nr-ue
+  version: 2.4.0
+digest: sha256:ed53f06de9872622a2f6cc6e4fb91529f01b8b5180f71eec83452c28362f5da7
+generated: "2026-09-26T21:52:27.28015661+07:00"

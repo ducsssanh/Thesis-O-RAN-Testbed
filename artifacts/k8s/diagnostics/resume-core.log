@@ -1,0 +1,41 @@
+==> Starting deployment/oai-nrf (oai-lab/oai-lab)
+deployment.apps/oai-nrf scaled
+Waiting for deployment "oai-nrf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-nrf" successfully rolled out
+==> Starting deployment/oai-udr (oai-lab/oai-lab)
+deployment.apps/oai-udr scaled
+Waiting for deployment "oai-udr" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-udr" successfully rolled out
+==> Starting deployment/oai-udm (oai-lab/oai-lab)
+deployment.apps/oai-udm scaled
+Waiting for deployment "oai-udm" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-udm" successfully rolled out
+==> Starting deployment/oai-ausf (oai-lab/oai-lab)
+deployment.apps/oai-ausf scaled
+Waiting for deployment "oai-ausf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-ausf" successfully rolled out
+==> Starting deployment/oai-amf (oai-lab/oai-lab)
+deployment.apps/oai-amf scaled
+Waiting for deployment "oai-amf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-amf" successfully rolled out
+==> Starting deployment/oai-smf (oai-lab/oai-lab)
+deployment.apps/oai-smf scaled
+Waiting for deployment "oai-smf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-smf" successfully rolled out
+==> Starting deployment/oai-lab-dn (oai-lab/oai-lab)
+deployment.apps/oai-lab-dn scaled
+Waiting for deployment "oai-lab-dn" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-lab-dn" successfully rolled out
+==> Starting deployment/oai-upf (oai-lab/oai-lab)
+deployment.apps/oai-upf scaled
+Waiting for deployment "oai-upf" rollout to finish: 0 of 1 updated replicas are available...
+deployment "oai-upf" successfully rolled out
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+oai-nrf      1/1     1            1           18h
+oai-udr      1/1     1            1           18h
+oai-udm      1/1     1            1           18h
+oai-ausf     1/1     1            1           18h
+oai-amf      1/1     1            1           18h
+oai-smf      1/1     1            1           18h
+oai-lab-dn   1/1     1            1           43h
+oai-upf      1/1     1            1           18h

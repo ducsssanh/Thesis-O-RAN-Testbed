@@ -1,0 +1,172 @@
+Name:             kube-multus-ds-h7kq7
+Namespace:        kube-system
+Priority:         0
+Service Account:  multus
+Node:             oai-lab/192.168.49.2
+Start Time:       Sat, 26 Sep 2026 22:04:58 +0700
+Labels:           app=multus
+                  controller-revision-hash=79644878f8
+                  name=multus
+                  pod-template-generation=1
+                  tier=node
+Annotations:      <none>
+Status:           Running
+IP:               192.168.49.2
+IPs:
+  IP:           192.168.49.2
+Controlled By:  DaemonSet/kube-multus-ds
+Init Containers:
+  install-multus-binary:
+    Container ID:  containerd://a322915eadb7c128489896a69d0f9d8be3c21f1bf7583870aba28ea6be832400
+    Image:         ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick
+    Image ID:      ghcr.io/k8snetworkplumbingwg/multus-cni@sha256:a60a21ee1d00c9f215b0b2fa03b3d5e384ab7ddb9ea0d231d36aef220e95a69c
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sh
+      -c
+      cp /usr/src/multus-cni/bin/multus-shim /host/opt/cni/bin/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/opt/cni/bin/passthru
+    State:       Waiting
+      Reason:    CrashLoopBackOff
+    Last State:  Terminated
+      Reason:    Error
+      Message:   cp: cannot create regular file '/host/opt/cni/bin/multus-shim': Text file busy
+
+      Exit Code:    1
+      Started:      Sun, 27 Sep 2026 16:57:40 +0700
+      Finished:     Sun, 27 Sep 2026 16:57:41 +0700
+    Ready:          False
+    Restart Count:  3
+    Requests:
+      cpu:        10m
+      memory:     15Mi
+    Environment:  <none>
+    Mounts:
+      /host/opt/cni/bin from cnibin (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-bvvlv (ro)
+Containers:
+  kube-multus:
+    Container ID:  containerd://a349af7427ba3153bdb1d16877b1381c3f8f43766defd56d055c85f6e1bd3879
+    Image:         ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick
+    Image ID:      ghcr.io/k8snetworkplumbingwg/multus-cni@sha256:a60a21ee1d00c9f215b0b2fa03b3d5e384ab7ddb9ea0d231d36aef220e95a69c
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /usr/src/multus-cni/bin/multus-daemon
+    State:      Terminated
+      Reason:   Unknown
+      Message:  FRA_CONTAINER_ID=164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb;K8S_POD_UID=1ca57653-5d1b-4780-b13b-91e2aae05fdf" Path:""
+2026-09-26T15:33:45Z [error] Multus: GetPod failed: pod not found during Multus GetPod, but continue to delete
+2026-09-26T15:33:45Z [error] Multus: failed to get the cached delegates file: open /var/lib/cni/multus/164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb: no such file or directory, cannot properly delete
+2026-09-26T15:33:45Z [verbose] DEL finished CNI request ContainerID:"164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb" Netns:"" IfName:"eth0" Args:"IgnoreUnknown=1;K8S_POD_NAMESPACE=oai-lab;K8S_POD_NAME=oai-lab-bootstrap-server-77w7j;K8S_POD_INFRA_CONTAINER_ID=164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb;K8S_POD_UID=1ca57653-5d1b-4780-b13b-91e2aae05fdf" Path:"", result: "", err: <nil>
+2026-09-26T15:33:45Z [verbose] DEL starting CNI request ContainerID:"164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb" Netns:"" IfName:"eth0" Args:"IgnoreUnknown=1;K8S_POD_NAMESPACE=oai-lab;K8S_POD_NAME=oai-lab-bootstrap-server-77w7j;K8S_POD_INFRA_CONTAINER_ID=164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb;K8S_POD_UID=1ca57653-5d1b-4780-b13b-91e2aae05fdf" Path:""
+2026-09-26T15:33:45Z [error] Multus: GetPod failed: pod not found during Multus GetPod, but continue to delete
+2026-09-26T15:33:45Z [error] Multus: failed to get the cached delegates file: open /var/lib/cni/multus/164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb: no such file or directory, cannot properly delete
+2026-09-26T15:33:45Z [verbose] DEL finished CNI request ContainerID:"164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb" Netns:"" IfName:"eth0" Args:"IgnoreUnknown=1;K8S_POD_NAMESPACE=oai-lab;K8S_POD_NAME=oai-lab-bootstrap-server-77w7j;K8S_POD_INFRA_CONTAINER_ID=164e92422bc1f1e6b8a066abb7cc885501d0f016efcfbdfedcecdcef03ff3bcb;K8S_POD_UID=1ca57653-5d1b-4780-b13b-91e2aae05fdf" Path:"", result: "", err: <nil>
+
+      Exit Code:    255
+      Started:      Sat, 26 Sep 2026 22:05:20 +0700
+      Finished:     Sun, 27 Sep 2026 16:56:50 +0700
+    Ready:          False
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  50Mi
+    Requests:
+      cpu:     100m
+      memory:  50Mi
+    Environment:
+      MULTUS_NODE_NAME:   (v1:spec.nodeName)
+    Mounts:
+      /etc/cni/multus/net.d from multus-conf-dir (rw)
+      /etc/cni/net.d/multus.d from multus-daemon-config (ro)
+      /host/etc/cni/net.d from cni (rw)
+      /host/run from host-run (rw)
+      /hostroot from hostroot (rw)
+      /opt/cni/bin from cnibin (rw)
+      /run/k8s.cni.cncf.io from host-run-k8s-cni-cncf-io (rw)
+      /run/netns from host-run-netns (rw)
+      /var/lib/cni/multus from host-var-lib-cni-multus (rw)
+      /var/lib/kubelet from host-var-lib-kubelet (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-bvvlv (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  cni:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/cni/net.d
+    HostPathType:  
+  cnibin:
+    Type:          HostPath (bare host directory volume)
+    Path:          /opt/cni/bin
+    HostPathType:  
+  hostroot:
+    Type:          HostPath (bare host directory volume)
+    Path:          /
+    HostPathType:  
+  multus-daemon-config:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      multus-daemon-config
+    Optional:  false
+  host-run:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run
+    HostPathType:  
+  host-var-lib-cni-multus:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/cni/multus
+    HostPathType:  
+  host-var-lib-kubelet:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/kubelet
+    HostPathType:  
+  host-run-k8s-cni-cncf-io:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/k8s.cni.cncf.io
+    HostPathType:  
+  host-run-netns:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/netns/
+    HostPathType:  
+  multus-conf-dir:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/cni/multus/net.d
+    HostPathType:  
+  kube-api-access-bvvlv:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 :NoSchedule op=Exists
+                             :NoExecute op=Exists
+                             node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/network-unavailable:NoSchedule op=Exists
+                             node.kubernetes.io/not-ready:NoExecute op=Exists
+                             node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                             node.kubernetes.io/unreachable:NoExecute op=Exists
+                             node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:
+  Type     Reason          Age                From               Message
+  ----     ------          ----               ----               -------
+  Normal   Scheduled       18h                default-scheduler  Successfully assigned kube-system/kube-multus-ds-h7kq7 to oai-lab
+  Normal   Pulling         18h                kubelet            Pulling image "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick"
+  Normal   Pulled          18h                kubelet            Successfully pulled image "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick" in 19.948s (19.948s including waiting). Image size: 195697159 bytes.
+  Normal   Created         18h                kubelet            Created container: install-multus-binary
+  Normal   Started         18h                kubelet            Started container install-multus-binary
+  Normal   Pulled          18h                kubelet            Container image "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick" already present on machine
+  Normal   Created         18h                kubelet            Created container: kube-multus
+  Normal   Started         18h                kubelet            Started container kube-multus
+  Normal   SandboxChanged  73s                kubelet            Pod sandbox changed, it will be killed and re-created.
+  Normal   Pulled          34s (x3 over 73s)  kubelet            Container image "ghcr.io/k8snetworkplumbingwg/multus-cni:v4.2.2-thick" already present on machine
+  Normal   Created         34s (x3 over 73s)  kubelet            Created container: install-multus-binary
+  Normal   Started         34s (x3 over 73s)  kubelet            Started container install-multus-binary
+  Warning  BackOff         5s (x6 over 73s)   kubelet            Back-off restarting failed container install-multus-binary in pod kube-multus-ds-h7kq7_kube-system(b153aa16-ec89-4501-8fe3-339674de1e83)

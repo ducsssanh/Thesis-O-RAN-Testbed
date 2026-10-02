@@ -1,0 +1,47 @@
+{
+  "backend": "kubernetes-staged",
+  "context": "oai-lab",
+  "runId": "20261001T121526Z-m35",
+  "xdpMode": "skb",
+  "valuesSha256": "c7976e91231bb54467face072396162e066c18333df3d459ac66dfa360af3dc1",
+  "images": {
+    "sourceHash": "4355f1dd430e9914",
+    "images": {
+      "tools": {
+        "image": "oai-lab-tools:30e854d39b1192d1",
+        "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+        "repoDigests": []
+      },
+      "upf": {
+        "image": "oai-lab-upf:teardown-5f1ab8b55a95",
+        "id": "sha256:b949128ade74769449e66897f0601077138020ad310a3393d2bf925db7f1ca77",
+        "repoDigests": []
+      },
+      "radio": {
+        "image": "oai-lab-radio:30e854d39b1192d1",
+        "id": "sha256:fa863eceb039b119daa09a123f559e766ead54f78076dfb98c9f67e34016b225",
+        "repoDigests": []
+      },
+      "smf": {
+        "image": "oai-lab-smf:v2.2.0-ie43-stale-2fa8f172",
+        "id": "sha256:d1a14696dd05d79324f0638713fa2bde211517e4abeb9589e42e58e86d3d243a",
+        "repoDigests": []
+      }
+    }
+  },
+  "eiImages": {
+    "producer": {
+      "image": "oai-lab-urr-ei-producer:aa9a3c9cb707034d",
+      "id": "sha256:b9469fcf1eb03d2e29d91e7250ae4c1ee5c1142da2f8fc6e80f34d55e0badcf1"
+    },
+    "adapter": {
+      "image": "oai-lab-a1-ei-adapter:22774468a7bcd87e",
+      "id": "sha256:4fadb2de2fe3f4ee963123e5dc5cd28e366c5d1d8fa82a87244dd867899207ea"
+    }
+  },
+  "xappImage": {
+    "image": "oai-lab-xapp:dc3a036d6734068e",
+    "id": "sha256:ac5da67dcefbc4e65967ad318f111e12420fb3ef7a3226e774f7842aefc0ab87",
+    "sourceHash": "dc3a036d6734068e"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "subscriberCount": 1,
+  "plmn": "00101",
+  "slice": {
+    "sst": 1,
+    "sd": "FFFFFF"
+  },
+  "dnn": "nist-dnn",
+  "seedRuns": 2,
+  "rowsUnchanged": true,
+  "sqnPreserved": true,
+  "authenticationRuntime": "NOT_TESTED"
+}
