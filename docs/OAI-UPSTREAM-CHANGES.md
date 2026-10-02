@@ -14,7 +14,9 @@ Mã gốc được tải trực tiếp từ GitHub/GitLab của OAI tại đúng
 | OAI RAN (gNB, nrUE) | `gitlab.eurecom.fr/oai/openairinterface5g` @ `26efcc498931`, submodule FlexRIC @ `ef6d722f2219` | `src/oai-ran` (không có Git) | **MATCH** (bỏ qua khoảng trắng), 1 patch tổng hợp + FlexRIC nhúng |
 | OAI Helm charts | `gitlab.eurecom.fr/oai/orchestration/charts` @ `7925f939ea36` | `deploy/k8s/vendor` | **MATCH** từng byte, 1 patch |
 
-Quy ước khi so sánh: bỏ qua `.git`, thư mục build, `ci-scripts/common` (submodule CI của upstream, không sửa), file `*.previous*` (bản sao lưu do helper patch của NIST testbed sinh ra, không được build) và `compile_commands.json`. "Bỏ qua khoảng trắng" chỉ cần cho hai patch cũ được snapshot với dòng trống/thụt lề lệch; nội dung code trùng khớp.
+Quy ước khi so sánh (02/10/2026: **so sánh nghiêm ngặt từng byte**): chỉ bỏ qua `.git`, thư mục build, file `*.previous*` (bản sao lưu do helper patch của NIST testbed sinh ra, không được build) và `compile_commands.json`. Submodule `ci-scripts/common` cũng được tải theo SHA pin (UPF `8471dc8`, SMF `3407df4`). Độ lệch dòng trống/thụt lề của patch flexric cũ được chỉnh bằng `patches/flexric-whitespace-exact.patch`; `xapp_kpm_moni_write_to_csv.c` bản NIST của flexric nhúng trong oai-ran được giữ ở `patches/flexric-embedded-ran/`.
+
+**Clone mới:** cây upstream trong `src/` không được commit. Dựng lại bằng `scripts/verify-oai-upstream.sh --into src` (ghi `src/{oai-upf,oai-smf,flexric,oai-ran}`; `oai-smf` và common-src giữ `.git` tại commit pin vì `lab.sh build` đọc nó), sau đó chạy `scripts/verify-oai-upstream.sh` phải MATCH. `src/5gdeploy` chỉ dùng cho launcher compose cũ (`scripts/legacy`), không cần cho stack k8s.
 
 **Phát hiện khi kiểm chứng (đã xử lý 01/10):** hai thay đổi đang chạy nhưng **chưa có file patch** — (1) bước sửa UPF ngày 28/09 (`RemovePipeline` theo session, dọn ánh xạ UE IP), nay xuất thành `oai-upf-session-teardown-ue-ip-mapping.patch`; (2) thay đổi xApp ngày 01/10 (epoch + watchdog KPM), nay là `flexric-xapp-epoch-kpm-watchdog.patch`. Patch `oai-upf-teardown-best-effort.patch` được tạo trên nền (1), nên (1) phải áp trước.
 

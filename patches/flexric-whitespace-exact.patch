@@ -1,0 +1,25 @@
+diff -ruN wa/examples/xApp/c/monitor/CMakeLists.txt wb/examples/xApp/c/monitor/CMakeLists.txt
+--- a/examples/xApp/c/monitor/CMakeLists.txt
++++ b/examples/xApp/c/monitor/CMakeLists.txt
+@@ -104,7 +104,7 @@
+                     -pthread
+                     -lsctp
+                     -ldl
+-                      -lm
++                    -lm
+                     microhttpd
+                     json-c
+                     sqlite3
+@@ -130,4 +130,3 @@
+                       -lm
+                       )
+ target_compile_definitions(xapp_kpm_moni_write_to_influxdb PRIVATE KPM_MEAS_LIST="${KPM_MEAS_LIST}")
+-
+diff -ruN wa/src/xApp/db/db.c wb/src/xApp/db/db.c
+--- a/src/xApp/db/db.c
++++ b/src/xApp/db/db.c
+@@ -158,4 +158,3 @@
+ 
+   push_tsnq(&db->q, &d, sizeof(d) );
+ }
+-
