@@ -1,0 +1,247 @@
+--- a/src/upf_app/app/upf_n4.cpp
++++ b/src/upf_app/app/upf_n4.cpp
+@@ -353,6 +353,23 @@
+             msg_ies_container.node_id.second, existing_association)) {
+       pfcp_associations::get_instance().add_peer_candidate_node(
+           msg_ies_container.node_id.second);
++    } else if (
++        existing_association->recovery_time_stamp.recovery_time_stamp !=
++        msg_ies_container.recovery_time_stamp.second.recovery_time_stamp) {
++      // The CP function restarted faster than the heartbeat detects it
++      // (session TTL T3, TS 29.244 6.2.6.2.2): its PFCP sessions are gone
++      // there, delete them here before the new SEIDs can collide
++      Logger::upf_n4().info(
++          "PFCP Association Setup with a new Recovery Time Stamp (%u -> %u): "
++          "deleting the sessions of the previous association",
++          existing_association->recovery_time_stamp.recovery_time_stamp,
++          msg_ies_container.recovery_time_stamp.second.recovery_time_stamp);
++      existing_association->del_sessions();
++      existing_association->recovery_time_stamp =
++          msg_ies_container.recovery_time_stamp.second;
++      if (msg_ies_container.cp_function_features.first)
++        existing_association->set(
++            msg_ies_container.cp_function_features.second);
+     }
+     // bool restore_n4_sessions = false;
+     if (msg_ies_container.cp_function_features.first) {
+--- a/src/upf_app/control/UrrReportConsumer.cpp
++++ b/src/upf_app/control/UrrReportConsumer.cpp
+@@ -11,6 +11,7 @@
+ #include <ctime>
+ #include <limits>
+ #include <stdexcept>
++#include <unordered_set>
+ #include <utility>
+ 
+ #include "SessionManager.h"
+@@ -49,9 +50,11 @@
+ 
+ UrrReportConsumer::UrrReportConsumer(
+     std::shared_ptr<BPFMap> ringbuf_map,
+-    std::shared_ptr<SessionManager> session_manager)
++    std::shared_ptr<SessionManager> session_manager,
++    std::shared_ptr<BPFMap> volume_map)
+     : ringbuf_map_(std::move(ringbuf_map)),
+-      session_manager_(std::move(session_manager)) {}
++      session_manager_(std::move(session_manager)),
++      volume_map_(std::move(volume_map)) {}
+ 
+ UrrReportConsumer::~UrrReportConsumer() {
+   Stop();
+@@ -88,6 +91,7 @@
+     ring_buffer_ = nullptr;
+   }
+   report_sequences_.clear();
++  activity_.clear();
+ }
+ 
+ int UrrReportConsumer::OnRingbufEvent(
+@@ -176,6 +180,55 @@
+       Logger::upf_app().error("URR ring buffer polling failed: %d", result);
+       break;
+     }
++    const auto now = std::chrono::steady_clock::now();
++    if (now - last_inactivity_check_ >= std::chrono::seconds(1)) {
++      last_inactivity_check_ = now;
++      CheckInactivity();
++    }
+   }
+   running_.store(false);
+ }
++
++void UrrReportConsumer::CheckInactivity() {
++  if (!volume_map_ || !upf_n4_inst) return;
++  const auto now = std::chrono::steady_clock::now();
++  std::unordered_set<uint64_t> live;
++  for (const auto& session : session_manager_->GetAllSessions()) {
++    if (!session || session->up_inactivity_timer_s == 0) continue;
++    uint64_t seid = session->seid;
++    live.insert(seid);
++    struct urr_volume vol = {};
++    if (volume_map_->Lookup(seid, &vol) != 0) continue;  // no URR
++
++    auto [it, inserted] =
++        activity_.try_emplace(seid, Activity{vol.total_packets, now, false});
++    if (inserted) continue;
++    // Any change (including a reset after a usage report) means traffic
++    if (vol.total_packets != it->second.packets) {
++      it->second = Activity{vol.total_packets, now, false};
++      continue;
++    }
++    if (it->second.reported ||
++        now - it->second.last <
++            std::chrono::seconds(session->up_inactivity_timer_s))
++      continue;
++
++    pfcp::pfcp_session_report_request request;
++    pfcp::report_type_t report_type = {};
++    report_type.upir                = 1;
++    request.set(report_type);
++    upf_n4_inst->send_n4_msg(session->cp_fseid, request);
++    it->second.reported = true;
++    Logger::upf_app().info(
++        "Queued PFCP User Plane Inactivity Report SEID=%" PRIu64
++        " SUPI=%s (no packet for %u s)",
++        seid, session->supi.empty() ? "-" : session->supi.c_str(),
++        session->up_inactivity_timer_s);
++  }
++  for (auto it = activity_.begin(); it != activity_.end();) {
++    if (live.count(it->first))
++      ++it;
++    else
++      it = activity_.erase(it);
++  }
++}
+--- a/src/upf_app/control/UrrReportConsumer.h
++++ b/src/upf_app/control/UrrReportConsumer.h
+@@ -6,6 +6,7 @@
+ #define URR_REPORT_CONSUMER_H_
+ 
+ #include <atomic>
++#include <chrono>
+ #include <cstddef>
+ #include <cstdint>
+ #include <memory>
+@@ -29,7 +30,8 @@
+  public:
+   UrrReportConsumer(
+       std::shared_ptr<BPFMap> ringbuf_map,
+-      std::shared_ptr<SessionManager> session_manager);
++      std::shared_ptr<SessionManager> session_manager,
++      std::shared_ptr<BPFMap> volume_map = nullptr);
+   ~UrrReportConsumer();
+ 
+   UrrReportConsumer(const UrrReportConsumer&)            = delete;
+@@ -42,6 +44,19 @@
+   static int OnRingbufEvent(void* context, void* data, size_t data_size);
+   int HandleEvent(const struct urr_report_event& event);
+   void PollLoop();
++  // User Plane Inactivity Report (TS 29.244 5.11.3), session TTL T2: a
++  // session with an inactivity timer whose URR packet counter has not moved
++  // for that long is reported once, then re-armed by the next packet
++  void CheckInactivity();
++
++  struct Activity {
++    uint64_t packets;
++    std::chrono::steady_clock::time_point last;
++    bool reported;
++  };
++  std::shared_ptr<BPFMap> volume_map_;
++  std::unordered_map<uint64_t, Activity> activity_;
++  std::chrono::steady_clock::time_point last_inactivity_check_{};
+ 
+   std::shared_ptr<BPFMap> ringbuf_map_;
+   std::shared_ptr<SessionManager> session_manager_;
+--- a/src/upf_app/control/UserPlaneComponent.cpp
++++ b/src/upf_app/control/UserPlaneComponent.cpp
+@@ -168,7 +168,8 @@
+       throw std::runtime_error("URR enabled but report ring buffer is missing");
+     }
+     urr_report_consumer_ = std::make_shared<UrrReportConsumer>(
+-        urr_program->GetUrrReportRingbuf(), session_manager_);
++        urr_program->GetUrrReportRingbuf(), session_manager_,
++        upf_xdp_program_->GetMapByName("urr_volume_counters_map"));
+     urr_report_consumer_->Start();
+   }
+ 
+--- a/src/upf_app/simpleswitch/pfcp_session.hpp
++++ b/src/upf_app/simpleswitch/pfcp_session.hpp
+@@ -61,6 +61,10 @@
+                                     ///< default is 0 (undefined)
+   uint8_t qfi = 0x05;  ///< Default QFI for DN-originated packets (§8.2.89)
+ 
++  // ---- Subscriber and inactivity (two-layer defense, session TTL T2) -------
++  std::string supi;  ///< "imsi-<digits>" from the User ID IE (§8.2.101), or ""
++  uint32_t up_inactivity_timer_s = 0;  ///< IE 117 (§8.2.83), 0 = none
++
+   // TO DO better than this :(sooner the better)  when inserting or removing new
+   // PDRs, FARS, should not conflict with switching operations
+ 
+@@ -123,7 +127,9 @@
+         bars(c.bars),
+         mars(c.mars),
+         teid_uplink(c.teid_uplink),
+-        pdn_type(c.pdn_type) {}
++        pdn_type(c.pdn_type),
++        supi(c.supi),
++        up_inactivity_timer_s(c.up_inactivity_timer_s) {}
+ 
+   //------------------------------------------------------------------------------
+   virtual ~pfcp_session() {
+--- a/src/upf_app/simpleswitch/pfcp_switch.cpp
++++ b/src/upf_app/simpleswitch/pfcp_switch.cpp
+@@ -563,6 +563,16 @@
+ void pfcp_switch::remove_pfcp_session(const pfcp::fseid_t& cp_fseid) {
+   std::shared_ptr<pfcp::pfcp_session> session = {};
+   if (get_pfcp_session_by_cp_fseid(cp_fseid, session)) {
++    // Association teardown (heartbeat failure, CP restart): clear the BPF
++    // datapath too, as a Session Deletion Request does
++    if (upf_cfg.enable_bpf_datapath) {
++      Logger::upf_app().info(
++          "Delete datapath of session SEID " SEID_FMT " (association teardown)",
++          session->seid);
++      call_datapath(
++          nullptr, nullptr, nullptr, session.get(), session_manager,
++          &SessionManager::RemoveSession);
++    }
+     remove_pfcp_session(session);
+   }
+ }
+@@ -753,6 +763,16 @@
+     if (not exist) {
+       session = new pfcp_session(fseid, generate_seid());
+ 
++      // User ID (§8.2.101): subscriber identity of the session
++      pfcp::user_id_t user_id = {};
++      if (req->pfcp_ies.get(user_id) && user_id.imsif)
++        session->supi = "imsi-" + user_id.imsi.toString();
++      // User Plane Inactivity Timer (§8.2.83): UPIR after that long without
++      // traffic (UrrReportConsumer)
++      pfcp::user_plane_inactivity_timer_t upit = {};
++      if (req->pfcp_ies.get(upit))
++        session->up_inactivity_timer_s = upit.user_plane_inactivity_timer;
++
+       // ---- Create FARs first (PDR create_far look-up requires them) --------
+       for (auto it : req->pfcp_ies.create_fars) {
+         create_far& cr_far = it;
+@@ -894,6 +914,12 @@
+         s = std::shared_ptr<pfcp_session>(session);
+         add_pfcp_session_by_cp_fseid(fseid, s);
+         add_pfcp_session_by_up_seid(session->seid, s);
++        Logger::upf_app().info(
++            "PFCP session established: UP SEID " SEID_FMT " CP SEID " SEID_FMT
++            " SUPI %s UP inactivity timer %u s",
++            session->seid, fseid.seid,
++            session->supi.empty() ? "-" : session->supi.c_str(),
++            session->up_inactivity_timer_s);
+         // start_timer_min_commit_interval();
+         // start_timer_max_commit_interval();
+ 
+@@ -1336,6 +1362,7 @@
+   } else {
+     pfcp::pfcp_session* session = s.get();
+     resp->seid                  = s->cp_fseid.seid;
++    fseid                       = s->cp_fseid;  // for notify_del_session()
+ 
+     if (isBpfAccelerationEnabled) {
+       Logger::upf_app().info("Delete datapath");

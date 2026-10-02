@@ -122,10 +122,23 @@ smf:
     primary_ipv4: 172.21.3.100
     secondary_ipv4: 8.8.8.8
   ue_mtu: 1500
+  {{- $d := .Values.global.lab.defense }}
+  session_ttl:
+    deactivated_release_s: {{ int $d.sessionTtl.deactivatedReleaseS }}
+    up_inactivity_s: {{ int $d.sessionTtl.upInactivityS }}
   upfs:
   - host: {{ .Values.global.lab.networks.n4.addresses.upf | quote }}
     config:
       enable_usage_reporting: {{ .Values.global.lab.usageReporting }}
+      enable_user_id: {{ $d.userId }}
+      urr:
+        periodic_s: {{ int $d.urr.periodicS }}
+        volume_threshold_dl_bytes: {{ int $d.urr.volumeThresholdDlBytes }}
+        time_threshold_s: {{ int $d.urr.timeThresholdS }}
+        guard:
+          enabled: {{ $d.urr.guard.enabled }}
+          quota_ul_bytes: {{ int $d.urr.guard.quotaUlBytes }}
+          quota_dl_bytes: {{ int $d.urr.guard.quotaDlBytes }}
 snssais:
 - *id001
 upf:

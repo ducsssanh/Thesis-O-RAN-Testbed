@@ -1,0 +1,666 @@
+--- a/src/smf_app/smf_app.cpp
++++ b/src/smf_app/smf_app.cpp
+@@ -21,6 +21,7 @@
+ 
+ #include "smf_app.hpp"
+ 
++#include <algorithm>
+ #include <boost/algorithm/string.hpp>
+ #include <boost/uuid/random_generator.hpp>
+ #include <boost/uuid/uuid_io.hpp>
+@@ -319,6 +320,9 @@
+               smf_app_inst->timer_nrf_heartbeat_timeout(
+                   to->timer_id, to->arg2_user);
+               break;
++            case TASK_SMF_APP_TIMEOUT_SESSION_TTL:
++              smf_app_inst->timer_session_ttl(to->timer_id, to->arg2_user);
++              break;
+             case TASK_SMF_APP_TIMEOUT_NRF_DEREGISTRATION:
+               smf_app_inst->timer_nrf_deregistration(
+                   to->timer_id, to->arg2_user);
+@@ -401,7 +405,39 @@
+     if (smf_cfg->register_nrf()) {
+       register_to_nrf();
+     }
++    start_session_ttl_timer();
++  }
++}
++
++//------------------------------------------------------------------------------
++void smf_app::start_session_ttl_timer() {
++  uint32_t ttl = smf_cfg->smf()->get_ttl_deactivated_release_s();
++  if (ttl == 0) return;
++  // Sweep at a quarter of the TTL, between 1 s and 10 s
++  uint32_t period = std::min<uint32_t>(10, std::max<uint32_t>(1, ttl / 4));
++  itti_inst->timer_setup(
++      period, 0, TASK_SMF_APP, TASK_SMF_APP_TIMEOUT_SESSION_TTL, 0);
++}
++
++//------------------------------------------------------------------------------
++void smf_app::timer_session_ttl(timer_id_t, uint64_t) {
++  uint32_t ttl = smf_cfg->smf()->get_ttl_deactivated_release_s();
++  // Newest SM Context ID of every (SUPI, PDU Session ID): older ones are kept
++  // in the map after a release and would point at a re-established session
++  std::map<std::pair<std::string, pdu_session_id_t>, scid_t> sessions;
++  {
++    std::shared_lock lock(m_scid2smf_context);
++    for (const auto& it : scid2smf_context) {
++      if (it.second)
++        sessions[{it.second->supi, it.second->pdu_session_id}] = it.first;
++    }
++  }
++  for (const auto& [key, scid] : sessions) {
++    if (!is_supi_2_smf_context(key.first)) continue;
++    std::shared_ptr<smf_context> sc = supi_2_smf_context(key.first);
++    if (sc) sc->release_deactivated_pdu_session(key.second, scid, ttl);
+   }
++  start_session_ttl_timer();
+ }
+ 
+ //------------------------------------------------------------------------------
+--- a/src/smf_app/smf_app.hpp
++++ b/src/smf_app/smf_app.hpp
+@@ -53,6 +53,7 @@
+ #define TASK_SMF_APP_TIMEOUT_NRF_DEREGISTRATION (5)
+ #define TASK_SMF_APP_TIMEOUT_NRF_REGISTRATION (6)
+ #define TASK_SMF_APP_TIMEOUT_NRF_NF_SUBSCRIBE_NOTIFY (7)
++#define TASK_SMF_APP_TIMEOUT_SESSION_TTL (8)
+ 
+ // Table 10.3.2 @3GPP TS 24.501 V16.1.0 (2019-06)
+ #define T3591_TIMER_VALUE_SEC 16
+@@ -731,6 +732,17 @@
+   void timer_t3591_timeout(timer_id_t timer_id, scid_t scid);
+ 
+   /*
++   * Session TTL sweep (design 4.1): release every PDU Session whose UP
++   * connection has been DEACTIVATED, or inactive since a UPIR, for at least
++   * smf.session_ttl.deactivated_release_s; then re-arm the timer
++   * @param [timer_id_t] timer_id
++   * @param [uint64_t] arg2_user
++   * @return void
++   */
++  void timer_session_ttl(timer_id_t timer_id, uint64_t arg2_user);
++  void start_session_ttl_timer();
++
++  /*
+    * will be executed when timer T3592 expires
+    * @param [timer_id_t] timer_id
+    * @param [scid_t] scid
+--- a/src/smf_app/smf_config_types.cpp
++++ b/src/smf_app/smf_config_types.cpp
+@@ -142,6 +142,21 @@
+ 
+   m_enable_upf_wo_nf_discovery =
+       option_config_value("enable_upf_wo_nf_discovery", false);
++  m_user_id         = option_config_value("enable_user_id", false);
++  m_urr_periodic_s  = int_config_value("urr.periodic_s", 10);
++  m_urr_volume_threshold_dl_bytes =
++      int_config_value("urr.volume_threshold_dl_bytes", 1000);
++  m_urr_time_threshold_s = int_config_value("urr.time_threshold_s", 5);
++  m_urr_guard            = option_config_value("urr.guard.enabled", false);
++  m_urr_guard_quota_ul_bytes =
++      int_config_value("urr.guard.quota_ul_bytes", 3125000);
++  m_urr_guard_quota_dl_bytes =
++      int_config_value("urr.guard.quota_dl_bytes", 3125000);
++  m_urr_periodic_s.set_validation_interval(0, 86400);
++  m_urr_volume_threshold_dl_bytes.set_validation_interval(0, INT32_MAX);
++  m_urr_time_threshold_s.set_validation_interval(0, 86400);
++  m_urr_guard_quota_ul_bytes.set_validation_interval(0, INT32_MAX);
++  m_urr_guard_quota_dl_bytes.set_validation_interval(0, INT32_MAX);
+ 
+   m_dl_pdr_in_session_establishment = option_config_value(
+       "enable_dl_pdr_in_session_establishment",
+@@ -199,6 +214,26 @@
+     if (node["config"]["n3_local_ipv4"]) {
+       m_local_n3_ipv4.from_yaml(node["config"]["n3_local_ipv4"]);
+     }
++    if (node["config"]["enable_user_id"]) {
++      m_user_id.from_yaml(node["config"]["enable_user_id"]);
++    }
++    const YAML::Node& urr = node["config"]["urr"];
++    if (urr) {
++      if (urr["periodic_s"]) m_urr_periodic_s.from_yaml(urr["periodic_s"]);
++      if (urr["volume_threshold_dl_bytes"])
++        m_urr_volume_threshold_dl_bytes.from_yaml(
++            urr["volume_threshold_dl_bytes"]);
++      if (urr["time_threshold_s"])
++        m_urr_time_threshold_s.from_yaml(urr["time_threshold_s"]);
++      const YAML::Node& guard = urr["guard"];
++      if (guard) {
++        if (guard["enabled"]) m_urr_guard.from_yaml(guard["enabled"]);
++        if (guard["quota_ul_bytes"])
++          m_urr_guard_quota_ul_bytes.from_yaml(guard["quota_ul_bytes"]);
++        if (guard["quota_dl_bytes"])
++          m_urr_guard_quota_dl_bytes.from_yaml(guard["quota_dl_bytes"]);
++      }
++    }
+   }
+   if (node["upf_info"]) {
+     nlohmann::json j = oai::utils::conv::yaml_to_json(node["upf_info"], false);
+@@ -298,6 +333,15 @@
+   out.append(fmt::format(
+       fmt_value, m_dl_pdr_in_session_establishment.get_config_name(),
+       m_dl_pdr_in_session_establishment.to_string("")));
++  for (const auto* v :
++       {&m_urr_periodic_s, &m_urr_volume_threshold_dl_bytes,
++        &m_urr_time_threshold_s, &m_urr_guard_quota_ul_bytes,
++        &m_urr_guard_quota_dl_bytes}) {
++    out.append(fmt::format(fmt_value, v->get_config_name(), v->to_string("")));
++  }
++  for (const auto* v : {&m_user_id, &m_urr_guard}) {
++    out.append(fmt::format(fmt_value, v->get_config_name(), v->to_string("")));
++  }
+   if (m_local_n3_ipv4.is_set()) {
+     out.append(fmt::format(
+         fmt_value, m_local_n3_ipv4.get_config_name(),
+@@ -314,6 +358,11 @@
+   m_host.validate();
+   m_port.validate();
+   m_local_n3_ipv4.validate();
++  m_urr_periodic_s.validate();
++  m_urr_volume_threshold_dl_bytes.validate();
++  m_urr_time_threshold_s.validate();
++  m_urr_guard_quota_ul_bytes.validate();
++  m_urr_guard_quota_dl_bytes.validate();
+   if (m_upf_info_is_set) {
+     m_upf_info.validate(false);
+   }
+@@ -339,6 +388,34 @@
+   return m_qers.get_value();
+ }
+ 
++bool upf::enable_user_id() const {
++  return m_user_id.get_value();
++}
++
++uint32_t upf::get_urr_periodic_s() const {
++  return m_urr_periodic_s.get_value();
++}
++
++uint64_t upf::get_urr_volume_threshold_dl_bytes() const {
++  return m_urr_volume_threshold_dl_bytes.get_value();
++}
++
++uint32_t upf::get_urr_time_threshold_s() const {
++  return m_urr_time_threshold_s.get_value();
++}
++
++bool upf::enable_urr_guard() const {
++  return m_urr_guard.get_value();
++}
++
++uint64_t upf::get_urr_guard_quota_ul_bytes() const {
++  return m_urr_guard_quota_ul_bytes.get_value();
++}
++
++uint64_t upf::get_urr_guard_quota_dl_bytes() const {
++  return m_urr_guard_quota_dl_bytes.get_value();
++}
++
+ bool upf::enable_upf_wo_nf_discovery() const {
+   return m_enable_upf_wo_nf_discovery.get_value();
+ }
+@@ -475,6 +552,11 @@
+   m_config_name = "SMF Config";
+   m_ue_mtu      = int_config_value("ue_mtu", 1500);
+   m_ue_mtu.set_validation_interval(1, 65535);
++  m_ttl_deactivated_release_s =
++      int_config_value("session_ttl.deactivated_release_s", 0);
++  m_ttl_up_inactivity_s = int_config_value("session_ttl.up_inactivity_s", 0);
++  m_ttl_deactivated_release_s.set_validation_interval(0, INT32_MAX);
++  m_ttl_up_inactivity_s.set_validation_interval(0, INT32_MAX);
+   m_upfs.push_back(DEFAULT_UPF);
+   m_n4 = n4;
+ }
+@@ -484,6 +566,13 @@
+   if (node["ue_mtu"]) {
+     m_ue_mtu.from_yaml(node["ue_mtu"]);
+   }
++  if (node["session_ttl"]) {
++    if (node["session_ttl"]["deactivated_release_s"])
++      m_ttl_deactivated_release_s.from_yaml(
++          node["session_ttl"]["deactivated_release_s"]);
++    if (node["session_ttl"]["up_inactivity_s"])
++      m_ttl_up_inactivity_s.from_yaml(node["session_ttl"]["up_inactivity_s"]);
++  }
+   if (node["support_features"]) {
+     m_support_feature.from_yaml(node["support_features"]);
+   }
+@@ -592,6 +681,11 @@
+   out.append(indent).append(fmt::format(
+       BASE_FORMATTER, OUTER_LIST_ELEM, m_ue_mtu.get_config_name(), inner_width,
+       m_ue_mtu.to_string("")));
++  for (const auto* v : {&m_ttl_deactivated_release_s, &m_ttl_up_inactivity_s}) {
++    out.append(indent).append(fmt::format(
++        BASE_FORMATTER, OUTER_LIST_ELEM, v->get_config_name(), inner_width,
++        v->to_string("")));
++  }
+   out.append(m_ims_config.to_string(indent));
+   out.append(m_ngap_config.to_string(indent));
+   std::string inner_indent = indent + indent;
+@@ -616,6 +710,8 @@
+   nf::validate();
+   m_ue_dns.validate();
+   m_ue_mtu.validate();
++  m_ttl_deactivated_release_s.validate();
++  m_ttl_up_inactivity_s.validate();
+   m_n4.validate();
+   for (auto& upf : m_upfs) {
+     upf.validate();
+@@ -643,6 +739,14 @@
+   return m_ue_mtu.get_value();
+ }
+ 
++uint32_t smf_config_type::get_ttl_deactivated_release_s() const {
++  return m_ttl_deactivated_release_s.get_value();
++}
++
++uint32_t smf_config_type::get_ttl_up_inactivity_s() const {
++  return m_ttl_up_inactivity_s.get_value();
++}
++
+ const std::vector<upf>& smf_config_type::get_upfs() const {
+   return m_upfs;
+ }
+--- a/src/smf_app/smf_config_types.hpp
++++ b/src/smf_app/smf_config_types.hpp
+@@ -67,6 +67,15 @@
+   bool m_upf_info_is_set = true;
+   pfcp::node_id_t m_node_id;
+   option_config_value m_enable_upf_wo_nf_discovery;
++  // PFCP User ID IE (IMSI) in Session Establishment (TS 29.244 8.2.101)
++  option_config_value m_user_id;
++  // Create URR, config.urr.* (defaults reproduce the former hardcoded URR)
++  int_config_value m_urr_periodic_s;
++  int_config_value m_urr_volume_threshold_dl_bytes;
++  int_config_value m_urr_time_threshold_s;
++  option_config_value m_urr_guard;
++  int_config_value m_urr_guard_quota_ul_bytes;
++  int_config_value m_urr_guard_quota_dl_bytes;
+ 
+   void generate_node_id();
+ 
+@@ -92,6 +101,13 @@
+   [[nodiscard]] bool enable_dl_pdr_in_session_establishment() const;
+   [[nodiscard]] bool enable_qers() const;
+   [[nodiscard]] bool enable_upf_wo_nf_discovery() const;
++  [[nodiscard]] bool enable_user_id() const;
++  [[nodiscard]] uint32_t get_urr_periodic_s() const;
++  [[nodiscard]] uint64_t get_urr_volume_threshold_dl_bytes() const;
++  [[nodiscard]] uint32_t get_urr_time_threshold_s() const;
++  [[nodiscard]] bool enable_urr_guard() const;
++  [[nodiscard]] uint64_t get_urr_guard_quota_ul_bytes() const;
++  [[nodiscard]] uint64_t get_urr_guard_quota_dl_bytes() const;
+   [[nodiscard]] const std::string& get_local_n3_ip() const;
+   [[nodiscard]] const oai::model::nrf::UpfInfo& get_upf_info() const;
+   [[nodiscard]] const pfcp::node_id_t& get_node_id() const;
+@@ -216,6 +232,9 @@
+ 
+   int_config_value m_ue_mtu;
+   ngap_config_value m_ngap_config;
++  // Session TTL (smf.session_ttl.*), 0 disables
++  int_config_value m_ttl_deactivated_release_s;  // T1
++  int_config_value m_ttl_up_inactivity_s;        // T2, PFCP IE 117
+ 
+  public:
+   explicit smf_config_type(
+@@ -234,6 +253,8 @@
+   [[nodiscard]] const ims_config& get_ims_config() const;
+ 
+   [[nodiscard]] uint16_t get_ue_mtu() const;
++  [[nodiscard]] uint32_t get_ttl_deactivated_release_s() const;
++  [[nodiscard]] uint32_t get_ttl_up_inactivity_s() const;
+ 
+   [[nodiscard]] const std::vector<upf>& get_upfs() const;
+   [[nodiscard]] std::vector<subscription_info_config>& get_subscription_info();
+--- a/src/smf_app/smf_context.cpp
++++ b/src/smf_app/smf_context.cpp
+@@ -243,10 +243,48 @@
+       "Set upCnxState to %s",
+       upCnx_state_e2str.at(static_cast<int>(state)).c_str());
+   std::unique_lock lock(m_pdu_session_mutex);
++  if (state == upCnx_state_e::UPCNX_STATE_DEACTIVATED &&
++      upCnx_state != upCnx_state_e::UPCNX_STATE_DEACTIVATED)
++    upCnx_deactivated_at = std::chrono::steady_clock::now();
++  if (state != upCnx_state_e::UPCNX_STATE_DEACTIVATED)
++    upCnx_deactivated_at = {};
+   upCnx_state = state;
+ }
+ 
+ //------------------------------------------------------------------------------
++void smf_pdu_session::set_up_inactive() {
++  std::unique_lock lock(m_pdu_session_mutex);
++  if (up_inactive_since == std::chrono::steady_clock::time_point{})
++    up_inactive_since = std::chrono::steady_clock::now();
++}
++
++//------------------------------------------------------------------------------
++void smf_pdu_session::clear_up_inactive() {
++  std::unique_lock lock(m_pdu_session_mutex);
++  up_inactive_since = {};
++}
++
++//------------------------------------------------------------------------------
++int64_t smf_pdu_session::get_up_inactive_seconds() const {
++  std::shared_lock lock(m_pdu_session_mutex);
++  if (up_inactive_since == std::chrono::steady_clock::time_point{}) return -1;
++  return std::chrono::duration_cast<std::chrono::seconds>(
++             std::chrono::steady_clock::now() - up_inactive_since)
++      .count();
++}
++
++//------------------------------------------------------------------------------
++int64_t smf_pdu_session::get_upCnx_deactivated_seconds() const {
++  std::shared_lock lock(m_pdu_session_mutex);
++  if (upCnx_state != upCnx_state_e::UPCNX_STATE_DEACTIVATED ||
++      upCnx_deactivated_at == std::chrono::steady_clock::time_point{})
++    return -1;
++  return std::chrono::duration_cast<std::chrono::seconds>(
++             std::chrono::steady_clock::now() - upCnx_deactivated_at)
++      .count();
++}
++
++//------------------------------------------------------------------------------
+ upCnx_state_e smf_pdu_session::get_upCnx_state() const {
+   std::shared_lock lock(m_pdu_session_mutex);
+   return upCnx_state;
+@@ -648,6 +686,13 @@
+               "\t\t        Downlink -> %lld", vm.downlink_volume);
+         }
+ 
++        // Traffic after a UPIR ends the user plane inactivity (TTL T2)
++        if (ur.get(vm) && vm.total_volume > 0) {
++          std::shared_ptr<smf_pdu_session> sp = {};
++          if (find_pdu_session_from_seid(req->seid, sp))
++            sp->clear_up_inactive();
++        }
++
+         // Trigger QoS Monitoring Event report notification
+         std::shared_ptr<smf_context> pc = {};
+         if (smf_app_inst->seid_2_smf_context(req->seid, pc)) {
+@@ -704,9 +749,33 @@
+     }
+     // User Plane Inactivity Report
+     if (report_type.upir) {
+-      // TODO
+-      Logger::smf_app().debug(
+-          "PFCP_SESSION_REPORT_REQUEST/User Plane Inactivity Report");
++      Logger::smf_app().info(
++          "PFCP_SESSION_REPORT_REQUEST/User Plane Inactivity Report, SEID " SEID_FMT,
++          req->seid);
++      auto ack = std::make_shared<itti_n4_session_report_response>(
++          TASK_SMF_APP, TASK_SMF_N4);
++      ack->seid       = req->seid;
++      ack->trxn_id    = req->trxn_id;
++      ack->r_endpoint = req->r_endpoint;
++      pfcp::cause_t cause = {.cause_value = pfcp::CAUSE_VALUE_REQUEST_ACCEPTED};
++      ack->pfcp_ies.set(cause);
++      if (RETURNok != itti_inst->send_msg(ack)) {
++        Logger::smf_app().error(
++            "Could not send ITTI message %s to task TASK_SMF_N4",
++            ack->get_msg_name());
++      }
++      // T2 (design 4.1): no AMF probe tells whether the UE is gone (OAI AMF
++      // keeps a UE context per SUPI and answers N1N2MessageTransfer with 200
++      // without one), so the inactivity only arms the session TTL: the
++      // sweeper releases the session if no traffic is reported in the next
++      // session_ttl.deactivated_release_s
++      std::shared_ptr<smf_pdu_session> sp = {};
++      if (find_pdu_session_from_seid(req->seid, sp)) {
++        sp->set_up_inactive();
++        Logger::smf_app().info(
++            "Session TTL T2: user plane inactive (SUPI %s, PDU Session ID %d)",
++            supi.c_str(), sp->get_pdu_session_id());
++      }
+     }
+   }
+ }
+@@ -3469,6 +3538,29 @@
+ }
+ 
+ //------------------------------------------------------------------------------
++bool smf_context::release_deactivated_pdu_session(
++    const pdu_session_id_t& psi, const scid_t& scid, uint32_t ttl_s) {
++  std::shared_ptr<smf_pdu_session> sp = {};
++  if (!find_pdu_session(psi, sp)) return false;
++  int64_t deactivated = sp->get_upCnx_deactivated_seconds();
++  int64_t inactive    = sp->get_up_inactive_seconds();
++  int64_t idle        = std::max(deactivated, inactive);
++  if (idle < 0 || idle < (int64_t) ttl_s) return false;
++
++  Logger::smf_app().info(
++      "Session TTL %s: PDU Session (SUPI %s, PDU Session ID %d, SCID " SCID_FMT
++      ") %s for %ld s >= %u s, network-requested release",
++      deactivated >= inactive ? "T1" : "T2", supi.c_str(), psi, scid,
++      deactivated >= inactive ? "UP DEACTIVATED" : "user plane inactive", idle,
++      ttl_s);
++  // Same notifications as a completed PDU Session Release
++  event_sub.sm_context_status(scid, "RELEASED");
++  if (sp->get_pdu_session_status() == pdu_session_status_t::Active)
++    trigger_pdu_session_release(scid, 1);
++  return release_stale_pdu_session(psi);
++}
++
++//------------------------------------------------------------------------------
+ bool smf_context::release_stale_pdu_session(const pdu_session_id_t& psi) {
+   std::shared_ptr<smf_pdu_session> sp = {};
+   if (!find_pdu_session(psi, sp)) return false;
+--- a/src/smf_app/smf_context.hpp
++++ b/src/smf_app/smf_context.hpp
+@@ -22,6 +22,7 @@
+ #ifndef FILE_SMF_CONTEXT_HPP_SEEN
+ #define FILE_SMF_CONTEXT_HPP_SEEN
+ 
++#include <chrono>
+ #include <map>
+ #include <memory>
+ #include <shared_mutex>
+@@ -152,6 +153,22 @@
+   upCnx_state_e get_upCnx_state() const;
+ 
+   /*
++   * Seconds since upCnxState last entered DEACTIVATED through
++   * set_upCnx_state(); -1 if it is not DEACTIVATED or never was (session TTL
++   * T1, design 4.1)
++   */
++  int64_t get_upCnx_deactivated_seconds() const;
++
++  /*
++   * User plane inactivity (session TTL T2, design 4.1): set by a PFCP User
++   * Plane Inactivity Report, cleared by a Usage Report with traffic
++   */
++  void set_up_inactive();
++  void clear_up_inactive();
++  // Seconds since the UPIR that started the current inactivity, -1 if active
++  int64_t get_up_inactive_seconds() const;
++
++  /*
+    * Set HOState of a PDU Session
+    * @param [ho_state_e&] state: new HO State for the PDU Session
+    * @return void
+@@ -265,6 +282,8 @@
+   uint8_t pdu_session_status;
+   upCnx_state_e
+       upCnx_state;  // N3 tunnel status (ACTIVATED, DEACTIVATED, ACTIVATING)
++  std::chrono::steady_clock::time_point upCnx_deactivated_at{};
++  std::chrono::steady_clock::time_point up_inactive_since{};
+   ho_state_e ho_state;
+   timer_id_t timer_T3590;
+   timer_id_t timer_T3591;
+@@ -917,6 +936,22 @@
+   bool release_stale_pdu_session(const pdu_session_id_t& psi);
+ 
+   /*
++   * Session TTL (design 4.1): network-requested release of a PDU Session
++   * whose UP connection has been DEACTIVATED (T1) or reported inactive by the
++   * UPF (T2, UPIR without later traffic) for at least ttl_s seconds.
++   * Notifies the AMF (SMContextStatusNotify RELEASED; a 404 from an AMF that
++   * already dropped the UE is ignored), then deletes the N4 session(s) and
++   * releases the resources like release_stale_pdu_session()
++   * @param [const pdu_session_id_t &] psi: PDU Session ID
++   * @param [const scid_t &] scid: SM Context ID of the session
++   * @param [uint32_t] ttl_s: T1 value in seconds
++   * @return bool: true if the session was released
++   */
++  bool release_deactivated_pdu_session(
++      const pdu_session_id_t& psi, const scid_t& scid, uint32_t ttl_s);
++
++
++  /*
+    * Get number of pdu sessions associated with this context
+    * @param void
+    * @return size_t: number of PDU sessions
+--- a/src/smf_app/smf_procedure.cpp
++++ b/src/smf_app/smf_procedure.cpp
+@@ -443,6 +443,26 @@
+ }
+ 
+ //------------------------------------------------------------------------------
++bool smf_session_procedure::supi_to_user_id(
++    const std::string& supi, pfcp::user_id_t& user_id) {
++  std::string digits = supi;
++  if (digits.rfind("imsi-", 0) == 0) digits = digits.substr(5);
++  if (digits.empty() || digits.size() > 15 ||
++      digits.find_first_not_of("0123456789") != std::string::npos)
++    return false;
++  user_id       = {};
++  user_id.imsif = 1;
++  // TBCD: first digit in the low nibble; dump_to() pads an odd count with 0xF
++  for (size_t i = 0; i < digits.size(); i++) {
++    uint8_t d = digits[i] - '0';
++    user_id.imsi.u1.b[i / 2] |= (i % 2) ? (d << 4) : d;
++  }
++  user_id.imsi.num_digits = digits.size();
++  user_id.length_of_imsi  = (digits.size() + 1) / 2;
++  return true;
++}
++
++//------------------------------------------------------------------------------
+ pfcp::create_urr smf_session_procedure::pfcp_create_urr(
+     const std::shared_ptr<qos_upf_edge>& edge) {
+   if (edge->urr_id.urr_id == 0) {
+@@ -455,29 +475,43 @@
+   pfcp::volume_threshold_t volume_threshold     = {};
+   pfcp::time_threshold_t time_threshold         = {};
+ 
+-  // Hardcoded values for the moment
+-  measurement_method.volum              = 1;  // Volume based usage report
+-  measurement_method.durat              = 1;
+-  measurement_Period.measurement_period = 10;  // Every 10 Sec
+-  reporting_triggers.perio              = 1;   // Periodic usage report
+-  reporting_triggers.volth              = 1;
+-  reporting_triggers.timth              = 1;
+-  reporting_triggers.volqu              = 0;
+-  reporting_triggers.timqu              = 0;
+-
+-  volume_threshold.dlvol           = 1;
+-  volume_threshold.ulvol           = 0;
+-  volume_threshold.tovol           = 0;
+-  volume_threshold.downlink_volume = 1000;
+-
+-  time_threshold.time_threshold = 5;
+-
++  // From smf.upfs[].config.urr; the defaults are the former hardcoded values
++  // (PERIO 10 s, VOLTH DL 1000 B, TIMTH 5 s). 0 disables a trigger.
++  oai::config::smf::upf cfg = edge->source_upf->get_upf_config();
++  measurement_method.volum  = 1;  // Volume based usage report
++  measurement_method.durat  = 1;
+   create_urr.set(edge->urr_id);
+   create_urr.set(measurement_method);
+-  create_urr.set(measurement_Period);
++
++  if (cfg.get_urr_periodic_s() > 0) {
++    reporting_triggers.perio              = 1;
++    measurement_Period.measurement_period = cfg.get_urr_periodic_s();
++    create_urr.set(measurement_Period);
++  }
++  if (cfg.get_urr_volume_threshold_dl_bytes() > 0) {
++    reporting_triggers.volth         = 1;
++    volume_threshold.dlvol           = 1;
++    volume_threshold.downlink_volume = cfg.get_urr_volume_threshold_dl_bytes();
++    create_urr.set(volume_threshold);
++  }
++  if (cfg.get_urr_time_threshold_s() > 0) {
++    reporting_triggers.timth      = 1;
++    time_threshold.time_threshold = cfg.get_urr_time_threshold_s();
++    create_urr.set(time_threshold);
++  }
++  // Guard quota (design 5.4): Volume Quota per measurement period, enforced
++  // by the UPF datapath. Off by default until the UPF implements the
++  // per-window semantics (plan Phase G).
++  if (cfg.enable_urr_guard()) {
++    pfcp::volume_quota_t volume_quota = {};
++    reporting_triggers.volqu          = 1;
++    volume_quota.ulvol                = 1;
++    volume_quota.dlvol                = 1;
++    volume_quota.uplink_volume        = cfg.get_urr_guard_quota_ul_bytes();
++    volume_quota.downlink_volume      = cfg.get_urr_guard_quota_dl_bytes();
++    create_urr.set(volume_quota);
++  }
+   create_urr.set(reporting_triggers);
+-  create_urr.set(time_threshold);
+-  create_urr.set(volume_threshold);
+ 
+   return create_urr;
+ }
+@@ -1014,6 +1048,28 @@
+   }
+ 
+   //-------------------
++  // IE USER_ID (IMSI from the SUPI), TS 29.244 8.2.101
++  //-------------------
++  if (upf_cfg.enable_user_id()) {
++    pfcp::user_id_t user_id = {};
++    if (supi_to_user_id(supi, user_id)) {
++      n4_triggered->pfcp_ies.set(user_id);
++    } else {
++      Logger::smf_app().warn(
++          "SUPI %s is not an IMSI, User ID IE not sent", supi.c_str());
++    }
++  }
++
++  //-------------------
++  // IE USER_PLANE_INACTIVITY_TIMER, TS 29.244 8.2.83 (session TTL T2)
++  //-------------------
++  if (smf_cfg->smf()->get_ttl_up_inactivity_s() > 0) {
++    pfcp::user_plane_inactivity_timer_t upit = {};
++    upit.user_plane_inactivity_timer = smf_cfg->smf()->get_ttl_up_inactivity_s();
++    n4_triggered->pfcp_ies.set(upit);
++  }
++
++  //-------------------
+   // IE CREATE_FAR, CREATE_QER and CREATE_PDR
+   //-------------------
+   for (const auto& ul_edge : ul_edges) {
+@@ -1070,6 +1126,7 @@
+   Logger::smf_app().info("Perform a procedure - Create SM Context Request");
+   // TODO check if compatible with ongoing procedures if any
+   std::shared_ptr<upf_graph> graph = {};
++  supi = sc->get_supi();
+ 
+   upf_selection_criteria criteria;
+   criteria.dnn    = sm_context_req->req.get_dnn();
+--- a/src/smf_app/smf_procedure.hpp
++++ b/src/smf_app/smf_procedure.hpp
+@@ -96,6 +96,12 @@
+ 
+   pfcp::create_urr pfcp_create_urr(const std::shared_ptr<qos_upf_edge>& edge);
+ 
++  /*
++   * Fill a PFCP User ID IE with the IMSI of a SUPI ("imsi-<digits>" or digits)
++   * @return false if the SUPI is not an IMSI
++   */
++  static bool supi_to_user_id(const std::string& supi, pfcp::user_id_t& user_id);
++
+   static pfcp::remove_pdr pfcp_remove_pdr(
+       const std::shared_ptr<qos_upf_edge>& edge);
+ 
+@@ -234,6 +240,8 @@
+   std::shared_ptr<itti_sbi_create_sm_context_request> n11_trigger;
+   std::shared_ptr<itti_sbi_create_sm_context_response> n11_triggered_pending;
+ 
++  std::string supi;  // for the PFCP User ID IE
++
+   /**
+    * Sends a session establishment request, based on current UPF graph
+    * @return

@@ -24,6 +24,21 @@ global:
     ueSubnet: 10.1.0.0/16
     xdpMode: skb
     usageReporting: true
+    # Two-layer defense, core side (docs/TWO-LAYER-DEFENSE-DESIGN.md 4.1, 6.1)
+    defense:
+      userId: true              # PFCP User ID IE (IMSI) in Session Establishment
+      urr:
+        periodicS: 1            # urr.periodic_s
+        volumeThresholdDlBytes: 0
+        timeThresholdS: 0
+        guard:                  # Volume Quota per period; UPF semantics in Phase G
+          enabled: false
+          quotaUlBytes: 3125000
+          quotaDlBytes: 3125000
+      sessionTtl:
+        deactivatedReleaseS: 120  # T1 (also the grace after a T2 UPIR)
+        upInactivityS: 60         # T2, PFCP IE 117
+      ueKeepaliveS: 20          # benign UE background traffic, < upInactivityS; 0 = off
     toolsImage: oai-lab-tools:unbuilt
     dbImage: mariadb:10.6
     artifactSize: 2Gi

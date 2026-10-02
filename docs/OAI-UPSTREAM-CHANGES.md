@@ -123,6 +123,28 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 - CSV KPM ghi tiếp (không ghi đè) khi xApp khởi động lại trong cùng run.
 - Bằng chứng: [`epoch-a4-20261001`](../artifacts/k8s/diagnostics/epoch-a4-20261001/summary.txt): SEID 1 tái sử dụng sau restart SMF, 26/26 report được nhận (khóa cũ sẽ nuốt cả 26); KPM tự phục hồi sau khi kill gNB.
 
+### 02/10/2026 — A.6 + Phase C + A.8: URR cấu hình được, User ID, TTL session; FlexRIC EINTR
+
+**C19 · OAI SMF** — `oai-smf-v2.2.0-user-id-urr-config-ttl.patch` (8 file, +359/−20) — **A.6, C, A.8 (T1, T2)**. *Chưa build/kiểm chứng trên cluster.*
+- Cấu hình mới (mặc định tái hiện hành vi gốc): `smf.upfs[].config.enable_user_id`, `.urr.{periodic_s, volume_threshold_dl_bytes, time_threshold_s}`, `.urr.guard.{enabled, quota_ul_bytes, quota_dl_bytes}`; `smf.session_ttl.{deactivated_release_s, up_inactivity_s}` (0 = tắt). `pfcp_create_urr()` hết hardcode (gốc: PERIO 10 s, VOLTH DL 1000 B, TIMTH 5 s).
+- Session Establishment gửi **User ID IE** (IMSI từ SUPI, TBCD) và **User Plane Inactivity Timer** (IE 117).
+- T1: `smf_pdu_session` ghi thời điểm vào UP DEACTIVATED; bộ quét `TASK_SMF_APP_TIMEOUT_SESSION_TTL` (chu kỳ TTL/4, 1–10 s) release session quá hạn: `SMContextStatusNotify(RELEASED)` + N4 Deletion + giải phóng tài nguyên (dùng lại đường C17).
+- T2: xử lý **UPIR** (gốc là `// TODO`): trả Session Report Response, đánh dấu session "UP không hoạt động"; Usage Report có volume > 0 xóa dấu; bộ quét release như T1 khi dấu tồn tại ≥ `deactivated_release_s`. Lệch so với thiết kế ban đầu (yêu cầu AMF deactivate, AMF 404 ⇒ release): AMF OAI v2.2.0 trả 200 cho N1N2MessageTransfer kể cả khi không có context và không bao giờ xóa `supi2ue_ctx`, nên không có tín hiệu "UE đã mất" — xem design mục 9.
+
+**C20 · OAI SMF common-src** — `oai-smf-v2.2.0-common-src-user-id-length.patch` (1 file, +2) — **C**.
+- `pfcp_user_id_ie::dump_to()` cộng độ dài trường IMSI lần thứ hai (constructor đã cộng) ⇒ IE User ID sai độ dài. Sửa: đặt lại độ dài trước khi tính.
+
+**C21 · OAI UPF** — `oai-upf-user-id-session-ttl.patch` (6 file, +118/−5) — **C, A.8 (T2, T3)**.
+- Đọc User ID IE ⇒ `pfcp_session::supi`; đọc IE 117 ⇒ `up_inactivity_timer_s`; log `PFCP session established: UP SEID … SUPI imsi-…` (Gate C).
+- T2: `UrrReportConsumer::CheckInactivity()` (mỗi 1 s) so bộ đếm gói `urr_volume_counters_map` theo SEID; không đổi trong `up_inactivity_timer_s` ⇒ một Session Report **UPIR**; gói mới tái kích hoạt. Không đổi XDP.
+- T3: Association Setup từ cùng Node ID với **Recovery Time Stamp khác** ⇒ xóa mọi session của association cũ (TS 29.244 §6.2.6.2.2).
+- Sửa kèm: đường xóa theo association (`pfcp_switch::remove_pfcp_session(cp_fseid)`, dùng bởi heartbeat timeout và T3) trước đây **không** gọi `SessionManager::RemoveSession` ⇒ rò rỉ BPF map khi bật datapath BPF; Session Deletion không cập nhật danh sách session của association (`fseid` rỗng).
+
+**C22 · FlexRIC (độc lập + nhúng trong oai-ran)** — `flexric-epoll-eintr.patch` (3 file, +10) — quyết định 02/10.
+- `epoll_wait()` trả `EINTR` (bị tín hiệu ngắt) được xử lý như timeout trong agent (gNB), iApp (RIC) và xApp; bản gốc `assert(0)` làm gNB/FlexRIC crash dây chuyền.
+
+**C23 · FlexRIC** — `flexric-whitespace-exact.patch` (2 file, ±1) và `patches/flexric-embedded-ran/` — chỉ để dựng lại **byte-exact** (không đổi hành vi); `verify-oai-upstream.sh` so sánh nghiêm ngặt và có chế độ `--into`.
+
 ## 3. Thay đổi ngoài mã OAI (để phân biệt, không tính là sửa OAI)
 
 | Ngày | Thành phần | Nội dung |

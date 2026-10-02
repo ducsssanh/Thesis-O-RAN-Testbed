@@ -1,0 +1,11 @@
+--- a/pfcp/3gpp_29.244.hpp
++++ b/pfcp/3gpp_29.244.hpp
+@@ -8441,6 +8441,8 @@
+   }
+   //--------
+   void dump_to(std::ostream& os) {
++    // The lengths are recomputed below; the constructor already added them
++    tlv.set_length(1);
+     if (u1.bf.imsif) {
+       if (imsi.num_digits > 15) imsi.num_digits = 15;
+       length_of_imsi = imsi.num_digits / 2;

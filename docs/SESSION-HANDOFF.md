@@ -1,6 +1,6 @@
 # Session handoff — đọc file này trước tiên
 
-**Cập nhật:** 01/10/2026 (khuya, sau A.4 + thiết kế TTL + tài liệu thay đổi so với OAI). Mục đích: bắt đầu session mới mà không phải đọc lại lịch sử. Đọc hết file này (ngắn); chỉ mở các tài liệu khác **đúng mục cần**. Khi kết thúc một phiên làm việc, cập nhật mục 3, 4, 5 của file này.
+**Cập nhật:** 02/10/2026 chiều (GitHub; dựng lại upstream byte-exact; code A.6 + C + A.8 + FlexRIC EINTR — chưa build). Mục đích: bắt đầu session mới mà không phải đọc lại lịch sử. Đọc hết file này (ngắn); chỉ mở các tài liệu khác **đúng mục cần**. Khi kết thúc một phiên làm việc, cập nhật mục 3, 4, 5 của file này.
 
 ## 1. Hệ thống trong 6 dòng
 
@@ -27,10 +27,12 @@
 
 ## 3. Trạng thái hiện tại
 
-- Cluster chạy đủ 4 namespace; `experiment` PASS lúc 01/10 ~21:10 (+07), run `20261001T140526Z-m35` (sau đó còn 1 chu kỳ kill gNB+UE, UE đã đăng ký lại, KPM tươi). UE IP 10.1.0.2. FlexRIC đã restart 20:57.
-- Image: UPF `oai-lab-upf:teardown-5f1ab8b55a95` (`sha256:b949128a…`); SMF `oai-lab-smf:v2.2.0-lab-837721c2` (`sha256:d1a14696…`, IE 43 + A.3; tag cũ `v2.2.0-ie43-stale-2fa8f172` cùng image); producer `oai-lab-urr-ei-producer:5dc07af1a610989e`, adapter `oai-lab-a1-ei-adapter:2ff96bc6adf5169c` (`artifacts/k8s/state/ei-images.json`), xApp `oai-lab-xapp:8f07808f149594ee` (`xapp-image.json`) — đều có A.4; radio `oai-lab-radio:30e854d39b1192d1`. Lock: `artifacts/k8s/state/images.{json,yaml}` (`sourceHash 4355f1dd430e9914`); bản trước `*.bak-a3-20261001` (SMF cũ), `*.bak-qfi-20261001`.
-- Hạ tầng đã sửa: Multus limit 300Mi (`deploy/k8s/vendor/multus.yaml`); CoreDNS guard (`scripts/k8s/coredns-search-guard.sh`) đang cài.
-- Host: swap 16 GB `/swapfile` (có trong `/etc/fstab`); Wi-Fi 10.35.x; **Docker trên host không phân giải được tên ngoài** (gốc lỗi DNS, chưa sửa).
+- **Cluster đang tắt**: host reboot sáng 02/10 (uptime từ ~08:20); container minikube `oai-lab` Exited. Phải `minikube start -p oai-lab` → `scripts/k8s/coredns-search-guard.sh` → dựng lại stack (mục 6).
+- **DNS Docker: đã tìm ra gốc** — `/etc/docker/daemon.json` có `"dns": ["1.1.1.1","8.8.8.8"]`, mạng công ty chặn DNS công cộng (container qua `--dns 10.16.32.53` phân giải được ngay). Restart Docker không sửa được. Sửa: bỏ khóa `dns` (cần sudo, tác giả chạy) rồi `sudo systemctl restart docker`.
+- **Code mới chưa build/chưa chạy trên cluster:** SMF (C19, C20), UPF (C21), FlexRIC + gNB nhúng (C22), chart (cấu hình `global.lab.defense`, sidecar keep-alive UE). `verify-oai-upstream.sh` MATCH 5/5; unit test 25/25.
+- Image đang khóa (chưa chứa code mới): UPF `oai-lab-upf:teardown-5f1ab8b55a95`; SMF `oai-lab-smf:v2.2.0-lab-837721c2`; producer `oai-lab-urr-ei-producer:5dc07af1a610989e`, adapter `oai-lab-a1-ei-adapter:2ff96bc6adf5169c`, xApp `oai-lab-xapp:8f07808f149594ee`, radio `oai-lab-radio:30e854d39b1192d1`. Lock: `artifacts/k8s/state/images.{json,yaml}` (`sourceHash` đã lệch với `src/` từ trước; chỉ đường `lab.py up` cũ kiểm tra).
+- Repo: https://github.com/ducsssanh/Thesis-O-RAN-Testbed (public, `main`). Clone mới: `scripts/verify-oai-upstream.sh --into src` (đã thử trên clone sạch + cache rỗng: byte-exact, fingerprint trùng).
+- Host: swap 16 GB; Multus limit 300Mi; CoreDNS guard cần chạy lại sau mỗi `minikube start`.
 
 ## 4. Đã xong
 
@@ -45,19 +47,25 @@
 | Thiết kế TTL session (thay cho sửa AMF) | Design mục 4.1: T1 SMF timer UP-deactivated, T2 IE 117/UPIR, T3 UPF purge khi SMF restart |
 | Tài liệu thay đổi so với OAI | `docs/OAI-UPSTREAM-CHANGES.md` (C01–C18); dựng lại từ upstream: 5/5 MATCH; phát hiện + xuất 2 patch còn thiếu |
 | A.5 Update FAR không có Apply Action giữ nguyên action | Kiểm chứng none/drop/none/forw |
+| GitHub + dựng lại upstream byte-exact (02/10) | `verify-oai-upstream.sh --into`; so sánh nghiêm ngặt; thử trên clone sạch |
+| Code A.6 + C + A.8 + FlexRIC EINTR (02/10, **chưa build**) | C19–C22 trong `OAI-UPSTREAM-CHANGES.md`; T2 hiệu chỉnh theo AMF OAI (design 4.1, mục 9) |
 | Thiết kế hai lớp + tham số mặc định | `docs/TWO-LAYER-DEFENSE-DESIGN.md` |
 
 ## 5. Việc tiếp theo (theo thứ tự)
 
-1. **A.6 + Phase C (+ A.8 TTL)** (cùng sửa SMF `pfcp_create_urr()` ở `src/oai-smf/src/smf_app/smf_procedure.cpp` ~dòng 446–470 và Establishment): URR cấu hình được (PERIO 1 s, VOLQU guard), gửi **User ID IE**; đo tải PFCP/Event Exposure. Cùng đợt sửa Establishment: thêm IE 117 + timer T1 (A.8, design mục 4.1); UPF: báo UPIR (T2) và purge khi Recovery Time Stamp đổi (T3).
-2. **A.7** hiệu chỉnh URR ↔ KPM `DRB.PdcpSduVolumeUL/DL` trên traffic lành tính → r̂, ε.
-3. **Gate A**: 3 chu kỳ attach/detach; dump **tất cả** map theo session (`rules_match_pdr`, `session_by_ue_ip`, `pdrs_per_session`, `urr_*`, `session_rules_enabled`) chỉ còn session sống (đã đạt cho kịch bản kill UE/gNB, xem A.3); URR 1 s tới xApp.
-4. Song song được: **R2** patch gNB (PRB cap + RRC Release qua E2SM-RC; handler hiện là stub ở `src/oai-ran/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c:872`); **R1** ánh xạ KPM UE ID ↔ SUPI với 2 UE.
-5. Sau đó theo plan: R3 → U → G → M → L → E.
+1. **Tác giả**: sửa DNS Docker (mục 3), báo lại.
+2. `minikube start -p oai-lab` → CoreDNS guard → khôi phục điểm rollback `oai-lab` (stack 4 namespace ở 0 ⇒ `helm rollback oai-lab 105` ⇒ scale release cũ về 0).
+3. Build: SMF (`lab.sh build` hoặc lệnh mục 7, tag theo hash patch), UPF (tag mới), radio + FlexRIC (C22 nằm trong cả gNB lẫn RIC/xApp). Cập nhật lock `images.{json,yaml}`.
+4. Dựng stack (`new-run`, `up --stage core|nonrt|near-rt`, `gate-ei`, `up --stage ran`), rồi kiểm chứng:
+   - **Gate C**: PCAP Establishment có User ID đúng IMSI; log UPF `PFCP session established … SUPI imsi-…`.
+   - **A.6**: URR PERIO 1 s tới xApp; đo tải PFCP/Event Exposure (report/s, CPU SMF/producer).
+   - **A.8**: (1) kill gNB+UE, giữ UE 0 ⇒ UPIR sau 60 s, release sau thêm 120 s, map sạch; (2) tắt keep-alive (`defense.ueKeepaliveS: 0`) ⇒ như (1) dù UE còn attach, bật traffic trước hạn ⇒ sống; (3) restart SMF ⇒ UPF log "new Recovery Time Stamp", map chỉ còn session mới. `phase0/orphan_cycle.sh` + `watchmap.sh`.
+5. **A.7** hiệu chỉnh URR ↔ KPM (r̂, ε) → **Gate A**.
+6. Song song: **R2** (PRB cap + RRC Release qua E2SM-RC, `ran_func_rc.c:872`), **R1** (KPM UE ID ↔ SUPI, 2 UE). Sau đó R3 → U → G → M → L → E.
 
 **Quyết định đã chốt (02/10/2026, tác giả đồng ý cả 4):**
 - Khôi phục điểm rollback `oai-lab`: làm sau khi restart Docker (stack 4 namespace về 0 → `helm rollback oai-lab 105` → scale release cũ về 0 → dựng lại stack).
-- `sudo systemctl restart docker` để sửa gốc DNS: **tác giả chạy ở terminal riêng** (cần mật khẩu sudo); sau đó chạy `coredns-search-guard.sh` và dựng lại stack.
+- Sửa gốc DNS Docker: restart Docker **không** đủ (đã thử 02/10 16:34); gốc là `dns` cố định trong `daemon.json` (mục 3).
 - Thiết kế TTL (design 4.1, `session_ttl.*` mục 6.1) được duyệt ⇒ triển khai A.8 cùng đợt A.6.
 - Lỗi FlexRIC agent assert khi `epoll_wait` trả EINTR (`asio_agent.c:134`) đưa vào danh sách sửa (bỏ qua EINTR thay vì assert; cần patch + mục trong `OAI-UPSTREAM-CHANGES.md`).
 

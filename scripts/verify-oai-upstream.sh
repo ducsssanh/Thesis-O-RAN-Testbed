@@ -61,7 +61,8 @@ rm -rf "$W/upf/src/common-src" "$W/upf/build/common-build" "$W/upf/ci-scripts/co
 mv "$W/upf-common-src" "$W/upf/src/common-src"; mv "$W/upf-common-build" "$W/upf/build/common-build"
 mv "$W/upf-common-ci" "$W/upf/ci-scripts/common"
 for x in oai-upf-00b7485-pfcp-urr-reporting oai-upf-xdp-mode oai-upf-cp-initiated-association oai-upf-build-jobs \
-         oai-upf-00b7485-dl-qfi-from-access-pdr oai-upf-session-teardown-ue-ip-mapping oai-upf-teardown-best-effort; do
+         oai-upf-00b7485-dl-qfi-from-access-pdr oai-upf-session-teardown-ue-ip-mapping oai-upf-teardown-best-effort \
+         oai-upf-user-id-session-ttl; do
   apply "$W/upf" "$P/$x.patch"
 done
 compare "oai-upf" "$W/upf" "$ROOT/src/oai-upf"
@@ -77,6 +78,8 @@ mv "$W/smf-common-src" "$W/smf/src/oai-cn5g-common-src"; mv "$W/smf-common-build
 mv "$W/smf-common-ci" "$W/smf/ci-scripts/common"
 apply "$W/smf/src/oai-cn5g-common-src" "$P/oai-smf-v2.2.0-pfcp-up-features-extension.patch"
 apply "$W/smf" "$P/oai-smf-v2.2.0-stale-session-release.patch"
+apply "$W/smf/src/oai-cn5g-common-src" "$P/oai-smf-v2.2.0-common-src-user-id-length.patch"
+apply "$W/smf" "$P/oai-smf-v2.2.0-user-id-urr-config-ttl.patch"
 if [ -n "$INTO" ]; then
   cp -a "$C/smf/.git" "$W/smf/.git"
   cp -a "$C/smf-common-src/.git" "$W/smf/src/oai-cn5g-common-src/.git"
@@ -93,6 +96,7 @@ apply "$F" "$P/flexric-k8s-runtime.patch"
 apply "$F" "$P/flexric-xapp-urr-receiver.patch" -l --fuzz=3   # generated with different blank lines
 apply "$F" "$P/flexric-xapp-epoch-kpm-watchdog.patch"
 apply "$F" "$P/flexric-whitespace-exact.patch"   # blank-line/indent drift left by the fuzzed patch above
+apply "$F" "$P/flexric-epoll-eintr.patch"
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722
@@ -103,6 +107,7 @@ rm -rf "$R/openair2/E2AP/flexric"; tree flexric; mv "$W/flexric" "$R/openair2/E2
 apply "$E" "$P/flexric-working-tree.patch"
 cp "$P"/flexric/examples/xApp/c/metrics_factory.[ch] "$E/examples/xApp/c/"
 cp "$P"/flexric/examples/xApp/c/monitor/xapp_kpm_moni_write_to_influxdb.c "$E/examples/xApp/c/monitor/"
+apply "$E" "$P/flexric-epoll-eintr.patch"
 # The embedded copy keeps the NIST 20/08 xapp_kpm_moni_write_to_csv.c (its CMakeLists references it)
 cp "$P"/flexric-embedded-ran/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c "$E/examples/xApp/c/monitor/"
 compare "oai-ran (+embedded flexric)" "$R" "$ROOT/src/oai-ran"

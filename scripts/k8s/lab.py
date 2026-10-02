@@ -384,6 +384,14 @@ class Lab:
                 ROOT / "src/oai-smf",
                 ROOT / "patches/oai-smf-v2.2.0-stale-session-release.patch",
             ),
+            (
+                ROOT / "src/oai-smf/src/oai-cn5g-common-src",
+                ROOT / "patches/oai-smf-v2.2.0-common-src-user-id-length.patch",
+            ),
+            (
+                ROOT / "src/oai-smf",
+                ROOT / "patches/oai-smf-v2.2.0-user-id-urr-config-ttl.patch",
+            ),
         ]
         if (ROOT / "src/oai-smf").is_dir() and all(p.exists() for _, p in smf_patches):
             smf_patch_hashes = {
@@ -397,8 +405,18 @@ class Lab:
                 ["git", "-C", ROOT / "src/oai-smf", "rev-parse", "HEAD"]
             ).strip()
             # Refuse to label an unpatched binary as the compatibility build.
-            for tree, patch in smf_patches:
-                run(["git", "-C", tree, "apply", "--reverse", "--check", patch])
+            # The patches overlap, so unapply them newest first on a copy.
+            src = ROOT / "src/oai-smf"
+            with tempfile.TemporaryDirectory() as tmp:
+                copy = pathlib.Path(tmp) / "smf"
+                shutil.copytree(
+                    src, copy, ignore=shutil.ignore_patterns(".git", "build")
+                )
+                for tree, patch in reversed(smf_patches):
+                    run(
+                        ["patch", "-d", copy / tree.relative_to(src),
+                         "-R", "-p1", "-s", "-f", "-i", patch]
+                    )
             jobs.append(
                 (
                     "smf",
