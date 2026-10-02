@@ -269,7 +269,14 @@ def fingerprint(paths):
             dirs[:] = sorted(d for d in dirs if d not in skip)
             for name in sorted(files):
                 p = pathlib.Path(here) / name
-                if p.is_symlink() or name.endswith((".o", ".a", ".pyc")):
+                # .previous / compile_commands.json: local editor/patch leftovers,
+                # not produced by scripts/verify-oai-upstream.sh --into.
+                if (
+                    p.is_symlink()
+                    or name.endswith((".o", ".a", ".pyc"))
+                    or ".previous" in name
+                    or name == "compile_commands.json"
+                ):
                     continue
                 h.update(str(p.relative_to(ROOT)).encode())
                 h.update(p.read_bytes())
