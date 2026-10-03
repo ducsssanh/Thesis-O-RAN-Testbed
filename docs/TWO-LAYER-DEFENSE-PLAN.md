@@ -152,8 +152,8 @@ Throttle bằng QER chuẩn qua SMF; key IMEI (User ID IE có IMEI); chuyển UE
 | 3 | ✅ UPF chỉ set Apply Action khi IE có mặt | A.5 | 1 h | build UPF cùng #2 |
 | 4 | ✅ Session mồ côi khi UE restart (sửa SMF, mục 8) | A.3 | 0.5–1 ngày | — |
 | 5 | ✅ Session epoch (mục 9) | A.4 | 1 ngày | — |
-| 6 | ✅ SMF URR cấu hình được, PERIO 1 s (mục 10; đo tải chi tiết còn lại) | A.6 | 1 ngày | — |
-| 7 | Hiệu chỉnh URR ↔ KPM | A.7 | 0.5 ngày | 1, 6 |
+| 6 | ✅ SMF URR cấu hình được, PERIO 1 s; đo tải (mục 10, 11) | A.6 | 1 ngày | — |
+| 7 | ✅ Hiệu chỉnh URR ↔ KPM (mục 11) | A.7 | 0.5 ngày | 1, 6 |
 | 7b | ✅ TTL session T1/T2/T3 — 3 kịch bản PASS (mục 10) | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
 | 8 | Ánh xạ KPM UE ID ↔ SUPI, 2 UE | R1 | 2–3 ngày | 1 |
 | 9 | gNB: PRB cap + RRC Release qua E2SM-RC; Gate R2 | R2 | 4–6 ngày | — (song song A) |
@@ -242,4 +242,13 @@ Chi tiết và bằng chứng: [`ttl-a8-20261003`](../artifacts/k8s/diagnostics/
 - **A.8 PASS** cả 3 kịch bản (gNB chết hẳn ⇒ T1/T2; UE im lặng ⇒ T2, traffic giữ session; restart SMF ⇒ T3).
 - Hai lỗi OAI có sẵn đã sửa: C24 (SMF mất FTUP khi UPF re-associate ⇒ mất toàn bộ UL — xảy ra mỗi lần `rollout upf`), C25 (Usage Report lũy kế ⇒ xApp/producer hiểu sai lượng theo chu kỳ; ảnh hưởng trực tiếp A.7).
 - Quan sát: khi gNB được thay thế (NG Setup lại) hoặc chết hẳn, AMF OAI v2.2.0 trong lab này có báo SMF (Release SM Context / AN release); trường hợp AMF im lặng (A.3) vẫn có TTL bao phủ.
+
+## 11. Kết quả A.7 hiệu chỉnh URR ↔ KPM và tải A.6 (03/10/2026)
+
+Chi tiết: [`calib-a7-20261003`](../artifacts/k8s/diagnostics/calib-a7-20261003/README.md); mô hình và ngưỡng chốt ở design mục 7 + 6.1.
+- Tỉ số cố định r̂ bị loại: phụ thuộc cỡ gói (sai tới 25%). Mô hình theo gói `KPM ≈ URR − c·pkts`, c_UL = 16,3, c_DL = 57,3 B.
+- ε: DL 0,02 @ 1 s; UL 0,15 ở 2 cửa sổ liên tiếp @ 2 s; FPR 0 trên 6 profile lành tính.
+- Tải đường URR ≈ 2,7% core/UE ở PERIO 1 s (SMF 1,2%, adapter 0,9%, xApp 0,4%, producer 0,2%).
+- Sửa thêm khi đo: C25 report PERIO theo hết chu kỳ đo (trước đây chờ gói kế ⇒ report dồn, báo nhầm); `CAP_KILL` cho container capture.
+- **Gate A**: map sạch qua chu kỳ attach/detach (A.3, A.8), URR 1 s tới xApp, bảng r̂/ε ⇒ **đạt** cho 1 UE. Còn mở: kiểm chứng ε với nhiều UE/kênh xấu (làm cùng R1).
 

@@ -1,0 +1,483 @@
+{
+  "model": "KPM_bytes = URR_bytes - c_dir * URR_packets",
+  "windows": {
+    "1": {
+      "ul": {
+        "packet_model": {
+          "n": 324,
+          "p50": 0.02589,
+          "p99": 0.18781,
+          "max": 0.304
+        },
+        "ratio_model": {
+          "n": 324,
+          "p50": 0.03187,
+          "p99": 0.1893,
+          "max": 0.28232
+        }
+      },
+      "dl": {
+        "packet_model": {
+          "n": 339,
+          "p50": 0.00064,
+          "p99": 0.00508,
+          "max": 0.00565
+        },
+        "ratio_model": {
+          "n": 339,
+          "p50": 0.02704,
+          "p99": 0.25627,
+          "max": 0.2576
+        }
+      }
+    },
+    "2": {
+      "ul": {
+        "packet_model": {
+          "n": 160,
+          "p50": 0.01447,
+          "p99": 0.9989,
+          "max": 1.01003
+        },
+        "ratio_model": {
+          "n": 160,
+          "p50": 0.02002,
+          "p99": 1.01411,
+          "max": 1.02905
+        }
+      },
+      "dl": {
+        "packet_model": {
+          "n": 165,
+          "p50": 0.00049,
+          "p99": 0.00508,
+          "max": 0.00508
+        },
+        "ratio_model": {
+          "n": 165,
+          "p50": 0.02704,
+          "p99": 0.25589,
+          "max": 0.25675
+        }
+      }
+    },
+    "5": {
+      "ul": {
+        "packet_model": {
+          "n": 59,
+          "p50": 0.01094,
+          "p99": 0.24402,
+          "max": 0.24402
+        },
+        "ratio_model": {
+          "n": 59,
+          "p50": 0.01185,
+          "p99": 0.25348,
+          "max": 0.25348
+        }
+      },
+      "dl": {
+        "packet_model": {
+          "n": 62,
+          "p50": 0.00046,
+          "p99": 0.00402,
+          "max": 0.00402
+        },
+        "ratio_model": {
+          "n": 62,
+          "p50": 0.0281,
+          "p99": 0.25567,
+          "max": 0.25567
+        }
+      }
+    },
+    "10": {
+      "ul": {
+        "packet_model": {
+          "n": 28,
+          "p50": 0.00906,
+          "p99": 0.10254,
+          "max": 0.10254
+        },
+        "ratio_model": {
+          "n": 28,
+          "p50": 0.01289,
+          "p99": 0.11091,
+          "max": 0.11091
+        }
+      },
+      "dl": {
+        "packet_model": {
+          "n": 29,
+          "p50": 0.00043,
+          "p99": 0.00402,
+          "max": 0.00402
+        },
+        "ratio_model": {
+          "n": 29,
+          "p50": 0.02581,
+          "p99": 0.25553,
+          "max": 0.25553
+        }
+      }
+    }
+  },
+  "profiles": [
+    {
+      "run": "20261003T132843Z-m35",
+      "rate": "1M",
+      "udpPayloadBytes": 100,
+      "durationSeconds": 60,
+      "reports": 138,
+      "kpm_lag_s": 1.8,
+      "kpm_gaps": 0,
+      "ul": {
+        "kpm_over_urr": 0.8982,
+        "bytes_per_packet_kpm": 127.5,
+        "bytes_per_packet_urr": 142.0,
+        "residual_packet_model": 0.01456
+      },
+      "dl": {
+        "kpm_over_urr": 0.6934,
+        "bytes_per_packet_kpm": 129.0,
+        "bytes_per_packet_urr": 186.0,
+        "residual_packet_model": 0.00241
+      },
+      "reports_per_s": 0.996,
+      "cpu_percent": {
+        "oai-smf": 1.84,
+        "oai-upf": 256.86,
+        "oai-lab-xapp": 0.52
+      }
+    },
+    {
+      "run": "20261003T133235Z-m35",
+      "rate": "5M",
+      "udpPayloadBytes": 400,
+      "durationSeconds": 60,
+      "reports": 138,
+      "kpm_lag_s": -0.6,
+      "kpm_gaps": 1,
+      "ul": {
+        "kpm_over_urr": 0.9644,
+        "bytes_per_packet_kpm": 426.3,
+        "bytes_per_packet_urr": 442.0,
+        "residual_packet_model": 0.00131
+      },
+      "dl": {
+        "kpm_over_urr": 0.8824,
+        "bytes_per_packet_kpm": 428.8,
+        "bytes_per_packet_urr": 486.0,
+        "residual_packet_model": 0.00041
+      },
+      "reports_per_s": 0.997,
+      "cpu_percent": {
+        "oai-smf": 1.84,
+        "oai-upf": 258.9,
+        "oai-lab-xapp": 0.52
+      }
+    },
+    {
+      "run": "20261003T135223Z-m35",
+      "rate": "10M",
+      "udpPayloadBytes": 800,
+      "durationSeconds": 60,
+      "reports": 140,
+      "kpm_lag_s": -0.2,
+      "kpm_gaps": 1,
+      "ul": {
+        "kpm_over_urr": 0.9823,
+        "bytes_per_packet_kpm": 827.1,
+        "bytes_per_packet_urr": 842.0,
+        "residual_packet_model": 0.00167
+      },
+      "dl": {
+        "kpm_over_urr": 0.9353,
+        "bytes_per_packet_kpm": 828.7,
+        "bytes_per_packet_urr": 886.0,
+        "residual_packet_model": 3e-05
+      },
+      "reports_per_s": 1.005,
+      "cpu_percent": {
+        "oai-smf": 1.92,
+        "oai-upf": 281.79,
+        "oai-lab-xapp": 0.54
+      }
+    },
+    {
+      "run": "20261003T135956Z-m35",
+      "rate": "15M",
+      "udpPayloadBytes": 1200,
+      "durationSeconds": 60,
+      "reports": 139,
+      "kpm_lag_s": -0.3,
+      "kpm_gaps": 1,
+      "ul": {
+        "kpm_over_urr": 0.9873,
+        "bytes_per_packet_kpm": 1226.2,
+        "bytes_per_packet_urr": 1242.0,
+        "residual_packet_model": 0.00039
+      },
+      "dl": {
+        "kpm_over_urr": 0.9553,
+        "bytes_per_packet_kpm": 1228.5,
+        "bytes_per_packet_urr": 1286.0,
+        "residual_packet_model": -9e-05
+      },
+      "reports_per_s": 1.004,
+      "cpu_percent": {
+        "oai-smf": 2.01,
+        "oai-upf": 296.99,
+        "oai-lab-xapp": 0.55
+      }
+    },
+    {
+      "run": "20261003T140356Z-m35",
+      "rate": "2M",
+      "udpPayloadBytes": 1400,
+      "durationSeconds": 60,
+      "reports": 138,
+      "kpm_lag_s": -0.2,
+      "kpm_gaps": 1,
+      "ul": {
+        "kpm_over_urr": 0.9743,
+        "bytes_per_packet_kpm": 1404.7,
+        "bytes_per_packet_urr": 1441.7,
+        "residual_packet_model": -0.01456
+      },
+      "dl": {
+        "kpm_over_urr": 0.9579,
+        "bytes_per_packet_kpm": 1423.0,
+        "bytes_per_packet_urr": 1485.6,
+        "residual_packet_model": -0.00368
+      },
+      "reports_per_s": 0.996,
+      "cpu_percent": {
+        "oai-smf": 1.91,
+        "oai-upf": 249.33,
+        "oai-lab-xapp": 0.54
+      }
+    },
+    {
+      "run": "20261003T140737Z-m35",
+      "rate": "10M",
+      "udpPayloadBytes": 1200,
+      "durationSeconds": 60,
+      "reports": 139,
+      "kpm_lag_s": -0.5,
+      "kpm_gaps": 1,
+      "ul": {
+        "kpm_over_urr": 0.9852,
+        "bytes_per_packet_kpm": 1223.6,
+        "bytes_per_packet_urr": 1242.0,
+        "residual_packet_model": -0.00169
+      },
+      "dl": {
+        "kpm_over_urr": 0.955,
+        "bytes_per_packet_kpm": 1228.1,
+        "bytes_per_packet_urr": 1285.9,
+        "residual_packet_model": -0.00038
+      },
+      "reports_per_s": 1.004,
+      "cpu_percent": {
+        "oai-smf": 1.96,
+        "oai-upf": 279.42,
+        "oai-lab-xapp": 0.53
+      }
+    }
+  ],
+  "c_bytes_per_packet": {
+    "ul": 16.28,
+    "dl": 57.34
+  },
+  "ratio_model_r_hat": {
+    "ul": 0.97944,
+    "dl": 0.93135
+  },
+  "false_positive_rate": {
+    "1": {
+      "ul": {
+        "0.02": {
+          "single": 0.5617,
+          "consecutive2": 0.3365
+        },
+        "0.05": {
+          "single": 0.1821,
+          "consecutive2": 0.0723
+        },
+        "0.1": {
+          "single": 0.0648,
+          "consecutive2": 0.0283
+        },
+        "0.15": {
+          "single": 0.037,
+          "consecutive2": 0.0094
+        },
+        "0.2": {
+          "single": 0.0093,
+          "consecutive2": 0.0
+        }
+      },
+      "dl": {
+        "0.02": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.05": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.1": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.15": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        }
+      }
+    },
+    "2": {
+      "ul": {
+        "0.02": {
+          "single": 0.3688,
+          "consecutive2": 0.1429
+        },
+        "0.05": {
+          "single": 0.1,
+          "consecutive2": 0.0325
+        },
+        "0.1": {
+          "single": 0.0437,
+          "consecutive2": 0.0065
+        },
+        "0.15": {
+          "single": 0.0312,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0187,
+          "consecutive2": 0.0
+        }
+      },
+      "dl": {
+        "0.02": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.05": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.1": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.15": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        }
+      }
+    },
+    "5": {
+      "ul": {
+        "0.02": {
+          "single": 0.2373,
+          "consecutive2": 0.0566
+        },
+        "0.05": {
+          "single": 0.0508,
+          "consecutive2": 0.0
+        },
+        "0.1": {
+          "single": 0.0508,
+          "consecutive2": 0.0
+        },
+        "0.15": {
+          "single": 0.0508,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0508,
+          "consecutive2": 0.0
+        }
+      },
+      "dl": {
+        "0.02": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.05": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.1": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.15": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        }
+      }
+    },
+    "10": {
+      "ul": {
+        "0.02": {
+          "single": 0.1786,
+          "consecutive2": 0.0
+        },
+        "0.05": {
+          "single": 0.1071,
+          "consecutive2": 0.0
+        },
+        "0.1": {
+          "single": 0.0714,
+          "consecutive2": 0.0
+        },
+        "0.15": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        }
+      },
+      "dl": {
+        "0.02": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.05": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.1": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.15": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        },
+        "0.2": {
+          "single": 0.0,
+          "consecutive2": 0.0
+        }
+      }
+    }
+  }
+}

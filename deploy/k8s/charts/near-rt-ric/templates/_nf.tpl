@@ -86,7 +86,7 @@ spec:
         - name: capture
           image: {{ $lab.toolsImage | quote }}
           command: [python3, /opt/lab/runtime.py, capture]
-          securityContext: {capabilities: {add: [NET_RAW, NET_ADMIN, CHOWN, SETUID, SETGID], drop: [ALL]}}
+          securityContext: {capabilities: {add: [NET_RAW, NET_ADMIN, CHOWN, SETUID, SETGID, KILL], drop: [ALL]}}  # KILL: stop tcpdump after it drops to its own uid
           resources: {requests: {cpu: 25m, memory: 64Mi}, limits: {cpu: 250m, memory: 256Mi}}
           volumeMounts:
             - {name: artifacts, mountPath: /artifacts}

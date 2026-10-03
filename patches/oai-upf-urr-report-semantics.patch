@@ -1,6 +1,20 @@
 --- a/src/upf_app/control/UrrReportConsumer.cpp
 +++ b/src/upf_app/control/UrrReportConsumer.cpp
-@@ -92,6 +92,7 @@
+@@ -51,10 +51,11 @@
+ UrrReportConsumer::UrrReportConsumer(
+     std::shared_ptr<BPFMap> ringbuf_map,
+     std::shared_ptr<SessionManager> session_manager,
+-    std::shared_ptr<BPFMap> volume_map)
++    std::shared_ptr<BPFMap> volume_map, std::shared_ptr<BPFMap> config_map)
+     : ringbuf_map_(std::move(ringbuf_map)),
+       session_manager_(std::move(session_manager)),
+-      volume_map_(std::move(volume_map)) {}
++      volume_map_(std::move(volume_map)),
++      config_map_(std::move(config_map)) {}
+ 
+ UrrReportConsumer::~UrrReportConsumer() {
+   Stop();
+@@ -92,6 +93,7 @@
    }
    report_sequences_.clear();
    activity_.clear();
@@ -8,7 +22,7 @@
  }
  
  int UrrReportConsumer::OnRingbufEvent(
-@@ -127,6 +128,20 @@
+@@ -127,6 +129,20 @@
    usage_report.set(sequence);
    usage_report.set(ToPfcpTrigger(event.trigger));
  
@@ -29,7 +43,7 @@
    pfcp::volume_measurement_t volume = {};
    volume.tovol                      = 1;
    volume.ulvol                      = 1;
-@@ -134,12 +149,12 @@
+@@ -134,12 +150,12 @@
    volume.tonop                      = 1;
    volume.ulnop                      = 1;
    volume.dlnop                      = 1;
@@ -48,7 +62,7 @@
    usage_report.set(volume);
  
    const uint64_t elapsed_ns       = event.timestamp_ns >= event.start_time_ns ?
-@@ -168,7 +183,7 @@
+@@ -168,7 +184,7 @@
        " URR_ID=%u UR-SEQN=%u "
        "trigger=0x%02x total_bytes=%" PRIu64,
        event.seid, event.urr_id, sequence.ur_seqn, event.trigger,
@@ -57,9 +71,51 @@
    return 0;
  }
  
-@@ -190,13 +205,23 @@
+@@ -183,20 +199,65 @@
+     const auto now = std::chrono::steady_clock::now();
+     if (now - last_inactivity_check_ >= std::chrono::seconds(1)) {
+       last_inactivity_check_ = now;
++      FlushPeriodic();
+       CheckInactivity();
+     }
+   }
+   running_.store(false);
  }
  
++void UrrReportConsumer::FlushPeriodic() {
++  if (!volume_map_ || !config_map_ || !upf_n4_inst) return;
++  struct timespec ts = {};
++  clock_gettime(CLOCK_MONOTONIC, &ts);  // bpf_ktime_get_ns() clock
++  const uint64_t now_ns =
++      static_cast<uint64_t>(ts.tv_sec) * kNanosecondsPerSecond + ts.tv_nsec;
++  for (const auto& session : session_manager_->GetAllSessions()) {
++    if (!session) continue;
++    uint64_t seid          = session->seid;
++    struct urr_config cfg  = {};
++    struct urr_volume vol  = {};
++    if (config_map_->Lookup(seid, &cfg) != 0) continue;
++    if (!(cfg.reporting_triggers & URR_TRIGGER_PERIO) ||
++        cfg.measurement_period_ns == 0)
++      continue;
++    // Grace of half a second: under traffic the datapath reports first
++    if (now_ns < cfg.last_report_ns + cfg.measurement_period_ns +
++                     kNanosecondsPerSecond / 2)
++      continue;
++    if (volume_map_->Lookup(seid, &vol) != 0) continue;
++    cfg.last_report_ns = now_ns;
++    config_map_->Update(seid, cfg, BPF_EXIST);
++
++    struct urr_report_event event = {};
++    event.seid                    = seid;
++    event.urr_id                  = cfg.urr_id;
++    event.trigger                 = URR_TRIGGER_PERIO;
++    event.timestamp_ns            = now_ns;
++    event.start_time_ns           = cfg.monitoring_time_ns;
++    event.vol                     = vol;
++    HandleEvent(event);
++  }
++}
++
  void UrrReportConsumer::CheckInactivity() {
 +  const auto sessions = session_manager_->GetAllSessions();
 +  std::unordered_set<uint64_t> live;
@@ -95,9 +151,32 @@
  struct ring_buffer;
  struct urr_report_event;
  
-@@ -56,6 +58,10 @@
+@@ -31,7 +33,8 @@
+   UrrReportConsumer(
+       std::shared_ptr<BPFMap> ringbuf_map,
+       std::shared_ptr<SessionManager> session_manager,
+-      std::shared_ptr<BPFMap> volume_map = nullptr);
++      std::shared_ptr<BPFMap> volume_map = nullptr,
++      std::shared_ptr<BPFMap> config_map = nullptr);
+   ~UrrReportConsumer();
+ 
+   UrrReportConsumer(const UrrReportConsumer&)            = delete;
+@@ -48,6 +51,10 @@
+   // session with an inactivity timer whose URR packet counter has not moved
+   // for that long is reported once, then re-armed by the next packet
+   void CheckInactivity();
++  // Periodic reporting at the end of each Measurement Period (TS 29.244
++  // 5.2.2.2): the XDP program only reports on the next packet, so a period
++  // without traffic would be reported late, merged with later ones
++  void FlushPeriodic();
+ 
+   struct Activity {
+     uint64_t packets;
+@@ -55,7 +62,12 @@
+     bool reported;
    };
    std::shared_ptr<BPFMap> volume_map_;
++  std::shared_ptr<BPFMap> config_map_;
    std::unordered_map<uint64_t, Activity> activity_;
 +  // Counters already reported per SEID: the datapath counters are cumulative
 +  // (quota and thresholds need that), a Usage Report carries the usage since
@@ -106,3 +185,15 @@
    std::chrono::steady_clock::time_point last_inactivity_check_{};
  
    std::shared_ptr<BPFMap> ringbuf_map_;
+--- a/src/upf_app/control/UserPlaneComponent.cpp
++++ b/src/upf_app/control/UserPlaneComponent.cpp
+@@ -169,7 +169,8 @@
+     }
+     urr_report_consumer_ = std::make_shared<UrrReportConsumer>(
+         urr_program->GetUrrReportRingbuf(), session_manager_,
+-        upf_xdp_program_->GetMapByName("urr_volume_counters_map"));
++        upf_xdp_program_->GetMapByName("urr_volume_counters_map"),
++        upf_xdp_program_->GetMapByName("urr_config_map"));
+     urr_report_consumer_->Start();
+   }
+ 
