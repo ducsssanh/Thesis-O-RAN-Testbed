@@ -1,8 +1,8 @@
 {
   "status": "PASS",
-  "runId": "20261001T085133Z-m35",
+  "runId": "20261003T102936Z-m35",
   "pfcp": {
-    "association": 19202,
+    "association": 7220731,
     "heartbeats": 3,
     "upfInitiatedHeartbeats": 2
   },
@@ -15,12 +15,12 @@
     "UPF": 1
   },
   "xdpProgramIds": {
-    "n3": 579,
-    "n6": 586
+    "n3": 1165,
+    "n6": 1172
   },
   "dnReturnRoute": true,
   "podUIDs": {
-    "smf": "472220c2-6b6d-4545-81c7-78106103ed1f",
-    "upf": "048daca7-f421-4103-a92d-ce072b0d4b56"
+    "smf": "9b66ca8c-094f-4898-852d-66424ee07611",
+    "upf": "3a3dc4b2-e01e-483e-b45b-2b5ed4f17127"
   }
 }

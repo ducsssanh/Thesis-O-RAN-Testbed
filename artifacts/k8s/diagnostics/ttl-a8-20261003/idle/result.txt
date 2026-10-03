@@ -1,0 +1,9 @@
+start rules_match_pdr:3 session_by_ue_i:3 pdrs_per_sessio:3 urr_config_map:3 urr_volume_coun:3 session_rules_e:3  (up_inactivity_s=60 deactivated_release_s=120)
+keep-alive off; waiting for the UE session
+session rules_match_pdr:4 session_by_ue_i:4 pdrs_per_sessio:4 urr_config_map:4 urr_volume_coun:4 session_rules_e:4 
+phase1 UPIR (ok=1); sending traffic
+phase1 survived past the deadline (ok=1)
+phase2 release after 52 s (ok=1)
+end rules_match_pdr: session_by_ue_i: pdrs_per_sessio: urr_config_map: urr_volume_coun: session_rules_e: 
+keep-alive restored
+PASS

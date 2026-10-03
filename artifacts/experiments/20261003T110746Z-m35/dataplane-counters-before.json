@@ -1,0 +1,42 @@
+{
+  "ueTun": {
+    "interface": "oaitun_ue1",
+    "ifindex": 3,
+    "rx": {
+      "bytes": 65,
+      "packets": 1,
+      "errors": 0,
+      "dropped": 0,
+      "over_errors": 0,
+      "multicast": 0
+    },
+    "tx": {
+      "bytes": 181,
+      "packets": 4,
+      "errors": 0,
+      "dropped": 0,
+      "carrier_errors": 0,
+      "collisions": 0
+    }
+  },
+  "upfN3": {
+    "interface": "n3",
+    "ifindex": 3,
+    "rx": {
+      "bytes": 2631,
+      "packets": 33,
+      "errors": 0,
+      "dropped": 0,
+      "over_errors": 0,
+      "multicast": 0
+    },
+    "tx": {
+      "bytes": 1615,
+      "packets": 19,
+      "errors": 0,
+      "dropped": 0,
+      "carrier_errors": 0,
+      "collisions": 0
+    }
+  }
+}

@@ -1,0 +1,108 @@
+--- a/src/upf_app/control/UrrReportConsumer.cpp
++++ b/src/upf_app/control/UrrReportConsumer.cpp
+@@ -92,6 +92,7 @@
+   }
+   report_sequences_.clear();
+   activity_.clear();
++  last_reported_.clear();
+ }
+ 
+ int UrrReportConsumer::OnRingbufEvent(
+@@ -127,6 +128,20 @@
+   usage_report.set(sequence);
+   usage_report.set(ToPfcpTrigger(event.trigger));
+ 
++  // Usage since the previous report of this SEID
++  struct urr_volume& last = last_reported_[event.seid];
++  auto since              = [](uint64_t now, uint64_t before) {
++    return now >= before ? now - before : now;  // counters were recreated
++  };
++  struct urr_volume delta = {};
++  delta.ul_bytes          = since(event.vol.ul_bytes, last.ul_bytes);
++  delta.dl_bytes          = since(event.vol.dl_bytes, last.dl_bytes);
++  delta.ul_packets        = since(event.vol.ul_packets, last.ul_packets);
++  delta.dl_packets        = since(event.vol.dl_packets, last.dl_packets);
++  delta.total_bytes       = delta.ul_bytes + delta.dl_bytes;
++  delta.total_packets     = delta.ul_packets + delta.dl_packets;
++  last                    = event.vol;
++
+   pfcp::volume_measurement_t volume = {};
+   volume.tovol                      = 1;
+   volume.ulvol                      = 1;
+@@ -134,12 +149,12 @@
+   volume.tonop                      = 1;
+   volume.ulnop                      = 1;
+   volume.dlnop                      = 1;
+-  volume.total_volume               = event.vol.total_bytes;
+-  volume.uplink_volume              = event.vol.ul_bytes;
+-  volume.downlink_volume            = event.vol.dl_bytes;
+-  volume.total_nop                  = event.vol.total_packets;
+-  volume.uplink_nop                 = event.vol.ul_packets;
+-  volume.downlink_nop               = event.vol.dl_packets;
++  volume.total_volume               = delta.total_bytes;
++  volume.uplink_volume              = delta.ul_bytes;
++  volume.downlink_volume            = delta.dl_bytes;
++  volume.total_nop                  = delta.total_packets;
++  volume.uplink_nop                 = delta.ul_packets;
++  volume.downlink_nop               = delta.dl_packets;
+   usage_report.set(volume);
+ 
+   const uint64_t elapsed_ns       = event.timestamp_ns >= event.start_time_ns ?
+@@ -168,7 +183,7 @@
+       " URR_ID=%u UR-SEQN=%u "
+       "trigger=0x%02x total_bytes=%" PRIu64,
+       event.seid, event.urr_id, sequence.ur_seqn, event.trigger,
+-      event.vol.total_bytes);
++      delta.total_bytes);
+   return 0;
+ }
+ 
+@@ -190,13 +205,23 @@
+ }
+ 
+ void UrrReportConsumer::CheckInactivity() {
++  const auto sessions = session_manager_->GetAllSessions();
++  std::unordered_set<uint64_t> live;
++  for (const auto& session : sessions)
++    if (session) live.insert(session->seid);
++  // A reused SEID starts a new session: forget the old one's report state
++  for (auto* m : {&report_sequences_}) {
++    for (auto it = m->begin(); it != m->end();)
++      it = live.count(it->first) ? std::next(it) : m->erase(it);
++  }
++  for (auto it = last_reported_.begin(); it != last_reported_.end();)
++    it = live.count(it->first) ? std::next(it) : last_reported_.erase(it);
++
+   if (!volume_map_ || !upf_n4_inst) return;
+   const auto now = std::chrono::steady_clock::now();
+-  std::unordered_set<uint64_t> live;
+-  for (const auto& session : session_manager_->GetAllSessions()) {
++  for (const auto& session : sessions) {
+     if (!session || session->up_inactivity_timer_s == 0) continue;
+     uint64_t seid = session->seid;
+-    live.insert(seid);
+     struct urr_volume vol = {};
+     if (volume_map_->Lookup(seid, &vol) != 0) continue;  // no URR
+ 
+--- a/src/upf_app/control/UrrReportConsumer.h
++++ b/src/upf_app/control/UrrReportConsumer.h
+@@ -13,6 +13,8 @@
+ #include <thread>
+ #include <unordered_map>
+ 
++#include "urr_types.h"
++
+ struct ring_buffer;
+ struct urr_report_event;
+ 
+@@ -56,6 +58,10 @@
+   };
+   std::shared_ptr<BPFMap> volume_map_;
+   std::unordered_map<uint64_t, Activity> activity_;
++  // Counters already reported per SEID: the datapath counters are cumulative
++  // (quota and thresholds need that), a Usage Report carries the usage since
++  // the previous report (TS 29.244 5.2.2.2)
++  std::unordered_map<uint64_t, struct urr_volume> last_reported_;
+   std::chrono::steady_clock::time_point last_inactivity_check_{};
+ 
+   std::shared_ptr<BPFMap> ringbuf_map_;

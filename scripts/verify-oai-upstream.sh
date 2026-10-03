@@ -62,7 +62,7 @@ mv "$W/upf-common-src" "$W/upf/src/common-src"; mv "$W/upf-common-build" "$W/upf
 mv "$W/upf-common-ci" "$W/upf/ci-scripts/common"
 for x in oai-upf-00b7485-pfcp-urr-reporting oai-upf-xdp-mode oai-upf-cp-initiated-association oai-upf-build-jobs \
          oai-upf-00b7485-dl-qfi-from-access-pdr oai-upf-session-teardown-ue-ip-mapping oai-upf-teardown-best-effort \
-         oai-upf-user-id-session-ttl; do
+         oai-upf-user-id-session-ttl oai-upf-urr-usage-since-last-report; do
   apply "$W/upf" "$P/$x.patch"
 done
 compare "oai-upf" "$W/upf" "$ROOT/src/oai-upf"
@@ -80,6 +80,7 @@ apply "$W/smf/src/oai-cn5g-common-src" "$P/oai-smf-v2.2.0-pfcp-up-features-exten
 apply "$W/smf" "$P/oai-smf-v2.2.0-stale-session-release.patch"
 apply "$W/smf/src/oai-cn5g-common-src" "$P/oai-smf-v2.2.0-common-src-user-id-length.patch"
 apply "$W/smf" "$P/oai-smf-v2.2.0-user-id-urr-config-ttl.patch"
+apply "$W/smf" "$P/oai-smf-v2.2.0-reassociation-up-features.patch"
 if [ -n "$INTO" ]; then
   cp -a "$C/smf/.git" "$W/smf/.git"
   cp -a "$C/smf-common-src/.git" "$W/smf/src/oai-cn5g-common-src/.git"

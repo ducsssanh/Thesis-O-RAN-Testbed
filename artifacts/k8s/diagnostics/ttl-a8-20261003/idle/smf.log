@@ -1,0 +1,8 @@
+[2026-10-03 13:44:12.255] [smf_app] [info] PFCP_SESSION_REPORT_REQUEST/User Plane Inactivity Report, SEID 0x4
+[2026-10-03 13:44:12.255] [smf_app] [info] Session TTL T2: user plane inactive (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-03 13:45:20.811] [smf_app] [info] PFCP_SESSION_REPORT_REQUEST/User Plane Inactivity Report, SEID 0x4
+[2026-10-03 13:45:20.811] [smf_app] [info] Session TTL T2: user plane inactive (SUPI imsi-001010123456780, PDU Session ID 1)
+[2026-10-03 13:47:30.539] [smf_app] [info] Session TTL T2: PDU Session (SUPI imsi-001010123456780, PDU Session ID 1, SCID 0x4) user plane inactive for 129 s >= 120 s, network-requested release
+[2026-10-03 13:47:30.539] [smf_app] [info] Release stale PDU Session (SUPI imsi-001010123456780, PDU Session ID 1): sending N4 Session Deletion Request, UP SEID 0x4
+[2026-10-03 13:47:30.540] [smf_app] [debug] Received N4 Session Deletion Response sender teid 0x4  pfcp_tx_id 29C, smf_procedure not found, discarded!
+[2026-10-03 13:47:30.540] [smf_app] [info] Handle N4 Session Deletion Response

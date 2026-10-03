@@ -1,0 +1,19 @@
+--- a/src/smf_app/smf_pfcp_association.cpp
++++ b/src/smf_app/smf_pfcp_association.cpp
+@@ -158,11 +158,14 @@
+       restore_n4_sessions = true;
+     }
+     sa->recovery_time_stamp = recovery_time_stamp;
++    // Keep the UP Function Features of the new association (the branches
++    // were inverted: a re-association dropped FTUP and the SMF then allocated
++    // the N3 F-TEID itself with the UPF Node ID address)
+     if (use_function_features) {
+-      sa->function_features = {};
+-    } else {
+       sa->function_features.first  = true;
+       sa->function_features.second = function_features;
++    } else {
++      sa->function_features = {};
+     }
+ 
+     trigger_heartbeat_request_procedure(sa);

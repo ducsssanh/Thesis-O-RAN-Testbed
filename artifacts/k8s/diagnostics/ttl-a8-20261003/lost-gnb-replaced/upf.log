@@ -1,0 +1,3 @@
+[2026-10-03 13:32:29.121] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x1               │
+[2026-10-03 13:32:29.121] [upf_app] [info] Delete datapath
+[2026-10-03 13:32:29.121] [upf_app] [info] RemoveSession() seid 0x1

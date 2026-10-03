@@ -152,9 +152,9 @@ Throttle bằng QER chuẩn qua SMF; key IMEI (User ID IE có IMEI); chuyển UE
 | 3 | ✅ UPF chỉ set Apply Action khi IE có mặt | A.5 | 1 h | build UPF cùng #2 |
 | 4 | ✅ Session mồ côi khi UE restart (sửa SMF, mục 8) | A.3 | 0.5–1 ngày | — |
 | 5 | ✅ Session epoch (mục 9) | A.4 | 1 ngày | — |
-| 6 | SMF URR cấu hình được, PERIO 1 s; đo tải — code xong 02/10 (C19), chờ build + đo | A.6 | 1 ngày | — |
+| 6 | ✅ SMF URR cấu hình được, PERIO 1 s (mục 10; đo tải chi tiết còn lại) | A.6 | 1 ngày | — |
 | 7 | Hiệu chỉnh URR ↔ KPM | A.7 | 0.5 ngày | 1, 6 |
-| 7b | TTL session T1/T2/T3 (sửa SMF + UPF) — code xong 02/10 (C19–C21; T2 hiệu chỉnh, design 4.1), chờ build + gate | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
+| 7b | ✅ TTL session T1/T2/T3 — 3 kịch bản PASS (mục 10) | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
 | 8 | Ánh xạ KPM UE ID ↔ SUPI, 2 UE | R1 | 2–3 ngày | 1 |
 | 9 | gNB: PRB cap + RRC Release qua E2SM-RC; Gate R2 | R2 | 4–6 ngày | — (song song A) |
 | 10 | xApp detector KPM + hành động RAN; Gate R3 | R3 | 2–3 ngày | 8, 9 |
@@ -233,3 +233,13 @@ Image UPF: `oai-lab-upf:teardown-5f1ab8b55a95` (`sha256:b949128a…`), patch [`p
 **Độ bền KPM (phát sinh khi kiểm chứng).** (1) xApp đăng ký KPM một lần lúc khởi động; gNB khởi động lại ⇒ KPM mất im lặng. Thêm watchdog: không có indication `KPM_STALE_S` giây ⇒ xApp thoát, Kubernetes khởi động lại và đăng ký lại; xApp chờ E2 node thay vì `assert`; CSV ghi tiếp thay vì ghi đè. Kill gNB+UE: xApp khởi động lại 1 lần, KPM tươi (1 s) sau ~1 phút. (2) FlexRIC có thể **kẹt** sau khi một E2 node chết khi đang xóa subscription (lặp `MSG ALREADY PENDING`/`Pending event timeout`), từ chối xApp mới — lỗi FlexRIC, chỉ hết khi restart RIC. Harness: `up --stage ran` phát hiện và restart RIC (rồi gNB); `experiment` dừng sớm với hướng dẫn nếu KPM cũ > 30 s.
 
 **Sửa nhỏ khác:** `lab.py build` gắn tag SMF theo hash mọi patch SMF (`v2.2.0-lab-<hash>`) và reverse-check từng patch; tài liệu tổng hợp thay đổi so với upstream OAI: [OAI-UPSTREAM-CHANGES.md](OAI-UPSTREAM-CHANGES.md).
+
+## 10. Kết quả A.6, Phase C, A.8 (03/10/2026)
+
+Chi tiết và bằng chứng: [`ttl-a8-20261003`](../artifacts/k8s/diagnostics/ttl-a8-20261003/README.md).
+- **Gate C PASS**: User ID IE đúng IMSI trong PCAP; UPF gắn SUPI vào session.
+- **A.6**: PERIO 1 s từ cấu hình; 1 report/s tới xApp qua A1-EI thật. Còn lại: đo tải PFCP/Event Exposure (CPU SMF/producer theo số UE).
+- **A.8 PASS** cả 3 kịch bản (gNB chết hẳn ⇒ T1/T2; UE im lặng ⇒ T2, traffic giữ session; restart SMF ⇒ T3).
+- Hai lỗi OAI có sẵn đã sửa: C24 (SMF mất FTUP khi UPF re-associate ⇒ mất toàn bộ UL — xảy ra mỗi lần `rollout upf`), C25 (Usage Report lũy kế ⇒ xApp/producer hiểu sai lượng theo chu kỳ; ảnh hưởng trực tiếp A.7).
+- Quan sát: khi gNB được thay thế (NG Setup lại) hoặc chết hẳn, AMF OAI v2.2.0 trong lab này có báo SMF (Release SM Context / AN release); trường hợp AMF im lặng (A.3) vẫn có TTL bao phủ.
+
