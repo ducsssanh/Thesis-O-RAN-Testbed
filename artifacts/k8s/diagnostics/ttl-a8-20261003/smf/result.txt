@@ -1,0 +1,4 @@
+start rules_match_pdr:5 session_by_ue_i:5 pdrs_per_sessio:5 urr_config_map:5 urr_volume_coun:5 session_rules_e:5  (up_inactivity_s=60 deactivated_release_s=120)
+UPF saw the SMF restart (ok=1)
+end rules_match_pdr: session_by_ue_i: pdrs_per_sessio: urr_config_map: urr_volume_coun: session_rules_e: 
+PASS

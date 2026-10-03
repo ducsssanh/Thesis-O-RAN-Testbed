@@ -1,0 +1,5 @@
+start rules_match_pdr:2 session_by_ue_i:2 pdrs_per_sessio:2 urr_config_map:2 urr_volume_coun:2 session_rules_e:2  (up_inactivity_s=60 deactivated_release_s=120)
+UPIR after 56 s (ok=1)
+release after 122 s (ok=1)
+end rules_match_pdr: session_by_ue_i: pdrs_per_sessio: urr_config_map: urr_volume_coun: session_rules_e: 
+PASS

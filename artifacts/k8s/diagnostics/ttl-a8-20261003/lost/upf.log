@@ -1,0 +1,4 @@
+[2026-10-03 13:39:34.380] [upf_app] [info] Queued PFCP User Plane Inactivity Report SEID=2 SUPI=imsi-001010123456780 (no packet for 60 s)
+[2026-10-03 13:40:40.532] [upf_app] [info] │             Received N4_SESSION_DELETION_REQUEST seid 0x2               │
+[2026-10-03 13:40:40.532] [upf_app] [info] Delete datapath
+[2026-10-03 13:40:40.532] [upf_app] [info] RemoveSession() seid 0x2

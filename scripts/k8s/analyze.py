@@ -68,16 +68,21 @@ def kpm_gate(path):
 def pfcp_gate(config, reports, transactions):
     if not config:
         raise ValueError(
-            "Missing Create URR/volume threshold in this PCAP; inspect capture lifecycle and SMF configuration"
+            "Missing Create URR (volume threshold or measurement period) in this PCAP; inspect capture lifecycle and SMF configuration"
         )
+    # URR comes from smf.upfs[].config.urr: a volume threshold and/or a
+    # periodic trigger (column 10, seconds) must be configured
     thresholds = [int(r[i]) for r in config for i in (7, 8, 9) if r[i]]
-    if not thresholds:
-        raise ValueError("Missing actual URR threshold")
+    periods = [int(r[10]) for r in config if len(r) > 10 and r[10]]
+    if not thresholds and not periods:
+        raise ValueError("Missing actual URR threshold or measurement period")
     if not reports:
         raise ValueError(
             "Missing Usage Report. Actual threshold(s): "
             + str(thresholds)
-            + " bytes; increase duration beyond measured threshold and rerun; no PASS"
+            + " bytes, period(s): "
+            + str(periods)
+            + " s; increase duration beyond measured threshold and rerun; no PASS"
         )
     requests = [r for r in transactions if r[3] == "56"]
     accepted = [r for r in transactions if r[3] == "57" and r[5] == "1"]
@@ -101,6 +106,7 @@ def pfcp_gate(config, reports, transactions):
             raise ValueError("Inconsistent total/UL/DL accounting in Usage Report")
     return {
         "thresholdBytes": thresholds,
+        "measurementPeriodS": periods,
         "reportCount": len(reports),
         "ulBytes": ul,
         "dlBytes": dl,
@@ -130,7 +136,7 @@ def analyze(out):
     )
     cfg = fields(
         pcap,
-        "pfcp.msg_type == 50 && pfcp.ie_type == 6 && (pfcp.volume_threshold.tovol || pfcp.volume_threshold.ulvol || pfcp.volume_threshold.dlvol)",
+        "pfcp.msg_type == 50 && pfcp.ie_type == 6 && (pfcp.volume_threshold.tovol || pfcp.volume_threshold.ulvol || pfcp.volume_threshold.dlvol || pfcp.measurement_period)",
         [
             "frame.time_epoch",
             "pfcp.msg_type",
@@ -141,12 +147,13 @@ def analyze(out):
             "pfcp.volume_threshold.tovol",
             "pfcp.volume_threshold.ulvol",
             "pfcp.volume_threshold.dlvol",
+            "pfcp.measurement_period",
         ],
     )
     cfg = [[iso(r[0]), *r] for r in cfg]
     table(
         out / "pfcp_urr_config.csv",
-        "frame_time_iso,frame_time_epoch_seconds,pfcp_message_type,pfcp_seid,urr_id,measurement_method_volume,trigger_volume_threshold,volume_threshold_bytes,uplink_volume_threshold_bytes,downlink_volume_threshold_bytes",
+        "frame_time_iso,frame_time_epoch_seconds,pfcp_message_type,pfcp_seid,urr_id,measurement_method_volume,trigger_volume_threshold,volume_threshold_bytes,uplink_volume_threshold_bytes,downlink_volume_threshold_bytes,measurement_period_seconds",
         cfg,
     )
     reports = fields(

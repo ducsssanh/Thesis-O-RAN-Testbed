@@ -7,18 +7,18 @@
       "repoDigests": []
     },
     "upf": {
-      "image": "oai-lab-upf:teardown-5f1ab8b55a95",
-      "id": "sha256:b949128ade74769449e66897f0601077138020ad310a3393d2bf925db7f1ca77",
+      "image": "oai-lab-upf:ttl-72a4d1cb103f",
+      "id": "sha256:a339005573e14f63572d07172e462505c5b5834e57ce407ee7079b981290bdd3",
       "repoDigests": []
     },
     "radio": {
-      "image": "oai-lab-radio:30e854d39b1192d1",
-      "id": "sha256:fa863eceb039b119daa09a123f559e766ead54f78076dfb98c9f67e34016b225",
+      "image": "oai-lab-radio:faa627d484cce732",
+      "id": "sha256:ecc66680888430c592dd8c39c7881d8b2e349d4a853fe864231f652c1d08955d",
       "repoDigests": []
     },
     "smf": {
-      "image": "oai-lab-smf:v2.2.0-lab-837721c2",
-      "id": "sha256:d1a14696dd05d79324f0638713fa2bde211517e4abeb9589e42e58e86d3d243a",
+      "image": "oai-lab-smf:v2.2.0-lab-838baa19",
+      "id": "sha256:3ed6e7119fe541aa165cd49e7b07c898c518896cbabe3d8942de3c7fdf655718",
       "repoDigests": []
     }
   }

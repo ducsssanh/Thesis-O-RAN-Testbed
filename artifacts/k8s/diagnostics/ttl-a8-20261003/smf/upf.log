@@ -1,0 +1,3 @@
+[2026-10-03 13:48:57.337] [upf_n4 ] [info] PFCP Association Setup with a new Recovery Time Stamp (4000015576 -> 4000016937): deleting the sessions of the previous association
+[2026-10-03 13:48:57.337] [upf_app] [info] Delete datapath of session SEID 0x5 (association teardown)
+[2026-10-03 13:48:57.337] [upf_app] [info] RemoveSession() seid 0x5

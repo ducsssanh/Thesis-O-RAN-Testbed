@@ -167,6 +167,14 @@ class Tests(unittest.TestCase):
                 [["1", "a", "b", "56", "99", ""], ["2", "b", "a", "57", "99", "64"]],
             )
 
+    def test_periodic_only_urr_config(self):
+        # smf.upfs[].config.urr with only PERIO (no volume threshold)
+        cfg = [["iso", "1", "50", "12", "1", "1", "0", "", "", "", "1"]]
+        with self.assertRaisesRegex(ValueError, "period"):
+            analyze.pfcp_gate(cfg, [], [])
+        with self.assertRaisesRegex(ValueError, "threshold or measurement"):
+            analyze.pfcp_gate([["iso", "1", "50", "12", "1", "1", "0", "", "", "", ""]], [], [])
+
     def test_response_transaction_matching(self):
         cfg = [["iso", "1", "50", "12", "1", "1", "1", "1000", "", ""]]
         report = [

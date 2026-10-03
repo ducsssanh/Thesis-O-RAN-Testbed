@@ -392,6 +392,10 @@ class Lab:
                 ROOT / "src/oai-smf",
                 ROOT / "patches/oai-smf-v2.2.0-user-id-urr-config-ttl.patch",
             ),
+            (
+                ROOT / "src/oai-smf",
+                ROOT / "patches/oai-smf-v2.2.0-reassociation-up-features.patch",
+            ),
         ]
         if (ROOT / "src/oai-smf").is_dir() and all(p.exists() for _, p in smf_patches):
             smf_patch_hashes = {
