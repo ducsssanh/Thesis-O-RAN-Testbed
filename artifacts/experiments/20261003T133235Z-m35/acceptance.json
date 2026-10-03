@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "scope": "one experiment; restart and lifecycle acceptance still required",
+  "pfcp": {
+    "thresholdBytes": [],
+    "measurementPeriodS": [
+      1
+    ],
+    "reportCount": 131,
+    "ulBytes": 43455382,
+    "dlBytes": 47783896,
+    "acceptedResponses": 138
+  },
+  "kpm": {
+    "samples": 182,
+    "nodes": [
+      "gNB:3584"
+    ],
+    "ueIds": [
+      "2"
+    ]
+  },
+  "ul": {
+    "bytes": 39322800,
+    "lostPercent": 0.0
+  },
+  "dl": {
+    "bytes": 39322800,
+    "lostPercent": 0.0
+  }
+}

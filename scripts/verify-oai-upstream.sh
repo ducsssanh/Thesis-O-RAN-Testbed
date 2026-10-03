@@ -62,7 +62,7 @@ mv "$W/upf-common-src" "$W/upf/src/common-src"; mv "$W/upf-common-build" "$W/upf
 mv "$W/upf-common-ci" "$W/upf/ci-scripts/common"
 for x in oai-upf-00b7485-pfcp-urr-reporting oai-upf-xdp-mode oai-upf-cp-initiated-association oai-upf-build-jobs \
          oai-upf-00b7485-dl-qfi-from-access-pdr oai-upf-session-teardown-ue-ip-mapping oai-upf-teardown-best-effort \
-         oai-upf-user-id-session-ttl oai-upf-urr-usage-since-last-report; do
+         oai-upf-user-id-session-ttl oai-upf-urr-report-semantics; do
   apply "$W/upf" "$P/$x.patch"
 done
 compare "oai-upf" "$W/upf" "$ROOT/src/oai-upf"

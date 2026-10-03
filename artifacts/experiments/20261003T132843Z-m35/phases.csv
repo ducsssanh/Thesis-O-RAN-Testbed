@@ -1,0 +1,3 @@
+phase,direction,offered_rate,duration_seconds,start_unix_ms,end_unix_ms,status
+ul,ul,1M,60,1791034160179,1791034229463,ok
+dl,dl,1M,60,1791034230627,1791034299858,ok

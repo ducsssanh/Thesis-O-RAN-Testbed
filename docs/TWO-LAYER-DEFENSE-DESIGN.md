@@ -170,6 +170,9 @@ Bảng tin cậy theo E2 node: `{e2_node, kpm_trust, ctrl_trust, last_mismatch, 
 | SMF | `urr.periodic_s` | 1 | đủ mịn cho kiểm tra nhất quán |
 | SMF | `session_ttl.deactivated_release_s` | 120 (lab) | T1, mục 4.1: release session có UP DEACTIVATED quá lâu |
 | SMF→UPF | `session_ttl.up_inactivity_s` | 60 (lab) | T2, mục 4.1: IE 117, UPF báo UPIR |
+| xApp | `consistency.overhead_ul_bytes` / `overhead_dl_bytes` | 16,3 / 57,3 | A.7, mục 7: overhead URR mỗi gói theo chiều |
+| xApp | `consistency.dl.window_s` / `epsilon` / `consecutive` | 1 / 0,02 / 1 | A.7: FPR 0/339 trên traffic lành tính |
+| xApp | `consistency.ul.window_s` / `epsilon` / `consecutive` | 2 / 0,15 / 2 | A.7: FPR 0/159; đuôi UL dày ở W = 1 s |
 
 Chỉnh Q sau khi đo FPR (kịch bản E9); kiểm tra giới hạn API ở E10.
 
@@ -188,9 +191,10 @@ Sau đó    URR về ~0; sec_stats cho biết UE còn gửi; PRB cap không làm
 ```
 
 - **Cặp đại lượng:** `DRB.PdcpSduVolumeUL/DL` ↔ URR UL/DL bytes (SDU PDCP là gói IP, cùng lớp với byte ở UPF sau decap).
-- **Hiệu chỉnh:** tỉ số r = URR/KPM và nhiễu trên traffic lành tính ở nhiều tốc độ; xác minh XDP đếm inner IP hay cả header GTP/UDP; DL lỏng hơn UL.
-- **Căn thời gian:** KPM 1 s, URR 1 s, cửa sổ trượt theo timestamp nguồn.
-- **Luật:** alarm khi `|r − r̂| > ε` trong k/n cửa sổ (ví dụ 3/5); ε từ phân phối lành tính (ví dụ p99.9).
+- **Hiệu chỉnh (A.7, đo 03/10/2026, 6 profile lành tính 1–15 Mbit/s, payload 100–1400 B; [`calib-a7-20261003`](../artifacts/k8s/diagnostics/calib-a7-20261003/README.md)):** KPM đếm gói IP; URR đếm gói IP + overhead cố định mỗi gói (UL: Ethernet ≈ 14 B; DL: Ethernet + IP/UDP/GTP-U ngoài ≈ 58 B). **Tỉ số cố định r không dùng được**: KPM/URR thay đổi theo cỡ gói (DL 0,69 ở 100 B → 0,96 ở 1200 B), sai tới 25% chỉ vì cỡ gói — một flood gói nhỏ sẽ trông như MITM. Mô hình dùng: `KPM ≈ URR_bytes − c_dir·URR_packets` (URR mang sẵn số gói), c ước lượng **c_UL = 16,3**, **c_DL = 57,3** B/gói; sai số dư toàn run ≤ 1,5% (UL), ≤ 0,4% (DL).
+- **Nhiễu theo cửa sổ (mô hình theo gói):** DL p99 = 0,5% ở W = 1 s; UL p50 ≈ 1–2,6% nhưng đuôi dày (p99 ≈ 19% ở W = 1 s) do jitter thời điểm indication KPM/report URR — UL lỏng hơn DL (ngược dự đoán ban đầu).
+- **Căn thời gian:** dấu thời gian KPM (xApp nhận) lệch URR (UPF báo) −0,6…+1,8 s tùy run ⇒ xApp phải căn theo lag (ước lượng trên traffic lành tính, như `calibrate.py`) hoặc dùng W ≥ 2 s; cửa sổ chạm khoảng trống KPM (> 1,5 s) bị loại.
+- **Luật (chốt từ FPR đo được):** DL: `|e| > 0,02` ở W = 1 s (FPR 0/339 cửa sổ); UL: `|e| > 0,15` ở **2 cửa sổ liên tiếp** W = 2 s (FPR 0/159; độ trễ phát hiện ≤ 4 s). Với e = (KPM − (URR − c·pkts)) / (URR − c·pkts). Cần thêm dữ liệu nhiều UE/kênh xấu trước khi coi là cuối cùng.
 - Cần ánh xạ KPM UE ID ↔ SUPI; chưa có thì so tổng theo cell (yếu hơn).
 
 ## 8. Giới hạn và điểm lệch chuẩn (phải ghi trong luận văn)

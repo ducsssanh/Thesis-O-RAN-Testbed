@@ -1,0 +1,69 @@
+== profile rate=1M payload=100
+New staged run: 20261003T132843Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+xApp URR gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates
+== profile rate=5M payload=400
+New staged run: 20261003T133235Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+xApp URR gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates
+== profile rate=2M payload=1400
+New staged run: 20261003T133641Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+FAIL: PFCP capture flush timed out. kubectl failed: command terminated with exit code 1
+
+== profile rate=10M payload=800
+New staged run: 20261003T134048Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+FAIL: PFCP capture flush timed out. kubectl failed: command terminated with exit code 1
+
+== profile rate=10M payload=1200
+New staged run: 20261003T134521Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+FAIL: PFCP capture flush timed out. kubectl failed: command terminated with exit code 1
+
+== profile rate=15M payload=1200
+FAIL: previous PFCP capture flush timed out. kubectl failed: command terminated with exit code 1
+
+oai-lab API ready; no Helm upgrade or bootstrap was run
+FAIL: previous PFCP capture flush timed out. kubectl failed: command terminated with exit code 1
+
+oai-lab API ready; no Helm upgrade or bootstrap was run
+Experiment 20261003T134521Z-m35: checking workloads and PFCP capture
+FAIL: PFCP capture for run 20261003T134521Z-m35 is already closed. Stop UE, run 'scripts/k8s/lab.sh new-run', then 'scripts/k8s/lab.sh up --stage ran' before experiment
+== profile rate=2M payload=1400
+New staged run: 20261003T135223Z-m35
+FAIL: curl failed: curl: (22) The requested URL returned error: 503
+
+oai-lab API ready; no Helm upgrade or bootstrap was run
+Experiment 20261003T135223Z-m35: checking workloads and PFCP capture
+FAIL: KPM is stale (no samples) for run 20261003T135223Z-m35; FlexRIC may be stuck after a gNB restart. Scale UE to 0, run 'scripts/k8s/lab.sh new-run' and 'up --stage ran' (it restarts a stuck RIC)
+== profile rate=10M payload=800
+FAIL: kubectl failed: touch: cannot touch '/artifacts/runs/20261003T135223Z-m35/capture.stop': No such file or directory
+command terminated with exit code 1
+
+oai-lab API ready; no Helm upgrade or bootstrap was run
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+xApp URR gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates
+== profile rate=10M payload=1200
+New staged run: 20261003T135617Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+command terminated with exit code 1
+
+== profile rate=15M payload=1200
+New staged run: 20261003T135956Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+xApp URR gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates
+== profile rate=2M payload=1400
+New staged run: 20261003T140356Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+xApp URR gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates
+== profile rate=10M payload=1200
+New staged run: 20261003T140737Z-m35
+RAN/E2/KPM gate PASS; UE IP: 10.1.0.2
+xApp URR gate PASS (real)
+One traffic run PASS; UPF restart and lifecycle rerun remain separate acceptance gates

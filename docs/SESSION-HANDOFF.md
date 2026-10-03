@@ -1,6 +1,6 @@
 # Session handoff — đọc file này trước tiên
 
-**Cập nhật:** 03/10/2026 (A.6 + C + A.8 kiểm chứng PASS trên cluster; sửa C24, C25; DNS Docker; rollback `oai-lab` 105).
+**Cập nhật:** 03/10/2026 tối (A.6 tải + A.7 hiệu chỉnh xong ⇒ Gate A đạt cho 1 UE; C25 mở rộng: report PERIO theo chu kỳ).
 
 ## 1. Hệ thống trong 6 dòng
 
@@ -28,7 +28,7 @@
 ## 3. Trạng thái hiện tại
 
 - Cluster chạy đủ 4 namespace; run hiện tại `20261003T114119Z-m35` (capture đã đóng sau gate ⇒ trước `experiment` phải: UE về 0, `new-run`, `up --stage ran`). UE IP 10.1.0.2, có sidecar keep-alive.
-- Image (lock `artifacts/k8s/state/images.{json,yaml}`, bản trước `*.bak-ttl-20261003`): SMF `oai-lab-smf:v2.2.0-lab-838baa19`; UPF `oai-lab-upf:ttl-72a4d1cb103f`; radio `oai-lab-radio:faa627d484cce732`; tools `oai-lab-tools:30e854d39b1192d1`; xApp `oai-lab-xapp:e4b86a7522ad333c`; producer/adapter như cũ (`ei-images.json`).
+- Image (lock `artifacts/k8s/state/images.{json,yaml}`, bản trước `*.bak-ttl-20261003`): SMF `oai-lab-smf:v2.2.0-lab-838baa19`; UPF `oai-lab-upf:ttl-afdf292e9d3a`; radio `oai-lab-radio:faa627d484cce732`; tools `oai-lab-tools:30e854d39b1192d1`; xApp `oai-lab-xapp:e4b86a7522ad333c`; producer/adapter như cũ (`ei-images.json`).
 - Cấu hình phòng thủ: `global.lab.defense` trong `deploy/k8s/values/minikube.yaml` (TTL 60/120 s, PERIO 1 s, User ID bật, guard tắt, keep-alive 20 s).
 - Release cũ `oai-lab`: đã `helm rollback oai-lab 105`, 11 Deployment + DB/DN ở replicas 0 (điểm rollback khôi phục). Pod Job `oai-lab-subscriber` của rev 105 có thể còn trong namespace `oai-lab` — vô hại.
 - DNS Docker đã sửa (bỏ `dns` trong `/etc/docker/daemon.json`). Host: swap 16 GB; CoreDNS guard chạy lại sau mỗi `minikube start`.
@@ -48,15 +48,16 @@
 | Tài liệu thay đổi so với OAI | `docs/OAI-UPSTREAM-CHANGES.md` (C01–C18); dựng lại từ upstream: 5/5 MATCH; phát hiện + xuất 2 patch còn thiếu |
 | A.5 Update FAR không có Apply Action giữ nguyên action | Kiểm chứng none/drop/none/forw |
 | GitHub + dựng lại upstream byte-exact (02/10) | `verify-oai-upstream.sh --into`; so sánh nghiêm ngặt; thử trên clone sạch |
+| A.7 hiệu chỉnh + tải A.6 (03/10) | Mô hình `KPM ≈ URR − c·pkts` (c 16,3/57,3 B), ε DL 0,02@1 s, UL 0,15×2@2 s, FPR 0; URR ≈ 2,7% core/UE. [`calib-a7-20261003`](../artifacts/k8s/diagnostics/calib-a7-20261003/README.md), plan mục 11 |
 | A.6 + Phase C + A.8 + FlexRIC EINTR (02–03/10) | Gate C, URR 1 s, TTL 3 kịch bản PASS; sửa thêm C24 (SMF mất FTUP khi UPF re-associate), C25 (URR lũy kế). [`ttl-a8-20261003`](../artifacts/k8s/diagnostics/ttl-a8-20261003/README.md), plan mục 10 |
 | Thiết kế hai lớp + tham số mặc định | `docs/TWO-LAYER-DEFENSE-DESIGN.md` |
 
 ## 5. Việc tiếp theo (theo thứ tự)
 
-1. **A.6 phần đo tải**: tải PFCP/Event Exposure ở PERIO 1 s (report/s, CPU SMF/producer/adapter/xApp; ước lượng theo số UE).
-2. **A.7** hiệu chỉnh URR ↔ KPM `DRB.PdcpSduVolumeUL/DL` trên traffic lành tính (giờ URR là lượng theo chu kỳ nhờ C25) → r̂, ε → **Gate A**.
-3. Song song: **R2** (PRB cap + RRC Release qua E2SM-RC, `ran_func_rc.c:872`), **R1** (KPM UE ID ↔ SUPI, 2 UE). Sau đó R3 → U → G → M → L → E.
-4. Việc nhỏ: gate `pfcp_peer_ready` 90 s trong `rollout upf`/`up --stage core` có lúc hết giờ khi UPF vừa thay (chạy lại thì PASS) — xem xét tăng thời gian chờ.
+1. **R1** ánh xạ KPM UE ID ↔ SUPI với 2 UE (đường găng; cũng để kiểm chứng ε của A.7 với nhiều UE).
+2. **R2** patch gNB: PRB cap + RRC Release qua E2SM-RC (handler stub ở `src/oai-ran/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c:872`) → Gate R2.
+3. **R3** xApp detector KPM + hành động RAN; sau đó U → G → M → L → E (theo plan).
+4. Việc nhỏ: gate `pfcp_peer_ready` 90 s có lúc hết giờ khi UPF vừa thay; harness `new-run` không báo lỗi khi UE còn chạy (dẫn tới run ID bị dùng lại trong `calib_sweep.sh`).
 
 **Quyết định đã chốt (02/10/2026, tác giả đồng ý cả 4):**
 - Khôi phục điểm rollback `oai-lab`: làm sau khi restart Docker (stack 4 namespace về 0 → `helm rollback oai-lab 105` → scale release cũ về 0 → dựng lại stack).

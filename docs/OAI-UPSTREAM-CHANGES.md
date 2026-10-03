@@ -148,9 +148,10 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 **C24 · OAI SMF** — `oai-smf-v2.2.0-reassociation-up-features.patch` (1 file, +6/−3) — lỗi có sẵn, phát hiện 03/10 khi kiểm chứng C19–C21.
 - `pfcp_associations::check_association_on_add()`: hai nhánh bị đảo — khi UPF thiết lập lại association (UPF restart trong lúc SMF chạy) **kèm** UP Function Features, SMF lại xóa features ⇒ coi UPF không có FTUP ⇒ tự cấp F-TEID N3 bằng IP Node ID (N4) ⇒ gNB gửi GTP-U UL tới `172.30.24.20` thay vì N3 `172.30.23.10`, mất toàn bộ UL. Bằng chứng: PCAP run `20261003T102936Z-m35` (Association Response lần 2 có FTUP=True, Establishment Request không CHOOSE, F-TEID 172.30.24.20); gNB log `Create tunnel ... to remote IPv4 172.30.24.20`.
 
-**C25 · OAI UPF** — `oai-upf-urr-usage-since-last-report.patch` (2 file) — lỗi có sẵn từ C04 (03/09), phát hiện 03/10.
+**C25 · OAI UPF** — `oai-upf-urr-report-semantics.patch` (3 file) — lỗi có sẵn từ C04 (03/09), phát hiện 03/10.
 - Usage Report mang bộ đếm **lũy kế** của datapath; TS 29.244 §5.2.2.2 quy định volume là lượng dùng *kể từ report trước*. Bằng chứng: run `20261003T110746Z-m35`, UL trong report tăng tới 162,8 MB rồi đứng yên; tổng UL các report = 29,4 GB so với 157 MB traffic thật. Producer, adapter, xApp đều coi giá trị là lượng theo chu kỳ.
 - Sửa ở userspace: `UrrReportConsumer` giữ bản chụp đã báo theo SEID và gửi hiệu số; bộ đếm trong kernel vẫn lũy kế (Volume Quota/Threshold cần vậy). Trạng thái theo SEID (UR-SEQN, bản chụp) được xóa khi session kết thúc nên SEID tái sử dụng bắt đầu lại từ đầu.
+- Report định kỳ theo **hết chu kỳ đo** (§5.2.2.2): XDP chỉ báo PERIO khi có gói tiếp theo, nên khi UE ngừng gửi, phần volume cuối chờ tới gói kế (keep-alive 20 s sau) rồi dồn vào một report muộn (khoảng trống 8,6 s và 12,4 s ở run `20261003T112656Z-m35`) ⇒ kiểm tra nhất quán KPM↔URR báo nhầm. `UrrReportConsumer::FlushPeriodic()` (mỗi 1 s) phát report PERIO từ bộ đếm hiện tại khi đã quá `chu kỳ + 0,5 s` mà kernel chưa báo, và cập nhật `last_report_ns` trong `urr_config_map`. Hệ quả: mỗi session có PERIO gửi đúng 1 report/chu kỳ kể cả khi im lặng (volume 0), như chuẩn quy định.
 
 ## 3. Thay đổi ngoài mã OAI (để phân biệt, không tính là sửa OAI)
 

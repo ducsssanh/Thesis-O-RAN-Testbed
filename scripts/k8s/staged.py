@@ -794,7 +794,10 @@ def correlate_ei(out):
 def experiment():
     resume();guard()
     runname=run_id();out=ROOT/"artifacts/experiments"/runname;out.mkdir(parents=True,exist_ok=True)
-    c=values();duration=c["experiment"]["duration"];rate=c["experiment"]["rate"]
+    c=values();duration=c["experiment"]["duration"];rate=c["experiment"]["rate"];length=c["experiment"].get("length",1200)
+    # Calibration sweeps (A.7) override the traffic profile per run
+    rate=os.environ.get("LAB_EXPERIMENT_RATE",rate);length=int(os.environ.get("LAB_EXPERIMENT_LENGTH",length));duration=int(os.environ.get("LAB_EXPERIMENT_DURATION",duration))
+    (out/"profile.json").write_text(json.dumps({"rate":rate,"udpPayloadBytes":length,"durationSeconds":duration})+"\n")
     print("Experiment "+runname+": checking workloads and PFCP capture",flush=True)
     for ns,depl in [("oai-core","oai-upf"),("oai-ran","oai-nr-ue"),("near-rt-ric","a1-ei-adapter"),("near-rt-ric","oai-lab-xapp")]:ready(ns,"deployment",depl,30)
     age=kpm_age_seconds()
@@ -840,7 +843,7 @@ def experiment():
                     elapsed+=15
                     print(direction.upper()+" client running: "+str(elapsed)+" s elapsed; receiver not yet validated",flush=True)
             ticker=threading.Thread(target=progress,daemon=True);ticker.start()
-            try:client=exec_pod(*source,"iperf","-c",destination,"-u","-b",rate,"-l","1200","-t",str(duration),"-p",str(port),"-y","C",timeout=duration+40)
+            try:client=exec_pod(*source,"iperf","-c",destination,"-u","-b",rate,"-l",str(length),"-t",str(duration),"-p",str(port),"-y","C",timeout=duration+40)
             finally:finished.set();ticker.join(timeout=1)
             try:
                 server,_=receiver.communicate(timeout=20)

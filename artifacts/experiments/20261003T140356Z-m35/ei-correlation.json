@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "seid": 4,
+  "urSeqn": 55,
+  "pfcp": true,
+  "smfCallback": true,
+  "producer": true,
+  "a1EiAdapter": true,
+  "xappReceived": true,
+  "kpmWindow": {
+    "first": "2026-10-03T14:04:20.369000+00:00",
+    "last": "2026-10-03T14:07:02.704000+00:00"
+  },
+  "urrObservedAt": "2026-10-03T14:05:23.077576678Z"
+}
