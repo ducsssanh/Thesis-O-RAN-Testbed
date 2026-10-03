@@ -1,0 +1,13 @@
+--- a/src/smf_app/smf_context.cpp
++++ b/src/smf_app/smf_context.cpp
+@@ -702,6 +702,10 @@
+             ur_model.setSEndID(req->seid);
+             if (ur.get(seqn)) ur_model.seturSeqN(seqn.ur_seqn);
+             if (ur.get(dm)) ur_model.setDuration(dm.duration);
++            pfcp::start_time_t st = {};
++            pfcp::end_time_t et   = {};
++            if (ur.get(st)) ur_model.setStartTime(st.start_time);
++            if (ur.get(et)) ur_model.setEndTime(et.end_time);
+             ur_model.setTotNoP(vm.total_nop);
+             ur_model.setUlNoP(vm.uplink_nop);
+             ur_model.setDlNoP(vm.downlink_nop);

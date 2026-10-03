@@ -41,6 +41,10 @@ spec:
             - {name: SD, value: {{ .Values.global.lab.slice.sd | quote }}}
             - name: SUPI
               valueFrom: {secretKeyRef: {name: {{ .Values.global.lab.secretName }}, key: SUPI}}
+            # Accepted UEs, comma-separated; empty = every UE of the slice
+            - {name: SUPI_ALLOWLIST, value: {{ .Values.producer.supiAllowlist | default "" | quote }}}
+            # RAN identity (AMF UE NGAP ID) from the AMF UE table, for KPM joins
+            - {name: AMF_NAMESPACE, value: {{ .Values.producer.amfNamespace | default "oai-core" | quote }}}
           startupProbe: {httpGet: {scheme: HTTPS, path: /healthz, port: 8443}, periodSeconds: 5, failureThreshold: 20}
           readinessProbe: {httpGet: {scheme: HTTPS, path: /readyz, port: 8443}, periodSeconds: 5}
           resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 256Mi}}

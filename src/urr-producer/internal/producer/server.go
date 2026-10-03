@@ -34,6 +34,7 @@ type Server struct {
 	kubeClient *http.Client
 	mu         sync.RWMutex
 	ready      bool
+	identities map[string]RANIdentity // SUPI -> RAN identity (AMF UE table)
 }
 type pendingDelivery struct {
 	Report   Normalized `json:"report"`
@@ -232,6 +233,9 @@ func (s *Server) smf(w http.ResponseWriter, r *http.Request) {
 		valid++
 		start := sessionStart(v, time.Now())
 		fp := fingerprint(v)
+		// After the fingerprint: a retransmitted report stays a duplicate
+		// even if the AMF table changed in between
+		v.RANIdentity = s.identity(v.SUPI)
 		key := ""
 		fresh := false
 		er = s.db.Update(func(tx *bolt.Tx) error {

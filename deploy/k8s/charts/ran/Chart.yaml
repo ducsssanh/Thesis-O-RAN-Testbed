@@ -12,3 +12,9 @@ dependencies:
   version: 2.4.0
   repository: file://../../vendor/oai-5g-ran/oai-nr-ue
   condition: oai-nr-ue.enabled
+# Second UE (plan R1): same chart, IMSI = base IMSI + 1 (runtime IMSI_OFFSET)
+- name: oai-nr-ue
+  alias: oai-nr-ue2
+  version: 2.4.0
+  repository: file://../../vendor/oai-5g-ran/oai-nr-ue
+  condition: oai-nr-ue2.enabled

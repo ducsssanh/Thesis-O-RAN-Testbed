@@ -600,7 +600,10 @@ def pfcp_peer_ready():
     log=kub("oai-core","logs","deployment/oai-smf","-c","smf",*log_window,timeout=20)
     last_failure=max(log.rfind("UPF graph is empty"),log.rfind("HEARTBEAT PROCEDURE FAILED"))
     recovered=log[last_failure+1:]
-    return (recent or "Successfully added UPF graph edge for " in recovered) and len(re.findall("handle_receive_pfcp_msg msg type 2",recovered))>=2
+    # A UPF restarted while the SMF runs re-associates on the existing graph
+    # node (no "graph edge" line), so an Association Setup Response counts too
+    associated=("Successfully added UPF graph edge for " in recovered) or ("ASSOCIATION SETUP RESPONSE" in recovered)
+    return (recent or associated) and len(re.findall("handle_receive_pfcp_msg msg type 2",recovered))>=2
 
 
 def restart_upf():

@@ -1,0 +1,84 @@
+--- a/model/smf/UsageReport.h
++++ b/model/smf/UsageReport.h
+@@ -108,6 +108,17 @@
+   bool urTriggerIsSet() const;
+   void unsetURTrigger();
+ 
++  /// <summary>
++  /// PFCP Start Time / End Time of the measurement (TS 29.244 8.2.79/8.2.80),
++  /// NTP seconds as carried in the Usage Report
++  /// </summary>
++  uint32_t getStartTime() const;
++  void setStartTime(uint32_t const& value);
++  bool startTimeIsSet() const;
++  uint32_t getEndTime() const;
++  void setEndTime(uint32_t const& value);
++  bool endTimeIsSet() const;
++
+   friend void to_json(nlohmann::json& j, const UsageReport& o);
+   friend void from_json(const nlohmann::json& j, UsageReport& o);
+ 
+@@ -133,6 +144,10 @@
+   // UsageReportTrigger m_urTrig;
+   pfcp::usage_report_trigger_t m_urTrig;
+   bool m_urTrigIsSet;
++  uint32_t m_startTime  = 0;
++  bool m_startTimeIsSet = false;
++  uint32_t m_endTime    = 0;
++  bool m_endTimeIsSet   = false;
+ };
+ 
+ }  // namespace oai::model::smf
+--- a/model/smf/UsageReport.cpp
++++ b/model/smf/UsageReport.cpp
+@@ -69,6 +69,8 @@
+     */
+   }
+   if (o.durationIsSet()) j["Duration"] = o.m_duration;
++  if (o.startTimeIsSet()) j["Start Time"] = o.m_startTime;
++  if (o.endTimeIsSet()) j["End Time"] = o.m_endTime;
+   if (o.totNoPIsSet()) j["NoP"]["Total"] = o.m_totNoP;
+   if (o.ulNoPIsSet()) j["NoP"]["Uplink"] = o.m_ulNoP;
+   if (o.dlNoPIsSet()) j["NoP"]["Downlink"] = o.m_dlNoP;
+@@ -101,6 +103,14 @@
+       // TODO: Handle invalid JSON
+     }
+   }
++  if (j.find("Start Time") != j.end()) {
++    j.at("Start Time").get_to(o.m_startTime);
++    o.m_startTimeIsSet = true;
++  }
++  if (j.find("End Time") != j.end()) {
++    j.at("End Time").get_to(o.m_endTime);
++    o.m_endTimeIsSet = true;
++  }
+   if (j.find("Duration") != j.end()) {
+     j.at("Duration").get_to(o.m_duration);
+     o.m_durationIsSet = true;
+@@ -161,6 +171,26 @@
+ void UsageReport::unseturSeqN() {
+   m_urSeqNIsSet = false;
+ }
++uint32_t UsageReport::getStartTime() const {
++  return m_startTime;
++}
++void UsageReport::setStartTime(uint32_t const& value) {
++  m_startTime      = value;
++  m_startTimeIsSet = true;
++}
++bool UsageReport::startTimeIsSet() const {
++  return m_startTimeIsSet;
++}
++uint32_t UsageReport::getEndTime() const {
++  return m_endTime;
++}
++void UsageReport::setEndTime(uint32_t const& value) {
++  m_endTime      = value;
++  m_endTimeIsSet = true;
++}
++bool UsageReport::endTimeIsSet() const {
++  return m_endTimeIsSet;
++}
+ int32_t UsageReport::getDuration() const {
+   return m_duration;
+ }

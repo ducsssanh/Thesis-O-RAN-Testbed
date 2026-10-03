@@ -396,6 +396,14 @@ class Lab:
                 ROOT / "src/oai-smf",
                 ROOT / "patches/oai-smf-v2.2.0-reassociation-up-features.patch",
             ),
+            (
+                ROOT / "src/oai-smf/src/oai-cn5g-common-src",
+                ROOT / "patches/oai-smf-v2.2.0-common-src-usage-report-times.patch",
+            ),
+            (
+                ROOT / "src/oai-smf",
+                ROOT / "patches/oai-smf-v2.2.0-usage-report-times.patch",
+            ),
         ]
         if (ROOT / "src/oai-smf").is_dir() and all(p.exists() for _, p in smf_patches):
             smf_patch_hashes = {

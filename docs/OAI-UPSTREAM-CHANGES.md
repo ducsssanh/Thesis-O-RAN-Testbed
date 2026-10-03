@@ -153,12 +153,25 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 - Sửa ở userspace: `UrrReportConsumer` giữ bản chụp đã báo theo SEID và gửi hiệu số; bộ đếm trong kernel vẫn lũy kế (Volume Quota/Threshold cần vậy). Trạng thái theo SEID (UR-SEQN, bản chụp) được xóa khi session kết thúc nên SEID tái sử dụng bắt đầu lại từ đầu.
 - Report định kỳ theo **hết chu kỳ đo** (§5.2.2.2): XDP chỉ báo PERIO khi có gói tiếp theo, nên khi UE ngừng gửi, phần volume cuối chờ tới gói kế (keep-alive 20 s sau) rồi dồn vào một report muộn (khoảng trống 8,6 s và 12,4 s ở run `20261003T112656Z-m35`) ⇒ kiểm tra nhất quán KPM↔URR báo nhầm. `UrrReportConsumer::FlushPeriodic()` (mỗi 1 s) phát report PERIO từ bộ đếm hiện tại khi đã quá `chu kỳ + 0,5 s` mà kernel chưa báo, và cập nhật `last_report_ns` trong `urr_config_map`. Hệ quả: mỗi session có PERIO gửi đúng 1 report/chu kỳ kể cả khi im lặng (volume 0), như chuẩn quy định.
 
+### 03/10/2026 — R1: ánh xạ KPM UE ID ↔ SUPI với 2 UE
+
+**C26 · OAI SMF** — `oai-smf-v2.2.0-common-src-usage-report-times.patch` (2 file, +44) + `oai-smf-v2.2.0-usage-report-times.patch` (1 file, +4).
+- Model event exposure `UsageReport` thêm `Start Time`/`End Time` (NTP giây) lấy từ IE PFCP Start/End Time của Usage Report (TS 29.244); trước đây SMF bỏ hai IE này nên producer phải suy thời điểm từ `timeStamp − Duration`. Đường SMF → NF consumer vốn là mở rộng OAI.
+
+**C27 · OAI RAN (gNB, KPM agent)** — `oai-ran-kpm-per-ue-counters.patch` (1 file, +55/−15) — lỗi có sẵn.
+- Bộ đếm "giá trị lần trước" của `DRB.PdcpSduVolumeDL/UL`, `DRB.UEThpDl/Ul`, `RRU.PrbTotDl/Ul` được đánh chỉ số theo vị trí UE trong danh sách của indication (`ue_idx`). Khi danh sách đổi (context cũ hết hạn, UE vào/ra), UE bị trừ bởi bộ đếm của UE khác ⇒ hiệu số tràn 2³² (≈ 4,29 GB/giây ở UE 1 Mbit/s) hoặc phình gấp ~12 lần. Sửa: bảng theo RRC UE ID (LRU), xử lý tràn modular và context mới dùng lại ID. Ẩn khi chỉ có 1 UE. Bằng chứng: `artifacts/k8s/diagnostics/r1-20261003` (trước/sau, thử UE vào/ra giữa lúc có traffic).
+
+**C28 · FlexRIC xApp** — `flexric-xapp-ue-identity-join.patch` (3 file, +59/−1).
+- `urr_receiver`: đọc `ran_identity` (producer schema 1.2.0) và `end_time_unix`; dựng bảng AMF UE NGAP ID → SUPI (một mục mỗi SUPI; ID bị AMF cấp lại thì mục cũ bị xóa).
+- CSV KPM theo UE thêm cột `Collect Time (UNIX us)` (timestamp gốc gNB, `colletStartTime`; OAI đánh dấu *cuối* chu kỳ) và `SUPI` (trống khi chưa có ánh xạ hoặc UE ID không còn trong bảng AMF).
+
 ## 3. Thay đổi ngoài mã OAI (để phân biệt, không tính là sửa OAI)
 
 | Ngày | Thành phần | Nội dung |
 |---|---|---|
 | 15/09 | `src/5gdeploy` (NIST, không phải OAI) | `5gdeploy-working-tree.patch` — chỉ dùng cho backend Compose cũ |
 | 26/09 → | `deploy/k8s/charts/*`, `deploy/k8s/images/*`, `scripts/k8s/*`, `tests/` | Chart 4 namespace, image, harness — mã mới của đề tài |
+| 03/10 | `src/urr-producer`, `src/a1-ei-adapter`, chart, `runtime.py` | R1: producer đọc bảng "UEs' Information" của AMF OAI qua Kubernetes API (Role `amf-ue-table-reader`: chỉ `pods/log get`) và gắn `ran_identity` vào URR; allowlist SUPI (rỗng = mọi UE); job EI không lọc SUPI (`adapter.allUes`); UE thứ hai `oai-nr-ue2` (alias subchart, IMSI = gốc + 1, seed `EXTRA_UES`); gate `pfcp_peer_ready` chấp nhận re-association |
 | 27/09 | Multus CNI v4.2.2 (`deploy/k8s/vendor/multus.yaml`) | `multus-v4.2.2-atomic-install.patch` (cài binary CNI bằng file tạm + `mv`); 01/10 tăng limit bộ nhớ 300Mi |
 | 28/09 → | `src/urr-producer`, `src/a1-ei-adapter` | Producer A1-EI và adapter — mã mới; 01/10 thêm `session_epoch` (A.4, schema 1.1.0) |
 

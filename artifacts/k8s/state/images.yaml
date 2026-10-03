@@ -1,14 +1,14 @@
 global:
   lab:
-    toolsImage: oai-lab-tools:30e854d39b1192d1
+    toolsImage: oai-lab-tools:r1-1a8c19404f3d
     workloads:
       flexric:
-        image: oai-lab-radio:faa627d484cce732
+        image: oai-lab-radio:bf98ff282ed25e3f
       gnb:
-        image: oai-lab-radio:faa627d484cce732
+        image: oai-lab-radio:bf98ff282ed25e3f
       nr-ue:
-        image: oai-lab-radio:faa627d484cce732
+        image: oai-lab-radio:bf98ff282ed25e3f
       smf:
-        image: oai-lab-smf:v2.2.0-lab-838baa19
+        image: oai-lab-smf:v2.2.0-lab-e2aa7c54
       upf:
         image: oai-lab-upf:ttl-afdf292e9d3a

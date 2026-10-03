@@ -19,6 +19,8 @@ global:
     ueSubnet: 10.1.0.0/16
     xdpMode: skb
     usageReporting: true
+    extraUes: 1          # subscribers provisioned beyond the base IMSI (R1)
+    extraUeReplicas: 0   # replicas of oai-nr-ue2 (IMSI + 1)
     # Two-layer defense, core side (docs/TWO-LAYER-DEFENSE-DESIGN.md 4.1, 6.1)
     defense:
       userId: true              # PFCP User ID IE (IMSI) in Session Establishment

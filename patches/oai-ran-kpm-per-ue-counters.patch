@@ -1,0 +1,138 @@
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_kpm_subs.c
+@@ -5,6 +5,8 @@
+ #include "ran_func_kpm_subs.h"
+ 
+ #include <search.h>
++#include <stdbool.h>
++#include <string.h>
+ 
+ e2_node_level_stats_t cp_node_level_stats(const e2_node_level_stats_t *src)
+ {
+@@ -25,7 +27,54 @@
+   uint32_t ul;
+ } uldlcounter_t;
+ 
+-static uldlcounter_t last_pdcp_sdu_total_bytes[MAX_MOBILES_PER_GNB] = {0};
++/* Previous cumulative counters of each UE, keyed by its RRC UE ID. They were
++   indexed by the position of the UE in the indication (ue_idx): when the UE
++   list changed (a UE leaving, a stale context expiring) a UE was subtracted
++   another UE's counters, giving wrapped or inflated deltas (found with two
++   UEs, plan R1). */
++typedef struct ue_counters {
++  bool used;
++  uint32_t rrc_ue_id;
++  uint64_t seen;
++  uldlcounter_t pdcp, rlc, prb;
++} ue_counters_t;
++
++static ue_counters_t ue_counters[MAX_MOBILES_PER_GNB];
++static uint64_t ue_counters_clock;
++
++static ue_counters_t *counters_of(uint32_t rrc_ue_id)
++{
++  ue_counters_t *free_slot = NULL, *oldest = &ue_counters[0];
++  for (size_t i = 0; i < MAX_MOBILES_PER_GNB; i++) {
++    ue_counters_t *c = &ue_counters[i];
++    if (c->used && c->rrc_ue_id == rrc_ue_id) {
++      c->seen = ++ue_counters_clock;
++      return c;
++    }
++    if (!c->used && free_slot == NULL)
++      free_slot = c;
++    if (c->seen < oldest->seen)
++      oldest = c;
++  }
++  // New UE (or one evicted as least recently reported): counters start at 0
++  ue_counters_t *c = free_slot != NULL ? free_slot : oldest;
++  memset(c, 0, sizeof(*c));
++  c->used = true;
++  c->rrc_ue_id = rrc_ue_id;
++  c->seen = ++ue_counters_clock;
++  return c;
++}
++
++/* Delta of a 32-bit cumulative counter: modular across a wrap, the new value
++   itself when the counter restarted (new context reusing the RRC UE ID) */
++static uint32_t counter_delta(uint32_t now, uint32_t *last)
++{
++  uint32_t d = now - *last;
++  if (now < *last && *last - now < (1u << 31))
++    d = now;
++  *last = now;
++  return d;
++}
+ 
+ static nr_pdcp_statistics_t get_pdcp_stats_per_drb(const uint32_t rrc_ue_id, const int rb_id)
+ {
+@@ -56,9 +105,8 @@
+   meas_record.value = REAL_MEAS_VALUE;
+ 
+   // Keep the standard Mb unit on E2 while preserving sub-megabit samples.
+-  const uint32_t delta_bytes = pdcp.rxsdu_bytes - last_pdcp_sdu_total_bytes[ue_idx].dl;
++  const uint32_t delta_bytes = counter_delta(pdcp.rxsdu_bytes, &counters_of(ue_info.rrc_ue_id)->pdcp.dl);
+   meas_record.real_val = (double)delta_bytes * 8.0 / 1000000.0;  // [Mb]
+-  last_pdcp_sdu_total_bytes[ue_idx].dl = pdcp.rxsdu_bytes;
+ 
+   return meas_record;
+ }
+@@ -80,16 +128,13 @@
+   meas_record.value = REAL_MEAS_VALUE;
+ 
+   // Keep the standard Mb unit on E2 while preserving sub-megabit samples.
+-  const uint32_t delta_bytes = pdcp.txsdu_bytes - last_pdcp_sdu_total_bytes[ue_idx].ul;
++  const uint32_t delta_bytes = counter_delta(pdcp.txsdu_bytes, &counters_of(ue_info.rrc_ue_id)->pdcp.ul);
+   meas_record.real_val = (double)delta_bytes * 8.0 / 1000000.0;  // [Mb]
+-  last_pdcp_sdu_total_bytes[ue_idx].ul = pdcp.txsdu_bytes;
+ 
+   return meas_record;
+ }
+ 
+ #if defined (NGRAN_GNB_DU)
+-static uldlcounter_t last_rlc_pdu_total_bytes[MAX_MOBILES_PER_GNB] = {0};
+-static uldlcounter_t last_total_prbs[MAX_MOBILES_PER_GNB] = {0};
+ 
+ static nr_rlc_statistics_t get_rlc_stats_per_drb(const rnti_t rnti, const int rb_id)
+ {
+@@ -144,8 +189,7 @@
+   meas_record.value = REAL_MEAS_VALUE;
+ 
+   // Calculate DL Thp
+-  meas_record.real_val = (double)(rlc.txpdu_bytes - last_rlc_pdu_total_bytes[ue_idx].dl)*8/gran_period_ms;  // [kbps]
+-  last_rlc_pdu_total_bytes[ue_idx].dl = rlc.txpdu_bytes;
++  meas_record.real_val = (double)counter_delta(rlc.txpdu_bytes, &counters_of(ue_info.rrc_ue_id)->rlc.dl)*8/gran_period_ms;  // [kbps]
+ 
+   return meas_record;
+ }
+@@ -168,8 +212,7 @@
+   meas_record.value = REAL_MEAS_VALUE;
+ 
+   // Calculate UL Thp
+-  meas_record.real_val = (double)(rlc.rxpdu_bytes - last_rlc_pdu_total_bytes[ue_idx].ul)*8/gran_period_ms;  // [kbps]
+-  last_rlc_pdu_total_bytes[ue_idx].ul = rlc.rxpdu_bytes;
++  meas_record.real_val = (double)counter_delta(rlc.rxpdu_bytes, &counters_of(ue_info.rrc_ue_id)->rlc.ul)*8/gran_period_ms;  // [kbps]
+   
+   return meas_record;
+ }
+@@ -188,8 +231,8 @@
+ 
+   // Get the number of DL PRBs
+   const uint64_t tot_prb_dl_aggr = node_stats[1].mac_stats.dl.total_prb_aggregate - node_stats[0].mac_stats.dl.total_prb_aggregate;
+-  meas_record.int_val = (tot_prb_dl_aggr == 0) ? 0 : (ue_info.ue->mac_stats.dl.total_rbs - last_total_prbs[ue_idx].dl) * 100 / tot_prb_dl_aggr;   // [%]
+-  last_total_prbs[ue_idx].dl = ue_info.ue->mac_stats.dl.total_rbs;
++  const uint32_t prbs_dl = counter_delta(ue_info.ue->mac_stats.dl.total_rbs, &counters_of(ue_info.rrc_ue_id)->prb.dl);
++  meas_record.int_val = (tot_prb_dl_aggr == 0) ? 0 : prbs_dl * 100 / tot_prb_dl_aggr;   // [%]
+ 
+   return meas_record;
+ }
+@@ -208,8 +251,8 @@
+ 
+   // Get the number of UL PRBs
+   const uint64_t tot_prb_ul_aggr = node_stats[1].mac_stats.ul.total_prb_aggregate - node_stats[0].mac_stats.ul.total_prb_aggregate;
+-  meas_record.int_val = (tot_prb_ul_aggr == 0) ? 0 : (ue_info.ue->mac_stats.ul.total_rbs - last_total_prbs[ue_idx].ul) * 100 / tot_prb_ul_aggr;   // [%]
+-  last_total_prbs[ue_idx].ul = ue_info.ue->mac_stats.ul.total_rbs;
++  const uint32_t prbs_ul = counter_delta(ue_info.ue->mac_stats.ul.total_rbs, &counters_of(ue_info.rrc_ue_id)->prb.ul);
++  meas_record.int_val = (tot_prb_ul_aggr == 0) ? 0 : prbs_ul * 100 / tot_prb_ul_aggr;   // [%]
+ 
+   return meas_record;
+ }

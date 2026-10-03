@@ -15,6 +15,11 @@ type Config struct {
 	InfoTypeID, ProducerID, RunID             string
 	DNN, SD, SUPI                             string
 	SST                                       int
+	// SUPIAllow limits the accepted UEs (empty: every UE of the slice);
+	// SUPI is only the fallback for events without one
+	SUPIAllow []string
+	// AMFNamespace enables the AMF UE table watcher (RAN identity)
+	AMFNamespace string
 }
 
 type Job struct {
@@ -61,6 +66,12 @@ type Normalized struct {
 	DNN              string   `json:"dnn"`
 	SNSSAI           SNSSAI   `json:"snssai"`
 	EnrichmentSource string   `json:"enrichment_source"`
+	// PFCP Start/End Time of the measurement (TS 29.244, 1 s resolution),
+	// Unix seconds; 0 when the SMF did not forward them
+	StartTimeUnix uint64 `json:"start_time_unix,omitempty"`
+	EndTimeUnix   uint64 `json:"end_time_unix,omitempty"`
+	// AMF UE NGAP ID etc. of the UE, to join with E2SM-KPM per-UE reports
+	RANIdentity *RANIdentity `json:"ran_identity,omitempty"`
 }
 
 type SNSSAI struct {
@@ -125,8 +136,14 @@ func Normalize(e Event, c Config, now time.Time) (Normalized, error) {
 	if supi == "" {
 		supi = c.SUPI
 	}
-	if c.SUPI != "" && supi != c.SUPI {
-		return Normalized{}, fmt.Errorf("SUPI %q does not match configured UE", supi)
+	if len(c.SUPIAllow) > 0 {
+		allowed := false
+		for _, a := range c.SUPIAllow {
+			allowed = allowed || a == supi
+		}
+		if !allowed {
+			return Normalized{}, fmt.Errorf("SUPI %q is not in the allowlist", supi)
+		}
 	}
 	dnn := e.DNN
 	source := "smf-callback"
@@ -134,5 +151,11 @@ func Normalize(e Event, c Config, now time.Time) (Normalized, error) {
 		dnn = c.DNN
 		source = "lab-config"
 	}
-	return Normalized{SchemaVersion: "1.1.0", RunID: c.RunID, ObservedAt: now.UTC().Format(time.RFC3339Nano), SMFTimestamp: e.Timestamp, SUPI: supi, SEID: seid, URSequence: seq, Triggers: triggers, ULBytes: number(vol, "Uplink"), DLBytes: number(vol, "Downlink"), TotalBytes: number(vol, "Total"), ULPackets: number(nop, "Uplink"), DLPackets: number(nop, "Downlink"), TotalPackets: number(nop, "Total"), DurationSeconds: number(u, "Duration"), DNN: dnn, SNSSAI: SNSSAI{SST: c.SST, SD: c.SD}, EnrichmentSource: source}, nil
+	ntpToUnix := func(key string) uint64 {
+		if t := number(u, key); t > ntpUnixOffset {
+			return t - ntpUnixOffset
+		}
+		return 0
+	}
+	return Normalized{StartTimeUnix: ntpToUnix("Start Time"), EndTimeUnix: ntpToUnix("End Time"), SchemaVersion: "1.2.0", RunID: c.RunID, ObservedAt: now.UTC().Format(time.RFC3339Nano), SMFTimestamp: e.Timestamp, SUPI: supi, SEID: seid, URSequence: seq, Triggers: triggers, ULBytes: number(vol, "Uplink"), DLBytes: number(vol, "Downlink"), TotalBytes: number(vol, "Total"), ULPackets: number(nop, "Uplink"), DLPackets: number(nop, "Downlink"), TotalPackets: number(nop, "Total"), DurationSeconds: number(u, "Duration"), DNN: dnn, SNSSAI: SNSSAI{SST: c.SST, SD: c.SD}, EnrichmentSource: source}, nil
 }

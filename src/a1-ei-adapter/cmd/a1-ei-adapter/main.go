@@ -18,9 +18,18 @@ func env(k, d string) string {
 	}
 	return d
 }
+// supiFilter is the EI job's SUPI filter; set but empty selects every UE of
+// the slice (several UEs, plan R1)
+func supiFilter() string {
+	if v, ok := os.LookupEnv("SUPI"); ok {
+		return v
+	}
+	return "imsi-001010000000001"
+}
+
 func main() {
 	sst, _ := strconv.Atoi(env("SST", "1"))
-	c := a.Config{Listen: env("LISTEN_ADDR", ":8443"), TLSCert: env("TLS_CERT", "/tls/tls.crt"), TLSKey: env("TLS_KEY", "/tls/tls.key"), CAFile: env("CA_FILE", "/ca/ca.crt"), StateDir: env("STATE_DIR", "/var/lib/a1-ei"), ICSURL: env("ICS_URL", "https://informationservice.non-rt-ric.svc.cluster.local:9083"), PublicURL: env("PUBLIC_URL", "https://a1-ei-adapter.near-rt-ric.svc.cluster.local:8443"), XAppURL: os.Getenv("XAPP_URL"), JobID: env("JOB_ID", "oai-urr-nearrt-ue1"), InfoTypeID: env("INFO_TYPE_ID", "oai-urr_1.0.0"), Owner: env("JOB_OWNER", "near-rt-ric/a1-ei-adapter"), SUPI: env("SUPI", "imsi-001010000000001"), DNN: env("DNN", "nist-dnn"), SST: sst, SD: env("SD", "FFFFFF")}
+	c := a.Config{Listen: env("LISTEN_ADDR", ":8443"), TLSCert: env("TLS_CERT", "/tls/tls.crt"), TLSKey: env("TLS_KEY", "/tls/tls.key"), CAFile: env("CA_FILE", "/ca/ca.crt"), StateDir: env("STATE_DIR", "/var/lib/a1-ei"), ICSURL: env("ICS_URL", "https://informationservice.non-rt-ric.svc.cluster.local:9083"), PublicURL: env("PUBLIC_URL", "https://a1-ei-adapter.near-rt-ric.svc.cluster.local:8443"), XAppURL: os.Getenv("XAPP_URL"), JobID: env("JOB_ID", "oai-urr-nearrt-ue1"), InfoTypeID: env("INFO_TYPE_ID", "oai-urr_1.0.0"), Owner: env("JOB_OWNER", "near-rt-ric/a1-ei-adapter"), SUPI: supiFilter(), DNN: env("DNN", "nist-dnn"), SST: sst, SD: env("SD", "FFFFFF")}
 	s, e := a.New(c)
 	if e != nil {
 		log.Fatal(e)

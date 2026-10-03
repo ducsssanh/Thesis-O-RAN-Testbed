@@ -1,0 +1,120 @@
+--- a/examples/xApp/c/monitor/urr_receiver.c
++++ b/examples/xApp/c/monitor/urr_receiver.c
+@@ -24,6 +24,22 @@
+ static urr_record_t last_report;
+ static int has_last_report;
+ static unsigned long long duplicate_count, error_count;
++/* AMF UE NGAP ID -> SUPI, one entry per SUPI (a re-attach gets a new ID) */
++#define MAX_UE_IDENTITIES 64
++static struct { uint64_t amf_ue_ngap_id; char supi[96]; } identities[MAX_UE_IDENTITIES];
++static size_t identity_count;
++
++static void remember_identity(const urr_record_t *r){
++  if(!r->has_ran_identity || !r->supi[0])return;
++  size_t slot=identity_count;
++  for(size_t i=0;i<identity_count;i++){
++    if(strcmp(identities[i].supi,r->supi)==0)slot=i;
++    else if(identities[i].amf_ue_ngap_id==r->amf_ue_ngap_id)identities[i].supi[0]='\0'; /* ID reused by AMF */
++  }
++  if(slot==identity_count){if(identity_count==MAX_UE_IDENTITIES)return;identity_count++;}
++  identities[slot].amf_ue_ngap_id=r->amf_ue_ngap_id;
++  snprintf(identities[slot].supi,sizeof(identities[slot].supi),"%s",r->supi);
++}
+ 
+ static char *read_file(const char *path) {
+   FILE *f=fopen(path,"rb"); if(!f)return NULL;
+@@ -88,7 +104,18 @@
+     const char *e=json_object_get_string(epoch);size_t len=strlen(e);
+     if(len==0 || len>32 || strspn(e,"0123456789TZ")!=len)return 0;
+   }
++  /* ran_identity (producer schema 1.2.0) and end_time_unix are optional */
++  json_object *ran=NULL;
++  uint64_t amf_id=0,end_time=0;
++  int has_ran=0;
++  if(json_object_object_get_ex(o,"ran_identity",&ran) && !json_object_is_type(ran,json_type_null)){
++    if(!json_object_is_type(ran,json_type_object) || !uint_field(ran,"amf_ue_ngap_id",&amf_id))return 0;
++    has_ran=1;
++  }
++  json_object *et=NULL;
++  if(json_object_object_get_ex(o,"end_time_unix",&et) && !uint_field(o,"end_time_unix",&end_time))return 0;
+   memset(record,0,sizeof(*record));record->seid=seid;record->ur_seqn=seq;
++  record->has_ran_identity=has_ran;record->amf_ue_ngap_id=amf_id;record->end_time_unix=end_time;
+   if(epoch)copy_field(o,"session_epoch",record->session_epoch,sizeof(record->session_epoch));
+   if(!json_object_is_type(id,json_type_null)){record->has_urr_id=true;uint_field(o,"urr_id",&record->urr_id);}
+   uint_field(o,"ul_bytes",&record->ul_bytes);uint_field(o,"dl_bytes",&record->dl_bytes);uint_field(o,"total_bytes",&record->total_bytes);
+@@ -169,7 +196,7 @@
+       if(sqlite3_step(q)!=SQLITE_DONE)status=500;
+     }else status=500;
+     sqlite3_finalize(q);
+-    if(status==201){last_report=record;has_last_report=1;(void)export_jsonl();}
++    if(status==201){last_report=record;has_last_report=1;remember_identity(&record);(void)export_jsonl();}
+     else error_count++;
+   }
+   pthread_mutex_unlock(&lock);json_object_put(o);
+@@ -243,6 +270,17 @@
+   free(cert);free(key);cert=key=NULL;
+ }
+ 
++int urr_receiver_supi_for_ue(uint64_t amf_ue_ngap_id,char *supi,size_t capacity){
++  int found=0;
++  pthread_mutex_lock(&lock);
++  for(size_t i=0;i<identity_count && !found;i++)
++    if(identities[i].supi[0] && identities[i].amf_ue_ngap_id==amf_ue_ngap_id){
++      snprintf(supi,capacity,"%s",identities[i].supi);found=1;
++    }
++  pthread_mutex_unlock(&lock);
++  return found;
++}
++
+ int urr_receiver_latest(urr_record_t *out){
+   if(!out)return 0;
+   pthread_mutex_lock(&lock);int found=has_last_report;if(found)*out=last_report;pthread_mutex_unlock(&lock);
+--- a/examples/xApp/c/monitor/urr_receiver.h
++++ b/examples/xApp/c/monitor/urr_receiver.h
+@@ -1,5 +1,6 @@
+ #ifndef OAI_LAB_URR_RECEIVER_H
+ #define OAI_LAB_URR_RECEIVER_H
++#include <stddef.h>
+ #include <stdint.h>
+ #include <stdbool.h>
+ typedef struct {
+@@ -7,8 +8,15 @@
+   bool has_urr_id;
+   uint64_t ul_bytes,dl_bytes,total_bytes,ul_packets,dl_packets,total_packets,duration_seconds;
+   char session_epoch[33],supi[96],dnn[96],observed_at[64],schema_version[24],run_id[96],enrichment_source[48];
++  /* producer schema 1.2.0 (plan R1): RAN identity from the AMF UE table and
++     PFCP End Time of the measurement (Unix s, 1 s resolution) */
++  bool has_ran_identity;
++  uint64_t amf_ue_ngap_id,end_time_unix;
+ } urr_record_t;
+ int urr_receiver_start(void);
+ void urr_receiver_stop(void);
+ int urr_receiver_latest(urr_record_t *out);
++/* SUPI of the UE whose E2SM-KPM UE ID (AMF UE NGAP ID) is given, learnt from
++   the RAN identity of its URR reports; 1 if known */
++int urr_receiver_supi_for_ue(uint64_t amf_ue_ngap_id,char *supi,size_t capacity);
+ #endif
+--- a/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
++++ b/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
+@@ -702,6 +702,21 @@
+     }
+   }
+ 
++  /* Plan R1: gNB collection timestamp (E2SM-KPM colletStartTime; OAI stamps
++     the end of the period, us) and the SUPI of the KPM UE ID (AMF UE NGAP
++     ID) learnt from the URR RAN identity; empty until the mapping arrives */
++  if (!is_cell_metric) {
++    if (!csv_wrote_header) {
++      csv_append_name_to_csv_header("Collect Time", "UNIX us");
++      csv_append_name_to_csv_header("SUPI", "");
++    }
++    char supi[96] = "";
++    (void)urr_receiver_supi_for_ue(current_ue_id, supi, sizeof(supi));
++    char extra[160];
++    snprintf(extra, sizeof(extra), "%" PRId64 ",%s,", collect_start_time, supi);
++    strncat(csv_line_buffer, extra, sizeof(csv_line_buffer) - strlen(csv_line_buffer) - 1);
++  }
++
+   write_csv_header_to_file();
+ 
+   if (skip_first_sample) {
