@@ -41,17 +41,17 @@ Thứ tự "RAN trước": nền tảng → lớp RAN chạy độc lập → l�
 ### Phase 0 — Chứng minh chuỗi control-plane → BPF map → XDP drop: PASS ✅
 Mục 6.
 
-### Phase A — Nền tảng (2–4 ngày) — #1–#5 xong (mục 7–9)
-1. Harness: kiểm tra/cài lại route `172.30.26.0/24 dev oaitun_ue1` trước mỗi experiment.
-2. UPF `RemovePipeline`: tìm delete lỗi (`BPF map delete failed`), best-effort (bỏ qua ENOENT, xóa tiếp, log); kiểm tra không còn key của SEID sau deletion.
-3. Session mồ côi khi UE restart không deregister (SEID 2): bảo đảm release và UPF nhận Deletion.
-4. Session epoch producer → adapter → xApp.
-5. UPF `pfcp_far::update()`: chỉ set Apply Action khi IE có mặt.
-6. SMF: URR cấu hình được (PERIO, VOLTH, VOLQU) thay vì hardcode; PERIO 1 s cho thí nghiệm; đo tải PFCP/Event Exposure.
-7. Hiệu chỉnh URR ↔ KPM PDCP volume trên traffic lành tính.
-8. TTL session ba lớp (thiết kế: `TWO-LAYER-DEFENSE-DESIGN.md` mục 4.1): T1 SMF release session UP DEACTIVATED quá `session_ttl.deactivated_release_s`; T2 IE 117 User Plane Inactivity Timer → UPF báo UPIR → SMF (AMF 404 ⇒ release); T3 UPF xóa session của association cũ khi SMF restart (Recovery Time Stamp đổi). Gate: 3 kịch bản trong mục 4.1.
+### Phase A — Nền tảng (2–4 ngày) — ✅ XONG 03/10 (mục 7–11; Gate A đạt cho 1 UE)
+1. ✅ Harness: kiểm tra/cài lại route `172.30.26.0/24 dev oaitun_ue1` trước mỗi experiment.
+2. ✅ UPF `RemovePipeline`: tìm delete lỗi (`BPF map delete failed`), best-effort (bỏ qua ENOENT, xóa tiếp, log); kiểm tra không còn key của SEID sau deletion.
+3. ✅ Session mồ côi khi UE restart không deregister (SEID 2): bảo đảm release và UPF nhận Deletion.
+4. ✅ Session epoch producer → adapter → xApp.
+5. ✅ UPF `pfcp_far::update()`: chỉ set Apply Action khi IE có mặt.
+6. ✅ SMF: URR cấu hình được (PERIO, VOLTH, VOLQU) thay vì hardcode; PERIO 1 s cho thí nghiệm; đo tải PFCP/Event Exposure.
+7. ✅ Hiệu chỉnh URR ↔ KPM PDCP volume trên traffic lành tính.
+8. ✅ TTL session ba lớp (thiết kế: `TWO-LAYER-DEFENSE-DESIGN.md` mục 4.1): T1 SMF release session UP DEACTIVATED quá `session_ttl.deactivated_release_s`; T2 IE 117 User Plane Inactivity Timer → UPF báo UPIR → SMF đánh dấu, release nếu không có traffic trong `deactivated_release_s` (hiệu chỉnh 02/10: AMF OAI không trả 404, design 4.1); T3 UPF xóa session của association cũ khi SMF restart (Recovery Time Stamp đổi). Gate: 3 kịch bản trong mục 4.1.
 
-**Gate A:** 3 chu kỳ detach/attach, BPF map chỉ còn session đang sống; URR 1 s tới xApp; bảng r̂, ε.
+**Gate A:** ✅ 3 chu kỳ detach/attach, BPF map chỉ còn session đang sống; URR 1 s tới xApp; bảng hiệu chỉnh (mô hình theo gói thay cho r̂ cố định) và ε. Còn mở: kiểm chứng ε với nhiều UE (cùng R1).
 
 ### Phase R1 — Ánh xạ RAN UE ID ↔ SUPI, nhiều UE (2–3 ngày) — đường găng
 - KPM v3 UE ID: AMF-UE-NGAP-ID + GUAMI → SUPI qua AMF (log có cấu trúc hoặc API nhỏ trên AMF; ghi rõ không chuẩn).
@@ -69,12 +69,12 @@ Mục 6.
 - xApp: detector KPM (rule tĩnh: PRB UL/BSR/throughput vượt ngưỡng k/n), DB danh tiếng SQLite, escalation phần RAN.
 - **Gate R3 (S1 chỉ RAN):** flood → PRB cap ≤ 2 s → cell phục hồi cho UE khác. Ghi nhận giới hạn: reconnect thì thoát.
 
-### Phase C — SMF: chỉ thay đổi chuẩn (1–2 ngày)
-1. Gửi **User ID IE** (IMSI từ SUPI; tùy chọn IMEI từ PEI) trong PFCP Session Establishment Request.
-2. Tạo URR guard (Volume Quota + Measurement Period) cho mọi session từ cấu hình (nối tiếp A.6).
-3. Kiểm chứng UPF decode được User ID (thêm nếu `common-src` thiếu).
-4. Patch `patches/oai-smf-v2.2.0-user-id-urr-config.patch`.
-- **Gate C:** PCAP Establishment có User ID đúng IMSI; UPF log in ra SUPI của session.
+### Phase C — SMF: chỉ thay đổi chuẩn (1–2 ngày) — ✅ XONG 03/10 (mục 10)
+1. ✅ Gửi **User ID IE** (IMSI từ SUPI; tùy chọn IMEI từ PEI) trong PFCP Session Establishment Request.
+2. ◐ Tạo URR guard (Volume Quota + Measurement Period) cho mọi session từ cấu hình (nối tiếp A.6) — SMF đã gửi được (`urr.guard.*`), đang **tắt** tới khi UPF có ngữ nghĩa theo cửa sổ (Phase G).
+3. ✅ Kiểm chứng UPF decode được User ID (decoder có sẵn; sửa lỗi độ dài IE ở encoder SMF — C20).
+4. ✅ Patch `patches/oai-smf-v2.2.0-user-id-urr-config-ttl.patch` (+ `oai-smf-v2.2.0-common-src-user-id-length.patch`, `oai-upf-user-id-session-ttl.patch`).
+- **Gate C:** ✅ PCAP Establishment có User ID đúng IMSI; UPF log in ra SUPI của session.
 
 ### Phase U — eBPF UPF security layer (5–7 ngày)
 1. Kernel: map `sec_policy_by_supi` (pinned), `sec_policy_by_seid`, `sec_stats_by_seid`; stage `PROG_SEC_POLICY` giữa session lookup và PDR match; `block`/`ratelimit` (token bucket)/`monitor`; kiểm tra `expires_at` bằng `bpf_ktime_get_ns()`.
@@ -138,7 +138,7 @@ Throttle bằng QER chuẩn qua SMF; key IMEI (User ID IE có IMEI); chuyển UE
 | Miền RAN (xApp bị chiếm) điều khiển được core | Giới hạn tự áp trong UPF, trần TTL, guard độc lập; E10 |
 | SMF không gửi User ID (core không hỗ trợ) | Chế độ suy giảm theo SEID + guard; đo khoảng hở trong E2 |
 | Map pinned mất khi node reboot | DB xApp là nguồn sự thật; đối chiếu theo `boot_id` |
-| URR 1 s gây tải PFCP/SBI | Đo ở Phase A; guard XDP không phụ thuộc chu kỳ report |
+| URR 1 s gây tải PFCP/SBI | ✅ Đã đo (mục 11): ≈ 2,7% core/UE, 2 bản tin PFCP/s/UE; guard XDP không phụ thuộc chu kỳ report |
 | Guard quota báo nhầm UE tải cao | Chặn giới hạn trong cửa sổ; E9 đo FPR |
 | MITM kiểm soát hoàn toàn E2 | Core vẫn bảo vệ DN và chặn theo SUPI; ghi rõ giới hạn; khuyến nghị IPsec E2 |
 | Overhead stage mới trong XDP | 1 hash lookup khi không có policy; đo trong Gate U |
@@ -155,11 +155,12 @@ Throttle bằng QER chuẩn qua SMF; key IMEI (User ID IE có IMEI); chuyển UE
 | 6 | ✅ SMF URR cấu hình được, PERIO 1 s; đo tải (mục 10, 11) | A.6 | 1 ngày | — |
 | 7 | ✅ Hiệu chỉnh URR ↔ KPM (mục 11) | A.7 | 0.5 ngày | 1, 6 |
 | 7b | ✅ TTL session T1/T2/T3 — 3 kịch bản PASS (mục 10) | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
-| 8 | Ánh xạ KPM UE ID ↔ SUPI, 2 UE | R1 | 2–3 ngày | 1 |
+| 7c | ✅ Phase C: User ID IE + URR từ cấu hình (Gate C PASS, mục 10) | C | 1–2 ngày | — |
+| 8 | ⏭ Ánh xạ KPM UE ID ↔ SUPI, 2 UE — **việc tiếp theo** | R1 | 2–3 ngày | 1 |
 | 9 | gNB: PRB cap + RRC Release qua E2SM-RC; Gate R2 | R2 | 4–6 ngày | — (song song A) |
 | 10 | xApp detector KPM + hành động RAN; Gate R3 | R3 | 2–3 ngày | 8, 9 |
 
-Sau đó: C → U → G → M → L → E. Phase C nhỏ, có thể làm cùng A.6 vì cùng sửa `pfcp_create_urr`/Establishment. M có thể làm sớm để có dữ liệu hiệu chỉnh ε.
+Sau đó: U → G → M → L → E (Phase 0, A, C đã xong). M có thể làm sớm để có dữ liệu flood thật cho ε.
 
 Tham số mặc định đã chốt: [TWO-LAYER-DEFENSE-DESIGN.md](TWO-LAYER-DEFENSE-DESIGN.md) mục 6.1.
 

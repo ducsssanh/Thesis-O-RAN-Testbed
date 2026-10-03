@@ -59,7 +59,7 @@ Hai lớp có điểm mù ngược nhau. Lớp RAN **triển khai trước** (tu
 
 **Vì sao tầng 1 không nằm trong map theo SEID/IP:** datapath chỉ thấy TEID/IP; blocklist theo IP chặn nhầm UE vô tội nhận lại IP cũ và để lọt UE malicious đổi IP; map mất khi node reboot. Tầng 1 trong UPF dùng **key SUPI** (cần User ID IE) và là bản chiếu; nguồn sự thật là DB của xApp.
 
-### 4.1. Vòng đời tầng 2: TTL của session (thiết kế 01/10/2026, duyệt 02/10; code 02/10, chưa kiểm chứng trên cluster)
+### 4.1. Vòng đời tầng 2: TTL của session (thiết kế 01/10/2026, duyệt 02/10; ✅ triển khai và kiểm chứng 03/10 — 3 kịch bản PASS)
 
 **Vấn đề.** A.3 sửa trường hợp UE *quay lại* (SMF xóa session cũ khi va chạm PDU Session ID). Còn hở: khi gNB chết, AMF OAI đưa UE về DEREGISTERED và xóa UE context **không** gọi Release SM Context (lệch TS 23.502: mất AN chỉ đưa UE về CM-IDLE, giữ RM-REGISTERED). Nếu UE **không bao giờ** đăng ký lại, SMF giữ session ở trạng thái UP DEACTIVATED vô thời hạn và UPF giữ đủ entry tầng 2. Hai biến thể cùng lớp: (a) AMF chết hẳn, SMF tưởng session vẫn ACTIVATED; (b) SMF restart nhanh hơn ngưỡng heartbeat, UPF giữ session của association cũ, SMF mới cấp lại SEID trùng.
 
