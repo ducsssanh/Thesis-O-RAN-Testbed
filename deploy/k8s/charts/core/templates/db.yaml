@@ -57,6 +57,8 @@ spec:
           command: [python3, /opt/lab/runtime.py, seed]
           envFrom:
             - secretRef: {name: {{ .Values.global.lab.secretName }}}
+          # Additional lab UEs: IMSI + 1 .. + extraUes, same KEY/OPC (plan R1)
+          env: [{name: EXTRA_UES, value: {{ .Values.global.lab.extraUes | default 1 | quote }}}]
           volumeMounts: [{name: config, mountPath: /input, readOnly: true}]
       volumes:
         - name: config

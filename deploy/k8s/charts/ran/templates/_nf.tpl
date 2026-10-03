@@ -1,23 +1,26 @@
 {{- define "lab.nf" -}}
 {{- $lab := .Values.global.lab -}}
-{{- $nf := trimPrefix "oai-" .Chart.Name -}}
+{{- /* component: nr-ue2 for the aliased second UE; nf: its function (nr-ue) */ -}}
+{{- $component := trimPrefix "oai-" .Chart.Name -}}
+{{- $nf := regexReplaceAll "[0-9]+$" $component "" -}}
+{{- $ueOffset := sub (atoi (default "1" (trimPrefix $nf $component))) 1 -}}
 {{- $w := index $lab.workloads $nf -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
-  labels: {oai-lab/component: {{ $nf | quote }}}
+  labels: {oai-lab/component: {{ $component | quote }}}
 spec:
-  replicas: {{ $lab.replicas | default 0 }}
+  replicas: {{ if gt $ueOffset 0 }}{{ $lab.extraUeReplicas | default 0 }}{{ else }}{{ $lab.replicas | default 0 }}{{ end }}
   strategy: {type: Recreate}
   selector:
     matchLabels:
-      {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 6 }}
+      {{- include (printf "oai-%s.selectorLabels" $nf) . | nindent 6 }}
   template:
     metadata:
       labels:
-        oai-lab/component: {{ $nf | quote }}
-        {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 8 }}
+        oai-lab/component: {{ $component | quote }}
+        {{- include (printf "oai-%s.selectorLabels" $nf) . | nindent 8 }}
       annotations:
         oai-lab/config-checksum: {{ toJson $lab | sha256sum | quote }}
         k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" $lab "nf" $nf) | quote }}
@@ -32,6 +35,7 @@ spec:
             - name: POD_IP
               valueFrom: {fieldRef: {fieldPath: status.podIP}}
             {{- if eq $nf "nr-ue" }}
+            - {name: IMSI_OFFSET, value: {{ $ueOffset | quote }}}
             {{- range $key := list "IMSI" "KEY" "OPC" }}
             - name: {{ $key }}
               valueFrom: {secretKeyRef: {name: {{ $lab.secretName }}, key: {{ $key }}}}

@@ -81,6 +81,8 @@ apply "$W/smf" "$P/oai-smf-v2.2.0-stale-session-release.patch"
 apply "$W/smf/src/oai-cn5g-common-src" "$P/oai-smf-v2.2.0-common-src-user-id-length.patch"
 apply "$W/smf" "$P/oai-smf-v2.2.0-user-id-urr-config-ttl.patch"
 apply "$W/smf" "$P/oai-smf-v2.2.0-reassociation-up-features.patch"
+apply "$W/smf/src/oai-cn5g-common-src" "$P/oai-smf-v2.2.0-common-src-usage-report-times.patch"
+apply "$W/smf" "$P/oai-smf-v2.2.0-usage-report-times.patch"
 if [ -n "$INTO" ]; then
   cp -a "$C/smf/.git" "$W/smf/.git"
   cp -a "$C/smf-common-src/.git" "$W/smf/src/oai-cn5g-common-src/.git"
@@ -98,12 +100,14 @@ apply "$F" "$P/flexric-xapp-urr-receiver.patch" -l --fuzz=3   # generated with d
 apply "$F" "$P/flexric-xapp-epoch-kpm-watchdog.patch"
 apply "$F" "$P/flexric-whitespace-exact.patch"   # blank-line/indent drift left by the fuzzed patch above
 apply "$F" "$P/flexric-epoll-eintr.patch"
+apply "$F" "$P/flexric-xapp-ue-identity-join.patch"
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722
 fetch ran https://gitlab.eurecom.fr/oai/openairinterface5g.git 26efcc498931b8f6979c39f9f44400f3c965fdc4
 tree ran; R=$W/ran
 (cd "$R" && git apply --exclude=openair2/E2AP/flexric "$P/oai-ran-working-tree.patch") || { echo "  patch failed: oai-ran-working-tree"; rc=1; }
+apply "$R" "$P/oai-ran-kpm-per-ue-counters.patch"
 rm -rf "$R/openair2/E2AP/flexric"; tree flexric; mv "$W/flexric" "$R/openair2/E2AP/flexric"; E=$R/openair2/E2AP/flexric
 apply "$E" "$P/flexric-working-tree.patch"
 cp "$P"/flexric/examples/xApp/c/metrics_factory.[ch] "$E/examples/xApp/c/"

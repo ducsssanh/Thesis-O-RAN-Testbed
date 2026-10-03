@@ -1,0 +1,67 @@
+{
+  "run": "20261003T164156Z-m35",
+  "checks": {
+    "amf_table_two_ues": {
+      "ok": true,
+      "table": {
+        "imsi-001010123456780": 10,
+        "imsi-001010123456781": 9
+      }
+    },
+    "urr_identity_and_end_time": {
+      "ok": true,
+      "per_supi": {
+        "imsi-001010123456781": {
+          "reports": 35,
+          "with_identity": 35,
+          "identity_match": 35,
+          "ul_bytes": 4938294,
+          "ul_packets": 3978
+        },
+        "imsi-001010123456780": {
+          "reports": 35,
+          "with_identity": 35,
+          "identity_match": 35,
+          "ul_bytes": 20216136,
+          "ul_packets": 16279
+        }
+      },
+      "reports_without_end_time": 0
+    },
+    "kpm_rows_labelled": {
+      "ok": true,
+      "rows_live_ues": 68,
+      "labelled": 68,
+      "rows_stale_ue_ids": 0,
+      "wrong": []
+    },
+    "volume_per_supi": {
+      "ok": true,
+      "kpm_ul": {
+        "imsi-001010123456781": 4637093.0,
+        "imsi-001010123456780": 19338391.0
+      },
+      "urr_expected_ul": {
+        "imsi-001010123456781": 4873452.6,
+        "imsi-001010123456780": 19950788.3
+      },
+      "relative_error": {
+        "imsi-001010123456781": -0.0485,
+        "imsi-001010123456780": -0.0307
+      },
+      "relative_error_if_swapped": {
+        "imsi-001010123456780": -0.7676,
+        "imsi-001010123456781": 2.9681
+      }
+    }
+  },
+  "ue_ips": {
+    "oai-nr-ue": "10.1.0.3",
+    "oai-nr-ue2": "10.1.0.2"
+  },
+  "window_unix": [
+    1791046581.941,
+    1791046622.169
+  ],
+  "status": "PASS"
+}

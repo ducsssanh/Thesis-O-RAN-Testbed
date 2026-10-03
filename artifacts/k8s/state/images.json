@@ -2,8 +2,8 @@
   "sourceHash": "4355f1dd430e9914",
   "images": {
     "tools": {
-      "image": "oai-lab-tools:30e854d39b1192d1",
-      "id": "sha256:c079882c8361e67a11f741c515782b6d56ee6d892eb2b4545024233f54bcabf1",
+      "image": "oai-lab-tools:r1-1a8c19404f3d",
+      "id": "sha256:a33e27633b143f48e7a4ea1c0c2076f26c08c5a3f8d57f58fe71d36acd982945",
       "repoDigests": []
     },
     "upf": {
@@ -12,13 +12,13 @@
       "repoDigests": []
     },
     "radio": {
-      "image": "oai-lab-radio:faa627d484cce732",
-      "id": "sha256:ecc66680888430c592dd8c39c7881d8b2e349d4a853fe864231f652c1d08955d",
+      "image": "oai-lab-radio:bf98ff282ed25e3f",
+      "id": "sha256:42beb02379f691ba7a327d1ca83358d353a173e5966386850bcbde6ff062e18e",
       "repoDigests": []
     },
     "smf": {
-      "image": "oai-lab-smf:v2.2.0-lab-838baa19",
-      "id": "sha256:3ed6e7119fe541aa165cd49e7b07c898c518896cbabe3d8942de3c7fdf655718",
+      "image": "oai-lab-smf:v2.2.0-lab-e2aa7c54",
+      "id": "sha256:0030a5095acc806b90375a77e1ab7878ac25f16f1cc5c95791d51071eebbbe07",
       "repoDigests": []
     }
   }

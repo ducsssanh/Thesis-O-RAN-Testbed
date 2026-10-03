@@ -6,6 +6,13 @@ import yaml
 def lab():
     return json.loads(pathlib.Path('/input/lab.json').read_text())
 
+def sim_imsi(base,offset):
+    """Additional lab UEs (plan R1) share KEY/OPC and use IMSI = base + offset."""
+    if not 0<=offset<16:raise ValueError('Invalid IMSI offset')
+    imsi='%015d'%(int(base)+offset)
+    if len(imsi)!=15:raise ValueError('IMSI overflow')
+    return imsi
+
 def prepare(nf):
     cfg = lab()
     out = pathlib.Path('/config'); out.mkdir(exist_ok=True)
@@ -16,6 +23,7 @@ def prepare(nf):
         for key, pattern in [('IMSI',r'\d{15}'),('KEY',r'[0-9a-fA-F]{32}'),('OPC',r'[0-9a-fA-F]{32}')]:
             value=os.environ[key]
             if not re.fullmatch(pattern,value): raise ValueError('Invalid SIM field: '+key)
+            if key=='IMSI':value=sim_imsi(value,int(os.environ.get('IMSI_OFFSET','0')))
             s=s.replace('__'+key+'__',value)
         (out/'ue.conf').write_text(s)
     elif nf == 'flexric':
@@ -52,24 +60,28 @@ def seed():
                 if statement.strip():cur.execute(statement)
         elif not {'AuthenticationSubscription','SessionManagementSubscriptionData','AccessAndMobilitySubscriptionData'} <= tables:
             raise RuntimeError('Incomplete database schema; manual recovery required')
-        imsi=os.environ['IMSI']; key=os.environ['KEY']; opc=os.environ['OPC']
-        if not re.fullmatch(r'\d{15}',imsi) or not all(re.fullmatch(r'[0-9a-fA-F]{32}',x) for x in (key,opc)):
+        base=os.environ['IMSI']; key=os.environ['KEY']; opc=os.environ['OPC']
+        if not re.fullmatch(r'\d{15}',base) or not all(re.fullmatch(r'[0-9a-fA-F]{32}',x) for x in (key,opc)):
             raise ValueError('Invalid subscriber secret')
-        sqn=json.dumps({'sqn':'000000000020','sqnScheme':'NON_TIME_BASED','lastIndexes':{'ausf':0}})
-        cur.execute('''INSERT INTO AuthenticationSubscription
-          (ueid,authenticationMethod,encPermanentKey,protectionParameterId,sequenceNumber,authenticationManagementField,algorithmId,encOpcKey,supi)
-          VALUES (%s,'5G_AKA',%s,%s,%s,'8000','milenage',%s,%s)
-          ON DUPLICATE KEY UPDATE encPermanentKey=VALUES(encPermanentKey),encOpcKey=VALUES(encOpcKey),protectionParameterId=VALUES(protectionParameterId)''',(imsi,key,key,sqn,opc,imsi))
-        snssai={'sst':cfg['slice']['sst'],'sd':cfg['slice']['sd']}
-        dnn={cfg['slice']['dnn']:{'pduSessionTypes':{'defaultSessionType':'IPV4','allowedSessionTypes':['IPV4']},'sscModes':{'defaultSscMode':'SSC_MODE_1','allowedSscModes':['SSC_MODE_1']},'5gQosProfile':{'5qi':9,'priorityLevel':90,'arp':{'priorityLevel':8,'preemptCap':'NOT_PREEMPT','preemptVuln':'PREEMPTABLE'}},'sessionAmbr':{'downlink':'1000 Mbps','uplink':'1000 Mbps'}}}
-        plmn=cfg['plmn']['mcc']+cfg['plmn']['mnc']
-        cur.execute('''INSERT INTO SessionManagementSubscriptionData (ueid,servingPlmnid,singleNssai,dnnConfigurations) VALUES (%s,%s,%s,%s)
-          ON DUPLICATE KEY UPDATE dnnConfigurations=VALUES(dnnConfigurations)''',(imsi,plmn,json.dumps(snssai),json.dumps(dnn)))
-        cur.execute('''INSERT INTO AccessAndMobilitySubscriptionData (ueid,servingPlmnid,nssai) VALUES (%s,%s,%s)
-          ON DUPLICATE KEY UPDATE nssai=VALUES(nssai)''',(imsi,plmn,json.dumps({'defaultSingleNssais':[snssai]})))
-        conn.commit();print('Subscriber synchronized; authentication sequence preserved')
+        for imsi in [sim_imsi(base,i) for i in range(1+int(os.environ.get('EXTRA_UES','0')))]:
+            seed_subscriber(cur,cfg,imsi,key,opc)
+        conn.commit();print('Subscribers synchronized; authentication sequences preserved')
     finally:
         cur.execute('SELECT RELEASE_LOCK(%s)',('oai-lab-seed',));conn.close()
+
+def seed_subscriber(cur,cfg,imsi,key,opc):
+    sqn=json.dumps({'sqn':'000000000020','sqnScheme':'NON_TIME_BASED','lastIndexes':{'ausf':0}})
+    cur.execute('''INSERT INTO AuthenticationSubscription
+      (ueid,authenticationMethod,encPermanentKey,protectionParameterId,sequenceNumber,authenticationManagementField,algorithmId,encOpcKey,supi)
+      VALUES (%s,'5G_AKA',%s,%s,%s,'8000','milenage',%s,%s)
+      ON DUPLICATE KEY UPDATE encPermanentKey=VALUES(encPermanentKey),encOpcKey=VALUES(encOpcKey),protectionParameterId=VALUES(protectionParameterId)''',(imsi,key,key,sqn,opc,imsi))
+    snssai={'sst':cfg['slice']['sst'],'sd':cfg['slice']['sd']}
+    dnn={cfg['slice']['dnn']:{'pduSessionTypes':{'defaultSessionType':'IPV4','allowedSessionTypes':['IPV4']},'sscModes':{'defaultSscMode':'SSC_MODE_1','allowedSscModes':['SSC_MODE_1']},'5gQosProfile':{'5qi':9,'priorityLevel':90,'arp':{'priorityLevel':8,'preemptCap':'NOT_PREEMPT','preemptVuln':'PREEMPTABLE'}},'sessionAmbr':{'downlink':'1000 Mbps','uplink':'1000 Mbps'}}}
+    plmn=cfg['plmn']['mcc']+cfg['plmn']['mnc']
+    cur.execute('''INSERT INTO SessionManagementSubscriptionData (ueid,servingPlmnid,singleNssai,dnnConfigurations) VALUES (%s,%s,%s,%s)
+      ON DUPLICATE KEY UPDATE dnnConfigurations=VALUES(dnnConfigurations)''',(imsi,plmn,json.dumps(snssai),json.dumps(dnn)))
+    cur.execute('''INSERT INTO AccessAndMobilitySubscriptionData (ueid,servingPlmnid,nssai) VALUES (%s,%s,%s)
+      ON DUPLICATE KEY UPDATE nssai=VALUES(nssai)''',(imsi,plmn,json.dumps({'defaultSingleNssais':[snssai]})))
 
 def capture():
     root=pathlib.Path('/artifacts'); root.mkdir(exist_ok=True)

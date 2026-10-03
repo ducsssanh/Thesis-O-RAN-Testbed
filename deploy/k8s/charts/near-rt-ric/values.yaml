@@ -154,5 +154,6 @@ adapter:
   replicas: 0
   image: oai-lab-a1-ei-adapter:unbuilt
   xappPushEnabled: false
+  allUes: true   # EI job without SUPI filter: URR of every UE (R1)
 oai-flexric:
   enabled: false

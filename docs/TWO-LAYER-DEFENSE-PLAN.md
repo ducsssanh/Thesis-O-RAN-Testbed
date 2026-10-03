@@ -53,10 +53,10 @@ Mục 6.
 
 **Gate A:** ✅ 3 chu kỳ detach/attach, BPF map chỉ còn session đang sống; URR 1 s tới xApp; bảng hiệu chỉnh (mô hình theo gói thay cho r̂ cố định) và ε. Còn mở: kiểm chứng ε với nhiều UE (cùng R1).
 
-### Phase R1 — Ánh xạ RAN UE ID ↔ SUPI, nhiều UE (2–3 ngày) — đường găng
+### Phase R1 — Ánh xạ RAN UE ID ↔ SUPI, nhiều UE (2–3 ngày) — ✅ XONG 03/10 (mục 12)
 - KPM v3 UE ID: AMF-UE-NGAP-ID + GUAMI → SUPI qua AMF (log có cấu trúc hoặc API nhỏ trên AMF; ghi rõ không chuẩn).
 - Thêm UE thứ 2 (`configs/ue/ue2.conf` đã có).
-- **Gate R1:** 2 UE, xApp gắn đúng KPM ↔ URR ↔ SUPI cho từng UE.
+- **Gate R1:** ✅ 2 UE, xApp gắn đúng KPM ↔ URR ↔ SUPI cho từng UE.
 
 ### Phase R2 — Hành động RAN thật trong gNB (4–6 ngày)
 1. Giới hạn PRB/MCS theo UE trong scheduler DL/UL.
@@ -156,7 +156,7 @@ Throttle bằng QER chuẩn qua SMF; key IMEI (User ID IE có IMEI); chuyển UE
 | 7 | ✅ Hiệu chỉnh URR ↔ KPM (mục 11) | A.7 | 0.5 ngày | 1, 6 |
 | 7b | ✅ TTL session T1/T2/T3 — 3 kịch bản PASS (mục 10) | A.8 | 2–3 ngày | 4; làm cùng A.6/C vì cùng sửa Establishment |
 | 7c | ✅ Phase C: User ID IE + URR từ cấu hình (Gate C PASS, mục 10) | C | 1–2 ngày | — |
-| 8 | ⏭ Ánh xạ KPM UE ID ↔ SUPI, 2 UE — **việc tiếp theo** | R1 | 2–3 ngày | 1 |
+| 8 | ✅ Ánh xạ KPM UE ID ↔ SUPI, 2 UE (mục 12) | R1 | 2–3 ngày | 1 |
 | 9 | gNB: PRB cap + RRC Release qua E2SM-RC; Gate R2 | R2 | 4–6 ngày | — (song song A) |
 | 10 | xApp detector KPM + hành động RAN; Gate R3 | R3 | 2–3 ngày | 8, 9 |
 
@@ -252,4 +252,12 @@ Chi tiết: [`calib-a7-20261003`](../artifacts/k8s/diagnostics/calib-a7-20261003
 - Tải đường URR ≈ 2,7% core/UE ở PERIO 1 s (SMF 1,2%, adapter 0,9%, xApp 0,4%, producer 0,2%).
 - Sửa thêm khi đo: C25 report PERIO theo hết chu kỳ đo (trước đây chờ gói kế ⇒ report dồn, báo nhầm); `CAP_KILL` cho container capture.
 - **Gate A**: map sạch qua chu kỳ attach/detach (A.3, A.8), URR 1 s tới xApp, bảng r̂/ε ⇒ **đạt** cho 1 UE. Còn mở: kiểm chứng ε với nhiều UE/kênh xấu (làm cùng R1).
+
+## 12. Kết quả R1 — ánh xạ KPM UE ID ↔ SUPI với 2 UE (03/10/2026)
+
+Bằng chứng: [`r1-20261003`](../artifacts/k8s/diagnostics/r1-20261003/) (`result.json`, `ue-churn/`); script `scripts/k8s/phase0/r1_gate.py`.
+- Chuỗi: KPM (E2 node, AMF UE NGAP ID) ↔ [bảng AMF, đọc ở Non-RT] ↔ SUPI ↔ URR (SUPI từ SMF, SEID + epoch). Timestamp gốc: KPM `colletStartTime`, URR PFCP End Time (C26).
+- **Gate R1 PASS** (UE1 4 Mbit/s, UE2 1 Mbit/s đồng thời, 40 s): bảng AMF 2 UE; 35/35 URR mỗi SUPI mang đúng `ran_identity` và End Time; 68/68 dòng KPM gắn đúng SUPI, 0 sai; volume UL theo SUPI lệch −3,1% / −4,9% so với `URR − 16,3·pkts`, gán đảo thì lệch −77% / +297%.
+- Lỗi phát hiện và sửa: C27 (bộ đếm KPM của gNB theo vị trí UE ⇒ volume tráo giữa các UE, tràn 2³²). Thử UE2 bị xóa giữa lúc UE1 có traffic: không còn mẫu tràn/phình.
+- Giới hạn: ánh xạ đọc từ log AMF OAI (design mục 8), trễ ≤ ~20 s sau đăng ký; mỗi UE 1 PDU session (nhiều session cần cộng URR theo SUPI).
 

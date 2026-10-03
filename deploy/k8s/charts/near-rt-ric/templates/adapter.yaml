@@ -54,8 +54,13 @@ spec:
             - {name: DNN, value: {{ .Values.global.lab.slice.dnn | quote }}}
             - {name: SST, value: {{ .Values.global.lab.slice.sst | quote }}}
             - {name: SD, value: {{ .Values.global.lab.slice.sd | quote }}}
+            # EI job SUPI filter; empty = every UE of the slice (R1, several UEs)
+            {{- if .Values.adapter.allUes }}
+            - {name: SUPI, value: ""}
+            {{- else }}
             - name: SUPI
               valueFrom: {secretKeyRef: {name: {{ .Values.global.lab.secretName }}, key: SUPI}}
+            {{- end }}
           startupProbe: {httpGet: {scheme: HTTPS, path: /healthz, port: 8443}, periodSeconds: 5, failureThreshold: 20}
           readinessProbe: {httpGet: {scheme: HTTPS, path: /readyz, port: 8443}, periodSeconds: 5}
           resources: {requests: {cpu: 50m, memory: 64Mi}, limits: {cpu: 250m, memory: 256Mi}}

@@ -15,3 +15,19 @@ kind: RoleBinding
 metadata: {name: non-rt-ric-smf-pod-reader}
 subjects: [{kind: ServiceAccount, name: non-rt-ric, namespace: non-rt-ric}]
 roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: smf-pod-reader}
+---
+# The URR producer reads the OAI AMF "UEs' Information" table from the AMF
+# log to map AMF UE NGAP ID <-> SUPI (plan R1; no standard interface exists)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: amf-ue-table-reader}
+rules:
+  - apiGroups: ['']
+    resources: [pods/log]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: non-rt-ric-amf-ue-table-reader}
+subjects: [{kind: ServiceAccount, name: non-rt-ric, namespace: non-rt-ric}]
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: amf-ue-table-reader}
