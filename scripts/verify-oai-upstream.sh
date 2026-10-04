@@ -102,6 +102,7 @@ apply "$F" "$P/flexric-whitespace-exact.patch"   # blank-line/indent drift left 
 apply "$F" "$P/flexric-epoll-eintr.patch"
 apply "$F" "$P/flexric-xapp-ue-identity-join.patch"
 apply "$F" "$P/flexric-xapp-ran-control.patch"
+apply "$F" "$P/flexric-xapp-defense.patch"
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722

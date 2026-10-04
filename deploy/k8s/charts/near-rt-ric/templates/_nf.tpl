@@ -20,7 +20,10 @@ spec:
         {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 8 }}
       annotations:
         {{- /* currentRun belongs to the xApp artifact path, not FlexRIC config. */}}
-        oai-lab/config-checksum: {{ toJson (omit $lab "currentRun") | sha256sum | quote }}
+        {{- /* defense.xapp only configures the xApp: changing it must not restart NFs */}}
+        {{- $cfg := omit $lab "currentRun" "defense" }}
+        {{- if hasKey $lab "defense" }}{{- $_ := set $cfg "defense" (omit $lab.defense "xapp") }}{{- end }}
+        oai-lab/config-checksum: {{ toJson $cfg | sha256sum | quote }}
         k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" $lab "nf" $nf) | quote }}
     spec:
       automountServiceAccountToken: false

@@ -53,6 +53,7 @@ spec:
             - {name: SST, value: {{ .Values.global.lab.slice.sst | quote }}}
             - {name: SD, value: {{ printf "0x%s" .Values.global.lab.slice.sd | quote }}}
             - {name: KPM_PERIOD, value: {{ .Values.global.lab.experiment.periodMs | quote }}}
+            - {name: DEFENSE_CONFIG, value: {{ (.Values.global.lab.defense.xapp | default dict) | toJson | quote }}}
             # Exit (and be restarted to resubscribe) after 10 KPM periods, at least 10 s, without indications
             - {name: KPM_STALE_S, value: {{ max 10 (div (mul 10 (int .Values.global.lab.experiment.periodMs)) 1000) | quote }}}
           volumeMounts:

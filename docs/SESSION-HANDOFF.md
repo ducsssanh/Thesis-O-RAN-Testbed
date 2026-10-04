@@ -1,6 +1,6 @@
 # Session handoff — đọc file này trước tiên
 
-**Cập nhật:** 04/10/2026 (chiều). Phase 0, A, C, R1 và **R2** đã xong; việc tiếp theo là **R3**. Đọc hết file này (ngắn); chỉ mở tài liệu khác **đúng mục cần**. Khi kết thúc một phiên, cập nhật mục 3, 4, 5.
+**Cập nhật:** 04/10/2026 (chiều). Phase 0, A, C, R1, R2 đã xong; **R3 đang làm** (mã C31 xong, thiếu script Gate R3). Đọc hết file này (ngắn); chỉ mở tài liệu khác **đúng mục cần**. Khi kết thúc một phiên, cập nhật mục 3, 4, 5.
 
 ## 1. Hệ thống trong 6 dòng
 
@@ -9,15 +9,15 @@
 - Đề tài: **phòng thủ hai lớp** chống UE flooding/DDoS, kể cả khi KPM bị MITM sửa trên E2. Lớp 1 RAN (xApp + E2 control), lớp 2 core (eBPF UPF).
 - **xApp là bộ não duy nhất**; eBPF UPF là cảm biến + bộ nhớ UE theo SUPI (BPF map pinned) + thực thi (stage XDP mới) + phản xạ guard quota. Không thêm module ra quyết định vào core.
 - Core chỉ dùng thủ tục chuẩn (PFCP User ID IE, URR cấu hình được, TTL session T1/T2/T3) cộng các bản sửa lỗi OAI có sẵn (C01–C28). Hai tầng state: trí nhớ theo SUPI (tầng 1) vs map theo session phải dọn sạch (tầng 2, đã kiểm chứng sạch).
-- **Hệ thống có hành động RAN nhưng chưa tự quyết**: xApp nhận lệnh theo SUPI (endpoint loopback `127.0.0.1:8090` trong pod) → E2SM-RC → gNB giới hạn PRB theo UE hoặc release UE (R2). Chưa có detector/escalation (R3, L), chưa có stage chặn trong UPF (U, G).
+- **Hệ thống có hành động RAN nhưng chưa tự quyết**: xApp nhận lệnh theo SUPI (endpoint loopback `127.0.0.1:8090` trong pod) → E2SM-RC → gNB giới hạn PRB theo UE hoặc release UE (R2). xApp có thêm lớp RAN tự động (R3, C31): detector KPM → DB danh tiếng SQLite → trần PRB, tối đa level 2. Chưa có stage chặn trong UPF (U, G), chưa có fusion hai lớp (L).
 
 ## 2. Bản đồ tài liệu (mở đúng chỗ cần)
 
 | Cần gì | Mở |
 |---|---|
 | Lý thuyết đã chốt, lý do, phương án bị loại, tham số | `docs/TWO-LAYER-DEFENSE-DESIGN.md` (3 nguyên tắc, 4 hai tầng state + 4.1 TTL, 5 kiến trúc, 6 escalation + **6.1 tham số**, **7 mô hình nhất quán KPM↔URR**, **8 giới hạn/lệch chuẩn**, 9 nhật ký quyết định) |
-| Phase, gate, kết quả | `docs/TWO-LAYER-DEFENSE-PLAN.md` (3 phase, 5 việc làm ngay, kết quả: 6 Phase 0, 7–9 A.1–A.5, 10 A.6/C/A.8, 11 A.7, 12 R1, **13 R2**) |
-| **Mọi thay đổi so với upstream OAI (C01–C30)** | `docs/OAI-UPSTREAM-CHANGES.md`; kiểm chứng `scripts/verify-oai-upstream.sh` (phải 5/5 MATCH) |
+| Phase, gate, kết quả | `docs/TWO-LAYER-DEFENSE-PLAN.md` (3 phase, 5 việc làm ngay, kết quả: 6 Phase 0, 7–9 A.1–A.5, 10 A.6/C/A.8, 11 A.7, 12 R1, 13 R2, **14 R3 (dở)**) |
+| **Mọi thay đổi so với upstream OAI (C01–C31)** | `docs/OAI-UPSTREAM-CHANGES.md`; kiểm chứng `scripts/verify-oai-upstream.sh` (phải 5/5 MATCH) |
 | Bằng chứng từng gate | `artifacts/k8s/diagnostics/{orphan-a3-20261001, epoch-a4-20261001, ttl-a8-20261003, calib-a7-20261003, r1-20261003, r2-20261004}/` |
 | Vận hành stack 4 namespace | `docs/K8S-A1-EI.md` (mục "Triển khai tuần tự") + mục 6, 7 file này |
 | Sự cố khôi phục cluster 01/10 | `artifacts/k8s/diagnostics/recover-20261001/README.md` |
@@ -27,7 +27,7 @@
 ## 3. Trạng thái hiện tại (04/10/2026, chiều)
 
 - Cluster chạy đủ 4 namespace. `oai-nr-ue` (IMSI `001010123456780`, IP 10.1.0.2) và `oai-nr-ue2` (IMSI + 1, IP 10.1.0.3) — IP đổi theo thứ tự attach, luôn đọc lại. Run `20261003T164156Z-m35` (capture PFCP chưa bật — trước `experiment` phải chạy chuỗi ở mục 6).
-- Image (lock `artifacts/k8s/state/images.{json,yaml}`, `ei-images.json`, `xapp-image.json`; bản trước R2: `*.bak-r2-20261004`): SMF `oai-lab-smf:v2.2.0-lab-e2aa7c54`, UPF `oai-lab-upf:ttl-afdf292e9d3a`, gNB/UE `oai-lab-radio:152d92b93a1c7ed7` (C29; FlexRIC RIC vẫn chạy `bf98ff282ed25e3f` — RIC không đổi), tools `oai-lab-tools:r1-1a8c19404f3d`, producer `oai-lab-urr-ei-producer:b98232e86a28f2a5`, adapter `oai-lab-a1-ei-adapter:2f934707322c82a0`, xApp `oai-lab-xapp:a10182ed72e7c07a`. `images.json` `sourceHash` = `152d…` (xApp đổi sau đó; chỉ `lab.py up` cũ kiểm tra, không dùng).
+- Image (lock `artifacts/k8s/state/images.{json,yaml}`, `ei-images.json`, `xapp-image.json`; bản trước R2: `*.bak-r2-20261004`): SMF `oai-lab-smf:v2.2.0-lab-e2aa7c54`, UPF `oai-lab-upf:ttl-afdf292e9d3a`, gNB/UE `oai-lab-radio:152d92b93a1c7ed7` (C29; FlexRIC RIC vẫn chạy `bf98ff282ed25e3f` — RIC không đổi), tools `oai-lab-tools:r1-1a8c19404f3d`, producer `oai-lab-urr-ei-producer:b98232e86a28f2a5`, adapter `oai-lab-a1-ei-adapter:2f934707322c82a0`, xApp `oai-lab-xapp:dea7c05c13ee5536` (C31, defense bật theo `global.lab.defense.xapp`). `images.json` `sourceHash` = `152d…` (xApp đổi sau đó; chỉ `lab.py up` cũ kiểm tra, không dùng).
 - Cấu hình phòng thủ trong `deploy/k8s/values/minikube.yaml` → `global.lab.defense` (TTL 60/120 s, PERIO 1 s, User ID bật, guard **tắt** tới Phase G, keep-alive UE 20 s) và `extraUes`/`extraUeReplicas` (UE2).
 - Hạ tầng: DNS Docker đã sửa; release cũ `oai-lab` giữ điểm rollback (`helm rollback oai-lab 105`, replicas 0; image `radio:ab3bf500…`, `upf:b7157422…`, `smf:ie43-771248b5`, `tools:f4aafed8…` — **đừng xóa**); swap 16 GB; Multus limit 300Mi. Ổ đĩa đã dọn 04/10 (còn ~20 GB): chỉ giữ image đang chạy + rollback; còn ~9 GB image ngoài lab (`5gdeploy.localhost/*`, `oransim`, `grafana`) chờ tác giả quyết.
 - Repo: https://github.com/ducsssanh/Thesis-O-RAN-Testbed (public, `main`). Commit chỉ mang tên `ducsssanh`. Cây OAI/FlexRIC trong `src/` không commit; clone mới chạy `scripts/verify-oai-upstream.sh --into src`.
@@ -55,7 +55,7 @@
 
 ## 5. Việc tiếp theo (theo thứ tự)
 
-1. **R3 — lớp RAN chạy độc lập** (plan mục 3, Phase R3): detector KPM theo UE trong xApp (cột SUPI + kiểm tra nhất quán A.7; rule tĩnh PRB/throughput vượt ngưỡng k/n), DB danh tiếng SQLite, escalation phần RAN gọi thẳng hàm của `ran_control.c` (đã có PRB quota + release theo SUPI). **Gate R3:** flood → PRB cap ≤ 2 s → cell phục hồi cho UE khác. Ghi nhận: trần mất khi UE đăng ký lại.
+1. **R3 — hoàn tất Gate R3** (plan mục 14): mã đã có và đã thử tay; cần script gate theo kịch bản ở plan mục 14 (tác giả viết phần tạo tải), sửa tiêu chí "≤ 2 s" thành "≤ 2 s sau mẫu quyết định" (3/4 mẫu ở KPM 1 s cần ~3 s từ lúc lũ bắt đầu), rồi ghi kết quả vào plan mục 14. Dữ liệu: `GET /v1/defense/state`, `KPI_Metrics_Defense.jsonl`, `/urr-state/defense.db`, CSV KPM.
 2. Sau đó theo plan: **U** (stage `PROG_SEC_POLICY` + map theo SUPI + UPF Security API) → **G** (guard quota theo cửa sổ, rồi bật `urr.guard.enabled`) → **M** (công cụ tấn công) → **L** (bộ não, fusion) → **E** (nghiệm thu).
 3. Việc nhỏ / nợ kỹ thuật:
    - Kiểm lại số hiệu E2SM-RC (Style 4 action 4 "RRC Connection Release") với văn bản O-RAN WG3 E2SM-RC v01.03 trước khi viết luận văn (xApp tra theo tên nên chạy được dù số khác).
@@ -84,6 +84,10 @@ $K -n near-rt-ric rollout restart deploy/oai-lab-xapp
 python3 scripts/k8s/phase0/r1_gate.py <out> 40              # Gate R1 (2 UE)
 python3 scripts/k8s/phase0/r2_gate.py <out> 10 20           # Gate R2 (trần 10 %, pha 20 s; cuối cùng release UE2 ⇒ restart oai-nr-ue2 + xApp sau đó)
 python3 scripts/k8s/phase0/r2_gate.py --evaluate <out>      # chấm lại dữ liệu đã lưu
+# R3: triển khai xApp kèm cấu hình defense (rollout thường không áp khóa mới); khôi phục chuỗi RAN
+python3 scripts/k8s/phase0/rollout_xapp_defense.py
+scripts/k8s/phase0/recover_ran.sh [--keep-flexric]
+# Defense (trong pod xApp, 127.0.0.1:8090): GET /v1/defense/state; POST /v1/defense/enabled {"enabled":false} (tắt khi chạy experiment/calib ≥ 3 Mbit/s UL); POST /v1/defense/reset {"supi":...}
 # Lệnh RAN tay (trong pod xApp): action prb_quota (max_prb_ratio 0..100, 100 = gỡ) hoặc release
 $K -n near-rt-ric exec deploy/oai-lab-xapp -c xapp -- python3 -c "import urllib.request as u,json;print(u.urlopen(u.Request('http://127.0.0.1:8090/v1/ran/control',data=json.dumps({'supi':'imsi-001010123456780','action':'prb_quota','max_prb_ratio':10}).encode(),method='POST')).read().decode())"
 scripts/k8s/phase0/ttl_gate.sh <out> lost|idle|smf           # Gate A.8 (lost: sau đó up --stage ran)
@@ -127,6 +131,10 @@ $K -n oai-core logs deploy/oai-amf -c amf --since=60s | grep -A6 "UEs' Informati
 - `printf` trong gNB bị đệm khi stdout là pipe ⇒ log mới của E2 agent phải `fflush(stdout)` (đã làm cho RC).
 - Gate iperf: server phải có `timeout -k` (TERM để in báo cáo, KILL nếu không có traffic); `KILL` ngay làm mất báo cáo của UE bị dồn hàng đợi.
 - Log/JSONL của xApp/adapter phải **nối thêm**, không ghi lại cả file mỗi report (lỗi 04/10). Kiểm tra hàng đợi: `GET https://a1-ei-adapter.near-rt-ric.svc.cluster.local:8443/v1/delivery/status` (từ pod xApp, `queued` phải ~0).
+- **Defense bật mặc định**: `lab.sh experiment` (10M cả hai chiều) và `calib_sweep.sh` sẽ bị đặt trần PRB ⇒ tắt bằng `POST /v1/defense/enabled {"enabled":false}` trước, hoặc `defense.xapp.enabled: false`. Level lưu trong `/urr-state/defense.db` và được khôi phục khi xApp restart ⇒ reset SUPI sau thí nghiệm.
+- `kubectl rollout restart` gắn annotation mà `helm upgrade` sau đó gỡ ⇒ pod bị rollout lại (FlexRIC restart ⇒ phải chạy `recover_ran.sh`).
+- KPM `DRB.UEThp*` không phải tốc độ trung bình (TS 28.552) — dùng `DRB.PdcpSduVolume*`/chu kỳ.
+- UE OAI có thể nhận RRCRelease (không phải từ xApp) rồi mất tunnel, AMF release phiên PDU ⇒ URR ngừng, xApp mất ánh xạ SUPI (`unlabelled_samples` tăng). Kiểm tra `oaitun_ue1` của cả hai UE trước mỗi thí nghiệm.
 - Commit: chỉ mang tên `ducsssanh`.
 
 ## 8. Mẹo tiết kiệm context cho session mới

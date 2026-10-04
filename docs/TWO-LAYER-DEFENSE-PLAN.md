@@ -65,7 +65,7 @@ Mục 6.
 4. Patch `patches/oai-ran-e2-rc-enforcement.patch`, image gNB mới.
 - **Gate R2 ("Phase 0 của RAN"):** ✅ PRB cap làm throughput UE giảm đúng mức, UE khác không ảnh hưởng; Release đưa UE ra khỏi RRC_CONNECTED.
 
-### Phase R3 — Lớp RAN chạy độc lập (2–3 ngày)
+### Phase R3 — Lớp RAN chạy độc lập (2–3 ngày) — 🔶 ĐANG LÀM: mã xong (C31), Gate R3 chưa chạy (mục 14)
 - xApp: detector KPM (rule tĩnh: PRB UL/BSR/throughput vượt ngưỡng k/n), DB danh tiếng SQLite, escalation phần RAN.
 - **Gate R3 (S1 chỉ RAN):** flood → PRB cap ≤ 2 s → cell phục hồi cho UE khác. Ghi nhận giới hạn: reconnect thì thoát.
 
@@ -276,4 +276,14 @@ Bằng chứng: [`r2-20261004`](../artifacts/k8s/diagnostics/r2-20261004/) (`res
 - Ngưỡng "giảm đúng mức" (tỉ lệ throughput nằm trong ±50 % tỉ lệ PRB) được **đặt sau khi quan sát 4 lần chạy**: tỉ số giữa hai tỉ lệ là 0,98/1,13, 0,91/1,38 (iperf), 1,22/1,20 (KPM), 1,43/1,18 (KPM) cho UL/DL — hiệu suất mỗi PRB đổi theo kích thước cấp phát và cửa sổ 20 s nhiễu. Ngưỡng ban đầu ±35 % hỏng ở 2/4 lần. Tiêu chí chính xác là PRB: gNB giữ đúng trần (9,3–9,5 % so với 10 %).
 - Lỗi phát hiện và sửa khi chạy gate: xApp (C30) và adapter ghi lại toàn bộ file log theo mỗi report ⇒ đường URR tụt hậu ~1 report/s và hàng đợi adapter đầy (1000) sau một ngày chạy, xApp mất ánh xạ SUPI của UE mới. Sau sửa: hàng đợi xả hết trong < 15 s và giữ ở 0–2.
 - Giới hạn: trần gắn với context MAC (UE đăng ký lại thì mất); sau release UE2 rời RRC_CONNECTED nhưng vẫn 5GMM-REGISTERED ở AMF (đúng ngữ nghĩa CM-IDLE) và không tự kết nối lại trong ≥ 10 phút quan sát (chưa thử khi UE có dữ liệu UL chờ gửi); thí nghiệm sau đó restart pod UE; NGAP cause của release là "radio connection with UE lost".
+
+## 14. R3 — lớp RAN trong xApp (04/10/2026, chưa đạt gate)
+
+- Đã có (C31): detector KPM theo UE, DB danh tiếng SQLite theo SUPI, escalation phần RAN (level 1 trần PRB 10 %, level 2 khi UE giữ trần đầy 5/6 mẫu; hết hạn lab 60/180 s), áp lại trần khi UE kết nối lại dưới UE ID mới, khôi phục level sau restart xApp. Tham số trong `global.lab.defense.xapp`.
+- Kiểm chứng thủ công: lũ UL 30M của UE1 ⇒ level 1, trần được Ack và xác minh qua KPM (PRB UL 7–10 %), lên level 2 khi lũ tiếp tục; level được khôi phục từ DB khi xApp restart; đồng bộ trần một lần cho mỗi UE ID sau restart (sửa lỗi reset không gỡ trần cũ).
+- Quyết định từ thử nghiệm:
+  - **Tốc độ phải lấy từ `DRB.PdcpSduVolume`/chu kỳ**, không dùng `DRB.UEThp*`: UEThp (TS 28.552) là tốc độ trong lúc có dữ liệu chờ ⇒ UE lành tính 2 Mbit/s cạnh một UE đang lũ đọc 3,6 Mbit/s.
+  - **3 trên 4 mẫu** thay vì 2 trên 3: khi hai UE bắt đầu cùng lúc từ trạng thái rảnh, UE lành tính xả hàng đợi tồn ở 3,4–3,6 Mbit/s trong 2 mẫu ⇒ 2/3 báo nhầm. Cái giá: phát hiện cần ≥ 3 mẫu (~3 s) ⇒ mục tiêu "PRB cap ≤ 2 s sau khi lũ bắt đầu" của Gate R3 không đạt được với KPM 1 s; tiêu chí cần viết lại thành "trần áp ≤ 2 s sau mẫu quyết định" và báo cáo riêng thời gian từ lúc lũ bắt đầu.
+  - **Ngưỡng là chính sách fair-use theo UE** (lab: UL 3 Mbit/s, DL 15 Mbit/s): trong cell RFsim bão hòa, scheduler PF chia đều nên UE lũ và UE lành tính dùng nhiều có tốc độ/PRB gần nhau; UE lành tính chỉ bị hại khi đòi quá phần công bằng (~4 Mbit/s UL: 5,2 → 3,6 Mbit/s khi có lũ).
+- Còn thiếu: script Gate R3 (kịch bản đề xuất: UE2 lành tính 2 Mbit/s UL suốt lượt; UE1 1 Mbit/s rồi tải cao 30 Mbit/s; một lượt tắt phòng thủ làm đối chứng, một lượt bật; kiểm: không báo nhầm, trần áp và giữ, UE2 không bị ảnh hưởng, level không quá 2, áp lại sau kết nối lại, hết hạn về 0 và gỡ trần, có bản ghi DB). Dữ liệu cho gate: `GET /v1/defense/state`, `KPI_Metrics_Defense.jsonl`, CSV KPM.
 

@@ -1,0 +1,810 @@
+--- a/examples/xApp/c/monitor/CMakeLists.txt
++++ b/examples/xApp/c/monitor/CMakeLists.txt
+@@ -93,6 +93,7 @@
+ 		xapp_kpm_moni_write_to_csv.c
+                 urr_receiver.c
+                 ran_control.c
++                defense.c
+                 ../metrics_factory.c
+                 ../../../../src/util/alg_ds/alg/defer.c
+                 ../../../../src/util/alg_ds/alg/murmur_hash_32.c
+--- a/examples/xApp/c/monitor/defense.c
++++ b/examples/xApp/c/monitor/defense.c
+@@ -0,0 +1,599 @@
++/* RAN layer of the two-layer defense (plan R3). See defense.h. */
++#define _GNU_SOURCE /* strptime, timegm */
++#include "defense.h"
++#include "ran_control.h"
++#include "urr_receiver.h"
++#include "../../../../src/util/time_now_us.h"
++#include <json-c/json.h>
++#include <sqlite3.h>
++#include <pthread.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdbool.h>
++#include <inttypes.h>
++#include <math.h>
++#include <time.h>
++
++#define MAX_UES 64
++#define QUEUE_LEN 256
++#define RETRY_US 2000000LL
++#define UE_GONE_US 10000000LL
++
++typedef struct {
++  bool enabled;
++  char profile[16];
++  /* mean rate over the KPM period from DRB.PdcpSduVolume (DRB.UEThp is the
++     rate while data is buffered, TS 28.552: a 2 Mbit/s UE reads 3.6 Mbit/s
++     next to a flood); 0 disables a rule */
++  double ul_rate_kbps, dl_rate_kbps, ul_prb_pct, dl_prb_pct;
++  int k, n;                   /* detector: k of the last n samples */
++  int max_prb_ratio;          /* RAN action of levels 1-2 */
++  double margin_pct;          /* quota "full": PRB share >= ratio - margin */
++  int confirm_k, confirm_n;
++  int expiry_s[2];            /* levels 1, 2 of the active profile */
++  double sev_rate, sev_saturated, half_life_s;
++} config_t;
++
++typedef struct {
++  uint64_t amf;
++  int64_t collect_us;
++  double rate_ul, rate_dl, thp_ul, thp_dl, prb_ul, prb_dl;
++  char node[32];
++} sample_t;
++
++typedef struct {
++  bool used;
++  char supi[96];
++  int level;
++  double score;
++  int64_t score_us, expires_us, last_seen_us, next_try_us;
++  uint32_t over_bits, sat_bits;
++  uint64_t amf;               /* UE ID of the latest KPM report */
++  int applied_ratio;          /* quota in force at the gNB for synced_amf (0 none) */
++  uint64_t synced_amf;        /* UE ID whose gNB quota this xApp has set (0: unknown,
++                                 e.g. after an xApp restart) */
++  sqlite3_int64 last_action;  /* row of the latest quota action */
++  bool verified;
++} ue_t;
++
++static config_t cfg;
++static ue_t ues[MAX_UES];
++static sample_t queue[QUEUE_LEN];
++static size_t q_head, q_len;
++static unsigned long long dropped, unlabelled;
++static pthread_mutex_t q_lock = PTHREAD_MUTEX_INITIALIZER, st_lock = PTHREAD_MUTEX_INITIALIZER;
++static pthread_cond_t q_cond = PTHREAD_COND_INITIALIZER;
++static pthread_t worker;
++static bool running;
++static sqlite3 *db;
++static FILE *events;
++
++/* ---------- configuration ---------- */
++
++static double num(json_object *o, const char *k, double def) {
++  json_object *x = NULL;
++  if (o && json_object_object_get_ex(o, k, &x) && (json_object_is_type(x, json_type_int) || json_object_is_type(x, json_type_double)))
++    return json_object_get_double(x);
++  return def;
++}
++
++static void load_config(void) {
++  cfg = (config_t){.enabled = false, .profile = "lab", .ul_rate_kbps = 3000, .dl_rate_kbps = 15000, .k = 2, .n = 3,
++                   .max_prb_ratio = 10, .margin_pct = 4, .confirm_k = 5, .confirm_n = 6, .expiry_s = {60, 180},
++                   .sev_rate = 2, .sev_saturated = 1, .half_life_s = 60};
++  const char *env = getenv("DEFENSE_CONFIG");
++  json_object *c = env && *env ? json_tokener_parse(env) : NULL, *x = NULL;
++  if (!c) {
++    printf("[defense] no DEFENSE_CONFIG: detection disabled\n");
++    return;
++  }
++  if (json_object_object_get_ex(c, "enabled", &x)) cfg.enabled = json_object_get_boolean(x);
++  if (json_object_object_get_ex(c, "profile", &x) && json_object_is_type(x, json_type_string))
++    snprintf(cfg.profile, sizeof(cfg.profile), "%s", json_object_get_string(x));
++  json_object *d = NULL, *a = NULL, *f = NULL, *e = NULL, *s = NULL;
++  json_object_object_get_ex(c, "detector", &d);
++  json_object_object_get_ex(c, "action", &a);
++  json_object_object_get_ex(c, "confirm", &f);
++  json_object_object_get_ex(c, "expiryS", &e);
++  json_object_object_get_ex(c, "severity", &s);
++  cfg.ul_rate_kbps = num(d, "ulRateKbps", cfg.ul_rate_kbps);
++  cfg.dl_rate_kbps = num(d, "dlRateKbps", cfg.dl_rate_kbps);
++  cfg.ul_prb_pct = num(d, "ulPrbPct", 0);
++  cfg.dl_prb_pct = num(d, "dlPrbPct", 0);
++  cfg.k = (int)num(d, "hits", cfg.k);
++  cfg.n = (int)num(d, "samples", cfg.n);
++  cfg.max_prb_ratio = (int)num(a, "maxPrbRatio", cfg.max_prb_ratio);
++  cfg.margin_pct = num(f, "marginPct", cfg.margin_pct);
++  cfg.confirm_k = (int)num(f, "hits", cfg.confirm_k);
++  cfg.confirm_n = (int)num(f, "samples", cfg.confirm_n);
++  json_object *p = NULL;
++  if (e && json_object_object_get_ex(e, cfg.profile, &p) && json_object_is_type(p, json_type_array) && json_object_array_length(p) >= 2) {
++    cfg.expiry_s[0] = json_object_get_int(json_object_array_get_idx(p, 0));
++    cfg.expiry_s[1] = json_object_get_int(json_object_array_get_idx(p, 1));
++  }
++  cfg.sev_rate = num(s, "kpmRate", cfg.sev_rate);
++  cfg.sev_saturated = num(s, "quotaFull", cfg.sev_saturated);
++  cfg.half_life_s = num(c, "scoreHalfLifeS", cfg.half_life_s);
++  if (cfg.n < 1 || cfg.n > 32) cfg.n = 3;
++  if (cfg.k < 1 || cfg.k > cfg.n) cfg.k = cfg.n;
++  if (cfg.confirm_n < 1 || cfg.confirm_n > 32) cfg.confirm_n = 6;
++  if (cfg.confirm_k < 1 || cfg.confirm_k > cfg.confirm_n) cfg.confirm_k = cfg.confirm_n;
++  if (cfg.max_prb_ratio < 1 || cfg.max_prb_ratio > 99) cfg.max_prb_ratio = 10;
++  json_object_put(c);
++  printf("[defense] %s, profile %s: PDCP rate UL >= %.0f kbps or DL >= %.0f kbps in %d of %d samples -> PRB quota %d%%; "
++         "quota full %d of %d -> level 2; expiry %d/%d s\n",
++         cfg.enabled ? "enabled" : "disabled", cfg.profile, cfg.ul_rate_kbps, cfg.dl_rate_kbps, cfg.k, cfg.n, cfg.max_prb_ratio,
++         cfg.confirm_k, cfg.confirm_n, cfg.expiry_s[0], cfg.expiry_s[1]);
++}
++
++/* ---------- persistence and event log ---------- */
++
++static void iso(int64_t us, char *buf, size_t n) {
++  time_t t = (time_t)(us / 1000000);
++  struct tm tm;
++  gmtime_r(&t, &tm);
++  size_t len = strftime(buf, n, "%Y-%m-%dT%H:%M:%S", &tm);
++  snprintf(buf + len, n - len, ".%03dZ", (int)(us / 1000 % 1000));
++}
++
++static void event(json_object *o) {
++  if (events) {
++    fputs(json_object_to_json_string_ext(o, JSON_C_TO_STRING_PLAIN), events);
++    fputc('\n', events);
++    fflush(events);
++  }
++  json_object_put(o);
++}
++
++static json_object *event_base(const char *type, const ue_t *u, int64_t now) {
++  json_object *o = json_object_new_object();
++  json_object_object_add(o, "at_ms", json_object_new_int64(now / 1000));
++  json_object_object_add(o, "type", json_object_new_string(type));
++  json_object_object_add(o, "supi", json_object_new_string(u->supi));
++  json_object_object_add(o, "level", json_object_new_int(u->level));
++  return o;
++}
++
++static void exec_sql(const char *sql) {
++  char *err = NULL;
++  if (sqlite3_exec(db, sql, NULL, NULL, &err) != SQLITE_OK) {
++    fprintf(stderr, "[defense] SQLite: %s\n", err ? err : "?");
++    sqlite3_free(err);
++  }
++}
++
++static void save_reputation(const ue_t *u, int64_t now) {
++  if (!db) return;
++  sqlite3_stmt *q = NULL;
++  char exp[40], upd[40];
++  iso(u->expires_us, exp, sizeof(exp));
++  iso(now, upd, sizeof(upd));
++  if (sqlite3_prepare_v2(db, "INSERT INTO reputation(supi,level,score,expires_at,updated_at) VALUES(?,?,?,?,?) "
++                             "ON CONFLICT(supi) DO UPDATE SET level=excluded.level,score=excluded.score,"
++                             "expires_at=excluded.expires_at,updated_at=excluded.updated_at", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_int(q, 2, u->level);
++    sqlite3_bind_double(q, 3, u->score);
++    sqlite3_bind_text(q, 4, u->level ? exp : "", -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 5, upd, -1, SQLITE_TRANSIENT);
++    sqlite3_step(q);
++  }
++  sqlite3_finalize(q);
++}
++
++static void save_evidence(const ue_t *u, int64_t now, const char *kind, double severity, double trust, const sample_t *s) {
++  char ref[96], at[40];
++  snprintf(ref, sizeof(ref), "kpm:node=%s/ue=%" PRIu64 "/t=%" PRId64, s->node, s->amf, s->collect_us / 1000);
++  iso(now, at, sizeof(at));
++  if (db) {
++    sqlite3_stmt *q = NULL;
++    if (sqlite3_prepare_v2(db, "INSERT INTO evidence(supi,at,layer,kind,severity,ref,trust) VALUES(?,?,'ran',?,?,?,?)", -1, &q, NULL) == SQLITE_OK) {
++      sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 3, kind, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_double(q, 4, severity);
++      sqlite3_bind_text(q, 5, ref, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_double(q, 6, trust);
++      sqlite3_step(q);
++    }
++    sqlite3_finalize(q);
++  }
++  json_object *o = event_base("evidence", u, now);
++  json_object_object_add(o, "kind", json_object_new_string(kind));
++  json_object_object_add(o, "severity", json_object_new_double(severity));
++  json_object_object_add(o, "trust", json_object_new_double(trust));
++  json_object_object_add(o, "score", json_object_new_double(u->score));
++  json_object_object_add(o, "ref", json_object_new_string(ref));
++  json_object_object_add(o, "collect_ms", json_object_new_int64(s->collect_us / 1000));
++  json_object_object_add(o, "rate_ul_kbps", json_object_new_double(s->rate_ul));
++  json_object_object_add(o, "rate_dl_kbps", json_object_new_double(s->rate_dl));
++  json_object_object_add(o, "thp_ul_kbps", json_object_new_double(s->thp_ul));
++  json_object_object_add(o, "thp_dl_kbps", json_object_new_double(s->thp_dl));
++  json_object_object_add(o, "prb_ul_pct", json_object_new_double(s->prb_ul));
++  json_object_object_add(o, "prb_dl_pct", json_object_new_double(s->prb_dl));
++  event(o);
++}
++
++static sqlite3_int64 save_action(const ue_t *u, int64_t now, int ratio, uint64_t amf, int code, json_object *res) {
++  sqlite3_int64 id = 0;
++  char at[40], detail[64];
++  iso(now, at, sizeof(at));
++  snprintf(detail, sizeof(detail), "max_prb_ratio=%d ue=%" PRIu64, ratio, amf);
++  if (db) {
++    sqlite3_stmt *q = NULL;
++    if (sqlite3_prepare_v2(db, "INSERT INTO actions(supi,at,layer,action,detail,status,verified) VALUES(?,?,'ran','prb_quota',?,?,0)", -1, &q, NULL) == SQLITE_OK) {
++      sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 3, detail, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_int(q, 4, code);
++      if (sqlite3_step(q) == SQLITE_DONE) id = sqlite3_last_insert_rowid(db);
++    }
++    sqlite3_finalize(q);
++  }
++  json_object *o = event_base("action", u, now);
++  json_object_object_add(o, "action", json_object_new_string("prb_quota"));
++  json_object_object_add(o, "max_prb_ratio", json_object_new_int(ratio));
++  json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(amf));
++  json_object_object_add(o, "http", json_object_new_int(code));
++  if (res) json_object_object_add(o, "result", json_object_get(res));
++  event(o);
++  return id;
++}
++
++static void open_db(const char *path) {
++  if (!path || sqlite3_open(path, &db) != SQLITE_OK) {
++    fprintf(stderr, "[defense] cannot open %s: reputation not persisted\n", path ? path : "(null)");
++    if (db) sqlite3_close(db);
++    db = NULL;
++    return;
++  }
++  exec_sql("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"
++           "CREATE TABLE IF NOT EXISTS reputation(supi TEXT PRIMARY KEY,level INTEGER NOT NULL,score REAL NOT NULL,"
++           "expires_at TEXT NOT NULL,updated_at TEXT NOT NULL);"
++           "CREATE TABLE IF NOT EXISTS evidence(id INTEGER PRIMARY KEY,supi TEXT NOT NULL,at TEXT NOT NULL,layer TEXT NOT NULL,"
++           "kind TEXT NOT NULL,severity REAL NOT NULL,ref TEXT NOT NULL,trust REAL NOT NULL);"
++           "CREATE TABLE IF NOT EXISTS actions(id INTEGER PRIMARY KEY,supi TEXT NOT NULL,at TEXT NOT NULL,layer TEXT NOT NULL,"
++           "action TEXT NOT NULL,detail TEXT NOT NULL,status INTEGER NOT NULL,verified INTEGER NOT NULL);"
++           "CREATE TABLE IF NOT EXISTS e2_trust(e2_node TEXT PRIMARY KEY,kpm_trust REAL NOT NULL DEFAULT 1.0,"
++           "ctrl_trust REAL NOT NULL DEFAULT 1.0,last_mismatch TEXT,alarm INTEGER NOT NULL DEFAULT 0);");
++}
++
++/* KPM trust of an E2 node (design 5.5; updated by the consistency check in
++   Phase L, 1.0 until then) */
++static double kpm_trust(const char *node) {
++  double t = 1.0;
++  if (!db) return t;
++  sqlite3_stmt *q = NULL;
++  if (sqlite3_prepare_v2(db, "INSERT OR IGNORE INTO e2_trust(e2_node) VALUES(?)", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
++    sqlite3_step(q);
++  }
++  sqlite3_finalize(q);
++  if (sqlite3_prepare_v2(db, "SELECT kpm_trust FROM e2_trust WHERE e2_node=?", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
++    if (sqlite3_step(q) == SQLITE_ROW) t = sqlite3_column_double(q, 0);
++  }
++  sqlite3_finalize(q);
++  return t;
++}
++
++/* ---------- state machine ---------- */
++
++static ue_t *ue_for(const char *supi, bool create) {
++  ue_t *free_slot = NULL;
++  for (int i = 0; i < MAX_UES; i++) {
++    if (ues[i].used && strcmp(ues[i].supi, supi) == 0) return &ues[i];
++    if (!ues[i].used && !free_slot) free_slot = &ues[i];
++  }
++  if (!create || !free_slot) return NULL;
++  memset(free_slot, 0, sizeof(*free_slot));
++  free_slot->used = true;
++  snprintf(free_slot->supi, sizeof(free_slot->supi), "%s", supi);
++  return free_slot;
++}
++
++static int popcount_n(uint32_t bits, int n) {
++  return __builtin_popcount(n >= 32 ? bits : (bits & ((1u << n) - 1)));
++}
++
++static void add_score(ue_t *u, int64_t now, double v) {
++  if (u->score_us && cfg.half_life_s > 0) u->score *= pow(0.5, (now - u->score_us) / 1e6 / cfg.half_life_s);
++  u->score += v;
++  u->score_us = now;
++}
++
++static void set_level(ue_t *u, int level, int64_t now, const char *why) {
++  int old = u->level;
++  u->level = level;
++  u->expires_us = level > 0 ? now + (int64_t)cfg.expiry_s[level > 2 ? 1 : level - 1] * 1000000 : 0;
++  save_reputation(u, now);
++  if (old != level) {
++    json_object *o = event_base("level", u, now);
++    json_object_object_add(o, "from", json_object_new_int(old));
++    json_object_object_add(o, "why", json_object_new_string(why));
++    event(o);
++    printf("[defense] %s level %d -> %d (%s)\n", u->supi, old, level, why);
++    fflush(stdout);
++  }
++}
++
++static void process(const sample_t *s, int64_t now) {
++  char supi[96] = "";
++  if (!urr_receiver_supi_for_ue(s->amf, supi, sizeof(supi))) {
++    unlabelled++;
++    return;
++  }
++  ue_t *u = ue_for(supi, true);
++  if (!u) return;
++  u->amf = s->amf;
++  u->last_seen_us = now;
++  if (!cfg.enabled) return;
++
++  const char *kind = NULL;
++  if (cfg.ul_rate_kbps > 0 && s->rate_ul >= cfg.ul_rate_kbps) kind = "kpm_rate_ul";
++  else if (cfg.dl_rate_kbps > 0 && s->rate_dl >= cfg.dl_rate_kbps) kind = "kpm_rate_dl";
++  else if (cfg.ul_prb_pct > 0 && s->prb_ul >= cfg.ul_prb_pct) kind = "kpm_prb_ul";
++  else if (cfg.dl_prb_pct > 0 && s->prb_dl >= cfg.dl_prb_pct) kind = "kpm_prb_dl";
++  u->over_bits = (u->over_bits << 1) | (kind != NULL);
++  if (kind && popcount_n(u->over_bits, cfg.n) >= cfg.k) {
++    double trust = kpm_trust(s->node);
++    add_score(u, now, cfg.sev_rate * trust);
++    save_evidence(u, now, kind, cfg.sev_rate, trust, s);
++    u->over_bits = 0;
++    set_level(u, u->level > 1 ? u->level : 1, now, kind);
++  }
++
++  /* quota in force for this UE ID: verified when the PRB share obeys it,
++     "full" when the UE keeps it saturated (confirmation, level 2) */
++  if (u->applied_ratio > 0 && u->synced_amf == s->amf) {
++    if (!u->verified && s->prb_ul <= u->applied_ratio + 3 && s->prb_dl <= u->applied_ratio + 3) {
++      u->verified = true;
++      if (db && u->last_action) {
++        char sql[96];
++        snprintf(sql, sizeof(sql), "UPDATE actions SET verified=1 WHERE id=%lld", (long long)u->last_action);
++        exec_sql(sql);
++      }
++      json_object *o = event_base("verified", u, now);
++      json_object_object_add(o, "collect_ms", json_object_new_int64(s->collect_us / 1000));
++      json_object_object_add(o, "prb_ul_pct", json_object_new_double(s->prb_ul));
++      json_object_object_add(o, "prb_dl_pct", json_object_new_double(s->prb_dl));
++      event(o);
++    }
++    bool full = s->prb_ul >= u->applied_ratio - cfg.margin_pct || s->prb_dl >= u->applied_ratio - cfg.margin_pct;
++    u->sat_bits = (u->sat_bits << 1) | full;
++    if (full && u->level >= 1 && popcount_n(u->sat_bits, cfg.confirm_n) >= cfg.confirm_k) {
++      double trust = kpm_trust(s->node);
++      add_score(u, now, cfg.sev_saturated * trust);
++      save_evidence(u, now, "kpm_quota_full", cfg.sev_saturated, trust, s);
++      u->sat_bits = 0;
++      /* RAN evidence alone stops at level 2 (design 6) */
++      set_level(u, u->level < 2 ? 2 : u->level, now, "kpm_quota_full");
++    }
++  }
++}
++
++static void expire(int64_t now) {
++  for (int i = 0; i < MAX_UES; i++) {
++    ue_t *u = &ues[i];
++    if (u->used && u->level > 0 && now >= u->expires_us) set_level(u, u->level - 1, now, "expired");
++  }
++}
++
++/* Bring the gNB in line with the levels: quota while level >= 1, on the UE
++   ID the SUPI currently has (a re-attach gets it again) */
++static void reconcile(int64_t now) {
++  for (int i = 0; i < MAX_UES; i++) {
++    pthread_mutex_lock(&st_lock);
++    ue_t *u = &ues[i];
++    if (!u->used || now < u->next_try_us) {
++      pthread_mutex_unlock(&st_lock);
++      continue;
++    }
++    bool present = u->amf && now - u->last_seen_us <= UE_GONE_US;
++    int want = u->level >= 1 && cfg.enabled ? cfg.max_prb_ratio : 0;
++    /* set the quota explicitly once per UE ID: a quota left by an earlier
++       xApp instance is unknown to this one */
++    bool needed = present && (u->synced_amf != u->amf || u->applied_ratio != want);
++    if (!needed) {
++      pthread_mutex_unlock(&st_lock);
++      continue;
++    }
++    char supi[96];
++    snprintf(supi, sizeof(supi), "%s", u->supi);
++    uint64_t amf = u->amf;
++    pthread_mutex_unlock(&st_lock);
++
++    json_object *res = NULL;
++    int code = ran_control_apply(supi, amf, true, "prb_quota", want ? want : 100, "defense", &res);
++
++    pthread_mutex_lock(&st_lock);
++    if (u->used && strcmp(u->supi, supi) == 0) {
++      if (code == 200) {
++        u->applied_ratio = want;
++        u->synced_amf = amf;
++        u->verified = false;
++        u->sat_bits = 0;
++      } else {
++        u->next_try_us = now + RETRY_US;
++      }
++      sqlite3_int64 id = save_action(u, now, want ? want : 100, amf, code, res);
++      if (want) u->last_action = id;
++    }
++    pthread_mutex_unlock(&st_lock);
++    json_object_put(res);
++  }
++}
++
++static void *run(void *arg) {
++  (void)arg;
++  sample_t local[QUEUE_LEN];
++  for (;;) {
++    pthread_mutex_lock(&q_lock);
++    if (q_len == 0 && running) {
++      struct timespec ts;
++      clock_gettime(CLOCK_REALTIME, &ts);
++      ts.tv_sec += 1;
++      pthread_cond_timedwait(&q_cond, &q_lock, &ts);
++    }
++    if (!running) {
++      pthread_mutex_unlock(&q_lock);
++      return NULL;
++    }
++    size_t n = q_len;
++    for (size_t i = 0; i < n; i++) local[i] = queue[(q_head + i) % QUEUE_LEN];
++    q_head = (q_head + n) % QUEUE_LEN;
++    q_len = 0;
++    pthread_mutex_unlock(&q_lock);
++
++    int64_t now = time_now_us();
++    pthread_mutex_lock(&st_lock);
++    for (size_t i = 0; i < n; i++) process(&local[i], now);
++    expire(now);
++    pthread_mutex_unlock(&st_lock);
++    reconcile(now);
++  }
++}
++
++/* ---------- KPM input ---------- */
++
++static bool name_is(byte_array_t ba, const char *s) {
++  return ba.len == strlen(s) && memcmp(ba.buf, s, ba.len) == 0;
++}
++
++void defense_on_kpm(ue_id_e2sm_t const *ue_id, kpm_ind_msg_format_1_t const *msg, int64_t collect_us, const char *e2_node) {
++  if (!running || !ue_id || ue_id->type != GNB_UE_ID_E2SM || !msg || msg->meas_data_lst_len == 0) return;
++  sample_t s = {.amf = ue_id->gnb.amf_ue_ngap_id, .collect_us = collect_us};
++  snprintf(s.node, sizeof(s.node), "%s", e2_node ? e2_node : "?");
++  const meas_data_lst_t *data = &msg->meas_data_lst[0];
++  const double period_s = msg->gran_period_ms && *msg->gran_period_ms ? *msg->gran_period_ms / 1000.0 : 1.0;
++  size_t rec = 0;
++  for (size_t i = 0; i < msg->meas_info_lst_len; i++) {
++    const meas_info_format_1_lst_t *info = &msg->meas_info_lst[i];
++    for (size_t z = 0; z < info->label_info_lst_len; z++, rec++) {
++      if (rec >= data->meas_record_len || info->meas_type.type != NAME_MEAS_TYPE || z > 0) continue;
++      const meas_record_lst_t *r = &data->meas_record_lst[rec];
++      double v = r->value == INTEGER_MEAS_VALUE ? r->int_val : r->value == REAL_MEAS_VALUE ? r->real_val : 0;
++      if (name_is(info->meas_type.name, "DRB.PdcpSduVolumeUL")) s.rate_ul = v * 1000.0 / period_s; /* Mb -> kbit/s */
++      else if (name_is(info->meas_type.name, "DRB.PdcpSduVolumeDL")) s.rate_dl = v * 1000.0 / period_s;
++      else if (name_is(info->meas_type.name, "DRB.UEThpUl")) s.thp_ul = v;
++      else if (name_is(info->meas_type.name, "DRB.UEThpDl")) s.thp_dl = v;
++      else if (name_is(info->meas_type.name, "RRU.PrbTotUl")) s.prb_ul = v;
++      else if (name_is(info->meas_type.name, "RRU.PrbTotDl")) s.prb_dl = v;
++    }
++  }
++  pthread_mutex_lock(&q_lock);
++  if (q_len == QUEUE_LEN) {
++    dropped++;
++  } else {
++    queue[(q_head + q_len++) % QUEUE_LEN] = s;
++    pthread_cond_signal(&q_cond);
++  }
++  pthread_mutex_unlock(&q_lock);
++}
++
++/* ---------- HTTP ---------- */
++
++int defense_http(const char *url, const char *body, struct json_object **out) {
++  json_object *o = json_object_new_object();
++  *out = o;
++  if (strcmp(url, "/v1/defense/state") == 0 && !body) {
++    pthread_mutex_lock(&st_lock);
++    json_object_object_add(o, "enabled", json_object_new_boolean(cfg.enabled));
++    json_object_object_add(o, "profile", json_object_new_string(cfg.profile));
++    json_object_object_add(o, "max_prb_ratio", json_object_new_int(cfg.max_prb_ratio));
++    json_object_object_add(o, "unlabelled_samples", json_object_new_uint64(unlabelled));
++    json_object_object_add(o, "dropped_samples", json_object_new_uint64(dropped));
++    json_object *arr = json_object_new_array();
++    int64_t now = time_now_us();
++    for (int i = 0; i < MAX_UES; i++) {
++      ue_t *u = &ues[i];
++      if (!u->used) continue;
++      json_object *e = json_object_new_object();
++      json_object_object_add(e, "supi", json_object_new_string(u->supi));
++      json_object_object_add(e, "level", json_object_new_int(u->level));
++      json_object_object_add(e, "score", json_object_new_double(u->score));
++      json_object_object_add(e, "expires_in_s", json_object_new_double(u->level ? (u->expires_us - now) / 1e6 : 0));
++      json_object_object_add(e, "amf_ue_ngap_id", json_object_new_uint64(u->amf));
++      json_object_object_add(e, "applied_ratio", json_object_new_int(u->applied_ratio));
++      json_object_object_add(e, "synced_amf_ue_ngap_id", json_object_new_uint64(u->synced_amf));
++      json_object_object_add(e, "verified", json_object_new_boolean(u->verified));
++      json_object_array_add(arr, e);
++    }
++    pthread_mutex_unlock(&st_lock);
++    json_object_object_add(o, "ues", arr);
++    return 200;
++  }
++  json_object *in = body ? json_tokener_parse(body) : NULL, *x = NULL;
++  int code = 404;
++  if (strcmp(url, "/v1/defense/enabled") == 0 && in && json_object_object_get_ex(in, "enabled", &x) && json_object_is_type(x, json_type_boolean)) {
++    pthread_mutex_lock(&st_lock);
++    cfg.enabled = json_object_get_boolean(x);
++    pthread_mutex_unlock(&st_lock);
++    json_object_object_add(o, "enabled", json_object_new_boolean(cfg.enabled));
++    printf("[defense] detection %s by request\n", cfg.enabled ? "enabled" : "disabled");
++    code = 200;
++  } else if (strcmp(url, "/v1/defense/reset") == 0 && in && json_object_object_get_ex(in, "supi", &x) && json_object_is_type(x, json_type_string)) {
++    pthread_mutex_lock(&st_lock);
++    ue_t *u = ue_for(json_object_get_string(x), false);
++    if (u) {
++      u->score = 0;
++      u->over_bits = u->sat_bits = 0;
++      set_level(u, 0, time_now_us(), "admin reset");
++      code = 200;
++    }
++    pthread_mutex_unlock(&st_lock);
++    json_object_object_add(o, "reset", json_object_new_boolean(code == 200));
++  } else {
++    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset"));
++    code = body ? 400 : 404;
++  }
++  if (in) json_object_put(in);
++  return code;
++}
++
++/* ---------- lifecycle ---------- */
++
++int defense_start(const char *db_path, const char *event_log_path) {
++  load_config();
++  open_db(db_path);
++  if (event_log_path && !(events = fopen(event_log_path, "a")))
++    fprintf(stderr, "[defense] cannot open %s\n", event_log_path);
++  /* reputation survives an xApp restart: levels still in force come back
++     and their quotas are applied again when the SUPI is next seen */
++  if (db) {
++    sqlite3_stmt *q = NULL;
++    char now_iso[40];
++    iso(time_now_us(), now_iso, sizeof(now_iso));
++    if (sqlite3_prepare_v2(db, "SELECT supi,level,score,expires_at FROM reputation WHERE level>0 AND expires_at>?", -1, &q, NULL) == SQLITE_OK) {
++      sqlite3_bind_text(q, 1, now_iso, -1, SQLITE_TRANSIENT);
++      while (sqlite3_step(q) == SQLITE_ROW) {
++        ue_t *u = ue_for((const char *)sqlite3_column_text(q, 0), true);
++        if (!u) break;
++        u->level = sqlite3_column_int(q, 1);
++        u->score = sqlite3_column_double(q, 2);
++        u->score_us = time_now_us();
++        struct tm tm = {0};
++        if (strptime((const char *)sqlite3_column_text(q, 3), "%Y-%m-%dT%H:%M:%S", &tm))
++          u->expires_us = (int64_t)timegm(&tm) * 1000000;
++        printf("[defense] restored %s at level %d\n", u->supi, u->level);
++      }
++    }
++    sqlite3_finalize(q);
++  }
++  running = true;
++  return pthread_create(&worker, NULL, run, NULL) == 0 ? 0 : -1;
++}
++
++void defense_stop(void) {
++  pthread_mutex_lock(&q_lock);
++  bool was = running;
++  running = false;
++  pthread_cond_signal(&q_cond);
++  pthread_mutex_unlock(&q_lock);
++  if (was) pthread_join(worker, NULL);
++  if (events) fclose(events);
++  events = NULL;
++  if (db) sqlite3_close(db);
++  db = NULL;
++}
+--- a/examples/xApp/c/monitor/defense.h
++++ b/examples/xApp/c/monitor/defense.h
+@@ -0,0 +1,25 @@
++#ifndef OAI_LAB_DEFENSE_H
++#define OAI_LAB_DEFENSE_H
++/* RAN layer of the two-layer defense (plan R3, design 5.5 and 6): a per-UE
++   KPM detector (k of n samples above a fair-use rate), a reputation DB keyed
++   by SUPI (SQLite) and the RAN part of the escalation:
++     level 1  suspicion (KPM rate rule)          -> PRB quota
++     level 2  confirmed (UE keeps the quota full) -> keep the PRB quota
++   One layer alone stops at level 2 (design 6); levels 3-4 need core
++   evidence (Phase L). A level expires to the one below; level 0 removes the
++   quota. A SUPI that re-attaches under a new UE ID gets its quota again.
++   Configuration: JSON in DEFENSE_CONFIG (chart global.lab.defense.xapp);
++   absent or "enabled": false disables detection. */
++#include "../../../../src/xApp/e42_xapp_api.h"
++#include <stdint.h>
++
++int defense_start(const char *db_path, const char *event_log_path);
++void defense_stop(void);
++/* One per-UE KPM report (called from the FlexRIC callback thread; only
++   queues the sample) */
++void defense_on_kpm(ue_id_e2sm_t const *ue_id, kpm_ind_msg_format_1_t const *msg, int64_t collect_us, const char *e2_node);
++/* GET /v1/defense/state; POST /v1/defense/enabled {"enabled":bool};
++   POST /v1/defense/reset {"supi"} (admin: level 0, quota removed) */
++struct json_object;
++int defense_http(const char *url, const char *body, struct json_object **out);
++#endif
+--- a/examples/xApp/c/monitor/ran_control.c
++++ b/examples/xApp/c/monitor/ran_control.c
+@@ -1,6 +1,7 @@
+ /* RAN actions of the KPM xApp (plan R2): E2SM-RC CONTROL for one UE. */
+ #include "ran_control.h"
+ #include "urr_receiver.h"
++#include "defense.h"
+ #include "../../../../src/sm/rc_sm/ie/ir/ran_param_struct.h"
+ #include "../../../../src/sm/rc_sm/ie/ir/ran_param_list.h"
+ #include "../../../../src/util/time_now_us.h"
+@@ -139,25 +140,21 @@
+   fputs(json_object_to_json_string_ext(o,JSON_C_TO_STRING_PLAIN),log_file);fputc('\n',log_file);fflush(log_file);
+ }
+ 
+-static enum MHD_Result control(struct MHD_Connection *c,request_t *req){
+-  json_object *in=json_tokener_parse(req->body),*x=NULL;
+-  if(!in || !json_object_is_type(in,json_type_object)){if(in)json_object_put(in);return fail(c,400,"body must be a JSON object");}
+-  char action[16]="";
+-  if(json_object_object_get_ex(in,"action",&x) && json_object_is_type(x,json_type_string))snprintf(action,sizeof(action),"%s",json_object_get_string(x));
++static json_object *error_object(const char *why){
++  json_object *o=json_object_new_object();json_object_object_add(o,"error",json_object_new_string(why));return o;
++}
++
++int ran_control_apply(const char *supi_in,uint64_t amf,bool has_amf,const char *action,int64_t ratio,const char *origin,json_object **out){
+   bool quota=strcmp(action,"prb_quota")==0,release=strcmp(action,"release")==0;
+-  int64_t ratio=-1;
+-  if(quota && json_object_object_get_ex(in,"max_prb_ratio",&x) && json_object_is_type(x,json_type_int))ratio=json_object_get_int64(x);
+-  char supi[96]="";uint64_t amf=0;bool has_amf=false;
+-  if(json_object_object_get_ex(in,"supi",&x) && json_object_is_type(x,json_type_string))snprintf(supi,sizeof(supi),"%s",json_object_get_string(x));
+-  if(json_object_object_get_ex(in,"amf_ue_ngap_id",&x) && json_object_is_type(x,json_type_int) && json_object_get_int64(x)>=0){amf=(uint64_t)json_object_get_int64(x);has_amf=true;}
+-  json_object_put(in);
+-  if(!quota && !release)return fail(c,400,"action must be prb_quota or release");
+-  if(quota && (ratio<0 || ratio>100))return fail(c,400,"max_prb_ratio must be an integer 0..100");
+-  if(supi[0] && !has_amf){has_amf=urr_receiver_ue_for_supi(supi,&amf);if(!has_amf)return fail(c,404,"SUPI has no RAN identity yet");}
+-  if(!has_amf)return fail(c,400,"supi or amf_ue_ngap_id required");
++  char supi[96]="";if(supi_in)snprintf(supi,sizeof(supi),"%s",supi_in);
++  *out=NULL;
++  if(!quota && !release){*out=error_object("action must be prb_quota or release");return 400;}
++  if(quota && (ratio<0 || ratio>100)){*out=error_object("max_prb_ratio must be an integer 0..100");return 400;}
++  if(supi[0] && !has_amf){has_amf=urr_receiver_ue_for_supi(supi,&amf);if(!has_amf){*out=error_object("SUPI has no RAN identity yet");return 404;}}
++  if(!has_amf){*out=error_object("supi or amf_ue_ngap_id required");return 400;}
+   if(!supi[0])urr_receiver_supi_for_ue(amf,supi,sizeof(supi));
+   ue_id_e2sm_t ue={0};
+-  if(!lookup_ue(amf,&ue))return fail(c,404,"UE not in recent KPM reports");
++  if(!lookup_ue(amf,&ue)){*out=error_object("UE not in recent KPM reports");return 404;}
+ 
+   const char *style_name=quota?"Radio Resource Allocation Control":"Radio Access Control";
+   const char *act_name=quota?"Slice-level PRB quota":"RRC Connection Release";
+@@ -168,7 +165,7 @@
+     for(size_t k=0;k<nodes.n[i].len_rf;k++)
+       if(nodes.n[i].rf[k].id==RC_RAN_FUNCTION && nodes.n[i].rf[k].defn.type==RC_RAN_FUNC_DEF_E &&
+          find_ctrl(&nodes.n[i].rf[k].defn.rc,style_name,act_name,&style,&act)){node=&nodes.n[i];break;}
+-  if(!node){free_e2_node_arr_xapp(&nodes);free_ue_id_e2sm(&ue);return fail(c,501,"no E2 node offers this E2SM-RC control action");}
++  if(!node){free_e2_node_arr_xapp(&nodes);free_ue_id_e2sm(&ue);*out=error_object("no E2 node offers this E2SM-RC control action");return 501;}
+ 
+   rc_ctrl_req_data_t req_data={0};
+   req_data.hdr.format=FORMAT_1_E2SM_RC_CTRL_HDR;
+@@ -191,20 +188,44 @@
+   json_object_object_add(o,"amf_ue_ngap_id",json_object_new_uint64(amf));
+   json_object_object_add(o,"ric_style_type",json_object_new_int((int)style));
+   json_object_object_add(o,"ctrl_act_id",json_object_new_int(act));
++  json_object_object_add(o,"origin",json_object_new_string(origin));
+   json_object_object_add(o,"sent_unix_ms",json_object_new_int64(sent_us/1000));
+   json_object_object_add(o,"ack_latency_ms",json_object_new_double((acked_us-sent_us)/1000.0));
+   log_line(o);
+-  printf("[xApp] RAN control %s %s (AMF UE NGAP ID %" PRIu64 ") style %u action %u: %s\n",action,supi,amf,style,act,ans.success?"acknowledged":"failed");
+-  return reply(c,ans.success?200:502,o);
++  printf("[xApp] RAN control (%s) %s %s (AMF UE NGAP ID %" PRIu64 ") style %u action %u: %s\n",origin,action,supi,amf,style,act,ans.success?"acknowledged":"failed");
++  fflush(stdout);
++  *out=o;
++  return ans.success?200:502;
++}
++
++static enum MHD_Result control(struct MHD_Connection *c,request_t *req){
++  json_object *in=json_tokener_parse(req->body),*x=NULL;
++  if(!in || !json_object_is_type(in,json_type_object)){if(in)json_object_put(in);return fail(c,400,"body must be a JSON object");}
++  char action[16]="";
++  if(json_object_object_get_ex(in,"action",&x) && json_object_is_type(x,json_type_string))snprintf(action,sizeof(action),"%s",json_object_get_string(x));
++  int64_t ratio=-1;
++  if(json_object_object_get_ex(in,"max_prb_ratio",&x) && json_object_is_type(x,json_type_int))ratio=json_object_get_int64(x);
++  char supi[96]="";uint64_t amf=0;bool has_amf=false;
++  if(json_object_object_get_ex(in,"supi",&x) && json_object_is_type(x,json_type_string))snprintf(supi,sizeof(supi),"%s",json_object_get_string(x));
++  if(json_object_object_get_ex(in,"amf_ue_ngap_id",&x) && json_object_is_type(x,json_type_int) && json_object_get_int64(x)>=0){amf=(uint64_t)json_object_get_int64(x);has_amf=true;}
++  json_object_put(in);
++  json_object *o=NULL;
++  int code=ran_control_apply(supi,amf,has_amf,action,ratio,"http",&o);
++  return reply(c,(unsigned)code,o);
+ }
+ 
+ static enum MHD_Result handle(void *cls,struct MHD_Connection *c,const char *url,const char *method,const char *version,
+                               const char *upload,size_t *size,void **context){
+   (void)cls;(void)version;
+-  if(strcmp(url,"/v1/ran/control")!=0 || strcmp(method,"POST")!=0)return fail(c,404,"POST /v1/ran/control");
++  if(strncmp(url,"/v1/defense/",12)==0 && strcmp(method,"GET")==0){
++    json_object *o=NULL;int code=defense_http(url,NULL,&o);return reply(c,(unsigned)code,o);
++  }
++  bool ran=strcmp(url,"/v1/ran/control")==0,def=strncmp(url,"/v1/defense/",12)==0;
++  if((!ran && !def) || strcmp(method,"POST")!=0)return fail(c,404,"POST /v1/ran/control, GET|POST /v1/defense/...");
+   if(*context==NULL){request_t *r=calloc(1,sizeof(*r));if(!r)return MHD_NO;r->body=calloc(MAX_BODY+1,1);if(!r->body){free(r);return MHD_NO;}*context=r;return MHD_YES;}
+   request_t *r=*context;
+   if(*size){if(r->used+*size>MAX_BODY)return fail(c,413,"body too large");memcpy(r->body+r->used,upload,*size);r->used+=*size;*size=0;return MHD_YES;}
++  if(def){json_object *o=NULL;int code=defense_http(url,r->body,&o);return reply(c,(unsigned)code,o);}
+   return control(c,r);
+ }
+ 
+--- a/examples/xApp/c/monitor/ran_control.h
++++ b/examples/xApp/c/monitor/ran_control.h
+@@ -6,12 +6,20 @@
+      POST /v1/ran/control {"supi"|"amf_ue_ngap_id", "action":"prb_quota",
+                            "max_prb_ratio":0..100}   (100 removes the quota)
+      POST /v1/ran/control {"supi"|"amf_ue_ngap_id", "action":"release"}
+-   Every request is appended to a JSONL log. */
++   Every request is appended to a JSONL log. The same server answers the
++   defense endpoints (defense.h). */
+ #include "../../../../src/xApp/e42_xapp_api.h"
+ 
+ /* Remember the E2SM UE ID of a UE seen in a KPM report (the RC header needs
+    the full ID: AMF UE NGAP ID + GUAMI) */
+ void ran_control_note_ue(ue_id_e2sm_t const *ue_id);
+ int ran_control_start(const char *log_path);
++/* Send one action (as the HTTP endpoint does); origin is logged ("http",
++   "defense"). Returns an HTTP-style status; *out receives the result or
++   {"error":...} and must be released with json_object_put. Blocks until
++   the RIC acknowledges: never call it from the FlexRIC callback thread. */
++struct json_object;
++int ran_control_apply(const char *supi,uint64_t amf_ue_ngap_id,bool has_amf,const char *action,int64_t max_prb_ratio,
++                      const char *origin,struct json_object **out);
+ void ran_control_stop(void);
+ #endif
+--- a/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
++++ b/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv.c
+@@ -48,6 +48,7 @@
+ #include <sys/stat.h>
+ #include "urr_receiver.h"
+ #include "ran_control.h"
++#include "defense.h"
+ 
+ // Set to the interval in milliseconds at which the xApp should write to the CSV file
+ static uint64_t period_ms = 1000;
+@@ -765,6 +766,7 @@
+     ue_id_e2sm_t const ue_id_e2sm = msg->meas_report_per_ue[i].ue_meas_report_lst;
+     ue_id_e2sm_e const type = ue_id_e2sm.type;
+     ran_control_note_ue(&ue_id_e2sm);
++    defense_on_kpm(&ue_id_e2sm, &msg->meas_report_per_ue[i].ind_msg_format_1, collect_start_time, current_e2_id_str);
+     log_ue_id_e2sm[type](ue_id_e2sm);
+ 
+     // log measurements
+@@ -1222,6 +1224,14 @@
+     snprintf(ran_control_log, sizeof(ran_control_log), "%.*s_RAN_Control.jsonl", (int)(path_len - 4), csv_file_path);
+   if (ran_control_start(ran_control_log[0] ? ran_control_log : NULL) != 0)
+     fprintf(stderr, "[xApp] WARNING: RAN control endpoint failed to start\n");
++  // RAN layer of the defense (plan R3): reputation on the state volume,
++  // events next to the KPM CSV
++  char defense_log[sizeof(csv_cell_file_path)] = "";
++  if (path_len + 9 < sizeof(defense_log))
++    snprintf(defense_log, sizeof(defense_log), "%.*s_Defense.jsonl", (int)(path_len - 4), csv_file_path);
++  const char *defense_db = getenv("DEFENSE_DB_PATH");
++  if (defense_start(defense_db ? defense_db : "/urr-state/defense.db", defense_log[0] ? defense_log : NULL) != 0)
++    fprintf(stderr, "[xApp] WARNING: defense worker failed to start\n");
+ 
+   xapp_wait_end_api();
+ 
+@@ -1243,6 +1253,7 @@
+   while (try_stop_xapp_api() == false)
+     usleep(1000);
+ 
++  defense_stop();
+   ran_control_stop();
+   urr_receiver_stop();
+ 

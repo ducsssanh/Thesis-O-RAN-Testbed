@@ -175,6 +175,13 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 - `ran_control.c`: endpoint HTTP **chỉ loopback** `127.0.0.1:8090` `POST /v1/ran/control` (`supi` hoặc `amf_ue_ngap_id`; `action` = `prb_quota` + `max_prb_ratio` 0..100, hoặc `release`). SUPI → AMF UE NGAP ID qua bảng R1, UE ID E2 đầy đủ lấy từ báo cáo KPM gần nhất (≤ 10 s); style/action tra theo tên trong RAN Function Definition; thông điệp PRB quota dựng đúng cấu trúc 8.4.3.6 (LIST/STRUCT, PLMN + SST của UE). Mỗi lệnh ghi một dòng vào `KPI_Metrics_RAN_Control.jsonl` cạnh CSV KPM.
 - `urr_receiver.c`: `urr_receiver_ue_for_supi()`; **sửa lỗi hiệu năng có sẵn từ C17/C28**: mỗi URR mới làm ghi lại toàn bộ `urr-received.jsonl` của run (O(kích thước run), ~1 s/report sau một ngày) ⇒ không theo kịp 2 UE ở PERIO 1 s, hàng đợi adapter đầy (1000) và xApp nhận URR trễ hàng chục phút; nay chỉ ghi đầy đủ lúc khởi động rồi nối thêm từng dòng.
 
+### 04/10/2026 — R3 (đang làm): lớp RAN trong xApp
+
+**C31 · FlexRIC xApp** — `flexric-xapp-defense.patch` (6 file, +686/−21).
+- `defense.c/.h`: detector KPM theo UE (tốc độ trung bình từ `DRB.PdcpSduVolumeUL/DL` / chu kỳ, k trên n mẫu), DB danh tiếng SQLite theo SUPI (`/urr-state/defense.db`: `reputation`, `evidence`, `actions`, `e2_trust`), escalation phần RAN (level 1 trần PRB, level 2 khi UE giữ trần đầy, tối đa 2 khi chỉ có bằng chứng RAN; hết hạn hạ một level, level 0 gỡ trần), áp lại trần khi SUPI xuất hiện dưới UE ID mới, khôi phục level còn hiệu lực sau khi xApp restart và đặt trần tường minh một lần cho mỗi UE ID (trạng thái gNB do xApp trước để lại là không biết). Mẫu KPM chỉ được xếp hàng trong callback FlexRIC; worker riêng gọi RC control (gọi đồng bộ từ callback sẽ deadlock). Nhật ký `KPI_Metrics_Defense.jsonl`.
+- `ran_control.c`: tách `ran_control_apply()` dùng chung cho HTTP và detector (trường `origin` trong log); endpoint `GET /v1/defense/state`, `POST /v1/defense/enabled`, `POST /v1/defense/reset` trên cùng server loopback.
+- Cấu hình: JSON trong env `DEFENSE_CONFIG` từ `global.lab.defense.xapp`.
+
 ## 3. Thay đổi ngoài mã OAI (để phân biệt, không tính là sửa OAI)
 
 | Ngày | Thành phần | Nội dung |
@@ -182,6 +189,7 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 | 15/09 | `src/5gdeploy` (NIST, không phải OAI) | `5gdeploy-working-tree.patch` — chỉ dùng cho backend Compose cũ |
 | 26/09 → | `deploy/k8s/charts/*`, `deploy/k8s/images/*`, `scripts/k8s/*`, `tests/` | Chart 4 namespace, image, harness — mã mới của đề tài |
 | 03/10 | `src/urr-producer`, `src/a1-ei-adapter`, chart, `runtime.py` | R1: producer đọc bảng "UEs' Information" của AMF OAI qua Kubernetes API (Role `amf-ue-table-reader`: chỉ `pods/log get`) và gắn `ran_identity` vào URR; allowlist SUPI (rỗng = mọi UE); job EI không lọc SUPI (`adapter.allUes`); UE thứ hai `oai-nr-ue2` (alias subchart, IMSI = gốc + 1, seed `EXTRA_UES`); gate `pfcp_peer_ready` chấp nhận re-association |
+| 04/10 | `deploy/k8s/charts/*/templates/_nf.tpl`, `xapp.yaml`, `values/minikube.yaml`, `scripts/k8s/phase0/{rollout_xapp_defense.py,recover_ran.sh}` | R3: khóa `global.lab.defense.xapp` (env `DEFENSE_CONFIG`); annotation `oai-lab/config-checksum` không còn băm `defense.xapp` (trước đó đổi cấu hình xApp làm restart FlexRIC và kéo theo phải dựng lại chuỗi RAN; với values cũ hash không đổi); script triển khai xApp kèm cấu hình defense và script khôi phục chuỗi FlexRIC → gNB → UE → xApp |
 | 27/09 | Multus CNI v4.2.2 (`deploy/k8s/vendor/multus.yaml`) | `multus-v4.2.2-atomic-install.patch` (cài binary CNI bằng file tạm + `mv`); 01/10 tăng limit bộ nhớ 300Mi |
 | 28/09 → | `src/urr-producer`, `src/a1-ei-adapter` | Producer A1-EI và adapter — mã mới; 01/10 thêm `session_epoch` (A.4, schema 1.1.0); 04/10 adapter nối thêm `delivery-status.jsonl` theo từng lần giao thay vì ghi lại toàn bộ (cùng lỗi hiệu năng như C30; file nay là lịch sử lần giao, dòng cuối của event là trạng thái hiện tại) |
 
