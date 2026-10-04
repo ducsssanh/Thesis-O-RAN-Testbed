@@ -1,5 +1,5 @@
 {
-  "sourceHash": "4355f1dd430e9914",
+  "sourceHash": "152d92b93a1c7ed7",
   "images": {
     "tools": {
       "image": "oai-lab-tools:r1-1a8c19404f3d",
@@ -12,8 +12,8 @@
       "repoDigests": []
     },
     "radio": {
-      "image": "oai-lab-radio:bf98ff282ed25e3f",
-      "id": "sha256:42beb02379f691ba7a327d1ca83358d353a173e5966386850bcbde6ff062e18e",
+      "image": "oai-lab-radio:152d92b93a1c7ed7",
+      "id": "sha256:30e732d8f9e4cc0e3cd3245a05e33ff0df6f1e78077cf1c8ee800c648e345e06",
       "repoDigests": []
     },
     "smf": {

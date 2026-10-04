@@ -101,6 +101,7 @@ apply "$F" "$P/flexric-xapp-epoch-kpm-watchdog.patch"
 apply "$F" "$P/flexric-whitespace-exact.patch"   # blank-line/indent drift left by the fuzzed patch above
 apply "$F" "$P/flexric-epoll-eintr.patch"
 apply "$F" "$P/flexric-xapp-ue-identity-join.patch"
+apply "$F" "$P/flexric-xapp-ran-control.patch"
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722
@@ -108,6 +109,7 @@ fetch ran https://gitlab.eurecom.fr/oai/openairinterface5g.git 26efcc498931b8f69
 tree ran; R=$W/ran
 (cd "$R" && git apply --exclude=openair2/E2AP/flexric "$P/oai-ran-working-tree.patch") || { echo "  patch failed: oai-ran-working-tree"; rc=1; }
 apply "$R" "$P/oai-ran-kpm-per-ue-counters.patch"
+apply "$R" "$P/oai-ran-e2-rc-enforcement.patch"
 rm -rf "$R/openair2/E2AP/flexric"; tree flexric; mv "$W/flexric" "$R/openair2/E2AP/flexric"; E=$R/openair2/E2AP/flexric
 apply "$E" "$P/flexric-working-tree.patch"
 cp "$P"/flexric/examples/xApp/c/metrics_factory.[ch] "$E/examples/xApp/c/"

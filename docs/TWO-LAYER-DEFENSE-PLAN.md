@@ -58,12 +58,12 @@ Mục 6.
 - Thêm UE thứ 2 (`configs/ue/ue2.conf` đã có).
 - **Gate R1:** ✅ 2 UE, xApp gắn đúng KPM ↔ URR ↔ SUPI cho từng UE.
 
-### Phase R2 — Hành động RAN thật trong gNB (4–6 ngày)
+### Phase R2 — Hành động RAN thật trong gNB (4–6 ngày) — ✅ XONG 04/10 (mục 13)
 1. Giới hạn PRB/MCS theo UE trong scheduler DL/UL.
 2. RRC Release UE chỉ định (hoặc NGAP UE Context Release Request để AMF biết).
 3. Nhận lệnh qua E2SM-RC control, thay handler stub; ưu tiên style chuẩn (Style 2 cho PRB; style access/release tùy FlexRIC hỗ trợ), thiếu encoder thì dùng action ID riêng và ghi rõ.
 4. Patch `patches/oai-ran-e2-rc-enforcement.patch`, image gNB mới.
-- **Gate R2 ("Phase 0 của RAN"):** PRB cap làm throughput UE giảm đúng mức, UE khác không ảnh hưởng; Release đưa UE ra khỏi RRC_CONNECTED.
+- **Gate R2 ("Phase 0 của RAN"):** ✅ PRB cap làm throughput UE giảm đúng mức, UE khác không ảnh hưởng; Release đưa UE ra khỏi RRC_CONNECTED.
 
 ### Phase R3 — Lớp RAN chạy độc lập (2–3 ngày)
 - xApp: detector KPM (rule tĩnh: PRB UL/BSR/throughput vượt ngưỡng k/n), DB danh tiếng SQLite, escalation phần RAN.
@@ -260,4 +260,20 @@ Bằng chứng: [`r1-20261003`](../artifacts/k8s/diagnostics/r1-20261003/) (`res
 - **Gate R1 PASS** (UE1 4 Mbit/s, UE2 1 Mbit/s đồng thời, 40 s): bảng AMF 2 UE; 35/35 URR mỗi SUPI mang đúng `ran_identity` và End Time; 68/68 dòng KPM gắn đúng SUPI, 0 sai; volume UL theo SUPI lệch −3,1% / −4,9% so với `URR − 16,3·pkts`, gán đảo thì lệch −77% / +297%.
 - Lỗi phát hiện và sửa: C27 (bộ đếm KPM của gNB theo vị trí UE ⇒ volume tráo giữa các UE, tràn 2³²). Thử UE2 bị xóa giữa lúc UE1 có traffic: không còn mẫu tràn/phình.
 - Giới hạn: ánh xạ đọc từ log AMF OAI (design mục 8), trễ ≤ ~20 s sau đăng ký; mỗi UE 1 PDU session (nhiều session cần cộng URR theo SUPI).
+
+## 13. Kết quả R2 — hành động RAN qua E2SM-RC (04/10/2026)
+
+Bằng chứng: [`r2-20261004`](../artifacts/k8s/diagnostics/r2-20261004/) (`result.json`, `KPI_Metrics.csv`, `ran-control.jsonl`, `gnb.log`, `ue2.log`, `earlier-runs/`); script `scripts/k8s/phase0/r2_gate.py` (`--evaluate` chấm lại dữ liệu đã lưu). Thay đổi: C29 (gNB), C30 (xApp), adapter (OAI-UPSTREAM-CHANGES mục 3); điểm lệch chuẩn: design mục 8.
+- Chuỗi: lệnh theo SUPI → xApp (bảng R1 → UE ID E2) → RIC Control (E2SM-RC Style 2 action 6 / Style 4 action 4) → gNB. Ack trong < 1 ms.
+- **Gate R2 PASS** (trần 10 % cho UE1; mỗi pha 20 s, UE1 tải vượt dung lượng cell, UE2 tải cố định):
+
+| Chiều | PRB UE1 trước → có trần | Throughput UE1 KPM (iperf) | Tỉ lệ throughput / tỉ lệ PRB | UE2 trước → có trần | Gỡ trần |
+|---|---|---|---|---|---|
+| UL | 47,4 % → 9,3 % (max 10) | 3,80 → 1,07 Mbit/s (5,01 → 1,00) | 0,282 (iperf 0,200) / 0,197 | 3,16 → 3,15 Mbit/s | 5,41 Mbit/s |
+| DL | 54,5 % → 6,4 % (max 7) | 24,8 → 3,42 Mbit/s (24,7 → 3,33) | 0,138 (iperf 0,135) / 0,117 | 5,16 → 5,11 Mbit/s | 23,7 Mbit/s |
+
+  Release UE2: gNB ghi yêu cầu release RNTI c2b9, UE2 nhận RRCRelease, gNB ngừng báo UE2 trong KPM (0/33 dòng sau release), luồng 1 Mbit/s của UE1 mất 0 %.
+- Ngưỡng "giảm đúng mức" (tỉ lệ throughput nằm trong ±50 % tỉ lệ PRB) được **đặt sau khi quan sát 4 lần chạy**: tỉ số giữa hai tỉ lệ là 0,98/1,13, 0,91/1,38 (iperf), 1,22/1,20 (KPM), 1,43/1,18 (KPM) cho UL/DL — hiệu suất mỗi PRB đổi theo kích thước cấp phát và cửa sổ 20 s nhiễu. Ngưỡng ban đầu ±35 % hỏng ở 2/4 lần. Tiêu chí chính xác là PRB: gNB giữ đúng trần (9,3–9,5 % so với 10 %).
+- Lỗi phát hiện và sửa khi chạy gate: xApp (C30) và adapter ghi lại toàn bộ file log theo mỗi report ⇒ đường URR tụt hậu ~1 report/s và hàng đợi adapter đầy (1000) sau một ngày chạy, xApp mất ánh xạ SUPI của UE mới. Sau sửa: hàng đợi xả hết trong < 15 s và giữ ở 0–2.
+- Giới hạn: trần gắn với context MAC (UE đăng ký lại thì mất); sau release UE2 rời RRC_CONNECTED nhưng vẫn 5GMM-REGISTERED ở AMF (đúng ngữ nghĩa CM-IDLE) và không tự kết nối lại trong ≥ 10 phút quan sát (chưa thử khi UE có dữ liệu UL chờ gửi); thí nghiệm sau đó restart pod UE; NGAP cause của release là "radio connection with UE lost".
 

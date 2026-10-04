@@ -23,9 +23,9 @@ type deliveryRecord struct {
 }
 
 func (s *Server) recordAttempt(key []byte, status string) {
+	var rec deliveryRecord
 	_ = s.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(deliveryMeta)
-		var rec deliveryRecord
 		if old := bucket.Get(key); old != nil {
 			_ = json.Unmarshal(old, &rec)
 		}
@@ -35,7 +35,21 @@ func (s *Server) recordAttempt(key []byte, status string) {
 		b, _ := json.Marshal(rec)
 		return bucket.Put(key, b)
 	})
-	s.exportDeliveryLog()
+	s.appendDeliveryLog(key, rec)
+}
+
+// appendDeliveryLog adds one attempt to delivery-status.jsonl; the last line
+// of an event is its current state. Rewriting the whole log per attempt
+// (exportDeliveryLog, now only at startup) cost O(delivered) per report and
+// fell behind two UEs at 1 s URR after a day (found in R2).
+func (s *Server) appendDeliveryLog(key []byte, rec deliveryRecord) {
+	file, err := os.OpenFile(filepath.Join(s.cfg.StateDir, "delivery-status.jsonl"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	entry, _ := json.Marshal(map[string]any{"event_id": s.cfg.JobID + ":" + string(key), "attempts": rec.Attempts, "last_attempt": rec.LastAttempt, "last_status": rec.LastStatus})
+	_, _ = file.Write(append(entry, '\n'))
+	_ = file.Close()
 }
 
 func (s *Server) exportDeliveryLog() {

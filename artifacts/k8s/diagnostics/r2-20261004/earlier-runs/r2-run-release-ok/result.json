@@ -1,0 +1,361 @@
+{
+  "run": "20261003T164156Z-m35",
+  "ratio": 10,
+  "phase_s": 20,
+  "checks": {
+    "ul_quota_binds": {
+      "ok": true,
+      "ue1_prb_share_base": 47.06,
+      "ue1_prb_share_quota": 9.35,
+      "ue1_prb_share_quota_max": 10.0
+    },
+    "ul_throughput_level": {
+      "ok": false,
+      "ue1_mbps": [
+        null,
+        null
+      ],
+      "throughput_ratio": null,
+      "prb_share_ratio": 0.199
+    },
+    "ul_other_ue_unaffected": {
+      "ok": true,
+      "ue2_mbps": [
+        3.156,
+        3.149
+      ]
+    },
+    "ul_restore": {
+      "ok": false,
+      "ue1_mbps": [
+        null,
+        null
+      ]
+    },
+    "dl_quota_binds": {
+      "ok": true,
+      "ue1_prb_share_base": 54.53,
+      "ue1_prb_share_quota": 6.47,
+      "ue1_prb_share_quota_max": 7.0
+    },
+    "dl_throughput_level": {
+      "ok": false,
+      "ue1_mbps": [
+        null,
+        3.227
+      ],
+      "throughput_ratio": null,
+      "prb_share_ratio": 0.119
+    },
+    "dl_other_ue_unaffected": {
+      "ok": true,
+      "ue2_mbps": [
+        5.151,
+        5.193
+      ]
+    },
+    "dl_restore": {
+      "ok": false,
+      "ue1_mbps": [
+        null,
+        26.035
+      ]
+    },
+    "release": {
+      "ok": true,
+      "gnb_release_requested": true,
+      "rnti": "9b97",
+      "ue2_rrc_release": true,
+      "kpm_rows_after": 33,
+      "kpm_rows_ue2_after": 0,
+      "ue1_loss": 0.0
+    }
+  },
+  "phases": {
+    "ul": {
+      "base": {
+        "window_unix": [
+          1791112207.641,
+          1791112229.85
+        ],
+        "mbps": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": 3.156
+        },
+        "receiver": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": {
+            "bps": 3155941.0,
+            "lost": 0,
+            "total": 6557
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 47.06,
+            "max": 59.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 45.65,
+            "max": 55.0,
+            "samples": 17
+          }
+        }
+      },
+      "quota": {
+        "window_unix": [
+          1791112242.033,
+          1791112264.201
+        ],
+        "mbps": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": 3.149
+        },
+        "receiver": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": {
+            "bps": 3149127.0,
+            "lost": 0,
+            "total": 6557
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 9.35,
+            "max": 10.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 41.59,
+            "max": 84.0,
+            "samples": 17
+          }
+        }
+      },
+      "restore": {
+        "window_unix": [
+          1791112276.416,
+          1791112298.623
+        ],
+        "mbps": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": 3.157
+        },
+        "receiver": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": {
+            "bps": 3156795.0,
+            "lost": 0,
+            "total": 6557
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 48.0,
+            "max": 60.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 44.76,
+            "max": 51.0,
+            "samples": 17
+          }
+        }
+      }
+    },
+    "dl": {
+      "base": {
+        "window_unix": [
+          1791112309.566,
+          1791112331.774
+        ],
+        "mbps": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": 5.151
+        },
+        "receiver": {
+          "oai-nr-ue": null,
+          "oai-nr-ue2": {
+            "bps": 5150626.0,
+            "lost": 186,
+            "total": 10927
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 54.53,
+            "max": 65.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 19.06,
+            "max": 50.0,
+            "samples": 17
+          }
+        }
+      },
+      "quota": {
+        "window_unix": [
+          1791112343.969,
+          1791112366.161
+        ],
+        "mbps": {
+          "oai-nr-ue": 3.227,
+          "oai-nr-ue2": 5.193
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 3227179.0,
+            "lost": 170318,
+            "total": 174768
+          },
+          "oai-nr-ue2": {
+            "bps": 5193124.0,
+            "lost": 106,
+            "total": 10926
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 6.47,
+            "max": 7.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 12.88,
+            "max": 15.0,
+            "samples": 17
+          }
+        }
+      },
+      "restore": {
+        "window_unix": [
+          1791112378.337,
+          1791112400.567
+        ],
+        "mbps": {
+          "oai-nr-ue": 26.035,
+          "oai-nr-ue2": 5.189
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 26035088.0,
+            "lost": 141929,
+            "total": 174767
+          },
+          "oai-nr-ue2": {
+            "bps": 5188647.0,
+            "lost": 115,
+            "total": 10926
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 58.53,
+            "max": 65.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 13.29,
+            "max": 16.0,
+            "samples": 17
+          }
+        }
+      }
+    }
+  },
+  "ues": {
+    "oai-nr-ue": {
+      "ip": "10.1.0.2",
+      "supi": "imsi-001010123456780",
+      "amf": 18
+    },
+    "oai-nr-ue2": {
+      "ip": "10.1.0.3",
+      "supi": "imsi-001010123456781",
+      "amf": 19
+    }
+  },
+  "controls": [
+    {
+      "direction": "ul",
+      "phase": "quota",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 10,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112239014,
+        "ack_latency_ms": 0.839
+      }
+    },
+    {
+      "direction": "ul",
+      "phase": "restore",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 100,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112273398,
+        "ack_latency_ms": 0.488
+      }
+    },
+    {
+      "direction": "dl",
+      "phase": "quota",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 10,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112340950,
+        "ack_latency_ms": 0.692
+      }
+    },
+    {
+      "direction": "dl",
+      "phase": "restore",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 100,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112375317,
+        "ack_latency_ms": 0.604
+      }
+    },
+    {
+      "phase": "release",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "release",
+        "supi": "imsi-001010123456781",
+        "amf_ue_ngap_id": 19,
+        "ric_style_type": 4,
+        "ctrl_act_id": 4,
+        "sent_unix_ms": 1791112420922,
+        "ack_latency_ms": 0.672
+      }
+    }
+  ],
+  "status": "FAIL"
+}

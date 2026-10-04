@@ -1,0 +1,328 @@
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+@@ -16,6 +16,25 @@
+ #include <unistd.h>
+ #include "common/ran_context.h"
+ 
++// E2SM-RC v01.03: CONTROL styles (7.6), their actions, and the RAN Parameter
++// IDs of Slice-level PRB quota (8.4.3.6)
++#define RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION 2
++#define RC_CTRL_STYLE_RADIO_ACCESS 4
++#define RC_CTRL_ACT_SLICE_PRB_QUOTA 6
++#define RC_CTRL_ACT_RRC_RELEASE 4
++#define RC_PRB_QUOTA_POLICY_RATIO_LIST 1
++#define RC_PRB_QUOTA_MIN_RATIO 10
++#define RC_PRB_QUOTA_MAX_RATIO 11
++#define RC_PRB_QUOTA_DEDICATED_RATIO 12
++
++// The per-UE actions need the MAC scheduler and the RRC in the same process
++#if defined(NGRAN_GNB_DU) && defined(NGRAN_GNB_CUCP)
++#define RC_UE_ACTIONS true
++#include "openair2/LAYER2/NR_MAC_gNB/mac_proto.h"
++#else
++#define RC_UE_ACTIONS false
++#endif
++
+ static pthread_once_t once_rc_mutex = PTHREAD_ONCE_INIT;
+ static rc_subs_data_t rc_subs_data = {0};
+ static pthread_mutex_t rc_mutex = PTHREAD_MUTEX_INITIALIZER;
+@@ -251,16 +270,8 @@
+   report->seq_report_sty[1] = fill_report_style_4("UE Information");
+ }
+ 
+-static void fill_rc_control(ran_func_def_ctrl_t* ctrl)
++static void fill_rc_ctrl_style_1(seq_ctrl_style_t* ctrl_style)
+ {
+-  // Sequence of CONTROL styles
+-  // [1 - 63]
+-  ctrl->sz_seq_ctrl_style = 1;
+-  ctrl->seq_ctrl_style = calloc(ctrl->sz_seq_ctrl_style, sizeof(seq_ctrl_style_t));
+-  assert(ctrl->seq_ctrl_style != NULL && "Memory exhausted");
+-
+-  seq_ctrl_style_t* ctrl_style = &ctrl->seq_ctrl_style[0];
+-
+   // RIC Control Style Type
+   // Mandatory
+   // 9.3.3
+@@ -363,6 +374,71 @@
+   ctrl_style->ran_param_ctrl_out = NULL;
+ }
+ 
++// One CONTROL style with one action, header/message/outcome format 1
++static seq_ctrl_act_2_t* fill_rc_ctrl_style(seq_ctrl_style_t* ctrl_style, uint32_t style, const char* style_name, uint16_t act_id, const char* act_name)
++{
++  ctrl_style->style_type = style;
++  ctrl_style->name = cp_str_to_ba(style_name);
++  ctrl_style->hdr = FORMAT_1_E2SM_RC_CTRL_HDR;
++  ctrl_style->msg = FORMAT_1_E2SM_RC_CTRL_MSG;
++  ctrl_style->call_proc_id_type = NULL;
++  ctrl_style->out_frmt = FORMAT_1_E2SM_RC_CTRL_OUT;
++  ctrl_style->sz_seq_ctrl_act = 1;
++  ctrl_style->seq_ctrl_act = calloc(1, sizeof(seq_ctrl_act_2_t));
++  assert(ctrl_style->seq_ctrl_act != NULL && "Memory exhausted");
++  ctrl_style->seq_ctrl_act[0].id = act_id;
++  ctrl_style->seq_ctrl_act[0].name = cp_str_to_ba(act_name);
++  ctrl_style->sz_ran_param_ctrl_out = 0;
++  ctrl_style->ran_param_ctrl_out = NULL;
++  return &ctrl_style->seq_ctrl_act[0];
++}
++
++// E2SM-RC 8.4.3.6 Slice-level PRB quota: the top-level RAN Parameter and the
++// three ratios inside each RRM Policy Ratio Group
++static void fill_prb_quota_params(seq_ctrl_act_2_t* act)
++{
++  static const struct {
++    uint32_t id;
++    const char* name;
++  } params[] = {
++      {RC_PRB_QUOTA_POLICY_RATIO_LIST, "RRM Policy Ratio List"},
++      {RC_PRB_QUOTA_MIN_RATIO, "Min PRB Policy Ratio"},
++      {RC_PRB_QUOTA_MAX_RATIO, "Max PRB Policy Ratio"},
++      {RC_PRB_QUOTA_DEDICATED_RATIO, "Dedicated PRB Policy Ratio"},
++  };
++  act->sz_seq_assoc_ran_param = sizeof(params) / sizeof(params[0]);
++  act->assoc_ran_param = calloc(act->sz_seq_assoc_ran_param, sizeof(seq_ran_param_3_t));
++  assert(act->assoc_ran_param != NULL && "Memory exhausted");
++  for (size_t i = 0; i < act->sz_seq_assoc_ran_param; i++) {
++    act->assoc_ran_param[i].id = params[i].id;
++    act->assoc_ran_param[i].name = cp_str_to_ba(params[i].name);
++    act->assoc_ran_param[i].def = NULL;
++  }
++}
++
++// with_ue_actions: the E2 node runs the MAC scheduler and the RRC (monolithic
++// gNB), so it also offers the per-UE PRB quota and the RRC release
++static void fill_rc_control(ran_func_def_ctrl_t* ctrl, bool with_ue_actions)
++{
++  // Sequence of CONTROL styles
++  // [1 - 63]
++  ctrl->sz_seq_ctrl_style = with_ue_actions ? 3 : 1;
++  ctrl->seq_ctrl_style = calloc(ctrl->sz_seq_ctrl_style, sizeof(seq_ctrl_style_t));
++  assert(ctrl->seq_ctrl_style != NULL && "Memory exhausted");
++
++  fill_rc_ctrl_style_1(&ctrl->seq_ctrl_style[0]);
++  if (!with_ue_actions)
++    return;
++
++  seq_ctrl_act_2_t* quota = fill_rc_ctrl_style(&ctrl->seq_ctrl_style[1],
++                                               RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION,
++                                               "Radio Resource Allocation Control",
++                                               RC_CTRL_ACT_SLICE_PRB_QUOTA,
++                                               "Slice-level PRB quota");
++  fill_prb_quota_params(quota);
++  fill_rc_ctrl_style(&ctrl->seq_ctrl_style[2], RC_CTRL_STYLE_RADIO_ACCESS, "Radio Access Control", RC_CTRL_ACT_RRC_RELEASE, "RRC Connection Release");
++}
++
+ static ran_function_name_t fill_rc_ran_func_name(void)
+ {
+   ran_function_name_t dst = {
+@@ -407,7 +483,7 @@
+   // 9.2.2.5
+   def.ctrl = calloc(1, sizeof(ran_func_def_ctrl_t));
+   assert(def.ctrl != NULL && "Memory exhausted");
+-  fill_rc_control(def.ctrl);
++  fill_rc_control(def.ctrl, RC_UE_ACTIONS);
+ 
+   // RAN Function Definition for POLICY
+   // Optional
+@@ -450,7 +526,7 @@
+   // 9.2.2.5
+   def.ctrl = calloc(1, sizeof(ran_func_def_ctrl_t));
+   assert(def.ctrl != NULL && "Memory exhausted");
+-  fill_rc_control(def.ctrl);
++  fill_rc_control(def.ctrl, false);
+ 
+   // RAN Function Definition for POLICY
+   // Optional
+@@ -872,6 +948,103 @@
+ }
+ 
+ 
++#if RC_UE_ACTIONS
++// Value of the first RAN Parameter with this ID, at any depth (inside
++// STRUCTURE parameters and LIST items)
++static const ran_parameter_value_t* find_ran_param_value(const seq_ran_param_t* p, size_t n, uint32_t id)
++{
++  for (size_t i = 0; i < n; i++) {
++    const ran_param_val_type_t* v = &p[i].ran_param_val;
++    if (p[i].ran_param_id == id && v->type == ELEMENT_KEY_FLAG_TRUE_RAN_PARAMETER_VAL_TYPE)
++      return v->flag_true;
++    if (p[i].ran_param_id == id && v->type == ELEMENT_KEY_FLAG_FALSE_RAN_PARAMETER_VAL_TYPE)
++      return v->flag_false;
++    const ran_parameter_value_t* found = NULL;
++    if (v->type == STRUCTURE_RAN_PARAMETER_VAL_TYPE && v->strct != NULL)
++      found = find_ran_param_value(v->strct->ran_param_struct, v->strct->sz_ran_param_struct, id);
++    if (v->type == LIST_RAN_PARAMETER_VAL_TYPE && v->lst != NULL) {
++      for (size_t j = 0; j < v->lst->sz_lst_ran_param && found == NULL; j++) {
++        const ran_param_struct_t* item = &v->lst->lst_ran_param[j].ran_param_struct;
++        found = find_ran_param_value(item->ran_param_struct, item->sz_ran_param_struct, id);
++      }
++    }
++    if (found != NULL)
++      return found;
++  }
++  return NULL;
++}
++
++// MAC UE with this E2SM gNB UE ID (AMF UE NGAP ID + GUAMI, as in the KPM
++// reports). Call with the scheduler lock held.
++static NR_UE_info_t* find_mac_ue(const ue_id_e2sm_t* ue_id)
++{
++  if (ue_id->type != GNB_UE_ID_E2SM)
++    return NULL;
++  const guami_t* guami = &ue_id->gnb.guami;
++  UE_iterator (RC.nrmac[0]->UE_info.connected_ue_list, ue) {
++    rrc_gNB_ue_context_t* rrc_ue = rrc_gNB_get_ue_context_by_rnti(RC.nrrrc[0], -1, ue->rnti);
++    if (rrc_ue == NULL)
++      continue;
++    const gNB_RRC_UE_t* u = &rrc_ue->ue_context;
++    if (u->amf_ue_ngap_id == ue_id->gnb.amf_ue_ngap_id && u->ue_guami.amf_region_id == guami->amf_region_id
++        && u->ue_guami.amf_set_id == guami->amf_set_id && u->ue_guami.amf_pointer == guami->amf_ptr)
++      return ue;
++  }
++  return NULL;
++}
++
++// Style 2, Slice-level PRB quota. OAI's MAC has no slices, so the quota is
++// applied to the UE named in the header: its Max PRB Policy Ratio (percent of
++// the BWP) bounds every new DL and UL allocation; 100 removes the quota.
++static void ctrl_prb_quota(const rc_ctrl_req_data_t* ctrl)
++{
++  const e2sm_rc_ctrl_msg_frmt_1_t* msg = &ctrl->msg.frmt_1;
++  const ran_parameter_value_t* max_ratio = find_ran_param_value(msg->ran_param, msg->sz_ran_param, RC_PRB_QUOTA_MAX_RATIO);
++  if (max_ratio == NULL || max_ratio->type != INTEGER_RAN_PARAMETER_VALUE || max_ratio->int_ran < 0 || max_ratio->int_ran > 100) {
++    printf("[E2 AGENT] RC CONTROL PRB quota: no valid Max PRB Policy Ratio (0..100), ignored\n");
++    return;
++  }
++  const int ratio = max_ratio->int_ran;
++  gNB_MAC_INST* mac = RC.nrmac[0];
++  NR_SCHED_LOCK(&mac->sched_lock);
++  NR_UE_info_t* ue = find_mac_ue(&ctrl->hdr.frmt_1.ue_id);
++  int rnti = -1;
++  if (ue != NULL) {
++    ue->UE_sched_ctrl.e2_max_prb_ratio = ratio >= 100 ? 0 : max(1, ratio);
++    rnti = ue->rnti;
++  }
++  NR_SCHED_UNLOCK(&mac->sched_lock);
++  if (rnti < 0)
++    printf("[E2 AGENT] RC CONTROL PRB quota: no UE with AMF UE NGAP ID %lu, ignored\n", ctrl->hdr.frmt_1.ue_id.gnb.amf_ue_ngap_id);
++  else
++    printf("[E2 AGENT] RC CONTROL PRB quota: UE %04x (AMF UE NGAP ID %lu) Max PRB Policy Ratio %d%%\n",
++           rnti,
++           ctrl->hdr.frmt_1.ue_id.gnb.amf_ue_ngap_id,
++           ratio);
++}
++
++// Style 4, RRC Connection Release: the same request the DU makes after a
++// radio link failure (F1 UE Context Release Request), so the CU asks the AMF
++// (NGAP UE Context Release Request) and releases the UE with RRCRelease
++static void ctrl_rrc_release(const rc_ctrl_req_data_t* ctrl)
++{
++  gNB_MAC_INST* mac = RC.nrmac[0];
++  NR_SCHED_LOCK(&mac->sched_lock);
++  NR_UE_info_t* ue = find_mac_ue(&ctrl->hdr.frmt_1.ue_id);
++  const int rnti = ue != NULL ? ue->rnti : -1;
++  NR_SCHED_UNLOCK(&mac->sched_lock);
++  if (rnti < 0) {
++    printf("[E2 AGENT] RC CONTROL RRC release: no UE with AMF UE NGAP ID %lu, ignored\n", ctrl->hdr.frmt_1.ue_id.gnb.amf_ue_ngap_id);
++    return;
++  }
++  const bool requested = nr_mac_request_release_ue(mac, rnti);
++  printf("[E2 AGENT] RC CONTROL RRC release: UE %04x (AMF UE NGAP ID %lu) %s\n",
++         rnti,
++         ctrl->hdr.frmt_1.ue_id.gnb.amf_ue_ngap_id,
++         requested ? "release requested" : "unknown to the CU, not released");
++}
++#endif
++
+ sm_ag_if_ans_t write_ctrl_rc_sm(void const* data)
+ {
+   assert(data != NULL);
+@@ -879,6 +1052,25 @@
+ 
+   rc_ctrl_req_data_t const* ctrl = (rc_ctrl_req_data_t const*)data;
+ 
++#if RC_UE_ACTIONS
++  if (ctrl->hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR && ctrl->msg.format == FORMAT_1_E2SM_RC_CTRL_MSG) {
++    const uint32_t style = ctrl->hdr.frmt_1.ric_style_type;
++    const uint16_t act = ctrl->hdr.frmt_1.ctrl_act_id;
++    if (style == RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION || style == RC_CTRL_STYLE_RADIO_ACCESS) {
++      if (style == RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION && act == RC_CTRL_ACT_SLICE_PRB_QUOTA)
++        ctrl_prb_quota(ctrl);
++      else if (style == RC_CTRL_STYLE_RADIO_ACCESS && act == RC_CTRL_ACT_RRC_RELEASE)
++        ctrl_rrc_release(ctrl);
++      else
++        printf("[E2 AGENT] RC CONTROL Style %u action %u not supported, ignored\n", style, act);
++      fflush(stdout); // stdout is a pipe in the pod
++      sm_ag_if_ans_t ans = {.type = CTRL_OUTCOME_SM_AG_IF_ANS_V0};
++      ans.ctrl_out.type = RAN_CTRL_V1_3_AGENT_IF_CTRL_ANS_V0;
++      return ans;
++    }
++  }
++#endif
++
+   assert(ctrl->hdr.format == FORMAT_1_E2SM_RC_CTRL_HDR && "Indication Header Format received not valid");
+   assert(ctrl->msg.format == FORMAT_1_E2SM_RC_CTRL_MSG && "Indication Message Format received not valid");
+   assert(ctrl->hdr.frmt_1.ctrl_act_id == 2 && "Currently only QoS flow mapping configuration supported");
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch_default_policies.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch_default_policies.c
+@@ -250,6 +250,7 @@
+     int max_rbSize = find_largest_free_block(vrb_map, cand->alloc_slbitmap, cand->bwp_start, cand->bwp_size, &rbStart);
+     if (max_rbSize < min_rbSize)
+       continue;
++    max_rbSize = min(max_rbSize, nr_mac_ue_max_rbs(&cand->UE->UE_sched_ctrl, cand->bwp_size, min_rbSize));
+ 
+     int mcs = cand->sched_pdsch.mcs;
+     uint8_t Qm = nr_get_Qm_dl(mcs, cand->mcs_table);
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -4024,6 +4024,16 @@
+   return true;
+ }
+ 
++/* \brief largest allocation for a new transmission of this UE, from the
++ * E2SM-RC PRB quota (percent of the BWP, at least min_rbs) */
++int nr_mac_ue_max_rbs(const NR_UE_sched_ctrl_t *sched_ctrl, int bwp_size, int min_rbs)
++{
++  const int ratio = sched_ctrl->e2_max_prb_ratio;
++  if (ratio == 0 || ratio >= 100)
++    return bwp_size;
++  return min(bwp_size, max(min_rbs, (bwp_size * ratio + 50) / 100));
++}
++
+ bool nr_mac_check_ul_failure(gNB_MAC_INST *nrmac, int rnti, NR_UE_sched_ctrl_t *sched_ctrl)
+ {
+   if (!sched_ctrl->ul_failure)
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch_default_policies.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch_default_policies.c
+@@ -282,7 +282,7 @@
+     if (block_len < min_rb)
+       continue;
+ 
+-    uint16_t rbSize = block_len;
++    uint16_t rbSize = min(block_len, nr_mac_ue_max_rbs(&cand->UE->UE_sched_ctrl, cand->bwp_size, min_rb));
+     uint8_t mcs = cand->sched_pusch.mcs;
+ 
+     if (cand->pcmax != 0 || cand->ph != 0) {
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_proto.h
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_proto.h
+@@ -510,6 +510,7 @@
+ void nr_mac_trigger_release_complete(gNB_MAC_INST *mac, int rnti);
+ void nr_mac_release_ue(gNB_MAC_INST *mac, int rnti);
+ bool nr_mac_request_release_ue(const gNB_MAC_INST *nrmac, int rnti);
++int nr_mac_ue_max_rbs(const NR_UE_sched_ctrl_t *sched_ctrl, int bwp_size, int min_rbs);
+ void clean_bwp_structures(NR_SpCellConfig_t *spCellConfig);
+ 
+ bool nr_mac_ue_is_active(const NR_UE_info_t *ue);
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
+@@ -678,6 +678,9 @@
+   bool ul_failure;
+   int ul_failure_timer;
+   int release_timer;
++  /// E2SM-RC PRB quota (Max PRB Policy Ratio, percent of the BWP) applied to
++  /// new DL/UL transmissions of this UE; 0 means no quota
++  uint8_t e2_max_prb_ratio;
+   CSI_report_t CSI_report;
+   bool SR;
+   /// information about every HARQ process

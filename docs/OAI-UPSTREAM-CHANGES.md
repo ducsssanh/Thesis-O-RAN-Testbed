@@ -165,6 +165,16 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 - `urr_receiver`: đọc `ran_identity` (producer schema 1.2.0) và `end_time_unix`; dựng bảng AMF UE NGAP ID → SUPI (một mục mỗi SUPI; ID bị AMF cấp lại thì mục cũ bị xóa).
 - CSV KPM theo UE thêm cột `Collect Time (UNIX us)` (timestamp gốc gNB, `colletStartTime`; OAI đánh dấu *cuối* chu kỳ) và `SUPI` (trống khi chưa có ánh xạ hoặc UE ID không còn trong bảng AMF).
 
+### 04/10/2026 — R2: hành động RAN qua E2SM-RC
+
+**C29 · OAI RAN (gNB: MAC + E2 agent RC)** — `oai-ran-e2-rc-enforcement.patch` (6 file, +214/−12).
+- MAC: trường `e2_max_prb_ratio` trong `NR_UE_sched_ctrl_t` và `nr_mac_ue_max_rbs()`; policy proportional-fair DL/UL giới hạn kích thước cấp phát **mới** của UE ở `ratio %` BWP (tối thiểu 5 PRB DL / `min_rb` UL; HARQ retx giữ nguyên).
+- E2 agent RC (chỉ gNB đơn khối, cần MAC + RRC cùng tiến trình): RAN Function Definition thêm Style 2 "Radio Resource Allocation Control" / action 6 "Slice-level PRB quota" và Style 4 "Radio Access Control" / action 4 "RRC Connection Release". `write_ctrl_rc_sm` tìm UE theo UE ID trong header (AMF UE NGAP ID + GUAMI, như KPM), đọc `Max PRB Policy Ratio` (ID 11) ở mọi độ sâu của thông điệp, hoặc gọi `nr_mac_request_release_ue()` (F1 UE Context Release Request → AMF → RRCRelease). Đầu vào sai được bỏ qua kèm log, không `assert`; Style 1 cũ không đổi. Điểm lệch chuẩn: design mục 8. Bằng chứng: `artifacts/k8s/diagnostics/r2-20261004`.
+
+**C30 · FlexRIC xApp** — `flexric-xapp-ran-control.patch` (6 file, +290/−1).
+- `ran_control.c`: endpoint HTTP **chỉ loopback** `127.0.0.1:8090` `POST /v1/ran/control` (`supi` hoặc `amf_ue_ngap_id`; `action` = `prb_quota` + `max_prb_ratio` 0..100, hoặc `release`). SUPI → AMF UE NGAP ID qua bảng R1, UE ID E2 đầy đủ lấy từ báo cáo KPM gần nhất (≤ 10 s); style/action tra theo tên trong RAN Function Definition; thông điệp PRB quota dựng đúng cấu trúc 8.4.3.6 (LIST/STRUCT, PLMN + SST của UE). Mỗi lệnh ghi một dòng vào `KPI_Metrics_RAN_Control.jsonl` cạnh CSV KPM.
+- `urr_receiver.c`: `urr_receiver_ue_for_supi()`; **sửa lỗi hiệu năng có sẵn từ C17/C28**: mỗi URR mới làm ghi lại toàn bộ `urr-received.jsonl` của run (O(kích thước run), ~1 s/report sau một ngày) ⇒ không theo kịp 2 UE ở PERIO 1 s, hàng đợi adapter đầy (1000) và xApp nhận URR trễ hàng chục phút; nay chỉ ghi đầy đủ lúc khởi động rồi nối thêm từng dòng.
+
 ## 3. Thay đổi ngoài mã OAI (để phân biệt, không tính là sửa OAI)
 
 | Ngày | Thành phần | Nội dung |
@@ -173,7 +183,7 @@ Mỗi mục: **mã** · thành phần · patch · phạm vi · nội dung · lý
 | 26/09 → | `deploy/k8s/charts/*`, `deploy/k8s/images/*`, `scripts/k8s/*`, `tests/` | Chart 4 namespace, image, harness — mã mới của đề tài |
 | 03/10 | `src/urr-producer`, `src/a1-ei-adapter`, chart, `runtime.py` | R1: producer đọc bảng "UEs' Information" của AMF OAI qua Kubernetes API (Role `amf-ue-table-reader`: chỉ `pods/log get`) và gắn `ran_identity` vào URR; allowlist SUPI (rỗng = mọi UE); job EI không lọc SUPI (`adapter.allUes`); UE thứ hai `oai-nr-ue2` (alias subchart, IMSI = gốc + 1, seed `EXTRA_UES`); gate `pfcp_peer_ready` chấp nhận re-association |
 | 27/09 | Multus CNI v4.2.2 (`deploy/k8s/vendor/multus.yaml`) | `multus-v4.2.2-atomic-install.patch` (cài binary CNI bằng file tạm + `mv`); 01/10 tăng limit bộ nhớ 300Mi |
-| 28/09 → | `src/urr-producer`, `src/a1-ei-adapter` | Producer A1-EI và adapter — mã mới; 01/10 thêm `session_epoch` (A.4, schema 1.1.0) |
+| 28/09 → | `src/urr-producer`, `src/a1-ei-adapter` | Producer A1-EI và adapter — mã mới; 01/10 thêm `session_epoch` (A.4, schema 1.1.0); 04/10 adapter nối thêm `delivery-status.jsonl` theo từng lần giao thay vì ghi lại toàn bộ (cùng lỗi hiệu năng như C30; file nay là lịch sử lần giao, dòng cuối của event là trạng thái hiện tại) |
 
 ## 4. Quy tắc cập nhật tài liệu này
 

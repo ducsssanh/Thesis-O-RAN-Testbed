@@ -1,0 +1,377 @@
+{
+  "run": "20261003T164156Z-m35",
+  "ratio": 10,
+  "phase_s": 20,
+  "checks": {
+    "ul_quota_binds": {
+      "ok": true,
+      "ue1_prb_share_base": 53.59,
+      "ue1_prb_share_quota": 9.35,
+      "ue1_prb_share_quota_max": 10.0
+    },
+    "ul_throughput_level": {
+      "ok": true,
+      "ue1_mbps": [
+        6.512,
+        1.038
+      ],
+      "throughput_ratio": 0.159,
+      "prb_share_ratio": 0.174
+    },
+    "ul_other_ue_unaffected": {
+      "ok": true,
+      "ue2_mbps": [
+        3.15,
+        3.145
+      ]
+    },
+    "ul_restore": {
+      "ok": true,
+      "ue1_mbps": [
+        6.512,
+        5.291
+      ]
+    },
+    "dl_quota_binds": {
+      "ok": true,
+      "ue1_prb_share_base": 55.29,
+      "ue1_prb_share_quota": 6.18,
+      "ue1_prb_share_quota_max": 7.0
+    },
+    "dl_throughput_level": {
+      "ok": false,
+      "ue1_mbps": [
+        23.902,
+        3.711
+      ],
+      "throughput_ratio": 0.155,
+      "prb_share_ratio": 0.112
+    },
+    "dl_other_ue_unaffected": {
+      "ok": true,
+      "ue2_mbps": [
+        5.161,
+        5.17
+      ]
+    },
+    "dl_restore": {
+      "ok": true,
+      "ue1_mbps": [
+        23.902,
+        25.366
+      ]
+    },
+    "release": {
+      "ok": true,
+      "gnb_release_requested": true,
+      "rnti": "9c4e",
+      "ue2_rrc_release": true,
+      "kpm_rows_after": 33,
+      "kpm_rows_ue2_after": 0,
+      "ue1_loss": 0.0
+    }
+  },
+  "phases": {
+    "ul": {
+      "base": {
+        "window_unix": [
+          1791112595.151,
+          1791112617.342
+        ],
+        "mbps": {
+          "oai-nr-ue": 6.512,
+          "oai-nr-ue2": 3.15
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 6512481.0,
+            "lost": 0,
+            "total": 20298
+          },
+          "oai-nr-ue2": {
+            "bps": 3150473.0,
+            "lost": 0,
+            "total": 6557
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 53.59,
+            "max": 65.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 40.65,
+            "max": 50.0,
+            "samples": 17
+          }
+        }
+      },
+      "quota": {
+        "window_unix": [
+          1791112634.481,
+          1791112656.669
+        ],
+        "mbps": {
+          "oai-nr-ue": 1.038,
+          "oai-nr-ue2": 3.145
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 1037820.0,
+            "lost": 26396,
+            "total": 29856
+          },
+          "oai-nr-ue2": {
+            "bps": 3145488.0,
+            "lost": 0,
+            "total": 6557
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 9.35,
+            "max": 10.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 44.29,
+            "max": 88.0,
+            "samples": 17
+          }
+        }
+      },
+      "restore": {
+        "window_unix": [
+          1791112669.025,
+          1791112691.215
+        ],
+        "mbps": {
+          "oai-nr-ue": 5.291,
+          "oai-nr-ue2": 3.122
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 5290617.0,
+            "lost": 44626,
+            "total": 62264
+          },
+          "oai-nr-ue2": {
+            "bps": 3121523.0,
+            "lost": 0,
+            "total": 6557
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 46.18,
+            "max": 52.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 46.35,
+            "max": 52.0,
+            "samples": 17
+          }
+        }
+      }
+    },
+    "dl": {
+      "base": {
+        "window_unix": [
+          1791112702.468,
+          1791112724.677
+        ],
+        "mbps": {
+          "oai-nr-ue": 23.902,
+          "oai-nr-ue2": 5.161
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 23901816.0,
+            "lost": 60446,
+            "total": 135589
+          },
+          "oai-nr-ue2": {
+            "bps": 5161273.0,
+            "lost": 176,
+            "total": 10926
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 55.29,
+            "max": 65.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 18.24,
+            "max": 49.0,
+            "samples": 17
+          }
+        }
+      },
+      "quota": {
+        "window_unix": [
+          1791112737.083,
+          1791112759.29
+        ],
+        "mbps": {
+          "oai-nr-ue": 3.711,
+          "oai-nr-ue2": 5.17
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 3710863.0,
+            "lost": 0,
+            "total": 5087
+          },
+          "oai-nr-ue2": {
+            "bps": 5170495.0,
+            "lost": 153,
+            "total": 10926
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 6.18,
+            "max": 7.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 12.65,
+            "max": 15.0,
+            "samples": 17
+          }
+        }
+      },
+      "restore": {
+        "window_unix": [
+          1791112771.566,
+          1791112793.782
+        ],
+        "mbps": {
+          "oai-nr-ue": 25.366,
+          "oai-nr-ue2": 5.166
+        },
+        "receiver": {
+          "oai-nr-ue": {
+            "bps": 25365615.0,
+            "lost": 231989,
+            "total": 316638
+          },
+          "oai-nr-ue2": {
+            "bps": 5166207.0,
+            "lost": 161,
+            "total": 10926
+          }
+        },
+        "prb_share": {
+          "oai-nr-ue": {
+            "mean": 56.94,
+            "max": 64.0,
+            "samples": 17
+          },
+          "oai-nr-ue2": {
+            "mean": 13.94,
+            "max": 17.0,
+            "samples": 17
+          }
+        }
+      }
+    }
+  },
+  "ues": {
+    "oai-nr-ue": {
+      "ip": "10.1.0.2",
+      "supi": "imsi-001010123456780",
+      "amf": 18
+    },
+    "oai-nr-ue2": {
+      "ip": "10.1.0.3",
+      "supi": "imsi-001010123456781",
+      "amf": 20
+    }
+  },
+  "controls": [
+    {
+      "direction": "ul",
+      "phase": "quota",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 10,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112631464,
+        "ack_latency_ms": 0.805
+      }
+    },
+    {
+      "direction": "ul",
+      "phase": "restore",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 100,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112666006,
+        "ack_latency_ms": 0.538
+      }
+    },
+    {
+      "direction": "dl",
+      "phase": "quota",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 10,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112734064,
+        "ack_latency_ms": 0.584
+      }
+    },
+    {
+      "direction": "dl",
+      "phase": "restore",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "prb_quota",
+        "max_prb_ratio": 100,
+        "supi": "imsi-001010123456780",
+        "amf_ue_ngap_id": 18,
+        "ric_style_type": 2,
+        "ctrl_act_id": 6,
+        "sent_unix_ms": 1791112768537,
+        "ack_latency_ms": 1.404
+      }
+    },
+    {
+      "phase": "release",
+      "http": 200,
+      "response": {
+        "status": "acknowledged",
+        "action": "release",
+        "supi": "imsi-001010123456781",
+        "amf_ue_ngap_id": 20,
+        "ric_style_type": 4,
+        "ctrl_act_id": 4,
+        "sent_unix_ms": 1791112814171,
+        "ack_latency_ms": 0.893
+      }
+    }
+  ],
+  "status": "FAIL"
+}

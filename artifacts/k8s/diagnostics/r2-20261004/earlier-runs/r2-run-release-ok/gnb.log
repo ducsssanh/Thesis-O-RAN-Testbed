@@ -1,0 +1,1472 @@
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3235/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 39193/1835/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00000 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.00 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          57972 RX      161014001 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1174/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 11527/353/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00000 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 17.0 (+2.0) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9200 RX       24359384 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3249/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 39525/1835/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00000 MCS (0) 11 (Qm 4 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 2.46 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58011 RX      161382791 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1186/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 11861/353/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00000 MCS (0) 11 (Qm 4 deltaMCS 0 dB) NPRB 106 SNR 16.6 (+1.6) dB CCE fail 13, goodput 2.50 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9233 RX       24737592 bytes
+
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3276/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 1 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 39904/1843/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00357 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 8.27 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58086 RX      162788957 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1212/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 0 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 12234/363/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00000 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 8.40 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9308 RX       26154834 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3308/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 1 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 40291/1870/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05380 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 11.20 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58179 RX      164813391 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1250/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 2 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 12599/384/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05632 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 8.54 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9416 RX       27854915 bytes
+
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3339/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 40693/1906/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08421 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.8 (+1.8) dB CCE fail 2, goodput 9.65 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58269 RX      166671034 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 60 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1287/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 3 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 12999/416/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08886 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 84 SNR 16.7 (+1.7) dB CCE fail 13, goodput 8.29 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9524 RX       29313823 bytes
+
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3368/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 41048/1939/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.17768 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 9.92 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58353 RX      168406447 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1317/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 13383/448/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.17904 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 10.06 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9680 RX       31030405 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3402/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 1 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 41503/1939/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04516 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 10.03 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58449 RX      170365329 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1364/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 6 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 13776/448/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04551 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 7.86 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX           9815 RX       32471981 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3458/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 8 CCE fail 11, goodput 0.02 Mbps
+UE d804: ulsch_rounds 42206/1999/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09327 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.18 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58614 RX      173785594 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1369/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 7 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 13796/449/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.02726 MCS (0) 11 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.62 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          10802 RX       32474658 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3514/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 16 CCE fail 11, goodput 0.06 Mbps
+UE d804: ulsch_rounds 42911/2057/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.17221 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 19.79 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58779 RX      177217793 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1370/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 6 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 13808/449/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00770 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.05 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          10802 RX       32474658 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3570/193/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 27 CCE fail 11, goodput 0.13 Mbps
+UE d804: ulsch_rounds 43679/2057/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04377 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.40 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          58941 RX      180613566 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1371/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 5 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 13821/449/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00196 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          10802 RX       32474658 bytes
+
+[0m-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT] RC CONTROL PRB quota: UE d804 (AMF UE NGAP ID 18) Max PRB Policy Ratio 10%
+[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3614/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07361 MCS (0) 21 CCE fail 11, goodput 0.11 Mbps
+UE d804: ulsch_rounds 44384/2115/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09128 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 7.01 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          63725 RX      182600811 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1373/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 3 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 13834/449/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00050 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          10802 RX       32474658 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3637/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.02852 MCS (0) 14 CCE fail 11, goodput 0.04 Mbps
+UE d804: ulsch_rounds 45083/2181/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.15618 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.62 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          63791 RX      182976278 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1386/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 0 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 14249/449/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00014 MCS (0) 6 (Qm 2 deltaMCS 0 dB) NPRB 95 SNR 16.6 (+1.6) dB CCE fail 13, goodput 1.98 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          10910 RX       32712295 bytes
+
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3660/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00994 MCS (0) 4 CCE fail 11, goodput 0.02 Mbps
+UE d804: ulsch_rounds 45821/2211/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09780 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.29 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          63857 RX      183385330 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1424/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 3 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 14947/449/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00004 MCS (0) 19 (Qm 6 deltaMCS 0 dB) NPRB 95 SNR 16.6 (+1.6) dB CCE fail 13, goodput 7.01 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          11021 RX       34118960 bytes
+
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3684/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00312 MCS (0) 0 CCE fail 11, goodput 0.01 Mbps
+UE d804: ulsch_rounds 46544/2256/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06461 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 16.9 (+1.9) dB CCE fail 2, goodput 2.28 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          63923 RX      183823070 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1478/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 12 CCE fail 2, goodput 0.04 Mbps
+UE 9b97: ulsch_rounds 15320/493/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09887 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 95 SNR 16.6 (+1.6) dB CCE fail 13, goodput 7.75 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          11177 RX       35317376 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3705/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00109 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 47241/2323/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09806 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 16.9 (+1.9) dB CCE fail 2, goodput 2.21 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          63983 RX      184234307 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1529/11/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 20 CCE fail 2, goodput 0.08 Mbps
+UE 9b97: ulsch_rounds 15721/543/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.19727 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 8.85 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          11327 RX       36653984 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3727/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00038 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 47941/2391/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.16927 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.34 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          64046 RX      184636800 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1583/18/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.7-0.3 dB), BLER 0.13568 MCS (0) 26 CCE fail 2, goodput 0.14 Mbps
+UE 9b97: ulsch_rounds 16152/543/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05014 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 44 SNR 16.6 (+1.6) dB CCE fail 13, goodput 6.99 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          11486 RX       37798599 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3751/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00012 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 48708/2392/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04303 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.04 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          64115 RX      185025972 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1631/19/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.05852 MCS (0) 24 CCE fail 2, goodput 0.13 Mbps
+UE 9b97: ulsch_rounds 16570/594/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.10339 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 95 SNR 16.6 (+1.6) dB CCE fail 13, goodput 7.97 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          11627 RX       39116031 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3774/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00004 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 49414/2454/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06608 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 16.8 (+1.8) dB CCE fail 2, goodput 2.13 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          64178 RX      185431569 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1680/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.14084 MCS (0) 26 CCE fail 2, goodput 0.14 Mbps
+UE 9b97: ulsch_rounds 16993/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.22085 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 8.37 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          11837 RX       40384236 bytes
+
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3797/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00001 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 50115/2521/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09918 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 16.8 (+1.8) dB CCE fail 2, goodput 2.12 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          64244 RX      185829013 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1702/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.09240 MCS (0) 26 CCE fail 2, goodput 0.04 Mbps
+UE 9b97: ulsch_rounds 17093/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05711 MCS (0) 12 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 1.04 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12709 RX       40592285 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3820/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 50814/2588/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.16343 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.33 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          64310 RX      186218337 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1703/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.08316 MCS (0) 25 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 17106/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.01452 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.08 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12709 RX       40592285 bytes
+
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3845/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.7-0.3 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 51582/2588/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04616 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.13 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          64379 RX      186631933 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1704/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07485 MCS (0) 24 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 17118/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00410 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.01 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12709 RX       40592285 bytes
+
+[0m[E2-AGENT]: CONTROL ACKNOWLEDGE tx
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT] RC CONTROL PRB quota: UE d804 (AMF UE NGAP ID 18) Max PRB Policy Ratio 100%
+[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 3995/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 4 CCE fail 11, goodput 0.04 Mbps
+UE d804: ulsch_rounds 52286/2650/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06572 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 12.82 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          69710 RX      188244146 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1706/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06063 MCS (0) 22 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 17131/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00104 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12709 RX       40592285 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4045/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 10 CCE fail 11, goodput 0.03 Mbps
+UE d804: ulsch_rounds 52920/2710/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09850 MCS (0) 19 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.5 (+1.5) dB CCE fail 2, goodput 13.39 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          69857 RX      191300978 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1708/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04911 MCS (0) 20 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 17214/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00026 MCS (0) 2 (Qm 2 deltaMCS 0 dB) NPRB 106 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.32 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12712 RX       40622338 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4072/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.01 Mbps
+UE d804: ulsch_rounds 53280/2740/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.21504 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 10.06 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          69935 RX      192884492 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1725/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.01712 MCS (0) 10 CCE fail 2, goodput 0.02 Mbps
+UE 9b97: ulsch_rounds 17597/642/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00007 MCS (0) 15 (Qm 4 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 3.82 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12760 RX       41245298 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4102/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 1 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 53662/2741/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05567 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.6 (+1.6) dB CCE fail 2, goodput 8.63 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70019 RX      194609289 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1754/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00537 MCS (0) 0 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 17958/670/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.14906 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 9.42 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          12913 RX       42856028 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 58 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4132/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 54024/2770/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11721 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 46 SNR 16.6 (+1.6) dB CCE fail 2, goodput 9.69 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70106 RX      196393670 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1786/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00187 MCS (0) 0 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 18336/682/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04210 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 60 SNR 16.7 (+1.7) dB CCE fail 13, goodput 10.11 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13006 RX       44787437 bytes
+
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4167/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.7-0.3 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 54468/2806/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.21506 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.8 (+1.8) dB CCE fail 2, goodput 11.85 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70208 RX      198505884 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1828/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00053 MCS (0) 1 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 18728/706/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.07120 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 7.20 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13129 RX       46034152 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4200/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 0 CCE fail 11, goodput 0.00 Mbps
+UE d804: ulsch_rounds 54908/2806/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05466 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 9.39 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70301 RX      200427109 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1871/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00015 MCS (0) 3 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 19082/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.14271 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 13, goodput 8.66 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13255 RX       47450064 bytes
+
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4235/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 3 CCE fail 11, goodput 0.01 Mbps
+UE d804: ulsch_rounds 55348/2838/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.10196 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 12.60 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70403 RX      202518718 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1906/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00005 MCS (0) 2 CCE fail 2, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 19405/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04030 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 4.97 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13837 RX       48704082 bytes
+
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4290/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 13 CCE fail 11, goodput 0.04 Mbps
+UE d804: ulsch_rounds 56053/2895/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.18822 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 19.49 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70565 RX      205897785 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1907/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00005 MCS (0) 3 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 19417/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.01138 MCS (0) 9 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.39 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13837 RX       48704082 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4346/204/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00000 MCS (0) 24 CCE fail 11, goodput 0.10 Mbps
+UE d804: ulsch_rounds 56821/2895/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05316 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.07 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          70730 RX      209316436 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1909/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.00004 MCS (0) 1 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 19435/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00289 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.03 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13912 RX       48704139 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4405/216/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.10213 MCS (0) 28 CCE fail 11, goodput 0.20 Mbps
+UE d804: ulsch_rounds 57526/2954/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.10295 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.90 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX          74393 RX      212768283 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 1911/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00003 MCS (0) 0 CCE fail 2, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 19448/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00074 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX          13912 RX       48704139 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 4634/217/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06048 MCS (0) 24 CCE fail 18, goodput 15.67 Mbps
+UE d804: ulsch_rounds 58231/3012/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.19177 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 19.91 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX        1521335 RX      216165710 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 52 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 2092/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00002 MCS (0) 2 CCE fail 8, goodput 0.95 Mbps
+UE 9b97: ulsch_rounds 19471/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00021 MCS (0) 1 (Qm 2 deltaMCS 0 dB) NPRB 13 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX         100435 RX       48704148 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 5567/335/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.12567 MCS (0) 25 CCE fail 48, goodput 46.12 Mbps
+UE d804: ulsch_rounds 58985/3012/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04875 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.00 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX        9572111 RX      219498301 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 3102/27/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00001 MCS (0) 15 CCE fail 46, goodput 14.32 Mbps
+UE 9b97: ulsch_rounds 19558/743/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00006 MCS (0) 13 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.06 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX        2144314 RX       48711585 bytes
+
+[0m[1;31m[RLC]    1 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 6925/404/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.08094 MCS (0) 27 CCE fail 228, goodput 60.41 Mbps
+UE d804: ulsch_rounds 59680/3065/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08921 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.5 (+1.5) dB CCE fail 2, goodput 17.64 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       19297461 RX      222912442 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 4469/32/0/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.00000 MCS (0) 27 CCE fail 58, goodput 15.15 Mbps
+UE 9b97: ulsch_rounds 19651/751/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.07502 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.17 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX        4849906 RX       48719689 bytes
+
+[0m[1;31m[RLC]    16910 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 8238/620/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.15179 MCS (0) 26 CCE fail 426, goodput 62.22 Mbps
+UE d804: ulsch_rounds 60378/3122/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.19350 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 19.78 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       29046403 RX      226313809 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 5776/154/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.06788 MCS (0) 25 CCE fail 62, goodput 14.87 Mbps
+UE 9b97: ulsch_rounds 19743/762/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08866 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.11 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX        7195356 RX       48725446 bytes
+
+[0m[1;31m[RLC]    16504 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 9735/657/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06639 MCS (0) 27 CCE fail 627, goodput 67.80 Mbps
+UE d804: ulsch_rounds 61138/3122/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04918 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.16 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       40279983 RX      229697076 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 7021/283/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.12247 MCS (0) 23 CCE fail 65, goodput 13.51 Mbps
+UE 9b97: ulsch_rounds 19836/773/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.10988 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.17 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX        9212265 RX       48729500 bytes
+
+[0m[1;31m[RLC]    14181 SDU rejected, SDU buffer full
+[0m[1;31m[RLC]    16882 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 11043/854/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.12912 MCS (0) 25 CCE fail 848, goodput 64.07 Mbps
+UE d804: ulsch_rounds 61840/3179/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09013 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.71 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       50133983 RX      233123029 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 8403/302/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.03509 MCS (0) 28 CCE fail 68, goodput 13.18 Mbps
+UE 9b97: ulsch_rounds 19916/778/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06149 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.05 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       11347658 RX       48730716 bytes
+
+[0m[1;31m[RLC]    13621 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 12540/896/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05330 MCS (0) 27 CCE fail 1043, goodput 65.97 Mbps
+UE d804: ulsch_rounds 62537/3236/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.16925 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 19.68 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       60762590 RX      236531147 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 9654/421/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.08092 MCS (0) 23 CCE fail 73, goodput 12.16 Mbps
+UE 9b97: ulsch_rounds 20021/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11360 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.17 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       13325942 RX       48741316 bytes
+
+[0m[1;31m[RLC]    7558 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 13994/993/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05979 MCS (0) 26 CCE fail 1056, goodput 78.63 Mbps
+UE d804: ulsch_rounds 63305/3236/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04302 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.39 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       73131184 RX      239926817 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 9655/421/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.07283 MCS (0) 23 CCE fail 73, goodput 1.57 Mbps
+UE 9b97: ulsch_rounds 20033/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.03657 MCS (0) 11 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.02 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       13325942 RX       48741316 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 15381/1157/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.09491 MCS (0) 26 CCE fail 1069, goodput 77.55 Mbps
+UE d804: ulsch_rounds 64009/3293/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08893 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 17.65 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       85003472 RX      243347375 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 9656/421/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06555 MCS (0) 22 CCE fail 73, goodput 0.20 Mbps
+UE 9b97: ulsch_rounds 20046/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00929 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       13325942 RX       48741316 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 16784/1302/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.14176 MCS (0) 26 CCE fail 1082, goodput 73.68 Mbps
+UE d804: ulsch_rounds 64714/3353/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.17651 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 106 SNR 16.6 (+1.6) dB CCE fail 2, goodput 19.75 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX       97047940 RX      246789852 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 9657/421/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.05899 MCS (0) 21 CCE fail 73, goodput 0.03 Mbps
+UE 9b97: ulsch_rounds 20059/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00236 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       13325942 RX       48741316 bytes
+
+[0m[E2-AGENT]: CONTROL ACKNOWLEDGE tx
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT] RC CONTROL PRB quota: UE d804 (AMF UE NGAP ID 18) Max PRB Policy Ratio 10%
+[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 18269/1364/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.09382 MCS (0) 27 CCE fail 1095, goodput 36.13 Mbps
+UE d804: ulsch_rounds 65482/3353/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04487 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 16.6 (+1.6) dB CCE fail 2, goodput 6.71 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      104790733 RX      248789298 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 9660/421/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.04301 MCS (0) 18 CCE fail 74, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 20079/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00060 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       13326017 RX       48741363 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 19612/1565/5/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.13349 MCS (0) 27 CCE fail 1105, goodput 11.77 Mbps
+UE d804: ulsch_rounds 66177/3419/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.07751 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.48 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      106086341 RX      249187350 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 10391/421/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.02057 MCS (0) 23 CCE fail 134, goodput 9.16 Mbps
+UE 9b97: ulsch_rounds 20142/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00017 MCS (0) 6 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.02 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       14460990 RX       48742665 bytes
+
+[0m[1;31m[RLC]    1 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 20954/1768/6/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.15363 MCS (0) 26 CCE fail 1106, goodput 8.58 Mbps
+UE d804: ulsch_rounds 66878/3482/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11328 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.24 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      107378637 RX      249589976 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 11499/555/1/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.11412 MCS (0) 24 CCE fail 247, goodput 11.68 Mbps
+UE 9b97: ulsch_rounds 20225/790/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00005 MCS (0) 17 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.04 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       16288848 RX       48744042 bytes
+
+[0m[1;31m[RLC]    20132 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 22458/1815/7/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07428 MCS (0) 27 CCE fail 1109, goodput 8.47 Mbps
+UE d804: ulsch_rounds 67575/3547/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.18428 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.37 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      108749358 RX      249992685 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 12767/685/2/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.21807 MCS (0) 27 CCE fail 337, goodput 13.57 Mbps
+UE 9b97: ulsch_rounds 20311/811/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.18343 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.11 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       18390839 RX       48746658 bytes
+
+[0m[1;31m[RLC]    22095 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 23818/1999/8/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.12511 MCS (0) 27 CCE fail 1112, goodput 8.27 Mbps
+UE d804: ulsch_rounds 68336/3547/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04732 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 1.99 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      110060256 RX      250379450 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 14164/688/2/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.06439 MCS (0) 24 CCE fail 448, goodput 14.03 Mbps
+UE 9b97: ulsch_rounds 20400/811/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05181 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.11 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       20586684 RX       48752991 bytes
+
+[0m[1;31m[RLC]    21432 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 25195/2166/10/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.11075 MCS (0) 26 CCE fail 1119, goodput 8.34 Mbps
+UE d804: ulsch_rounds 69028/3612/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.07609 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.26 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      111363156 RX      250806243 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 15479/816/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.13498 MCS (0) 24 CCE fail 561, goodput 14.30 Mbps
+UE 9b97: ulsch_rounds 20500/832/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.17591 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.24 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       22796159 RX       48759358 bytes
+
+[0m[1;31m[RLC]    20640 SDU rejected, SDU buffer full
+[0m[1;31m[RLC]    19206 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 26674/2236/10/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07507 MCS (0) 27 CCE fail 1119, goodput 8.46 Mbps
+UE d804: ulsch_rounds 69724/3684/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.14056 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.39 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      112730707 RX      251233099 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 16732/861/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04411 MCS (0) 28 CCE fail 651, goodput 13.27 Mbps
+UE 9b97: ulsch_rounds 20581/833/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06072 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.04 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       24740944 RX       48759528 bytes
+
+[0m[1;31m[RLC]    19706 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 28029/2428/10/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.12639 MCS (0) 27 CCE fail 1124, goodput 8.26 Mbps
+UE d804: ulsch_rounds 70436/3730/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.15663 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.34 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      114039595 RX      251633578 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 58 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 17947/950/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07289 MCS (0) 23 CCE fail 763, goodput 12.78 Mbps
+UE 9b97: ulsch_rounds 20671/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.13986 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.10 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       26722911 RX       48763460 bytes
+
+[0m[1;31m[RLC]    7919 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 51 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 29363/2630/11/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.14784 MCS (0) 27 CCE fail 1137, goodput 8.11 Mbps
+UE d804: ulsch_rounds 71189/3745/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05962 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 17.0 (+2.0) dB CCE fail 2, goodput 2.27 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      115329640 RX      252079013 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 17949/950/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06560 MCS (0) 23 CCE fail 763, goodput 1.65 Mbps
+UE 9b97: ulsch_rounds 20685/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.03950 MCS (0) 10 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.02 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       26722914 RX       48763463 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 30807/2732/11/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.08044 MCS (0) 26 CCE fail 1149, goodput 8.52 Mbps
+UE d804: ulsch_rounds 71759/3807/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.07396 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 1.34 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      116673455 RX      252405105 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 17950/950/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05904 MCS (0) 22 CCE fail 763, goodput 0.21 Mbps
+UE 9b97: ulsch_rounds 20698/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.01004 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       26722914 RX       48763463 bytes
+
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 32219/2870/11/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.11718 MCS (0) 27 CCE fail 1150, goodput 8.20 Mbps
+UE d804: ulsch_rounds 71837/3813/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.07423 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 17.0 (+2.0) dB CCE fail 2, goodput 0.13 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      117997250 RX      252405319 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 17951/950/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05314 MCS (0) 21 CCE fail 763, goodput 0.03 Mbps
+UE 9b97: ulsch_rounds 20711/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00255 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       26722914 RX       48763463 bytes
+
+[0m[E2-AGENT]: CONTROL ACKNOWLEDGE tx
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT] RC CONTROL PRB quota: UE d804 (AMF UE NGAP ID 18) Max PRB Policy Ratio 100%
+[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 33625/3013/11/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.10564 MCS (0) 26 CCE fail 1152, goodput 54.75 Mbps
+UE d804: ulsch_rounds 71935/3827/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11743 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.11 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      125061467 RX      252412585 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 17953/950/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04304 MCS (0) 19 CCE fail 763, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 20724/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00065 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       26722914 RX       48763463 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 35049/3138/11/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.11171 MCS (0) 27 CCE fail 1189, goodput 63.25 Mbps
+UE d804: ulsch_rounds 72047/3840/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08874 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 2, goodput 0.32 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      136243884 RX      252422682 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 18701/950/3/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.01853 MCS (0) 25 CCE fail 765, goodput 8.94 Mbps
+UE 9b97: ulsch_rounds 20792/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00018 MCS (0) 6 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.04 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       27866660 RX       48766013 bytes
+
+[0m[1;31m[RLC]    1 SDU rejected, SDU buffer full
+[0m[1;31m[RLC]    11998 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 36500/3238/11/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07393 MCS (0) 26 CCE fail 1257, goodput 70.08 Mbps
+UE d804: ulsch_rounds 72136/3847/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06903 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.07 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      147233525 RX      252425342 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 19890/1084/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.10432 MCS (0) 24 CCE fail 766, goodput 11.99 Mbps
+UE 9b97: ulsch_rounds 20892/848/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00005 MCS (0) 18 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.09 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       29761273 RX       48772497 bytes
+
+[0m[1;31m[RLC]    16616 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 37879/3407/12/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.12292 MCS (0) 26 CCE fail 1319, goodput 65.37 Mbps
+UE d804: ulsch_rounds 72222/3860/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.15756 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.07 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      157456340 RX      252425620 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 21222/1210/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.20452 MCS (0) 26 CCE fail 766, goodput 13.26 Mbps
+UE 9b97: ulsch_rounds 20983/868/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.16351 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 11 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.21 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       31941178 RX       48778835 bytes
+
+[0m[1;31m[RLC]    14014 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 39285/3551/12/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.17675 MCS (0) 26 CCE fail 1382, goodput 61.35 Mbps
+UE d804: ulsch_rounds 72320/3861/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05878 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 17.0 (+2.0) dB CCE fail 2, goodput 0.10 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      167918233 RX      252434547 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 22638/1210/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05199 MCS (0) 24 CCE fail 766, goodput 13.56 Mbps
+UE 9b97: ulsch_rounds 21080/868/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05131 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.6 (+1.6) dB CCE fail 13, goodput 0.14 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       34055635 RX       48785178 bytes
+
+[0m[1;31m[RLC]    15310 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 40835/3551/12/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05018 MCS (0) 25 CCE fail 1450, goodput 68.08 Mbps
+UE d804: ulsch_rounds 72414/3876/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.13482 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 17.0 (+2.0) dB CCE fail 2, goodput 0.06 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      178855207 RX      252438408 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 23890/1351/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.11062 MCS (0) 23 CCE fail 766, goodput 12.53 Mbps
+UE 9b97: ulsch_rounds 21170/880/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11036 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.13 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       36088522 RX       48790274 bytes
+
+[0m[1;31m[RLC]    13536 SDU rejected, SDU buffer full
+[0m[1;31m[RLC]    16485 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 42233/3698/15/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.10448 MCS (0) 23 CCE fail 1509, goodput 60.29 Mbps
+UE d804: ulsch_rounds 72521/3881/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09708 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.12 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      188379678 RX      252447261 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 25261/1427/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.13512 MCS (0) 28 CCE fail 766, goodput 14.02 Mbps
+UE 9b97: ulsch_rounds 21255/885/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08074 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.6 (+1.6) dB CCE fail 13, goodput 0.12 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       38301851 RX       48794124 bytes
+
+[0m[1;31m[RLC]    16711 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 43708/3773/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.08861 MCS (0) 27 CCE fail 1566, goodput 64.41 Mbps
+UE d804: ulsch_rounds 72619/3895/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.15211 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.16 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      198373526 RX      252454863 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26369/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.08095 MCS (0) 23 CCE fail 766, goodput 9.85 Mbps
+UE 9b97: ulsch_rounds 21341/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09877 MCS (0) 20 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.7 (+1.7) dB CCE fail 13, goodput 0.09 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119757 RX       48799300 bytes
+
+[0m[1;31m[RLC]    3628 SDU rejected, SDU buffer full
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 45159/3874/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06231 MCS (0) 26 CCE fail 1567, goodput 78.31 Mbps
+UE d804: ulsch_rounds 72716/3897/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06288 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 17.0 (+2.0) dB CCE fail 2, goodput 0.10 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      210707175 RX      252460016 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26371/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07286 MCS (0) 23 CCE fail 766, goodput 1.27 Mbps
+UE 9b97: ulsch_rounds 21358/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.02511 MCS (0) 9 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.02 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 46555/4030/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.10188 MCS (0) 26 CCE fail 1568, goodput 76.65 Mbps
+UE d804: ulsch_rounds 72807/3908/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11535 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 17.0 (+2.0) dB CCE fail 2, goodput 0.06 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      222676260 RX      252462653 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26372/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06557 MCS (0) 22 CCE fail 766, goodput 0.17 Mbps
+UE 9b97: ulsch_rounds 21370/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00709 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 47978/4157/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.13910 MCS (0) 26 CCE fail 1570, goodput 74.62 Mbps
+UE d804: ulsch_rounds 72892/3914/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06751 MCS (0) 22 (Qm 6 deltaMCS 0 dB) NPRB 36 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.15 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      234834083 RX      252465714 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26374/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05311 MCS (0) 20 CCE fail 766, goodput 0.03 Mbps
+UE 9b97: ulsch_rounds 21383/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00180 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49391/4262/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.12385 MCS (0) 27 CCE fail 1571, goodput 70.38 Mbps
+UE d804: ulsch_rounds 72989/3928/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.09349 MCS (0) 24 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 16.8 (+1.8) dB CCE fail 2, goodput 0.29 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246927361 RX      252472663 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26375/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04780 MCS (0) 19 CCE fail 766, goodput 0.01 Mbps
+UE 9b97: ulsch_rounds 21396/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00046 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49394/4262/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.15591 MCS (0) 26 CCE fail 1571, goodput 9.07 Mbps
+UE d804: ulsch_rounds 73005/3928/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.04495 MCS (0) 12 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 2, goodput 0.04 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246928604 RX      252473259 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26376/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04302 MCS (0) 18 CCE fail 766, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 21409/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00012 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49395/4262/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.14032 MCS (0) 25 CCE fail 1571, goodput 1.17 Mbps
+UE d804: ulsch_rounds 73058/3928/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.01142 MCS (0) 1 (Qm 2 deltaMCS 0 dB) NPRB 106 SNR 16.8 (+1.8) dB CCE fail 2, goodput 0.18 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246928604 RX      252486418 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26377/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.03872 MCS (0) 17 CCE fail 766, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 21422/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00003 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49446/4262/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.6-0.4 dB), BLER 0.03963 MCS (0) 24 CCE fail 1571, goodput 0.26 Mbps
+UE d804: ulsch_rounds 73537/3928/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00323 MCS (0) 13 (Qm 4 deltaMCS 0 dB) NPRB 106 SNR 16.7 (+1.7) dB CCE fail 2, goodput 2.18 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246928751 RX      252838564 bytes
+UE RNTI 9b97 CU-UE-ID 2 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE 9b97: UL-RI 1, TPMI 0
+UE 9b97: dlsch_rounds 26379/1495/4/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.03136 MCS (0) 15 CCE fail 766, goodput 0.00 Mbps
+UE 9b97: ulsch_rounds 21434/896/0/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00001 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.9 (+1.9) dB CCE fail 13, goodput 0.00 Mbps
+UE 9b97: LCID 1: TX            528 RX            278 bytes
+UE 9b97: LCID 2: TX              0 RX              0 bytes
+UE 9b97: LCID 4: TX       40119832 RX       48799352 bytes
+
+[0m[E2-AGENT]: CONTROL ACKNOWLEDGE tx
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT][E2SM-KPM] Condition NSSAI (1, ffffff).
+[E2 AGENT] RC CONTROL RRC release: UE 9b97 (AMF UE NGAP ID 19) release requested
+[NR_RRC] received UE Context Release Request for UE 2, forwarding to AMF
+[0m[E1AP]   releasing UE 2
+[0m[GTPU]   [81] UE ID 2: Delete all tunnels (1 tunnels)
+[0m[32m[NR_RRC] [DL] (cellID bc614e, UE ID 2 RNTI 9b97) Send RRC Release
+[0m[RRC]    UE 2: received bearer release complete
+[0m[93m[RLC]    Remove UE 39831
+[0m[NR_RRC] removed UE CU UE ID 2/RNTI 9b97 
+[0m[NR_RRC] [--] (UE ID 2 RNTI 9b97) Remove UE context
+[0m[NR_MAC] Remove NR rnti 0x9b97
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49515/4274/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.11217 MCS (0) 24 CCE fail 1571, goodput 0.17 Mbps
+UE d804: ulsch_rounds 73817/3958/1/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.16298 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 82 SNR 15.2 (+0.2) dB CCE fail 2, goodput 3.76 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246929024 RX      253160552 bytes
+
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49576/4279/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.08768 MCS (0) 27 CCE fail 1571, goodput 0.15 Mbps
+UE d804: ulsch_rounds 74080/3964/1/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.06065 MCS (0) 21 (Qm 6 deltaMCS 0 dB) NPRB 40 SNR 15.2 (+0.2) dB CCE fail 2, goodput 2.70 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246929204 RX      253449131 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49634/4282/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.05824 MCS (0) 25 CCE fail 1571, goodput 0.14 Mbps
+UE d804: ulsch_rounds 74347/3991/1/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.10068 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 93 SNR 15.2 (+0.2) dB CCE fail 2, goodput 3.40 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246929372 RX      253851336 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 61 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49687/4291/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.18580 MCS (0) 26 CCE fail 1571, goodput 0.14 Mbps
+UE d804: ulsch_rounds 74598/4012/1/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.08325 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 17 SNR 15.5 (+0.5) dB CCE fail 2, goodput 2.95 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246929528 RX      254170750 bytes
+
+[0m[NR_MAC] Frame.Slot 512.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49744/4291/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.05831 MCS (0) 24 CCE fail 1571, goodput 0.13 Mbps
+UE d804: ulsch_rounds 74872/4049/3/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.11899 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 14.7 (-0.3) dB CCE fail 2, goodput 3.78 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246929696 RX      254607760 bytes
+
+[0m[NR_MAC] Frame.Slot 640.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49801/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.4-0.6 dB), BLER 0.12866 MCS (0) 24 CCE fail 1571, goodput 0.14 Mbps
+UE d804: ulsch_rounds 75154/4079/4/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.10819 MCS (0) 23 (Qm 6 deltaMCS 0 dB) NPRB 5 SNR 15.2 (+0.2) dB CCE fail 2, goodput 3.76 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246929864 RX      255060695 bytes
+
+[0m[NR_MAC] Frame.Slot 768.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49821/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.07597 MCS (0) 23 CCE fail 1571, goodput 0.04 Mbps
+UE d804: ulsch_rounds 75242/4092/5/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.05772 MCS (0) 15 (Qm 4 deltaMCS 0 dB) NPRB 5 SNR 15.6 (+0.6) dB CCE fail 2, goodput 0.64 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246930893 RX      255189433 bytes
+
+[0m[NR_MAC] Frame.Slot 896.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49823/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.06154 MCS (0) 21 CCE fail 1571, goodput 0.01 Mbps
+UE d804: ulsch_rounds 75259/4092/5/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.01630 MCS (0) 5 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 15.7 (+0.7) dB CCE fail 2, goodput 0.06 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246930968 RX      255189490 bytes
+
+[0m[NR_MAC] Frame.Slot 0.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49824/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.05538 MCS (0) 20 CCE fail 1571, goodput 0.00 Mbps
+UE d804: ulsch_rounds 75272/4092/5/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00414 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.1 (+1.1) dB CCE fail 2, goodput 0.01 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246930968 RX      255189490 bytes
+
+[0m[NR_MAC] Frame.Slot 128.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49826/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04486 MCS (0) 18 CCE fail 1571, goodput 0.00 Mbps
+UE d804: ulsch_rounds 75285/4092/5/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00105 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.3 (+1.3) dB CCE fail 2, goodput 0.00 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246930968 RX      255189490 bytes
+
+[0m[NR_MAC] Frame.Slot 256.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49827/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.04038 MCS (0) 17 CCE fail 1571, goodput 0.00 Mbps
+UE d804: ulsch_rounds 75297/4092/5/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00030 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.5 (+1.5) dB CCE fail 2, goodput 0.00 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246930968 RX      255189490 bytes
+
+[0m[NR_MAC] Frame.Slot 384.0
+UE RNTI d804 CU-UE-ID 1 in-sync PH 48 dB PCMAX 20 dBm, average RSRP -43 (16 meas)
+UE d804: UL-RI 1, TPMI 0
+UE d804: dlsch_rounds 49828/4301/16/0, dlsch_errors 0, pucch0_DTX 0 (SNR 19.5-0.5 dB), BLER 0.03634 MCS (0) 16 CCE fail 1571, goodput 0.00 Mbps
+UE d804: ulsch_rounds 75310/4092/5/0, ulsch_errors 0, ulsch_DTX 0, BLER 0.00008 MCS (0) 0 (Qm 2 deltaMCS 0 dB) NPRB 5 SNR 16.6 (+1.6) dB CCE fail 2, goodput 0.00 Mbps
+UE d804: LCID 1: TX           3838 RX            282 bytes
+UE d804: LCID 2: TX              0 RX              0 bytes
+UE d804: LCID 4: TX      246930968 RX      255189490 bytes
+
