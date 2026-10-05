@@ -14,3 +14,6 @@ build/
 *.o
 *.a
 .venv/
+
+# Working documents (design, plan, handoff): kept local, not published
+/docs/
