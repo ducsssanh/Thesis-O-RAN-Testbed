@@ -5,7 +5,7 @@ global:
       flexric:
         image: oai-lab-radio:152d92b93a1c7ed7
       gnb:
-        image: oai-lab-radio:152d92b93a1c7ed7
+        image: oai-lab-radio:bc0788816536c2f0
       nr-ue:
         image: oai-lab-radio:152d92b93a1c7ed7
       smf:

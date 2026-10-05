@@ -1,0 +1,295 @@
+{
+  "run": "20261003T164156Z-m35",
+  "started_unix": 1791173449.118,
+  "flood_s": 90,
+  "max_prb_ratio": 10,
+  "fair_use": {
+    "classes": {
+      "default": {
+        "ul_rate_kbps": 3000.0,
+        "dl_rate_kbps": 15000.0
+      },
+      "heavy": {
+        "ul_rate_kbps": 5000.0,
+        "dl_rate_kbps": 30000.0
+      }
+    },
+    "congestion": {
+      "enabled": true,
+      "ul_cell_prb_pct": 80.0,
+      "dl_cell_prb_pct": 60.0,
+      "other_ue_kbps": 100.0
+    }
+  },
+  "phases": {
+    "idle": {
+      "window_unix": [
+        1791173662.194,
+        1791173684.052
+      ],
+      "mbps": {
+        "oai-nr-ue": 3.899
+      },
+      "offered": {
+        "oai-nr-ue": "4M"
+      },
+      "uncongested_samples": 20,
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    },
+    "warmup": {
+      "window_unix": [
+        1791173697.419,
+        1791173712.832
+      ],
+      "mbps": {
+        "oai-nr-ue": 1.048,
+        "oai-nr-ue2": 1.055
+      },
+      "offered": {
+        "oai-nr-ue": "1M",
+        "oai-nr-ue2": "1M"
+      },
+      "uncongested_samples": 20,
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    },
+    "benign": {
+      "window_unix": [
+        1791173727.223,
+        1791173759.238
+      ],
+      "mbps": {
+        "oai-nr-ue": 1.051,
+        "oai-nr-ue2": 2.985
+      },
+      "offered": {
+        "oai-nr-ue": "1M",
+        "oai-nr-ue2": "3M"
+      },
+      "uncongested_samples": 20,
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    },
+    "flood": {
+      "window_unix": [
+        1791173772.603,
+        1791173864.905
+      ],
+      "mbps": {
+        "oai-nr-ue": 1.199,
+        "oai-nr-ue2": 1.779
+      },
+      "offered": {
+        "oai-nr-ue": "30M",
+        "oai-nr-ue2": "3M"
+      },
+      "uncongested_samples": 20,
+      "levels": {
+        "imsi-001010123456780": 2,
+        "imsi-001010123456781": 0
+      }
+    },
+    "after_reconnect": {
+      "window_unix": [
+        1791173982.357,
+        1791174012.699
+      ],
+      "mbps": {
+        "oai-nr-ue": 0.513
+      },
+      "offered": {
+        "oai-nr-ue": "500K"
+      },
+      "uncongested_samples": 0,
+      "levels": {
+        "imsi-001010123456781": 2,
+        "imsi-001010123456780": 2
+      }
+    }
+  },
+  "ues": {
+    "oai-nr-ue": {
+      "ip": "10.1.0.2",
+      "supi": "imsi-001010123456780",
+      "amf": 48
+    },
+    "oai-nr-ue2": {
+      "ip": "10.1.0.3",
+      "supi": "imsi-001010123456781",
+      "amf": 46
+    }
+  },
+  "classes": {
+    "oai-nr-ue": "default",
+    "oai-nr-ue2": "heavy"
+  },
+  "drain_s": {
+    "start": {
+      "oai-nr-ue": 5.0,
+      "oai-nr-ue2": 5.0
+    },
+    "after_control_flood": {
+      "oai-nr-ue": 73.9,
+      "oai-nr-ue2": 5.1
+    }
+  },
+  "control": {
+    "warmup": {
+      "window_unix": [
+        1791173467.156,
+        1791173482.525
+      ],
+      "mbps": {
+        "oai-nr-ue": 1.053,
+        "oai-nr-ue2": 1.05
+      },
+      "offered": {
+        "oai-nr-ue": "1M",
+        "oai-nr-ue2": "1M"
+      },
+      "uncongested_samples": 0,
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    },
+    "benign": {
+      "window_unix": [
+        1791173497.001,
+        1791173517.356
+      ],
+      "mbps": {
+        "oai-nr-ue": 1.052,
+        "oai-nr-ue2": 3.155
+      },
+      "offered": {
+        "oai-nr-ue": "1M",
+        "oai-nr-ue2": "3M"
+      },
+      "uncongested_samples": 0,
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    },
+    "flood": {
+      "window_unix": [
+        1791173531.818,
+        1791173564.109
+      ],
+      "mbps": {
+        "oai-nr-ue": 3.35,
+        "oai-nr-ue2": 2.839
+      },
+      "offered": {
+        "oai-nr-ue": "30M",
+        "oai-nr-ue2": "3M"
+      },
+      "uncongested_samples": 0,
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    }
+  },
+  "uncongested_before_idle": 0,
+  "reconnect": {
+    "amf_old": 48,
+    "amf_new": 49,
+    "xapp_restart_unix": 1791173944.203,
+    "restored_log": [
+      "[defense] restored imsi-001010123456781 at level 2",
+      "[defense] restored imsi-001010123456780 at level 2"
+    ]
+  },
+  "expiry": {
+    "start_unix": 1791174025.159
+  },
+  "checks": {
+    "no_false_positive": {
+      "ok": false,
+      "evidence_benign_idle": 0,
+      "evidence_ue2": 2
+    },
+    "idle_cell_not_violation": {
+      "ok": true,
+      "uncongested_samples_in_idle": 20,
+      "ue1_idle_mbps": 3.899
+    },
+    "quota_after_decision": {
+      "ok": true,
+      "s_after_decision_sample": 0.001,
+      "s_after_flood_start": 20.48,
+      "evidence": {
+        "kind": "kpm_rate_ul",
+        "rate_ul_kbps": 3421.536,
+        "cell_prb_ul_pct": 98.0,
+        "class": "default"
+      }
+    },
+    "quota_holds": {
+      "ok": true,
+      "ue1_prb_share_mean": 9.32,
+      "max": 10.0,
+      "samples": 63,
+      "quota_spans": 2
+    },
+    "repeat_offense_level_2": {
+      "ok": true,
+      "s_lift_after_flood_start": 81.5,
+      "s_level_2_after_lift": 4.0
+    },
+    "ue2_unaffected": {
+      "ok": false,
+      "ue2_mbps_benign_flood": [
+        2.985,
+        1.779
+      ],
+      "ratio": 0.596,
+      "control_ue2_mbps_benign_flood": [
+        3.155,
+        2.839
+      ],
+      "control_ratio": 0.9,
+      "ue1_mbps_flood_defense_control": [
+        1.199,
+        3.35
+      ]
+    },
+    "level_at_most_2": {
+      "ok": true,
+      "max_level": 2,
+      "reached_2": true
+    },
+    "reconnect_reapplied": {
+      "ok": true,
+      "amf_old_new": [
+        48,
+        49
+      ],
+      "restored": [
+        "[defense] restored imsi-001010123456781 at level 2",
+        "[defense] restored imsi-001010123456780 at level 2"
+      ],
+      "s_after_xapp_restart": 9.7
+    },
+    "expiry_removes_quota": {
+      "ok": true,
+      "s_to_level_0": 74.8,
+      "quota_removed": true
+    },
+    "db_records": {
+      "ok": true,
+      "evidence_rows": 2,
+      "action_rows": 6
+    }
+  },
+  "status": "FAIL"
+}

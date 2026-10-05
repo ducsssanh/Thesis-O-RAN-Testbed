@@ -1,0 +1,343 @@
+--- a/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
++++ b/openair2/E2AP/RAN_FUNCTION/O-RAN/ran_func_rc.c
+@@ -23,7 +23,14 @@
+ #define RC_CTRL_ACT_SLICE_PRB_QUOTA 6
+ #define RC_CTRL_ACT_RRC_RELEASE 4
+ #define RC_PRB_QUOTA_POLICY_RATIO_LIST 1
++#define RC_PRB_QUOTA_SST 8
++#define RC_PRB_QUOTA_SD 9
+ #define RC_PRB_QUOTA_MIN_RATIO 10
++// Slice Handover (RAN-level inter-slice handover, not in E2SM-RC v01.03: an
++// extension of Style 2 as in SliceHO, NOMS 2026): the UE in the header moves
++// to the RAN slice of the target S-NSSAI (SST, SD as in 8.4.3.6) keeping its
++// PDU session and DRBs; an S-NSSAI without a defined slice is the default
++#define RC_CTRL_ACT_SLICE_HANDOVER 200
+ #define RC_PRB_QUOTA_MAX_RATIO 11
+ #define RC_PRB_QUOTA_DEDICATED_RATIO 12
+ 
+@@ -436,6 +443,19 @@
+                                                RC_CTRL_ACT_SLICE_PRB_QUOTA,
+                                                "Slice-level PRB quota");
+   fill_prb_quota_params(quota);
++  seq_ctrl_style_t* rra = &ctrl->seq_ctrl_style[1];
++  rra->seq_ctrl_act = realloc(rra->seq_ctrl_act, 2 * sizeof(seq_ctrl_act_2_t));
++  assert(rra->seq_ctrl_act != NULL && "Memory exhausted");
++  rra->sz_seq_ctrl_act = 2;
++  seq_ctrl_act_2_t* ho = &rra->seq_ctrl_act[1];
++  memset(ho, 0, sizeof(*ho));
++  ho->id = RC_CTRL_ACT_SLICE_HANDOVER;
++  ho->name = cp_str_to_ba("Slice Handover");
++  ho->sz_seq_assoc_ran_param = 2;
++  ho->assoc_ran_param = calloc(2, sizeof(seq_ran_param_3_t));
++  assert(ho->assoc_ran_param != NULL && "Memory exhausted");
++  ho->assoc_ran_param[0] = (seq_ran_param_3_t){.id = RC_PRB_QUOTA_SST, .name = cp_str_to_ba("SST")};
++  ho->assoc_ran_param[1] = (seq_ran_param_3_t){.id = RC_PRB_QUOTA_SD, .name = cp_str_to_ba("SD")};
+   fill_rc_ctrl_style(&ctrl->seq_ctrl_style[2], RC_CTRL_STYLE_RADIO_ACCESS, "Radio Access Control", RC_CTRL_ACT_RRC_RELEASE, "RRC Connection Release");
+ }
+ 
+@@ -993,9 +1013,97 @@
+   return NULL;
+ }
+ 
+-// Style 2, Slice-level PRB quota. OAI's MAC has no slices, so the quota is
+-// applied to the UE named in the header: its Max PRB Policy Ratio (percent of
+-// the BWP) bounds every new DL and UL allocation; 100 removes the quota.
++// S-NSSAI of a control message: SST (1 octet) and SD (3 octets, big endian);
++// false when the message has no SD
++static bool find_snssai(const e2sm_rc_ctrl_msg_frmt_1_t* msg, uint8_t* sst, uint32_t* sd)
++{
++  const ran_parameter_value_t* st = find_ran_param_value(msg->ran_param, msg->sz_ran_param, RC_PRB_QUOTA_SST);
++  const ran_parameter_value_t* d = find_ran_param_value(msg->ran_param, msg->sz_ran_param, RC_PRB_QUOTA_SD);
++  if (st == NULL || st->type != OCTET_STRING_RAN_PARAMETER_VALUE || st->octet_str_ran.len != 1 || d == NULL
++      || d->type != OCTET_STRING_RAN_PARAMETER_VALUE || d->octet_str_ran.len != 3)
++    return false;
++  *sst = st->octet_str_ran.buf[0];
++  *sd = (uint32_t)d->octet_str_ran.buf[0] << 16 | (uint32_t)d->octet_str_ran.buf[1] << 8 | d->octet_str_ran.buf[2];
++  return true;
++}
++
++// index of the RAN slice with this S-NSSAI, -1 if none. Call with the
++// scheduler lock held.
++static int find_e2_slice(const gNB_MAC_INST* mac, uint8_t sst, uint32_t sd)
++{
++  for (int i = 0; i < NR_E2_MAX_SLICES; i++)
++    if (mac->e2_slices[i].used && mac->e2_slices[i].sst == sst && mac->e2_slices[i].sd == sd)
++      return i;
++  return -1;
++}
++
++// Slice-level PRB quota with an S-NSSAI that has an SD: define (or change)
++// the RAN slice of that S-NSSAI, whose members share Max PRB Policy Ratio
++// percent of the BWP per slot; 100 removes the slice and its members go back
++// to the default slice
++static void ctrl_slice_quota(uint8_t sst, uint32_t sd, int ratio)
++{
++  gNB_MAC_INST* mac = RC.nrmac[0];
++  NR_SCHED_LOCK(&mac->sched_lock);
++  int idx = find_e2_slice(mac, sst, sd);
++  if (ratio >= 100) {
++    if (idx >= 0) {
++      mac->e2_slices[idx].used = false;
++      UE_iterator (mac->UE_info.connected_ue_list, ue)
++        if (ue->UE_sched_ctrl.e2_slice == idx + 1)
++          ue->UE_sched_ctrl.e2_slice = 0;
++    }
++  } else {
++    for (int i = 0; i < NR_E2_MAX_SLICES && idx < 0; i++)
++      if (!mac->e2_slices[i].used)
++        idx = i;
++    if (idx >= 0)
++      mac->e2_slices[idx] = (nr_e2_slice_t){.used = true, .sst = sst, .sd = sd, .max_ratio = max(1, ratio)};
++  }
++  NR_SCHED_UNLOCK(&mac->sched_lock);
++  if (ratio < 100 && idx < 0)
++    printf("[E2 AGENT] RC CONTROL slice PRB quota: no free slot for SST %u SD %06x, ignored\n", sst, sd);
++  else
++    printf("[E2 AGENT] RC CONTROL slice PRB quota: SST %u SD %06x %s\n", sst, sd, ratio >= 100 ? "removed" : "set");
++  if (ratio < 100 && idx >= 0)
++    printf("[E2 AGENT] RC CONTROL slice PRB quota: slice %d Max PRB Policy Ratio %d%%\n", idx, ratio);
++}
++
++// Slice Handover: the UE in the header joins the RAN slice of the target
++// S-NSSAI (the default slice if none is defined for it)
++static void ctrl_slice_handover(const rc_ctrl_req_data_t* ctrl)
++{
++  uint8_t sst;
++  uint32_t sd;
++  if (!find_snssai(&ctrl->msg.frmt_1, &sst, &sd)) {
++    printf("[E2 AGENT] RC CONTROL slice handover: no target S-NSSAI (SST and SD), ignored\n");
++    return;
++  }
++  gNB_MAC_INST* mac = RC.nrmac[0];
++  NR_SCHED_LOCK(&mac->sched_lock);
++  NR_UE_info_t* ue = find_mac_ue(&ctrl->hdr.frmt_1.ue_id);
++  const int idx = find_e2_slice(mac, sst, sd);
++  int rnti = -1;
++  if (ue != NULL) {
++    ue->UE_sched_ctrl.e2_slice = idx + 1;
++    rnti = ue->rnti;
++  }
++  NR_SCHED_UNLOCK(&mac->sched_lock);
++  if (rnti < 0)
++    printf("[E2 AGENT] RC CONTROL slice handover: no UE with AMF UE NGAP ID %lu, ignored\n", ctrl->hdr.frmt_1.ue_id.gnb.amf_ue_ngap_id);
++  else
++    printf("[E2 AGENT] RC CONTROL slice handover: UE %04x (AMF UE NGAP ID %lu) to SST %u SD %06x (%s)\n",
++           rnti,
++           ctrl->hdr.frmt_1.ue_id.gnb.amf_ue_ngap_id,
++           sst,
++           sd,
++           idx >= 0 ? "RAN slice" : "default slice");
++}
++
++// Style 2, Slice-level PRB quota. With an S-NSSAI that has an SD it sets the
++// PRB budget of that RAN slice (ctrl_slice_quota). Without one (the R2 use),
++// the quota applies to the UE named in the header: its Max PRB Policy Ratio
++// (percent of the BWP) bounds every new DL and UL allocation; 100 removes it.
+ static void ctrl_prb_quota(const rc_ctrl_req_data_t* ctrl)
+ {
+   const e2sm_rc_ctrl_msg_frmt_1_t* msg = &ctrl->msg.frmt_1;
+@@ -1005,6 +1113,12 @@
+     return;
+   }
+   const int ratio = max_ratio->int_ran;
++  uint8_t sst;
++  uint32_t sd;
++  if (find_snssai(msg, &sst, &sd)) {
++    ctrl_slice_quota(sst, sd, ratio);
++    return;
++  }
+   gNB_MAC_INST* mac = RC.nrmac[0];
+   NR_SCHED_LOCK(&mac->sched_lock);
+   NR_UE_info_t* ue = find_mac_ue(&ctrl->hdr.frmt_1.ue_id);
+@@ -1059,6 +1173,8 @@
+     if (style == RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION || style == RC_CTRL_STYLE_RADIO_ACCESS) {
+       if (style == RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION && act == RC_CTRL_ACT_SLICE_PRB_QUOTA)
+         ctrl_prb_quota(ctrl);
++      else if (style == RC_CTRL_STYLE_RADIO_RESOURCE_ALLOCATION && act == RC_CTRL_ACT_SLICE_HANDOVER)
++        ctrl_slice_handover(ctrl);
+       else if (style == RC_CTRL_STYLE_RADIO_ACCESS && act == RC_CTRL_ACT_RRC_RELEASE)
+         ctrl_rrc_release(ctrl);
+       else
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch_default_policies.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_dlsch_default_policies.c
+@@ -187,6 +187,7 @@
+ {
+   const int min_rbSize = 5;
+   int n_scheduled = 0;
++  nr_e2_slice_usage_t slice_usage = {0};
+ 
+   /* Build pointer array sorted by PF priority (retx first, then highest weight) */
+   nr_dl_candidate_t *order[MAX_MOBILES_PER_GNB];
+@@ -239,6 +240,11 @@
+     COMMIT_ALLOC(params, cand, rbStart, min_rbSize, cand->sched_pdsch.mcs, n_scheduled);
+   }
+ 
++  /* the E2 slice budgets also count the retransmissions and grants above */
++  for (int j = 0; j < n_active; j++)
++    if (order[j]->scheduled)
++      nr_mac_slice_use(&order[j]->UE->UE_sched_ctrl, order[j]->sched_pdsch.rbSize, &slice_usage);
++
+   /* Phase 3: New data UEs — PF priority order, largest free block */
+   for (int j = 0; j < n_active; j++) {
+     nr_dl_candidate_t *cand = order[j];
+@@ -250,7 +256,9 @@
+     int max_rbSize = find_largest_free_block(vrb_map, cand->alloc_slbitmap, cand->bwp_start, cand->bwp_size, &rbStart);
+     if (max_rbSize < min_rbSize)
+       continue;
+-    max_rbSize = min(max_rbSize, nr_mac_ue_max_rbs(&cand->UE->UE_sched_ctrl, cand->bwp_size, min_rbSize));
++    max_rbSize = min(max_rbSize, nr_mac_ue_max_rbs(&cand->UE->UE_sched_ctrl, cand->bwp_size, min_rbSize, &slice_usage));
++    if (max_rbSize < min_rbSize)
++      continue;
+ 
+     int mcs = cand->sched_pdsch.mcs;
+     uint8_t Qm = nr_get_Qm_dl(mcs, cand->mcs_table);
+@@ -275,6 +283,8 @@
+                   &rbSize);
+ 
+     COMMIT_ALLOC(params, cand, rbStart, rbSize, mcs, n_scheduled);
++    if (cand->scheduled) /* COMMIT_ALLOC's continue only leaves its do-while */
++      nr_mac_slice_use(&cand->UE->UE_sched_ctrl, cand->sched_pdsch.rbSize, &slice_usage);
+   }
+ 
+   return n_scheduled;
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_primitives.c
+@@ -4024,16 +4024,33 @@
+   return true;
+ }
+ 
+-/* \brief largest allocation for a new transmission of this UE, from the
+- * E2SM-RC PRB quota (percent of the BWP, at least min_rbs) */
+-int nr_mac_ue_max_rbs(const NR_UE_sched_ctrl_t *sched_ctrl, int bwp_size, int min_rbs)
++static int ratio_rbs(int ratio, int bwp_size, int min_rbs)
+ {
+-  const int ratio = sched_ctrl->e2_max_prb_ratio;
+-  if (ratio == 0 || ratio >= 100)
+-    return bwp_size;
+   return min(bwp_size, max(min_rbs, (bwp_size * ratio + 50) / 100));
+ }
+ 
++/* \brief largest allocation for a new transmission of this UE: the E2SM-RC
++ * PRB quota of the UE (percent of the BWP, at least min_rbs) and what is left
++ * in this slot of the budget of its E2 slice; below min_rbs the UE waits */
++int nr_mac_ue_max_rbs(const NR_UE_sched_ctrl_t *sched_ctrl, int bwp_size, int min_rbs, const nr_e2_slice_usage_t *usage)
++{
++  const int ratio = sched_ctrl->e2_max_prb_ratio;
++  int max_rbs = ratio == 0 || ratio >= 100 ? bwp_size : ratio_rbs(ratio, bwp_size, min_rbs);
++  const int s = sched_ctrl->e2_slice - 1;
++  if (s >= 0 && s < NR_E2_MAX_SLICES && RC.nrmac[0]->e2_slices[s].used) {
++    const int left = ratio_rbs(RC.nrmac[0]->e2_slices[s].max_ratio, bwp_size, min_rbs) - usage->used[s];
++    max_rbs = left < min_rbs ? 0 : min(max_rbs, left);
++  }
++  return max_rbs;
++}
++
++void nr_mac_slice_use(const NR_UE_sched_ctrl_t *sched_ctrl, int rbs, nr_e2_slice_usage_t *usage)
++{
++  const int s = sched_ctrl->e2_slice - 1;
++  if (s >= 0 && s < NR_E2_MAX_SLICES)
++    usage->used[s] += rbs;
++}
++
+ bool nr_mac_check_ul_failure(gNB_MAC_INST *nrmac, int rnti, NR_UE_sched_ctrl_t *sched_ctrl)
+ {
+   if (!sched_ctrl->ul_failure)
+--- a/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch_default_policies.c
++++ b/openair2/LAYER2/NR_MAC_gNB/gNB_scheduler_ulsch_default_policies.c
+@@ -231,6 +231,7 @@
+ {
+   int n_scheduled = 0;
+   const int min_rb = params->min_rb;
++  nr_e2_slice_usage_t slice_usage = {0};
+ 
+   /* Build pointer array sorted by PF priority (retx first, then highest weight) */
+   nr_ul_candidate_t *order[MAX_MOBILES_PER_GNB];
+@@ -270,6 +271,11 @@
+     COMMIT_UL_ALLOC(params, cand, rbStart, min_rb, cand->sched_pusch.mcs, n_scheduled);
+   }
+ 
++  /* the E2 slice budgets also count the retransmissions and grants above */
++  for (int j = 0; j < n_active; j++)
++    if (order[j]->scheduled)
++      nr_mac_slice_use(&order[j]->UE->UE_sched_ctrl, order[j]->sched_pusch.rbSize, &slice_usage);
++
+   /* Phase 3: New data UEs — PF priority order, largest free block */
+   for (int j = 0; j < n_active; j++) {
+     nr_ul_candidate_t *cand = order[j];
+@@ -282,7 +288,10 @@
+     if (block_len < min_rb)
+       continue;
+ 
+-    uint16_t rbSize = min(block_len, nr_mac_ue_max_rbs(&cand->UE->UE_sched_ctrl, cand->bwp_size, min_rb));
++    const int max_rbs = nr_mac_ue_max_rbs(&cand->UE->UE_sched_ctrl, cand->bwp_size, min_rb, &slice_usage);
++    if (max_rbs < min_rb)
++      continue;
++    uint16_t rbSize = min(block_len, max_rbs);
+     uint8_t mcs = cand->sched_pusch.mcs;
+ 
+     if (cand->pcmax != 0 || cand->ph != 0) {
+@@ -314,6 +323,8 @@
+                   &final_rbSize);
+ 
+     COMMIT_UL_ALLOC(params, cand, block_start, final_rbSize, mcs, n_scheduled);
++    if (cand->scheduled) /* COMMIT_UL_ALLOC's continue only leaves its do-while */
++      nr_mac_slice_use(&cand->UE->UE_sched_ctrl, cand->sched_pusch.rbSize, &slice_usage);
+   }
+ 
+   return n_scheduled;
+--- a/openair2/LAYER2/NR_MAC_gNB/mac_proto.h
++++ b/openair2/LAYER2/NR_MAC_gNB/mac_proto.h
+@@ -510,7 +510,8 @@
+ void nr_mac_trigger_release_complete(gNB_MAC_INST *mac, int rnti);
+ void nr_mac_release_ue(gNB_MAC_INST *mac, int rnti);
+ bool nr_mac_request_release_ue(const gNB_MAC_INST *nrmac, int rnti);
+-int nr_mac_ue_max_rbs(const NR_UE_sched_ctrl_t *sched_ctrl, int bwp_size, int min_rbs);
++int nr_mac_ue_max_rbs(const NR_UE_sched_ctrl_t *sched_ctrl, int bwp_size, int min_rbs, const nr_e2_slice_usage_t *usage);
++void nr_mac_slice_use(const NR_UE_sched_ctrl_t *sched_ctrl, int rbs, nr_e2_slice_usage_t *usage);
+ void clean_bwp_structures(NR_SpCellConfig_t *spCellConfig);
+ 
+ bool nr_mac_ue_is_active(const NR_UE_info_t *ue);
+--- a/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
++++ b/openair2/LAYER2/NR_MAC_gNB/nr_mac_gNB.h
+@@ -681,6 +681,10 @@
+   /// E2SM-RC PRB quota (Max PRB Policy Ratio, percent of the BWP) applied to
+   /// new DL/UL transmissions of this UE; 0 means no quota
+   uint8_t e2_max_prb_ratio;
++  /// E2SM-RC slice of this UE: index + 1 in gNB_MAC_INST e2_slices, 0 = the
++  /// default (unlimited) slice. Set by the Slice Handover control, kept with
++  /// the PDU session and DRBs (RAN-level inter-slice handover)
++  uint8_t e2_slice;
+   CSI_report_t CSI_report;
+   bool SR;
+   /// information about every HARQ process
+@@ -951,6 +955,21 @@
+ struct gNB_MAC_INST_s;
+ typedef struct gNB_MAC_INST_s gNB_MAC_INST;
+ 
++/// RAN slice defined by E2SM-RC Slice-level PRB quota: its members share one
++/// PRB budget per slot (Max PRB Policy Ratio, percent of the BWP)
++#define NR_E2_MAX_SLICES 4
++typedef struct {
++  bool used;
++  uint8_t sst;
++  uint32_t sd;
++  uint8_t max_ratio;
++} nr_e2_slice_t;
++
++/// PRBs already allocated to each E2 slice in the slot being scheduled
++typedef struct {
++  int used[NR_E2_MAX_SLICES];
++} nr_e2_slice_usage_t;
++
+ typedef void (*nr_pp_impl_dl)(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pp_pdsch);
+ typedef void (*nr_pp_impl_ul)(gNB_MAC_INST *nr_mac, post_process_pusch_t *pp_pusch);
+ 
+@@ -1276,6 +1295,8 @@
+   bool print_ue_stats;
+ 
+   pthread_mutex_t sched_lock;
++  /// E2SM-RC RAN slices (changed under sched_lock)
++  nr_e2_slice_t e2_slices[NR_E2_MAX_SLICES];
+ 
+   dlul_mac_stats_t mac_stats;
+   uint64_t num_scheduled_prach_rx;

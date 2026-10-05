@@ -177,6 +177,9 @@ MACRLCs = (
   tr_n_preference             = "local_RRC";
   pusch_TargetSNRx10          = 150;
   pucch_TargetSNRx10          = 200;
+{{- with .Values.global.lab.radio.ulMinMcs }}
+  ul_min_mcs                  = {{ . }};
+{{- end }}
 }
 );
 

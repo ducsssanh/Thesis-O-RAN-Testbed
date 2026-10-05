@@ -103,6 +103,8 @@ apply "$F" "$P/flexric-epoll-eintr.patch"
 apply "$F" "$P/flexric-xapp-ue-identity-join.patch"
 apply "$F" "$P/flexric-xapp-ran-control.patch"
 apply "$F" "$P/flexric-xapp-defense.patch"
+apply "$F" "$P/flexric-xapp-fair-use-policy.patch"
+apply "$F" "$P/flexric-xapp-slice-quarantine.patch"
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722
@@ -111,6 +113,7 @@ tree ran; R=$W/ran
 (cd "$R" && git apply --exclude=openair2/E2AP/flexric "$P/oai-ran-working-tree.patch") || { echo "  patch failed: oai-ran-working-tree"; rc=1; }
 apply "$R" "$P/oai-ran-kpm-per-ue-counters.patch"
 apply "$R" "$P/oai-ran-e2-rc-enforcement.patch"
+apply "$R" "$P/oai-ran-e2-rc-slice-handover.patch"
 rm -rf "$R/openair2/E2AP/flexric"; tree flexric; mv "$W/flexric" "$R/openair2/E2AP/flexric"; E=$R/openair2/E2AP/flexric
 apply "$E" "$P/flexric-working-tree.patch"
 cp "$P"/flexric/examples/xApp/c/metrics_factory.[ch] "$E/examples/xApp/c/"

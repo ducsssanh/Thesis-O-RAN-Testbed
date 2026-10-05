@@ -18,3 +18,14 @@ dependencies:
   version: 2.4.0
   repository: file://../../vendor/oai-5g-ran/oai-nr-ue
   condition: oai-nr-ue2.enabled
+# More UEs (multi-UE flood, R3 slice quarantine): IMSI + 2, + 3
+- name: oai-nr-ue
+  alias: oai-nr-ue3
+  version: 2.4.0
+  repository: file://../../vendor/oai-5g-ran/oai-nr-ue
+  condition: oai-nr-ue3.enabled
+- name: oai-nr-ue
+  alias: oai-nr-ue4
+  version: 2.4.0
+  repository: file://../../vendor/oai-5g-ran/oai-nr-ue
+  condition: oai-nr-ue4.enabled

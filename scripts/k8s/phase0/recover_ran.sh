@@ -1,7 +1,7 @@
 #!/bin/bash
 # Restart the RAN chain after FlexRIC or the gNB restarted (FlexRIC keeps a
 # dead E2 association and the xApp asserts on its subscription): FlexRIC ->
-# gNB -> both UEs -> (UE IPs + one AMF UE table period) -> xApp.
+# gNB -> every running UE -> (UE IPs + one AMF UE table period) -> xApp.
 # Usage: recover_ran.sh [--keep-flexric]
 set -eu
 K="kubectl --context oai-lab"
@@ -12,10 +12,10 @@ fi
 $K -n oai-ran rollout restart deploy/oai-gnb >/dev/null
 $K -n oai-ran rollout status deploy/oai-gnb --timeout=180s >/dev/null
 sleep 10
-$K -n oai-ran rollout restart deploy/oai-nr-ue deploy/oai-nr-ue2 >/dev/null
-$K -n oai-ran rollout status deploy/oai-nr-ue --timeout=180s >/dev/null
-$K -n oai-ran rollout status deploy/oai-nr-ue2 --timeout=180s >/dev/null
-for d in oai-nr-ue oai-nr-ue2; do
+UES=$($K -n oai-ran get deploy -o jsonpath='{range .items[?(@.spec.replicas>0)]}{.metadata.name}{"\n"}{end}' | grep '^oai-nr-ue')
+for d in $UES; do $K -n oai-ran rollout restart deploy/$d >/dev/null; done
+for d in $UES; do $K -n oai-ran rollout status deploy/$d --timeout=180s >/dev/null; done
+for d in $UES; do
   for i in $(seq 1 40); do
     $K -n oai-ran exec deploy/$d -c nr-ue -- ip -4 -o addr show oaitun_ue1 2>/dev/null | grep -q inet && break
     sleep 3

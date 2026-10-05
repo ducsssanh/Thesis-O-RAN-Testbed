@@ -19,8 +19,8 @@ global:
     ueSubnet: 10.1.0.0/16
     xdpMode: skb
     usageReporting: true
-    extraUes: 1          # subscribers provisioned beyond the base IMSI (R1)
-    extraUeReplicas: 0   # replicas of oai-nr-ue2 (IMSI + 1)
+    extraUes: 3          # subscribers provisioned beyond the base IMSI (R1; 3 for the multi-UE flood)
+    extraUeReplicas: 0   # replicas of each extra UE (oai-nr-ue2..4: IMSI + 1..3; enable oai-nr-ueN per UE)
     # Two-layer defense, core side (docs/TWO-LAYER-DEFENSE-DESIGN.md 4.1, 6.1)
     defense:
       userId: true              # PFCP User ID IE (IMSI) in Session Establishment
@@ -39,23 +39,34 @@ global:
       xapp:                     # RAN layer in the xApp (plan R3, design 6 / 6.1)
         enabled: true
         profile: lab            # escalation.profile
-        detector:               # per-UE fair-use rule on KPM: hits of the last samples (1 s each)
-          ulRateKbps: 3000      # mean PDCP rate; benign lab UE <= 2 Mbit/s UL; RFsim UL saturates near 6 Mbit/s
-          dlRateKbps: 15000     # benign lab UE <= 10 Mbit/s DL
+        fairUse:                # policy per SUPI (SYSTEM-OVERVIEW 6, option b; k x AMBR in Phase L)
+          classes:              # mean PDCP rate a class may sustain; "default" applies to unassigned SUPIs
+            default: {ulRateKbps: 2000, dlRateKbps: 15000}   # must sit below a flood's PF fair share C/N: RFsim UL C ~3.8-6.2 Mbit/s,
+                                                             # 2 UEs -> 1.9-3.1 (3000 detected a flood in 3 s or 20 s, R3 05/10); benign lab UE <= 2 Mbit/s UL
+            heavy: {ulRateKbps: 5000, dlRateKbps: 30000}
+          supiClass: {}         # "imsi-...": heavy; the DB table policy (POST /v1/defense/policy) overrides
+          congestion:           # above the rate only counts while the cell is busy in that direction
+            enabled: true
+            ulCellPrbPct: 80    # sum of the UEs' PRB shares; R2 UL flood 71-99 % (mean 94)
+            dlCellPrbPct: 60    # R2 DL flood 59-76 % (mean 69): DL does not fill the PRBs
+            otherUeKbps: 100    # ...and another UE sends >= this in that direction (a UE alone gets ~98 % PRB, R3 05/10)
+        detector:               # hits of the last samples (1 s each)
           ulPrbPct: 0           # 0 = rule off (a busy benign UE also takes ~40 % of the PRBs)
           dlPrbPct: 0
           hits: 3               # 3 of 4: a victim draining its backlog after congestion
           samples: 4            # stays above the rate for ~2 samples (R3, 04/10)
         action:
-          maxPrbRatio: 10       # level 1-2: E2SM-RC PRB quota, percent of the BWP
-        confirm:                # level 2: the UE keeps its quota full
-          marginPct: 4          # full = PRB share >= ratio - margin (capped DL share sits near 6-7 %)
-          hits: 5
-          samples: 6
+          mode: slice           # slice: levels 1-2 hand the UE over to the quarantine RAN slice (members share
+                                # maxPrbRatio, PDU session kept; gNB C33, SliceHO idea); ue: PRB quota on the UE (R2)
+          maxPrbRatio: 10       # percent of the BWP per slot
+          quarantineSlice: {sst: 1, sd: "BADBAD"}
+          defaultSlice: {sst: 1, sd: "FFFFFF"}   # the lab slice (global.lab.slice); no RAN slice -> unlimited
+        confirm:                # level 2: violates again within probationS after the level-1 quota expired
+          probationS: 180       # (PRB "quota full" cannot confirm: spare PRBs go to any active UE, R3 05/10)
         expiryS:                # [level 1, level 2] per profile (design 6)
           lab: [60, 180]
           production: [300, 3600]
-        severity: {kpmRate: 2, quotaFull: 1}
+        severity: {kpmRate: 2, repeat: 1}
         scoreHalfLifeS: 60
     toolsImage: oai-lab-tools:unbuilt
     dbImage: mariadb:10.6
@@ -66,6 +77,8 @@ global:
       prbs: 106
       numerology: 1
       frequency: 3619200000
+      ulMinMcs: 16              # floor of OAI UL link adaptation: idle drops it to MCS 0 at the fixed RFsim SNR
+                                # (~17 dB, MCS 17-20 under load), the slow ramp then buffers and bursts (R3 05/10)
     experiment:
       rate: 10M
       duration: 120
