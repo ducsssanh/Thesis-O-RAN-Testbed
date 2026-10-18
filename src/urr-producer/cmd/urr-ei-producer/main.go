@@ -28,6 +28,23 @@ func main() {
 		}
 	}
 	c.AMFNamespace = env("AMF_NAMESPACE", "")
+	c.TelemetryURL = os.Getenv("UPF_TELEMETRY_URL")
+	// closed-loop types (docs/CLOSED-LOOP-FRAMEWORK.md 3.1); TEST_INFO_TYPE
+	// adds the synthetic source of the multi-type path gate (CL-1)
+	for _, x := range strings.Split(os.Getenv("EXTRA_INFO_TYPES"), ",") {
+		if x = strings.TrimSpace(x); x != "" && x != c.InfoTypeID {
+			c.ExtraTypes = append(c.ExtraTypes, x)
+		}
+	}
+	if c.TestType = strings.TrimSpace(os.Getenv("TEST_INFO_TYPE")); c.TestType != "" {
+		known := false
+		for _, x := range c.ExtraTypes {
+			known = known || x == c.TestType
+		}
+		if !known {
+			c.ExtraTypes = append(c.ExtraTypes, c.TestType)
+		}
+	}
 	s, e := p.New(c)
 	if e != nil {
 		log.Fatal(e)
@@ -38,6 +55,8 @@ func main() {
 	go s.ReconcileLoop(ctx)
 	go s.IdentityLoop(ctx)
 	go s.DeliverPending(ctx)
+	go s.TestLoop(ctx)
+	go s.TelemetryLoop(ctx)
 	srv := &http.Server{Addr: c.Listen, Handler: s.Handler(), ReadHeaderTimeout: 5 * time.Second}
 	go func() {
 		<-ctx.Done()

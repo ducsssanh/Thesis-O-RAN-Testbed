@@ -1,0 +1,310 @@
+{
+  "started": "2026-10-05T20:42:59",
+  "phases": [
+    "block",
+    "reconnect",
+    "ratelimit",
+    "monitor",
+    "limits",
+    "restart",
+    "delete"
+  ],
+  "checks": {
+    "block_put_ok": {
+      "ok": true,
+      "status": 200,
+      "body": {
+        "action": "block",
+        "active": true,
+        "enforced": true,
+        "epoch": 1,
+        "expires_at_ms": 1791208395832,
+        "expires_in_s": 599.997,
+        "level": 3,
+        "rate_dl_kbps": 0,
+        "rate_ul_kbps": 0,
+        "sessions": [
+          {
+            "in_map": true,
+            "seid": 2
+          }
+        ],
+        "supi": "imsi-001010123456780",
+        "updated_at_ms": 1791207795832
+      }
+    },
+    "block_ul_stops_within_1s": {
+      "ok": true,
+      "last_ue1_pkt_after_put_s": -0.082,
+      "ue1_pkts_total": 874
+    },
+    "block_other_ue_flows": {
+      "ok": true,
+      "ue2_pkts_after_put": 1570,
+      "ue2_iperf_mbps": 1.05
+    },
+    "block_dl_blocked": {
+      "ok": true,
+      "dl_mbps": null,
+      "drop_dl_pkts": 751
+    },
+    "block_sec_stats_grow": {
+      "ok": true,
+      "drop_ul_pkts": [
+        24,
+        490
+      ]
+    },
+    "block_pfcp_rules_unchanged": {
+      "ok": true,
+      "maps": [
+        "1536"
+      ],
+      "entries": 4
+    },
+    "block_smf_no_error": {
+      "ok": true,
+      "errors": []
+    },
+    "reconnect_new_session_enforced": {
+      "ok": true,
+      "ue1_ip": "10.1.0.3",
+      "old": [
+        {
+          "in_map": true,
+          "seid": 2
+        }
+      ],
+      "new": [
+        {
+          "in_map": true,
+          "seid": 3
+        }
+      ],
+      "upf_log": [
+        "[2026-10-05 15:44:04.043] [upf_app] [info] UPF security: block policy applied to new session SEID 0x3"
+      ]
+    },
+    "reconnect_blocked_from_first_packet": {
+      "ok": true,
+      "dn_pkts_from_new_session": 0,
+      "iperf_mbps": null,
+      "new_session_stats": {
+        "drop_dl_bytes": 0,
+        "drop_dl_pkts": 0,
+        "drop_ul_bytes": 1667321,
+        "drop_ul_pkts": 1303,
+        "last_drop_ns": 144278275613843,
+        "seen_dl_bytes": 0,
+        "seen_dl_pkts": 0,
+        "seen_ul_bytes": 1667321,
+        "seen_ul_pkts": 1303
+      }
+    },
+    "ratelimit_limits_ul": {
+      "ok": true,
+      "status": 200,
+      "dn_mbps": 0.458,
+      "offered_mbps": 2,
+      "limit_mbps": 0.5,
+      "drop_ul_pkts": 5828
+    },
+    "monitor_no_drop": {
+      "ok": true,
+      "status": 200,
+      "dn_mbps": 1.061,
+      "drop_ul_pkts": [
+        5828,
+        5828
+      ],
+      "seen_ul_pkts": [
+        6549,
+        7648
+      ]
+    },
+    "limit_blocked_ratio_403": {
+      "ok": true,
+      "statuses": [
+        200,
+        403
+      ],
+      "body": {
+        "error": "blocked ratio above maxBlockedRatio"
+      }
+    },
+    "limit_max_ttl_403": {
+      "ok": true,
+      "status": 403,
+      "body": {
+        "error": "ttl_s above maxTtlS"
+      }
+    },
+    "limit_cmd_rate_429": {
+      "ok": true,
+      "codes": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        429,
+        429,
+        429,
+        429,
+        429
+      ],
+      "span_s": 0.166
+    },
+    "restart_policy_reloaded": {
+      "ok": true,
+      "boot_id": [
+        "c4ee6fee-7b03-4bd0-9ef1-1d23ebf1a36c",
+        "87afbd96-2ab7-4c1d-94f8-3fc7bb9d4b29"
+      ],
+      "policies": 1,
+      "policy": {
+        "action": "block",
+        "active": true,
+        "enforced": false,
+        "epoch": 5,
+        "expires_at_ms": 1791208944503,
+        "expires_in_s": 843.952,
+        "level": 3,
+        "rate_dl_kbps": 0,
+        "rate_ul_kbps": 0,
+        "sessions": [],
+        "supi": "imsi-001010123456780",
+        "updated_at_ms": 1791208044503
+      }
+    },
+    "restart_new_session_blocked": {
+      "ok": true,
+      "ue1_ip": "10.1.0.3",
+      "dn_pkts_from_ue1": 0,
+      "ue1_mbps": null,
+      "sessions": [
+        {
+          "in_map": true,
+          "seid": 2
+        }
+      ]
+    },
+    "restart_other_ue_flows": {
+      "ok": true,
+      "ue2_ip": "10.1.0.2",
+      "ue2_mbps": 1.057
+    },
+    "delete_traffic_recovers": {
+      "ok": true,
+      "status": 200,
+      "dn_mbps": 1.057,
+      "sessions": [
+        {
+          "policy_in_map": false,
+          "seid": 2,
+          "supi": "imsi-001010123456780"
+        },
+        {
+          "policy_in_map": false,
+          "seid": 1,
+          "supi": "imsi-001010123456781"
+        }
+      ]
+    }
+  },
+  "info_before": {
+    "boot_id": "c4ee6fee-7b03-4bd0-9ef1-1d23ebf1a36c",
+    "db_path": "/upf-sec/sec_policy.db",
+    "limits": {
+      "maxBlockedRatio": 0.5,
+      "maxCmdsPerS": 10,
+      "maxPolicies": 16384,
+      "maxTtlS": 86400,
+      "ratelimitBurstMs": 100
+    },
+    "live_sessions": 2,
+    "policies": 0,
+    "running": true,
+    "service": "oai-upf-security",
+    "started_at_ms": 1791207720552,
+    "version": "C35"
+  },
+  "block": {
+    "ue1_iperf_mbps": 0.261,
+    "t_put": 1791207795.8376465
+  },
+  "ues": {
+    "count": 0,
+    "policies": []
+  },
+  "stats": {
+    "stats": [
+      {
+        "sessions": [
+          {
+            "seid": 2,
+            "stats": {
+              "drop_dl_bytes": 0,
+              "drop_dl_pkts": 0,
+              "drop_ul_bytes": 1666846,
+              "drop_ul_pkts": 1298,
+              "last_drop_ns": 144442064255279,
+              "seen_dl_bytes": 0,
+              "seen_dl_pkts": 0,
+              "seen_ul_bytes": 1666846,
+              "seen_ul_pkts": 1298
+            }
+          }
+        ],
+        "supi": "imsi-001010123456780",
+        "total": {
+          "drop_dl_bytes": 0,
+          "drop_dl_pkts": 0,
+          "drop_ul_bytes": 1666846,
+          "drop_ul_pkts": 1298,
+          "last_drop_ns": 144442064255279,
+          "seen_dl_bytes": 0,
+          "seen_dl_pkts": 0,
+          "seen_ul_bytes": 1666846,
+          "seen_ul_pkts": 1298
+        }
+      },
+      {
+        "sessions": [
+          {
+            "seid": 1,
+            "stats": {
+              "drop_dl_bytes": 0,
+              "drop_dl_pkts": 0,
+              "drop_ul_bytes": 0,
+              "drop_ul_pkts": 0,
+              "last_drop_ns": 0,
+              "seen_dl_bytes": 0,
+              "seen_dl_pkts": 0,
+              "seen_ul_bytes": 0,
+              "seen_ul_pkts": 0
+            }
+          }
+        ],
+        "supi": "imsi-001010123456781",
+        "total": {
+          "drop_dl_bytes": 0,
+          "drop_dl_pkts": 0,
+          "drop_ul_bytes": 0,
+          "drop_ul_pkts": 0,
+          "last_drop_ns": 0,
+          "seen_dl_bytes": 0,
+          "seen_dl_pkts": 0,
+          "seen_ul_bytes": 0,
+          "seen_ul_pkts": 0
+        }
+      }
+    ]
+  },
+  "status": "PASS"
+}

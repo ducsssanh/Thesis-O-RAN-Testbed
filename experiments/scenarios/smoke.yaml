@@ -1,0 +1,17 @@
+name: smoke
+description: |
+  Pipeline check (~2 min): benign traffic only, both layers on. Every record
+  type must be exported and the metrics computed; no evidence expected.
+ues: {ue1: benign, ue2: benign}
+reps: 1
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+defense_common:
+  classes: {ue1: default, ue2: default}
+variants:
+  - name: two-layer
+    defense: {enabled: true, core: true, mode: slice}
+phases:
+  - {name: baseline, duration: 30, baseline: true, flows: {ue1: {ul: 1M}, ue2: {ul: 1M}}}
+  - {name: dl, duration: 20, flows: {ue1: {dl: 2M}, ue2: {dl: 2M}}}
+report: [benign_delivered_ratio_baseline, benign_max_level, benign_evidence]

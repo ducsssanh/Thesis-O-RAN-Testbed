@@ -11,4 +11,4 @@ global:
       smf:
         image: oai-lab-smf:v2.2.0-lab-e2aa7c54
       upf:
-        image: oai-lab-upf:ttl-afdf292e9d3a
+        image: oai-lab-upf:reflex-d1d70c85996b

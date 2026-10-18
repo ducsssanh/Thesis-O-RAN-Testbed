@@ -12,5 +12,7 @@ case "${1:-}" in
     done ;;
   status)
     exec python3 "$ROOT/scripts/k8s/staged.py" "$@" ;;
+  exp)
+    shift; exec python3 "$ROOT/scripts/k8s/exp/run.py" "$@" ;;
 esac
 exec python3 "$ROOT/scripts/k8s/lab.py" "$@"

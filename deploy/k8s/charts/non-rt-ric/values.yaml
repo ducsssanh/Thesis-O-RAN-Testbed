@@ -8,4 +8,7 @@ ics:
 producer:
   replicas: 0
   image: oai-lab-urr-ei-producer:unbuilt
+  extraInfoTypes: "oai-session_1.0.0,oai-upf-profile_1.0.0"   # closed-loop EI types (CLOSED-LOOP-FRAMEWORK.md 3.1)
+  upfTelemetryUrl: "http://oai-upf-security.oai-core.svc.cluster.local:8095/v1/telemetry"
+  testInfoType: ""     # e.g. oai-test_1.0.0: synthetic 1/s per UE (gate CL-1)
   size: 1Gi

@@ -1,0 +1,1532 @@
+diff -ruN a/examples/xApp/c/monitor/actuators.c b/examples/xApp/c/monitor/actuators.c
+--- a/examples/xApp/c/monitor/actuators.c	2026-10-05 18:25:16.136379920 +0700
++++ b/examples/xApp/c/monitor/actuators.c	2026-10-06 00:39:53.997036326 +0700
+@@ -1,8 +1,23 @@
+-/* actuators layer of the defense (see defense_internal.h): RAN actions that
+-   bring the gNB in line with the levels, and the verifier of their effect */
++/* actuators layer of the defense (see defense_internal.h): RAN actions
++   (E2SM-RC) and core actions (UPF Security API) that bring the gNB and the
++   UPF in line with the levels (design 6), and the verifier of their effect:
++     level  RAN                                    core (UPF, per SUPI)
++     0      default slice, no quota                no policy
++     1      quarantine slice (or PRB quota)        monitor
++     2      quarantine slice                       ratelimit at the class rate
++     3      quarantine slice + RRC Release once    block
++     4      as 3 + RRC Release at every attach     block, TTL at the UPF's cap,
++                                                   renewed while level 4 lasts
++   A core policy expires at the UPF ttl_margin after the level would, so a
++   dead xApp leaves nothing behind for long. The verifier checks the RAN
++   limit with KPM PRB and with URR (the core view), and the UPF action with
++   URR; a RAN limit the URR does not confirm lowers the gNB's ctrl_trust and
++   adds the UPF ratelimit already at level 1. */
+ #include "defense_internal.h"
++#include "http_client.h"
+ #include "ran_control.h"
+ #include <inttypes.h>
++#include <stdlib.h>
+ #include <string.h>
+ 
+ #define RETRY_US 2000000LL
+@@ -26,6 +41,7 @@
+     sqlite3_finalize(q);
+   }
+   json_object *o = event_base("action", u, now);
++  json_object_object_add(o, "layer", json_object_new_string("ran"));
+   json_object_object_add(o, "action", json_object_new_string(cfg.slice_mode ? "slice_handover" : "prb_quota"));
+   if (cfg.slice_mode) {
+     char sl[32];
+@@ -40,84 +56,435 @@
+   return id;
+ }
+ 
+-/* verifier: the limit in force for this UE ID holds when its PRB share obeys it */
+-void actuators_verify(ue_t *u, const features_t *f, int64_t now) {
+-  if (u->applied_ratio <= 0 || u->synced_amf != f->amf || u->verified) return;
+-  if (f->prb_ul > u->applied_ratio + 3 || f->prb_dl > u->applied_ratio + 3) return;
+-  u->verified = true;
+-  if (db && u->last_action) {
+-    char sql[96];
+-    snprintf(sql, sizeof(sql), "UPDATE actions SET verified=1 WHERE id=%lld", (long long)u->last_action);
+-    exec_sql(sql);
++/* actions table row of any layer, written before the request is sent
++   (status 0) and completed afterwards */
++static sqlite3_int64 action_row(const char *supi, int64_t now, const char *layer, const char *action, const char *detail) {
++  sqlite3_int64 id = 0;
++  if (!db) return 0;
++  char at[40];
++  iso(now, at, sizeof(at));
++  sqlite3_stmt *q = NULL;
++  if (sqlite3_prepare_v2(db, "INSERT INTO actions(supi,at,layer,action,detail,status,verified) VALUES(?,?,?,?,?,0,0)", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, supi, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 3, layer, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 4, action, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 5, detail, -1, SQLITE_TRANSIENT);
++    if (sqlite3_step(q) == SQLITE_DONE) id = sqlite3_last_insert_rowid(db);
++  }
++  sqlite3_finalize(q);
++  return id;
++}
++
++static void action_done(sqlite3_int64 id, int status) {
++  if (!db || !id) return;
++  char sql[96];
++  snprintf(sql, sizeof(sql), "UPDATE actions SET status=%d WHERE id=%lld", status, (long long)id);
++  exec_sql(sql);
++}
++
++static void action_verified(sqlite3_int64 id) {
++  if (!db || !id) return;
++  char sql[96];
++  snprintf(sql, sizeof(sql), "UPDATE actions SET verified=1 WHERE id=%lld", (long long)id);
++  exec_sql(sql);
++}
++
++/* ---------- core (UPF Security API) ---------- */
++
++static char boot_id[64], core_error[128];
++static int64_t core_synced_us;
++static unsigned long long core_requests, core_failures;
++static sqlite3_int64 core_rows[MAX_UES]; /* latest core action row per UE slot */
++
++const char *core_want(const ue_t *u, double *ul_kbps, double *dl_kbps) {
++  *ul_kbps = *dl_kbps = 0;
++  if (!cfg.core || !cfg.enabled || u->level == 0) return "none";
++  if (u->level >= 3) return "block";
++  if (u->level == 2 || u->core_assist) {
++    *ul_kbps = cfg.classes[u->cls].ul_rate_kbps * cfg.ratelimit_factor;
++    *dl_kbps = cfg.classes[u->cls].dl_rate_kbps * cfg.ratelimit_factor;
++    return "ratelimit";
++  }
++  return "monitor";
++}
++
++/* one request to the UPF API; returns the HTTP status (0: no answer) and
++   the parsed body in *out (may be NULL) */
++static int upf(const char *method, const char *path, json_object *body, json_object **out) {
++  char url[256], err[128] = "";
++  snprintf(url, sizeof(url), "%s%s", cfg.upf_api, path);
++  int status = 0;
++  char *resp = http_call(method, url, body ? json_object_to_json_string_ext(body, JSON_C_TO_STRING_PLAIN) : NULL, cfg.upf_timeout_ms,
++                         &status, err, sizeof(err));
++  pthread_mutex_lock(&st_lock);
++  core_requests++;
++  if (!resp || (status != 200 && status != 404)) {
++    core_failures++;
++    snprintf(core_error, sizeof(core_error), "%s %s: %s", method, path, resp ? resp : err);
++  }
++  pthread_mutex_unlock(&st_lock);
++  if (out) *out = resp ? json_tokener_parse(resp) : NULL;
++  free(resp);
++  return resp || status ? status : 0;
++}
++
++static void core_event(const ue_t *u, int64_t now, const char *action, double ul, double dl, int ttl, int status, json_object *res) {
++  json_object *o = event_base("action", u, now);
++  json_object_object_add(o, "layer", json_object_new_string("core"));
++  json_object_object_add(o, "action", json_object_new_string(action));
++  if (!strcmp(action, "ratelimit")) {
++    json_object_object_add(o, "rate_ul_kbps", json_object_new_double(ul));
++    json_object_object_add(o, "rate_dl_kbps", json_object_new_double(dl));
++  }
++  if (ttl) json_object_object_add(o, "ttl_s", json_object_new_int(ttl));
++  json_object_object_add(o, "http", json_object_new_int(status));
++  if (res) {
++    json_object *x = NULL;
++    if (json_object_object_get_ex(res, "error", &x)) json_object_object_add(o, "error", json_object_get(x));
++    if (json_object_object_get_ex(res, "enforced", &x)) json_object_object_add(o, "enforced", json_object_get(x));
++    if (json_object_object_get_ex(res, "epoch", &x)) json_object_object_add(o, "upf_epoch", json_object_get(x));
+   }
+-  json_object *o = event_base("verified", u, now);
++  event(o);
++}
++
++/* bring the UPF in line with one UE's level (called without st_lock) */
++static void core_reconcile_ue(int slot, int64_t now) {
++  pthread_mutex_lock(&st_lock);
++  ue_t *u = &ues[slot];
++  if (!u->used || now < u->core_next_try_us) {
++    pthread_mutex_unlock(&st_lock);
++    return;
++  }
++  double ul, dl;
++  const char *want = core_want(u, &ul, &dl);
++  const char *have = u->core_applied[0] ? u->core_applied : "unknown";
++  /* where the UPF policy should end: margin after the level, or the UPF's
++     TTL cap for a level without expiry (renewed at half) */
++  int64_t target = strcmp(want, "none") == 0 ? 0
++                 : u->expires_us ? u->expires_us + (int64_t)cfg.upf_ttl_margin_s * 1000000 : 0;
++  bool need = strcmp(want, have) != 0 || (!strcmp(want, "ratelimit") && u->core_rate_kbps != ul);
++  if (!need && strcmp(want, "none") != 0) {
++    if (target) need = llabs(target - u->core_expires_us) > 5000000LL;
++    else need = u->core_expires_us - now < (int64_t)cfg.upf_max_ttl_s * 500000LL;
++  }
++  if (!need) {
++    pthread_mutex_unlock(&st_lock);
++    return;
++  }
++  char supi[96], path[160], action[12];
++  snprintf(supi, sizeof(supi), "%s", u->supi);
++  snprintf(action, sizeof(action), "%s", want);
++  snprintf(path, sizeof(path), "/v1/ues/%s", supi);
++  int ttl = 0;
++  if (strcmp(want, "none") != 0) {
++    ttl = target ? (int)((target - now) / 1000000 + 1) : cfg.upf_max_ttl_s;
++    if (ttl > cfg.upf_max_ttl_s) ttl = cfg.upf_max_ttl_s;
++    if (ttl < 1) ttl = 1;
++  }
++  const int level = u->level;
++  pthread_mutex_unlock(&st_lock);
++
++  /* the decision is stored before it is sent */
++  char detail[96];
++  snprintf(detail, sizeof(detail), "ttl_s=%d rate_ul_kbps=%.0f rate_dl_kbps=%.0f level=%d", ttl, ul, dl, level);
++  sqlite3_int64 row = action_row(supi, now, "core", strcmp(action, "none") ? action : "delete", detail);
++  json_object *res = NULL;
++  int status;
++  if (strcmp(action, "none") == 0) {
++    status = upf("DELETE", path, NULL, &res);
++    if (status == 404) status = 200; /* nothing there: in line */
++  } else {
++    json_object *b = json_object_new_object();
++    json_object_object_add(b, "action", json_object_new_string(action));
++    json_object_object_add(b, "ttl_s", json_object_new_int(ttl));
++    json_object_object_add(b, "level", json_object_new_int(level));
++    if (!strcmp(action, "ratelimit")) {
++      json_object_object_add(b, "rate_ul_kbps", json_object_new_int64((int64_t)ul));
++      json_object_object_add(b, "rate_dl_kbps", json_object_new_int64((int64_t)dl));
++    }
++    status = upf("PUT", path, b, &res);
++    json_object_put(b);
++  }
++  action_done(row, status);
++
++  pthread_mutex_lock(&st_lock);
++  if (u->used && strcmp(u->supi, supi) == 0) {
++    if (status == 200) {
++      snprintf(u->core_applied, sizeof(u->core_applied), "%s", action);
++      u->core_rate_kbps = ul;
++      u->core_expires_us = ttl ? now + (int64_t)ttl * 1000000 : 0;
++      if (strcmp(action, "none") != 0 && (strcmp(have, action) != 0 || !u->core_since_us)) {
++        u->core_since_us = now;
++        u->core_verified = !strcmp(action, "monitor"); /* nothing to check */
++        core_rows[slot] = row;
++      }
++      if (!strcmp(action, "none")) u->core_since_us = 0;
++    } else {
++      u->core_next_try_us = now + RETRY_US;
++    }
++    core_event(u, now, action, ul, dl, ttl, status, res);
++  }
++  pthread_mutex_unlock(&st_lock);
++  if (res) json_object_put(res);
++}
++
++/* periodic check against the UPF: a restarted UPF (boot_id) or a policy that
++   differs from ours is pushed again; a policy for a SUPI at level 0 is
++   removed (the xApp is the only brain) */
++void actuators_core_sync(int64_t now) {
++  pthread_mutex_lock(&st_lock);
++  const bool due = cfg.core && cfg.enabled && now - core_synced_us >= (int64_t)cfg.upf_sync_s * 1000000;
++  pthread_mutex_unlock(&st_lock);
++  if (!due) return;
++  json_object *info = NULL, *list = NULL, *x = NULL, *arr = NULL;
++  int si = upf("GET", "/v1/info", NULL, &info);
++  int sl = si == 200 ? upf("GET", "/v1/ues", NULL, &list) : 0;
++  pthread_mutex_lock(&st_lock);
++  core_synced_us = now;
++  if (si == 200 && info && json_object_object_get_ex(info, "boot_id", &x)) {
++    const char *b = json_object_get_string(x);
++    if (boot_id[0] && strcmp(boot_id, b) != 0) {
++      printf("[defense] UPF restarted (boot_id %s -> %s): policies pushed again\n", boot_id, b);
++      for (int i = 0; i < MAX_UES; i++) ues[i].core_applied[0] = '\0';
++    }
++    snprintf(boot_id, sizeof(boot_id), "%s", b);
++  }
++  char stale[MAX_UES][96];
++  int n_stale = 0;
++  if (sl == 200 && list && json_object_object_get_ex(list, "policies", &arr) && json_object_is_type(arr, json_type_array)) {
++    for (int i = 0; i < MAX_UES; i++) {
++      ue_t *u = &ues[i];
++      if (!u->used || !u->core_applied[0] || !strcmp(u->core_applied, "none")) continue;
++      bool found = false;
++      for (size_t j = 0; j < json_object_array_length(arr); j++) {
++        json_object *p = json_object_array_get_idx(arr, j), *s = NULL, *a = NULL, *act = NULL;
++        if (json_object_object_get_ex(p, "supi", &s) && !strcmp(json_object_get_string(s), u->supi) &&
++            json_object_object_get_ex(p, "action", &a) && !strcmp(json_object_get_string(a), u->core_applied) &&
++            json_object_object_get_ex(p, "active", &act) && json_object_get_boolean(act))
++          found = true;
++      }
++      if (!found) u->core_applied[0] = '\0'; /* unknown: push again */
++    }
++    for (size_t j = 0; j < json_object_array_length(arr) && n_stale < MAX_UES; j++) {
++      json_object *p = json_object_array_get_idx(arr, j), *s = NULL;
++      if (!json_object_object_get_ex(p, "supi", &s)) continue;
++      ue_t *u = ue_for(json_object_get_string(s), false);
++      double ul, dl;
++      if (!u || !strcmp(core_want(u, &ul, &dl), "none")) snprintf(stale[n_stale++], 96, "%s", json_object_get_string(s));
++    }
++  }
++  pthread_mutex_unlock(&st_lock);
++  for (int i = 0; i < n_stale; i++) {
++    char path[160];
++    snprintf(path, sizeof(path), "/v1/ues/%s", stale[i]);
++    sqlite3_int64 row = action_row(stale[i], now, "core", "delete", "stale policy at the UPF");
++    action_done(row, upf("DELETE", path, NULL, NULL));
++    printf("[defense] removed stale UPF policy of %s\n", stale[i]);
++  }
++  if (info) json_object_put(info);
++  if (list) json_object_put(list);
++}
++
++json_object *actuators_core_state(void) {
++  json_object *o = json_object_new_object();
++  json_object_object_add(o, "enabled", json_object_new_boolean(cfg.core));
++  json_object_object_add(o, "upf_api", json_object_new_string(cfg.upf_api));
++  json_object_object_add(o, "upf_boot_id", json_object_new_string(boot_id));
++  json_object_object_add(o, "requests", json_object_new_uint64(core_requests));
++  json_object_object_add(o, "failures", json_object_new_uint64(core_failures));
++  json_object_object_add(o, "last_error", json_object_new_string(core_error));
++  return o;
++}
++
++/* ---------- verifier ---------- */
++
++static void lower_ctrl_trust(const char *node) {
++  if (!db || !node[0]) return;
++  sqlite3_stmt *q = NULL;
++  if (sqlite3_prepare_v2(db, "INSERT INTO e2_trust(e2_node,ctrl_trust) VALUES(?,0.5) ON CONFLICT(e2_node) DO UPDATE SET "
++                             "ctrl_trust=ctrl_trust*0.5", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
++    sqlite3_step(q);
++  }
++  sqlite3_finalize(q);
++}
++
++static void verdict(ue_t *u, const features_t *f, int64_t now, const char *layer, const char *what, bool ok) {
++  json_object *o = event_base(ok ? "verified" : "unverified", u, now);
++  json_object_object_add(o, "layer", json_object_new_string(layer));
++  json_object_object_add(o, "check", json_object_new_string(what));
+   json_object_object_add(o, "collect_ms", json_object_new_int64(f->collect_us / 1000));
+   json_object_object_add(o, "prb_ul_pct", json_object_new_double(f->prb_ul));
+   json_object_object_add(o, "prb_dl_pct", json_object_new_double(f->prb_dl));
++  if (f->has_urr) {
++    json_object_object_add(o, "urr_ul_kbps", json_object_new_double(f->urr_ul_kbps));
++    json_object_object_add(o, "urr_dl_kbps", json_object_new_double(f->urr_dl_kbps));
++    json_object_object_add(o, "urr_age_s", json_object_new_double(f->urr_age_s));
++  }
+   event(o);
++  printf("[defense] %s %s %s: %s\n", u->supi, layer, what, ok ? "verified" : "NOT verified");
++  fflush(stdout);
++}
++
++void actuators_verify(ue_t *u, const features_t *f, int64_t now) {
++  const bool limited = u->applied_ratio > 0 && u->synced_amf == f->amf;
++  /* RAN limit, by KPM: the UE's PRB share obeys it */
++  if (limited && !u->verified && f->prb_ul <= u->applied_ratio + 3 && f->prb_dl <= u->applied_ratio + 3) {
++    u->verified = true;
++    action_verified(u->last_action);
++    verdict(u, f, now, "ran", "prb_share", true);
++  }
++  if (!cfg.core) return;
++  /* URR verdicts use the newest vector that has URR, measured >= 1 s after
++     the action */
++  const features_t *g = features_latest_urr(u);
++  const int64_t urr_at = g ? g->collect_us : 0;
++  const int64_t verify_us = (int64_t)cfg.verify_s * 1000000;
++  if (g) f = g;
++  /* RAN limit, by URR (the core view): the SUPI's rate falls below its class */
++  /* a verdict needs URR measured after the action; none yet (UE released,
++     reports late) -> keep waiting */
++  if (limited && u->level <= 2 && !u->ran_core_checked && u->ran_applied_us && g && urr_at > u->ran_applied_us + 1000000) {
++    if (f->urr_ul_kbps < f->limit_ul && f->urr_dl_kbps < f->limit_dl) {
++      u->ran_core_checked = true;
++      verdict(u, f, now, "ran", "urr_below_class", true);
++    } else if (now - u->ran_applied_us > verify_us) {
++      /* the gNB did not do what it acknowledged (or KPM lies): trust it
++         less and let the UPF limit the SUPI already at this level */
++      u->ran_core_checked = true;
++      u->core_assist = true;
++      lower_ctrl_trust(u->node);
++      verdict(u, f, now, "ran", "urr_below_class", false);
++    }
++  }
++  /* UPF action, by URR: block -> no traffic counted, ratelimit -> at most
++     the rate (+25 %); monitor needs no check */
++  const bool check_core = u->core_since_us && !u->core_verified &&
++                          (strcmp(u->core_applied, "block") == 0 || strcmp(u->core_applied, "ratelimit") == 0);
++  if (check_core) {
++    const bool block = strcmp(u->core_applied, "block") == 0;
++    const double cap = block ? 1.0 : u->core_rate_kbps * 1.25;
++    const bool after = g && urr_at > u->core_since_us + 1000000;
++    if (after && f->urr_ul_kbps <= cap) {
++      u->core_verified = true;
++      int slot = (int)(u - ues);
++      action_verified(core_rows[slot]);
++      verdict(u, f, now, "core", block ? "urr_zero" : "urr_at_rate", true);
++    } else if (after && now - u->core_since_us > verify_us) {
++      u->core_verified = true; /* reported once */
++      verdict(u, f, now, "core", block ? "urr_zero" : "urr_at_rate", false);
++    }
++  }
++}
++
++/* RRC Release: once when the SUPI enters level 3, and at level 4 at every
++   attach (rate-limited) */
++static bool release_due(const ue_t *u, int64_t now) {
++  if (!cfg.enabled || u->level < 3 || !u->amf || now - u->last_seen_us > UE_GONE_US) return false;
++  if (u->release_pending) return true;
++  return u->level == 4 && u->released_amf != u->amf && now - u->released_us >= (int64_t)cfg.release_every_s * 1000000;
+ }
+ 
+-/* Bring the gNB in line with the levels: limited while level >= 1, on the
+-   UE ID the SUPI currently has (a re-attach gets it again) */
++/* Bring the gNB and the UPF in line with the levels: RAN limited while
++   level >= 1, on the UE ID the SUPI currently has (a re-attach gets it
++   again); release at levels 3-4; the UPF policy of the level */
+ void actuators_reconcile(int64_t now) {
+   for (int i = 0; i < MAX_UES; i++) {
+     pthread_mutex_lock(&st_lock);
+     ue_t *u = &ues[i];
+-    if (!u->used || now < u->next_try_us) {
++    if (!u->used) {
+       pthread_mutex_unlock(&st_lock);
+       continue;
+     }
++    /* core off: still remove what this xApp put at the UPF */
++    const bool core_on = cfg.core || (u->core_applied[0] && strcmp(u->core_applied, "none") != 0);
++    if (now < u->next_try_us) {
++      pthread_mutex_unlock(&st_lock);
++      if (core_on) core_reconcile_ue(i, now);
++      continue;
++    }
+     bool present = u->amf && now - u->last_seen_us <= UE_GONE_US;
+     int want = u->level >= 1 && cfg.enabled ? cfg.max_prb_ratio : 0;
+     /* set the limit explicitly once per UE ID: one left by an earlier xApp
+        instance is unknown to this one */
+     bool needed = present && (u->synced_amf != u->amf || u->applied_ratio != want);
+-    if (!needed) {
+-      pthread_mutex_unlock(&st_lock);
+-      continue;
+-    }
++    bool release = !needed && release_due(u, now);
+     char supi[96];
+     snprintf(supi, sizeof(supi), "%s", u->supi);
+     uint64_t amf = u->amf;
+     const bool slice = cfg.slice_mode;
+     pthread_mutex_unlock(&st_lock);
+ 
+-    json_object *res = NULL;
+-    int code;
+-    if (!slice && want) {
+-      code = ran_control_apply(supi, amf, true, "prb_quota", want, "defense", &res);
+-    } else if (want) {
+-      /* (re)define the quarantine slice first: a restarted gNB has none */
+-      code = ran_control_slice(supi, amf, true, "prb_quota", cfg.q_sst, cfg.q_sd, want, "defense", &res);
+-      if (code == 200) {
+-        json_object_put(res);
+-        res = NULL;
+-        code = ran_control_slice(supi, amf, true, "slice_handover", cfg.q_sst, cfg.q_sd, -1, "defense", &res);
+-      }
+-    } else {
+-      /* back to the default slice, and no UE quota left by an earlier
+-         instance or the other mode */
+-      code = ran_control_slice(supi, amf, true, "slice_handover", cfg.d_sst, cfg.d_sd, -1, "defense", &res);
+-      if (code == 200) {
+-        json_object_put(res);
+-        res = NULL;
+-        code = ran_control_apply(supi, amf, true, "prb_quota", 100, "defense", &res);
++    if (release) {
++      json_object *res = NULL;
++      sqlite3_int64 row = action_row(supi, now, "ran", "release", "rrc_release");
++      int code = ran_control_apply(supi, amf, true, "release", 0, "defense", &res);
++      action_done(row, code);
++      pthread_mutex_lock(&st_lock);
++      if (u->used && strcmp(u->supi, supi) == 0) {
++        if (code == 200) {
++          u->released_amf = amf;
++          u->released_us = now;
++          u->release_pending = false;
++        } else {
++          u->next_try_us = now + RETRY_US;
++        }
++        json_object *o = event_base("action", u, now);
++        json_object_object_add(o, "layer", json_object_new_string("ran"));
++        json_object_object_add(o, "action", json_object_new_string("release"));
++        json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(amf));
++        json_object_object_add(o, "http", json_object_new_int(code));
++        if (res) json_object_object_add(o, "result", json_object_get(res));
++        event(o);
++        printf("[defense] %s RRC release of UE %" PRIu64 " (level %d): HTTP %d\n", supi, amf, u->level, code);
++        fflush(stdout);
+       }
++      pthread_mutex_unlock(&st_lock);
++      json_object_put(res);
+     }
+-
+-    pthread_mutex_lock(&st_lock);
+-    if (u->used && strcmp(u->supi, supi) == 0) {
+-      if (code == 200) {
+-        u->applied_ratio = want;
+-        u->synced_amf = amf;
+-        u->verified = false;
++    if (needed) {
++      json_object *res = NULL;
++      int code;
++      if (!slice && want) {
++        code = ran_control_apply(supi, amf, true, "prb_quota", want, "defense", &res);
++      } else if (want) {
++        /* (re)define the quarantine slice first: a restarted gNB has none */
++        code = ran_control_slice(supi, amf, true, "prb_quota", cfg.q_sst, cfg.q_sd, want, "defense", &res);
++        if (code == 200) {
++          json_object_put(res);
++          res = NULL;
++          code = ran_control_slice(supi, amf, true, "slice_handover", cfg.q_sst, cfg.q_sd, -1, "defense", &res);
++        }
+       } else {
+-        u->next_try_us = now + RETRY_US;
++        /* back to the default slice, and no UE quota left by an earlier
++           instance or the other mode */
++        code = ran_control_slice(supi, amf, true, "slice_handover", cfg.d_sst, cfg.d_sd, -1, "defense", &res);
++        if (code == 200) {
++          json_object_put(res);
++          res = NULL;
++          code = ran_control_apply(supi, amf, true, "prb_quota", 100, "defense", &res);
++        }
++      }
++
++      pthread_mutex_lock(&st_lock);
++      if (u->used && strcmp(u->supi, supi) == 0) {
++        if (code == 200) {
++          u->applied_ratio = want;
++          u->synced_amf = amf;
++          u->verified = false;
++          u->ran_applied_us = want ? now : 0;
++          u->ran_core_checked = false;
++          if (!want) u->core_assist = false;
++        } else {
++          u->next_try_us = now + RETRY_US;
++        }
++        sqlite3_int64 id = save_action(u, now, want ? want : 100, amf, code, res);
++        if (want) u->last_action = id;
+       }
+-      sqlite3_int64 id = save_action(u, now, want ? want : 100, amf, code, res);
+-      if (want) u->last_action = id;
++      pthread_mutex_unlock(&st_lock);
++      json_object_put(res);
+     }
+-    pthread_mutex_unlock(&st_lock);
+-    json_object_put(res);
++    if (core_on) core_reconcile_ue(i, now);
+   }
+ }
+diff -ruN a/examples/xApp/c/monitor/classifier.c b/examples/xApp/c/monitor/classifier.c
+--- a/examples/xApp/c/monitor/classifier.c	2026-10-05 18:24:09.074752823 +0700
++++ b/examples/xApp/c/monitor/classifier.c	2026-10-05 21:36:36.015073056 +0700
+@@ -1,20 +1,17 @@
+ /* classifier layer of the defense (see defense_internal.h). The interface
+    is the window of feature vectors of one SUPI in, a label out:
+      v1 "rules"     the fair-use rule: rate above the SUPI's class while the
+-                    cell is busy, in k of the last n samples
++                    cell is busy, in k of the last n samples, measured by the
++                    RAN (KPM PDCP volume) and by the core (URR of the SUPI);
++                    the label's layer is ran, core or both
+      "external"     a model behind a loopback HTTP endpoint (sidecar):
+                     POST {"supi","since_seq","window":[vectors]} ->
+                     {"label":"benign|suspicious|attack|unknown","score","layer","kind","reason"};
+                     unknown, timeout or any failure falls back to v1 */
+ #include "defense_internal.h"
+-#include <arpa/inet.h>
+-#include <errno.h>
+-#include <netinet/in.h>
++#include "http_client.h"
+ #include <stdlib.h>
+ #include <string.h>
+-#include <sys/socket.h>
+-#include <sys/time.h>
+-#include <unistd.h>
+ 
+ static unsigned long long calls, fallbacks, failures;
+ static char last_error[96];
+@@ -28,11 +25,15 @@
+        : strcmp(s, "attack") == 0 ? LABEL_ATTACK : LABEL_UNKNOWN;
+ }
+ 
+-/* violation kind of one vector, NULL if none; *idle when above the class
++static bool busy(const features_t *f, bool ul) {
++  if (!cfg.congestion) return true;
++  return ul ? f->cell_ul >= cfg.cell_ul_prb_pct && f->others_ul > 0 : f->cell_dl >= cfg.cell_dl_prb_pct && f->others_dl > 0;
++}
++
++/* RAN violation kind of one vector, NULL if none; *idle when above the class
+    while the cell was not busy */
+ static const char *violation(const features_t *f, bool *idle) {
+-  bool busy_ul = !cfg.congestion || (f->cell_ul >= cfg.cell_ul_prb_pct && f->others_ul > 0);
+-  bool busy_dl = !cfg.congestion || (f->cell_dl >= cfg.cell_dl_prb_pct && f->others_dl > 0);
++  bool busy_ul = busy(f, true), busy_dl = busy(f, false);
+   bool rate_ul = f->limit_ul > 0 && f->rate_ul >= f->limit_ul, rate_dl = f->limit_dl > 0 && f->rate_dl >= f->limit_dl;
+   bool over_ul = rate_ul || (cfg.ul_prb_pct > 0 && f->prb_ul >= cfg.ul_prb_pct);
+   bool over_dl = rate_dl || (cfg.dl_prb_pct > 0 && f->prb_dl >= cfg.dl_prb_pct);
+@@ -43,85 +44,52 @@
+   return NULL;
+ }
+ 
+-/* v1: the newest vector violates and k of the last n undecided ones do */
++/* core violation: the SUPI's URR rate above its class, same busy-cell
++   condition (the cell load comes from KPM; Phase L2 handles an untrusted KPM) */
++static const char *core_violation(const features_t *f) {
++  if (!cfg.core || !f->has_urr) return NULL;
++  if (f->limit_ul > 0 && f->urr_ul_kbps >= f->limit_ul && busy(f, true)) return "urr_rate_ul";
++  if (f->limit_dl > 0 && f->urr_dl_kbps >= f->limit_dl && busy(f, false)) return "urr_rate_dl";
++  return NULL;
++}
++
++/* v1: per layer, the newest vector violates and k of the last n undecided
++   ones do; ran_hit/core_hit count the whole window (fusion) */
+ static void rules(const window_t *w, cls_result_t *out) {
+   *out = (cls_result_t){.label = LABEL_BENIGN, .layer = "ran", .source = "rules"};
+   if (w->n == 0) return;
+   bool idle;
+-  const char *kind = violation(w->v[w->n - 1], &out->uncongested);
+-  int hits = 0, seen = 0;
++  const features_t *last = w->v[w->n - 1];
++  const features_t *last_urr = NULL; /* URR lags KPM: the newest vector that has it */
++  for (int i = w->n - 1; i >= 0 && !last_urr; i--)
++    if (w->v[i]->has_urr) last_urr = w->v[i];
++  const char *kind = violation(last, &out->uncongested), *ckind = last_urr ? core_violation(last_urr) : NULL;
++  int hits = 0, chits = 0, all = 0, call = 0, seen = 0, cseen = 0;
+   for (int i = w->n - 1; i >= 0 && seen < cfg.n; i--, seen++) {
+-    if (w->v[i]->seq <= w->since_seq) break;
+-    hits += violation(w->v[i], &idle) != NULL;
+-  }
+-  out->score = (double)hits / cfg.n;
+-  if (!kind) return;
+-  snprintf(out->kind, sizeof(out->kind), "%s", kind);
+-  out->label = hits >= cfg.k ? LABEL_ATTACK : LABEL_SUSPICIOUS;
+-  snprintf(out->reason, sizeof(out->reason), "%d of the last %d samples above class %s", hits, cfg.n, cfg.classes[w->v[w->n - 1]->cls].name);
+-}
+-
+-/* minimal HTTP/1.0 POST to http://<IPv4>:<port><path>; returns the body */
+-static char *post(const char *endpoint, const char *body, int timeout_ms, int *status) {
+-  char host[64] = "";
+-  int port = 80;
+-  char path[96] = "/";
+-  if (sscanf(endpoint, "http://%63[^:/]:%d%95s", host, &port, path) < 2) {
+-    snprintf(last_error, sizeof(last_error), "bad endpoint %s", endpoint);
+-    return NULL;
+-  }
+-  struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons((uint16_t)port)};
+-  if (inet_pton(AF_INET, host, &a.sin_addr) != 1) {
+-    snprintf(last_error, sizeof(last_error), "endpoint host must be an IPv4 address");
+-    return NULL;
+-  }
+-  int fd = socket(AF_INET, SOCK_STREAM, 0);
+-  if (fd < 0) return NULL;
+-  struct timeval tv = {.tv_sec = timeout_ms / 1000, .tv_usec = timeout_ms % 1000 * 1000};
+-  setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+-  setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+-  char *resp = NULL;
+-  if (connect(fd, (struct sockaddr *)&a, sizeof(a)) != 0) {
+-    snprintf(last_error, sizeof(last_error), "connect: %s", strerror(errno));
+-    goto out;
+-  }
+-  char head[256];
+-  int hl = snprintf(head, sizeof(head), "POST %s HTTP/1.0\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n", path,
+-                    host, strlen(body));
+-  if (send(fd, head, (size_t)hl, MSG_NOSIGNAL) != hl || send(fd, body, strlen(body), MSG_NOSIGNAL) != (ssize_t)strlen(body)) {
+-    snprintf(last_error, sizeof(last_error), "send: %s", strerror(errno));
+-    goto out;
+-  }
+-  size_t cap = 4096, len = 0;
+-  resp = malloc(cap);
+-  for (;;) {
+-    if (len + 1 >= cap) {
+-      if (cap >= 65536) break;
+-      resp = realloc(resp, cap *= 2);
+-    }
+-    ssize_t r = recv(fd, resp + len, cap - len - 1, 0);
+-    if (r == 0) break;
+-    if (r < 0) {
+-      snprintf(last_error, sizeof(last_error), "recv: %s", errno == EAGAIN ? "timeout" : strerror(errno));
+-      free(resp);
+-      resp = NULL;
+-      goto out;
+-    }
+-    len += (size_t)r;
+-  }
+-  resp[len] = '\0';
+-  if (sscanf(resp, "HTTP/%*s %d", status) != 1) *status = 0;
+-  char *b = strstr(resp, "\r\n\r\n");
+-  if (!b) {
+-    snprintf(last_error, sizeof(last_error), "no HTTP body");
+-    free(resp);
+-    resp = NULL;
+-    goto out;
+-  }
+-  memmove(resp, b + 4, strlen(b + 4) + 1);
+-out:
+-  close(fd);
+-  return resp;
++    bool v = violation(w->v[i], &idle) != NULL;
++    all += v;
++    if (w->v[i]->seq > w->since_seq) hits += v;
++  }
++  /* core: the last n vectors that have their URR (it arrives 1-2 s later) */
++  for (int i = w->n - 1; i >= 0 && cseen < cfg.n; i--) {
++    if (!w->v[i]->has_urr) continue;
++    cseen++;
++    bool c = core_violation(w->v[i]) != NULL;
++    call += c;
++    if (w->v[i]->seq > w->since_seq) chits += c;
++  }
++  out->ran_hit = all >= cfg.k;
++  out->core_hit = call >= cfg.k;
++  out->score = (double)(hits > chits ? hits : chits) / cfg.n;
++  const bool ran = kind && hits >= cfg.k, core = ckind && chits >= cfg.k;
++  if (!kind && !ckind) return;
++  const bool by_ran = ran || (!core && kind); /* the layer that names the label */
++  if (ran && core) snprintf(out->kind, sizeof(out->kind), "%s+urr", kind);
++  else snprintf(out->kind, sizeof(out->kind), "%s", by_ran ? kind : ckind);
++  snprintf(out->layer, sizeof(out->layer), "%s", ran && core ? "both" : by_ran ? "ran" : "core");
++  out->label = ran || core ? LABEL_ATTACK : LABEL_SUSPICIOUS;
++  snprintf(out->reason, sizeof(out->reason), "KPM %d, URR %d of the last %d samples above class %s", hits, chits, cfg.n,
++           cfg.classes[last->cls].name);
+ }
+ 
+ /* 0: answered, 1: the model does not know, -1: failure (last_error) */
+@@ -132,7 +100,8 @@
+   for (int i = 0; i < w->n; i++) json_object_array_add(arr, features_json(w->v[i], supi));
+   json_object_object_add(req, "window", arr);
+   int status = 0;
+-  char *body = post(cfg.endpoint, json_object_to_json_string_ext(req, JSON_C_TO_STRING_PLAIN), cfg.timeout_ms, &status);
++  char *body = http_call("POST", cfg.endpoint, json_object_to_json_string_ext(req, JSON_C_TO_STRING_PLAIN), cfg.timeout_ms, &status,
++                         last_error, sizeof(last_error));
+   json_object_put(req);
+   if (!body) return -1;
+   json_object *r = status == 200 ? json_tokener_parse(body) : NULL, *x = NULL;
+@@ -170,6 +139,8 @@
+   int rc = external(supi, w, &ext);
+   if (rc == 0) {
+     ext.uncongested = out->uncongested;
++    ext.ran_hit = out->ran_hit;
++    ext.core_hit = out->core_hit;
+     *out = ext;
+     return;
+   }
+diff -ruN a/examples/xApp/c/monitor/CMakeLists.txt b/examples/xApp/c/monitor/CMakeLists.txt
+--- a/examples/xApp/c/monitor/CMakeLists.txt	2026-10-05 18:26:08.948842323 +0700
++++ b/examples/xApp/c/monitor/CMakeLists.txt	2026-10-05 21:19:38.145955829 +0700
+@@ -98,6 +98,7 @@
+                 classifier.c
+                 policy.c
+                 actuators.c
++                http_client.c
+                 ../metrics_factory.c
+                 ../../../../src/util/alg_ds/alg/defer.c
+                 ../../../../src/util/alg_ds/alg/murmur_hash_32.c
+diff -ruN a/examples/xApp/c/monitor/defense.c b/examples/xApp/c/monitor/defense.c
+--- a/examples/xApp/c/monitor/defense.c	2026-10-05 18:26:01.426777570 +0700
++++ b/examples/xApp/c/monitor/defense.c	2026-10-06 00:39:53.997036326 +0700
+@@ -1,4 +1,4 @@
+-/* RAN layer of the two-layer defense (plan R3): configuration, the worker
++/* Two-layer defense in the xApp (plan R3, X, L1): configuration, the worker
+    that runs the layers (defense_internal.h), KPM input, HTTP and lifecycle.
+    See defense.h. */
+ #include "defense.h"
+@@ -94,7 +94,10 @@
+ 
+ static void load_config(void) {
+   cfg = (config_t){.enabled = false, .profile = "lab", .k = 2, .n = 3,
+-                   .max_prb_ratio = 10, .q_sst = 1, .q_sd = 0xBADBAD, .d_sst = 1, .d_sd = 0xFFFFFF, .probation_s = 180, .expiry_s = {60, 180},
++                   .max_prb_ratio = 10, .q_sst = 1, .q_sd = 0xBADBAD, .d_sst = 1, .d_sd = 0xFFFFFF, .probation_s = 180, .expiry_s = {60, 180, 600, 0},
++                   .upf_api = "http://oai-upf-security.oai-core.svc.cluster.local:8095", .upf_timeout_ms = 1000, .upf_sync_s = 10,
++                   .upf_ttl_margin_s = 30, .upf_max_ttl_s = 86400, .ratelimit_factor = 1.0, .urr_max_age_s = 5, .fusion_s = 10,
++                   .verify_s = 10, .release_every_s = 10, .evidence_interval_s = 10,
+                    .endpoint = "http://127.0.0.1:8091/classify", .window = 10, .timeout_ms = 200,
+                    .sev_rate = 2, .sev_repeat = 1, .half_life_s = 60};
+   load_fair_use(NULL, NULL);
+@@ -137,10 +140,27 @@
+   cfg.window = (int)num(cl, "window", cfg.window);
+   cfg.timeout_ms = (int)num(cl, "timeoutMs", cfg.timeout_ms);
+   json_object *p = NULL;
+-  if (e && json_object_object_get_ex(e, cfg.profile, &p) && json_object_is_type(p, json_type_array) && json_object_array_length(p) >= 2) {
+-    cfg.expiry_s[0] = json_object_get_int(json_object_array_get_idx(p, 0));
+-    cfg.expiry_s[1] = json_object_get_int(json_object_array_get_idx(p, 1));
+-  }
++  if (e && json_object_object_get_ex(e, cfg.profile, &p) && json_object_is_type(p, json_type_array))
++    for (size_t i = 0; i < json_object_array_length(p) && i < 4; i++) cfg.expiry_s[i] = json_object_get_int(json_object_array_get_idx(p, i));
++  /* core layer (plan L1): UPF Security API and the URR rule */
++  json_object *co = NULL, *rp = NULL;
++  json_object_object_get_ex(c, "core", &co);
++  json_object_object_get_ex(c, "repeat", &rp);
++  cfg.core = co && json_object_object_get_ex(co, "enabled", &x) && json_object_get_boolean(x);
++  if (co && json_object_object_get_ex(co, "upfApi", &x) && json_object_is_type(x, json_type_string))
++    snprintf(cfg.upf_api, sizeof(cfg.upf_api), "%s", json_object_get_string(x));
++  cfg.upf_timeout_ms = (int)num(co, "timeoutMs", cfg.upf_timeout_ms);
++  cfg.upf_sync_s = (int)num(co, "syncS", cfg.upf_sync_s);
++  cfg.upf_ttl_margin_s = (int)num(co, "ttlMarginS", cfg.upf_ttl_margin_s);
++  cfg.upf_max_ttl_s = (int)num(co, "maxTtlS", cfg.upf_max_ttl_s);
++  cfg.ratelimit_factor = num(co, "ratelimitFactor", cfg.ratelimit_factor);
++  cfg.urr_max_age_s = num(co, "urrMaxAgeS", cfg.urr_max_age_s);
++  cfg.fusion_s = (int)num(co, "fusionS", cfg.fusion_s);
++  cfg.verify_s = (int)num(co, "verifyS", cfg.verify_s);
++  cfg.release_every_s = (int)num(co, "releaseEveryS", cfg.release_every_s);
++  cfg.repeat_every = rp && json_object_object_get_ex(rp, "strategy", &x) && json_object_is_type(x, json_type_string) &&
++                     strcmp(json_object_get_string(x), "every") == 0;
++  cfg.evidence_interval_s = (int)num(rp, "evidenceIntervalS", cfg.evidence_interval_s);
+   cfg.sev_rate = num(s, "kpmRate", cfg.sev_rate);
+   cfg.sev_repeat = num(s, "repeat", cfg.sev_repeat);
+   cfg.half_life_s = num(c, "scoreHalfLifeS", cfg.half_life_s);
+@@ -160,8 +180,14 @@
+            cfg.q_sst, cfg.q_sd, cfg.max_prb_ratio, cfg.d_sst, cfg.d_sd);
+   else
+     printf(" -> PRB quota %d%%", cfg.max_prb_ratio);
+-  printf("; again within %d s of the level-1 expiry -> level 2; expiry %d/%d s\n", cfg.probation_s, cfg.expiry_s[0],
+-         cfg.expiry_s[1]);
++  printf("; again within %d s of the expiry -> next level (>= 3 needs KPM and URR within %d s); expiry %d/%d/%d/%d s\n",
++         cfg.probation_s, cfg.fusion_s, cfg.expiry_s[0], cfg.expiry_s[1], cfg.expiry_s[2], cfg.expiry_s[3]);
++  if (cfg.core)
++    printf("[defense] core layer: URR rule + UPF %s (1 monitor, 2 ratelimit x%.2f, 3-4 block + RRC release; sync %d s)\n", cfg.upf_api,
++           cfg.ratelimit_factor, cfg.upf_sync_s);
++  else
++    printf("[defense] core layer off: RAN only, levels stop at 2\n");
++  printf("[defense] repeated labels: %s (evidence every %d s)\n", cfg.repeat_every ? "every" : "refresh", cfg.evidence_interval_s);
+   printf("[defense] classifier %s%s%s (window %d, timeout %d ms, fallback rules)\n", cfg.external ? "external " : "rules",
+          cfg.external ? "at " : "", cfg.external ? cfg.endpoint : "", cfg.window, cfg.timeout_ms);
+   for (int i = 0; i < cfg.n_classes; i++)
+@@ -216,6 +242,7 @@
+     features_log(u, f, NULL, 0);
+     return;
+   }
++  features_fill_urr(u, now);
+   window_t w;
+   features_window(u, cfg.window > cfg.n ? cfg.window : cfg.n, &w);
+   cls_result_t r;
+@@ -253,6 +280,7 @@
+     policy_expire(now);
+     pthread_mutex_unlock(&st_lock);
+     actuators_reconcile(now);
++    actuators_core_sync(now);
+   }
+ }
+ 
+@@ -322,6 +350,13 @@
+     json_object_object_add(fu, "congestion", cg);
+     json_object_object_add(o, "fair_use", fu);
+     json_object_object_add(o, "classifier", classifier_state());
++    json_object_object_add(o, "core", actuators_core_state());
++    json_object *tm = json_object_new_object(), *ex = json_object_new_array();
++    for (int i = 0; i < 4; i++) json_object_array_add(ex, json_object_new_int(cfg.expiry_s[i]));
++    json_object_object_add(tm, "expiry_s", ex);
++    json_object_object_add(tm, "probation_s", json_object_new_int(cfg.probation_s));
++    json_object_object_add(tm, "fusion_s", json_object_new_int(cfg.fusion_s));
++    json_object_object_add(o, "timing", tm);
+     json_object *arr = json_object_new_array();
+     int64_t now = time_now_us();
+     for (int i = 0; i < MAX_UES; i++) {
+@@ -341,6 +376,16 @@
+       json_object_object_add(e, "rate_ul_kbps", json_object_new_double(u->rate_ul));
+       json_object_object_add(e, "rate_dl_kbps", json_object_new_double(u->rate_dl));
+       json_object_object_add(e, "decision_id", json_object_new_uint64(u->decision_id));
++      json_object_object_add(e, "peak", json_object_new_int(u->peak));
++      json_object_object_add(e, "pending", json_object_new_int(u->pending));
++      json_object_object_add(e, "ran_hit_age_s", json_object_new_double(u->ran_hit_us ? (now - u->ran_hit_us) / 1e6 : -1));
++      json_object_object_add(e, "core_hit_age_s", json_object_new_double(u->core_hit_us ? (now - u->core_hit_us) / 1e6 : -1));
++      double ul, dl;
++      json_object_object_add(e, "core_want", json_object_new_string(core_want(u, &ul, &dl)));
++      json_object_object_add(e, "core_applied", json_object_new_string(u->core_applied[0] ? u->core_applied : "unknown"));
++      json_object_object_add(e, "core_verified", json_object_new_boolean(u->core_verified));
++      json_object_object_add(e, "core_assist", json_object_new_boolean(u->core_assist));
++      json_object_object_add(e, "released_amf_ue_ngap_id", json_object_new_uint64(u->released_amf));
+       json_object_array_add(arr, e);
+     }
+     pthread_mutex_unlock(&st_lock);
+@@ -365,6 +410,8 @@
+       u->score = 0;
+       u->since_seq = u->seq;
+       u->probation_us = 0;
++      u->peak = u->pending = 0;
++      u->core_assist = false;
+       policy_set_level(u, 0, time_now_us(), "admin reset");
+       code = 200;
+     }
+@@ -381,6 +428,40 @@
+     json_object_object_add(o, "mode", json_object_new_string(cfg.slice_mode ? "slice" : "ue"));
+     printf("[defense] action mode %s by request\n", cfg.slice_mode ? "slice" : "ue");
+     code = 200;
++  } else if (strcmp(url, "/v1/defense/timing") == 0 && in) {
++    /* {"expiryS": [l1, l2, l3, l4], "probationS"?, "fusionS"?}: experiments
++       with a shorter ladder (not persisted; the next restart reads the config) */
++    json_object *y = NULL;
++    pthread_mutex_lock(&st_lock);
++    if (json_object_object_get_ex(in, "expiryS", &y) && json_object_is_type(y, json_type_array))
++      for (size_t i = 0; i < json_object_array_length(y) && i < 4; i++) cfg.expiry_s[i] = json_object_get_int(json_object_array_get_idx(y, i));
++    cfg.probation_s = (int)num(in, "probationS", cfg.probation_s);
++    cfg.fusion_s = (int)num(in, "fusionS", cfg.fusion_s);
++    json_object *ex = json_object_new_array();
++    for (int i = 0; i < 4; i++) json_object_array_add(ex, json_object_new_int(cfg.expiry_s[i]));
++    json_object_object_add(o, "expiry_s", ex);
++    json_object_object_add(o, "probation_s", json_object_new_int(cfg.probation_s));
++    json_object_object_add(o, "fusion_s", json_object_new_int(cfg.fusion_s));
++    printf("[defense] timing by request: expiry %d/%d/%d/%d s, probation %d s, fusion %d s\n", cfg.expiry_s[0], cfg.expiry_s[1],
++           cfg.expiry_s[2], cfg.expiry_s[3], cfg.probation_s, cfg.fusion_s);
++    pthread_mutex_unlock(&st_lock);
++    code = 200;
++  } else if (strcmp(url, "/v1/defense/core") == 0 && in && json_object_object_get_ex(in, "enabled", &x) &&
++             json_object_is_type(x, json_type_boolean)) {
++    /* {"enabled": bool}: core layer on/off at run time (experiments compare
++       RAN-only with both layers); off removes the UPF policies this xApp set
++       and stops the URR rule, so levels stop at 2 */
++    pthread_mutex_lock(&st_lock);
++    cfg.core = json_object_get_boolean(x);
++    for (int i = 0; i < MAX_UES; i++) {
++      ues[i].pending = 0;
++      ues[i].core_hit_us = 0;
++      ues[i].core_assist = false;
++    }
++    json_object_object_add(o, "core", json_object_new_boolean(cfg.core));
++    pthread_mutex_unlock(&st_lock);
++    printf("[defense] core layer %s by request\n", cfg.core ? "enabled" : "disabled");
++    code = 200;
+   } else if (strcmp(url, "/v1/defense/classifier") == 0 && in && json_object_object_get_ex(in, "kind", &x) && json_object_is_type(x, json_type_string)
+              && (strcmp(json_object_get_string(x), "rules") == 0 || strcmp(json_object_get_string(x), "external") == 0)) {
+     /* {"kind": "rules"|"external", "endpoint"?, "timeoutMs"?} */
+@@ -430,7 +511,7 @@
+     }
+     pthread_mutex_unlock(&st_lock);
+   } else {
+-    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset|policy|mode|classifier"));
++    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset|policy|mode|classifier|timing|core"));
+     code = body ? 400 : 404;
+   }
+   if (in) json_object_put(in);
+diff -ruN a/examples/xApp/c/monitor/defense.h b/examples/xApp/c/monitor/defense.h
+--- a/examples/xApp/c/monitor/defense.h	2026-10-05 14:41:38.777234050 +0700
++++ b/examples/xApp/c/monitor/defense.h	2026-10-06 00:39:53.997036326 +0700
+@@ -1,17 +1,19 @@
+ #ifndef OAI_LAB_DEFENSE_H
+ #define OAI_LAB_DEFENSE_H
+-/* RAN layer of the two-layer defense (plan R3, design 5.5 and 6): a per-UE
+-   KPM detector (k of n samples above a fair-use rate), a reputation DB keyed
+-   by SUPI (SQLite) and the RAN part of the escalation:
+-     level 1  suspicion (KPM rate rule)                      -> PRB limit
+-     level 2  repeat offense within probation after level 1 -> PRB limit, longer
+-   The PRB limit is a handover to a quarantine RAN slice whose members share
+-   one PRB quota (action.mode "slice", gNB C33) or a quota on the UE ("ue").
+-   One layer alone stops at level 2 (design 6); levels 3-4 need core
+-   evidence (Phase L). A level expires to the one below; level 0 removes the
+-   quota. A SUPI that re-attaches under a new UE ID gets its quota again.
++/* Two-layer defense in the xApp (plan R3, X, L1; design 5.5, 6): features
++   from KPM and URR per SUPI, classifier v1 (fair-use rule per layer), a
++   reputation DB keyed by SUPI (SQLite) and the escalation:
++     level 1  suspicion                          -> quarantine RAN slice, UPF monitor
++     level 2  repeat offense after level 1       -> slice, UPF ratelimit
++     level 3  repeat after 2, KPM and URR agree  -> slice + RRC release, UPF block
++     level 4  repeat after 3, KPM and URR agree  -> release at every attach, UPF block
++   One layer alone stops at 2. A level expires to the one below; level 0
++   removes the RAN limit and the UPF policy. A SUPI that re-attaches under a
++   new UE ID gets its RAN limit again; the UPF applies its policy from the
++   first packet of the new session (C35).
+    Configuration: JSON in DEFENSE_CONFIG (chart global.lab.defense.xapp);
+-   absent or "enabled": false disables detection. */
++   absent or "enabled": false disables detection; "core.enabled": false
++   keeps the RAN-only behaviour of R3. */
+ #include "../../../../src/xApp/e42_xapp_api.h"
+ #include <stdint.h>
+ 
+@@ -22,7 +24,9 @@
+ void defense_on_kpm(ue_id_e2sm_t const *ue_id, kpm_ind_msg_format_1_t const *msg, int64_t collect_us, const char *e2_node);
+ /* GET /v1/defense/state; POST /v1/defense/enabled {"enabled":bool};
+    POST /v1/defense/reset {"supi"} (admin: level 0, quota removed);
+-   POST /v1/defense/policy {"supi","class"}; POST /v1/defense/mode {"mode"} */
++   POST /v1/defense/policy {"supi","class"}; POST /v1/defense/mode {"mode"};
++   POST /v1/defense/timing {"expiryS":[4],"probationS","fusionS"} (experiments);
++   POST /v1/defense/core {"enabled":bool} (RAN-only vs both layers) */
+ struct json_object;
+ int defense_http(const char *url, const char *body, struct json_object **out);
+ #endif
+diff -ruN a/examples/xApp/c/monitor/defense_internal.h b/examples/xApp/c/monitor/defense_internal.h
+--- a/examples/xApp/c/monitor/defense_internal.h	2026-10-05 18:22:13.464623197 +0700
++++ b/examples/xApp/c/monitor/defense_internal.h	2026-10-05 21:53:11.138764777 +0700
+@@ -7,8 +7,9 @@
+      classifier window -> {label, score, layer, kind}: v1 rules, or an
+                 external model (sidecar) with the rules as fallback
+      policy     evidence, score, levels, probation, expiry, reputation DB
+-     actuators  RAN actions that bring the gNB in line with the levels, and
+-                the verifier of their effect
++     actuators  RAN actions (E2SM-RC) and core actions (UPF Security API)
++                that bring the gNB and the UPF in line with the levels, and
++                the verifier of their effect (KPM and URR)
+    The classifier interface is the only part an AI model replaces. */
+ #include <json-c/json.h>
+ #include <sqlite3.h>
+@@ -68,7 +69,21 @@
+      the scheduler gives any active UE ~1/3 of the cell, so a benign UE also
+      fills a 10 % quota, R3 05/10) */
+   int probation_s;
+-  int expiry_s[2];            /* levels 1, 2 of the active profile */
++  int expiry_s[4];            /* levels 1-4 of the active profile; 0 = until reset */
++  /* core layer (plan L1, design 6): URR rule in classifier v1 and the UPF
++     actions of each level (1 monitor, 2 ratelimit at the class rate x
++     ratelimit_factor, 3-4 block; 3 also releases the UE once, 4 at every
++     attach). Levels >= 3 need KPM and URR evidence within fusion_s. */
++  bool core;
++  char upf_api[128];
++  int upf_timeout_ms, upf_sync_s, upf_ttl_margin_s, upf_max_ttl_s;
++  double ratelimit_factor, urr_max_age_s;
++  int fusion_s, verify_s, release_every_s;
++  /* repeated attack labels while level >= 1 (plan L1 step 0a): "refresh"
++     refreshes the expiry and records evidence at most every
++     evidence_interval_s (repeats counted); "every" records each label */
++  bool repeat_every;
++  int evidence_interval_s;
+   double sev_rate, sev_repeat, half_life_s;
+ } config_t;
+ 
+@@ -92,10 +107,11 @@
+   int others_ul, others_dl;   /* other UEs of the cell sending >= other_ue_kbps */
+   int cls;                    /* fair-use class index */
+   double limit_ul, limit_dl;  /* its rates, kbit/s */
+-  bool has_urr;               /* latest URR report of the SUPI */
++  bool has_urr;               /* URR report of the same second (PFCP End Time ~ collect time) */
+   double urr_age_s, urr_ul_kbps, urr_dl_kbps, urr_ul_pps, urr_dl_pps;
+   int level;
+   bool limited;               /* in the quarantine slice / under a quota */
++  char core_action[12];       /* UPF policy in force: none|monitor|ratelimit|block */
+ } features_t;
+ 
+ typedef struct {
+@@ -114,6 +130,9 @@
+   char reason[96];
+   char source[12];            /* rules | external | fallback */
+   bool uncongested;           /* above the class while the cell was not busy */
++  /* rules over the whole window (since_seq ignored): fusion input of the
++     policy, per layer */
++  bool ran_hit, core_hit;
+ } cls_result_t;
+ 
+ typedef struct {
+@@ -132,6 +151,23 @@
+   sqlite3_int64 last_action;  /* row of the latest quota action */
+   bool verified;
+   uint64_t decision_id;       /* latest decision on this SUPI */
++  char node[32];              /* E2 node of the latest KPM report */
++  /* escalation (policy_rules.h) */
++  int peak;                   /* highest level of the current episode */
++  int pending;                /* level capped by single-layer evidence */
++  int64_t ran_hit_us, core_hit_us; /* latest window with k of n hits, per layer */
++  int64_t evidence_us;        /* latest evidence row (repeat strategy) */
++  unsigned repeats;           /* attack labels not recorded since then */
++  /* core actuator: what the UPF holds for this SUPI (as far as we know) */
++  char core_applied[12];      /* none|monitor|ratelimit|block */
++  double core_rate_kbps;
++  int64_t core_expires_us, core_since_us, core_next_try_us;
++  bool core_verified, ran_core_checked, core_assist;
++  bool release_pending;       /* entered level 3: one RRC release due (a level restored
++                                 from the DB does not release again) */
++  uint64_t released_amf;      /* UE ID released by the defense (levels 3-4) */
++  int64_t released_us;
++  int64_t ran_applied_us;     /* RAN limit set on synced_amf (URR verification) */
+   /* feature window */
+   features_t win[WINDOW_MAX];
+   int win_len, win_head;
+@@ -157,6 +193,8 @@
+ void features_observe(const sample_t *s);
+ ue_t *features_build(const sample_t *s, int64_t now, features_t **out);
+ void features_window(const ue_t *u, int n, window_t *w);
++void features_fill_urr(ue_t *u, int64_t now);
++const features_t *features_latest_urr(const ue_t *u);
+ void features_log(const ue_t *u, const features_t *f, const cls_result_t *r, uint64_t decision_id);
+ json_object *features_json(const features_t *f, const char *supi);
+ 
+@@ -176,4 +214,7 @@
+ /* actuators.c */
+ void actuators_verify(ue_t *u, const features_t *f, int64_t now);
+ void actuators_reconcile(int64_t now);
++void actuators_core_sync(int64_t now);
++json_object *actuators_core_state(void);
++const char *core_want(const ue_t *u, double *ul_kbps, double *dl_kbps);
+ #endif
+diff -ruN a/examples/xApp/c/monitor/features.c b/examples/xApp/c/monitor/features.c
+--- a/examples/xApp/c/monitor/features.c	2026-10-05 18:22:43.382557143 +0700
++++ b/examples/xApp/c/monitor/features.c	2026-10-05 21:36:20.168040129 +0700
+@@ -58,14 +58,20 @@
+   }
+ }
+ 
+-/* URR of the SUPI: usage since the previous report (PERIO 1 s), as rates */
+-static void core_usage(features_t *f, const char *supi, int64_t now) {
++/* URR of the SUPI for the second the KPM sample measured (PFCP End Time =
++   KPM collect time rounded, else one second off): usage since the previous
++   report (PERIO 1 s), as rates. URR arrives 1-2 s after KPM, so a vector
++   usually gets it on a later pass (features_fill_urr). */
++static void core_usage(features_t *f, const char *supi) {
+   urr_record_t r;
+   int64_t received_us = 0;
+-  if (!urr_receiver_latest_for_supi(supi, &r, &received_us)) return;
+-  const double d = r.duration_seconds ? (double)r.duration_seconds : 1.0;
++  const uint64_t t = (uint64_t)((f->collect_us + 500000) / 1000000);
++  if (!urr_receiver_supi_at(supi, t, &r, &received_us) && !urr_receiver_supi_at(supi, t - 1, &r, &received_us) &&
++      !urr_receiver_supi_at(supi, t + 1, &r, &received_us))
++    return;
++  const double d = r.interval_seconds ? (double)r.interval_seconds : 1.0; /* not duration_seconds: cumulative in OAI */
+   f->has_urr = true;
+-  f->urr_age_s = (now - received_us) / 1e6;
++  f->urr_age_s = (received_us - f->collect_us) / 1e6; /* arrival lag behind the KPM sample */
+   f->urr_ul_kbps = r.ul_bytes * 8 / 1000.0 / d;
+   f->urr_dl_kbps = r.dl_bytes * 8 / 1000.0 / d;
+   f->urr_ul_pps = r.ul_packets / d;
+@@ -86,6 +92,7 @@
+   u->last_seen_us = now;
+   u->rate_ul = s->rate_ul;
+   u->rate_dl = s->rate_dl;
++  snprintf(u->node, sizeof(u->node), "%s", s->node);
+ 
+   features_t *f = &u->win[u->win_head];
+   u->win_head = (u->win_head + 1) % WINDOW_MAX;
+@@ -95,12 +102,29 @@
+                     .cls = u->cls, .limit_ul = cfg.classes[u->cls].ul_rate_kbps, .limit_dl = cfg.classes[u->cls].dl_rate_kbps,
+                     .level = u->level, .limited = u->applied_ratio > 0 && u->synced_amf == s->amf};
+   snprintf(f->node, sizeof(f->node), "%s", s->node);
++  snprintf(f->core_action, sizeof(f->core_action), "%s", u->core_applied[0] ? u->core_applied : "none");
+   cell_load(f);
+-  core_usage(f, supi, now);
++  core_usage(f, supi);
+   *out = f;
+   return u;
+ }
+ 
++/* give the recent vectors of a SUPI the URR that has arrived since */
++void features_fill_urr(ue_t *u, int64_t now) {
++  for (int i = 0; i < u->win_len; i++) {
++    features_t *f = &u->win[i];
++    if (!f->has_urr && now - f->collect_us <= (int64_t)(cfg.urr_max_age_s * 1e6)) core_usage(f, u->supi);
++  }
++}
++
++/* newest vector of a SUPI that has URR (NULL if none) */
++const features_t *features_latest_urr(const ue_t *u) {
++  const features_t *best = NULL;
++  for (int i = 0; i < u->win_len; i++)
++    if (u->win[i].has_urr && (!best || u->win[i].seq > best->seq)) best = &u->win[i];
++  return best;
++}
++
+ /* the latest n vectors of a SUPI, oldest first */
+ void features_window(const ue_t *u, int n, window_t *w) {
+   if (n > u->win_len) n = u->win_len;
+@@ -140,6 +164,7 @@
+   }
+   json_object_object_add(o, "level", json_object_new_int(f->level));
+   json_object_object_add(o, "limited", json_object_new_boolean(f->limited));
++  json_object_object_add(o, "core_action", json_object_new_string(f->core_action));
+   return o;
+ }
+ 
+diff -ruN a/examples/xApp/c/monitor/http_client.c b/examples/xApp/c/monitor/http_client.c
+--- a/examples/xApp/c/monitor/http_client.c	1970-01-01 08:00:00.000000000 +0800
++++ b/examples/xApp/c/monitor/http_client.c	2026-10-05 21:14:21.540255671 +0700
+@@ -0,0 +1,81 @@
++/* see http_client.h */
++#include "http_client.h"
++#include <errno.h>
++#include <netdb.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/socket.h>
++#include <sys/time.h>
++#include <unistd.h>
++
++char *http_call(const char *method, const char *url, const char *body, int timeout_ms, int *status, char *err, size_t err_len) {
++  char host[128] = "", path[256] = "/", port[8] = "80";
++  int p = 80;
++  *status = 0;
++  if (sscanf(url, "http://%127[^:/]:%d%255s", host, &p, path) >= 2) {
++    snprintf(port, sizeof(port), "%d", p);
++  } else if (sscanf(url, "http://%127[^:/]%255s", host, path) < 1) {
++    snprintf(err, err_len, "bad URL %s", url);
++    return NULL;
++  }
++  struct addrinfo hints = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM}, *ai = NULL;
++  int g = getaddrinfo(host, port, &hints, &ai);
++  if (g != 0 || !ai) {
++    snprintf(err, err_len, "resolve %s: %s", host, gai_strerror(g));
++    return NULL;
++  }
++  int fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
++  if (fd < 0) {
++    freeaddrinfo(ai);
++    snprintf(err, err_len, "socket: %s", strerror(errno));
++    return NULL;
++  }
++  struct timeval tv = {.tv_sec = timeout_ms / 1000, .tv_usec = timeout_ms % 1000 * 1000};
++  setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
++  setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
++  char *resp = NULL;
++  const size_t bl = body ? strlen(body) : 0;
++  if (connect(fd, ai->ai_addr, ai->ai_addrlen) != 0) {
++    snprintf(err, err_len, "connect: %s", strerror(errno));
++    goto out;
++  }
++  char head[512];
++  int hl = snprintf(head, sizeof(head), "%s %s HTTP/1.0\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n",
++                    method, path, host, bl);
++  if (send(fd, head, (size_t)hl, MSG_NOSIGNAL) != hl || (bl && send(fd, body, bl, MSG_NOSIGNAL) != (ssize_t)bl)) {
++    snprintf(err, err_len, "send: %s", strerror(errno));
++    goto out;
++  }
++  size_t cap = 4096, len = 0;
++  resp = malloc(cap);
++  for (;;) {
++    if (len + 1 >= cap) {
++      if (cap >= 1 << 20) break;
++      resp = realloc(resp, cap *= 2);
++    }
++    ssize_t r = recv(fd, resp + len, cap - len - 1, 0);
++    if (r == 0) break;
++    if (r < 0) {
++      snprintf(err, err_len, "recv: %s", errno == EAGAIN ? "timeout" : strerror(errno));
++      free(resp);
++      resp = NULL;
++      goto out;
++    }
++    len += (size_t)r;
++  }
++  resp[len] = '\0';
++  if (sscanf(resp, "HTTP/%*s %d", status) != 1) *status = 0;
++  char *b = strstr(resp, "\r\n\r\n");
++  if (!b) {
++    snprintf(err, err_len, "no HTTP body");
++    free(resp);
++    resp = NULL;
++    goto out;
++  }
++  memmove(resp, b + 4, strlen(b + 4) + 1);
++out:
++  close(fd);
++  freeaddrinfo(ai);
++  return resp;
++}
+diff -ruN a/examples/xApp/c/monitor/http_client.h b/examples/xApp/c/monitor/http_client.h
+--- a/examples/xApp/c/monitor/http_client.h	1970-01-01 08:00:00.000000000 +0800
++++ b/examples/xApp/c/monitor/http_client.h	2026-10-05 21:14:21.486255552 +0700
+@@ -0,0 +1,11 @@
++#ifndef OAI_LAB_HTTP_CLIENT_H
++#define OAI_LAB_HTTP_CLIENT_H
++/* Minimal blocking HTTP/1.0 client of the defense: the classifier sidecar
++   (loopback) and the UPF Security API (cluster Service, plain HTTP in the
++   lab, design 5.3a). url = http://<host>[:port][/path]; the host may be a
++   name (getaddrinfo) or an IPv4 address. Returns the response body (free())
++   and sets *status, or NULL with err filled. */
++#include <stddef.h>
++
++char *http_call(const char *method, const char *url, const char *body, int timeout_ms, int *status, char *err, size_t err_len);
++#endif
+diff -ruN a/examples/xApp/c/monitor/policy.c b/examples/xApp/c/monitor/policy.c
+--- a/examples/xApp/c/monitor/policy.c	2026-10-05 18:24:52.806167305 +0700
++++ b/examples/xApp/c/monitor/policy.c	2026-10-05 21:53:11.138764777 +0700
+@@ -1,8 +1,10 @@
+-/* policy layer of the defense (see defense_internal.h): the RAN part of
+-   the escalation (design 6) from the classifier's labels, independent of
+-   which classifier produced them, and the reputation DB */
++/* policy layer of the defense (see defense_internal.h): the escalation
++   0-4 (design 6, table in policy_rules.h) from the classifier's labels,
++   independent of which classifier produced them, the fusion of the two
++   layers' evidence and the reputation DB */
+ #define _GNU_SOURCE /* strptime, timegm */
+ #include "defense_internal.h"
++#include "policy_rules.h"
+ #include "../../../../src/util/time_now_us.h"
+ #include <inttypes.h>
+ #include <math.h>
+@@ -12,20 +14,26 @@
+ 
+ static uint64_t next_decision;
+ 
++#define NEVER "9999-12-31T00:00:00"
++
+ static void save_reputation(const ue_t *u, int64_t now) {
+   if (!db) return;
+   sqlite3_stmt *q = NULL;
+-  char exp[40], upd[40];
++  char exp[40], upd[40], prob[40] = "";
+   iso(u->expires_us, exp, sizeof(exp));
+   iso(now, upd, sizeof(upd));
+-  if (sqlite3_prepare_v2(db, "INSERT INTO reputation(supi,level,score,expires_at,updated_at) VALUES(?,?,?,?,?) "
++  if (u->probation_us > now) iso(u->probation_us, prob, sizeof(prob));
++  if (sqlite3_prepare_v2(db, "INSERT INTO reputation(supi,level,score,expires_at,updated_at,peak,probation_until) VALUES(?,?,?,?,?,?,?) "
+                              "ON CONFLICT(supi) DO UPDATE SET level=excluded.level,score=excluded.score,"
+-                             "expires_at=excluded.expires_at,updated_at=excluded.updated_at", -1, &q, NULL) == SQLITE_OK) {
++                             "expires_at=excluded.expires_at,updated_at=excluded.updated_at,peak=excluded.peak,"
++                             "probation_until=excluded.probation_until", -1, &q, NULL) == SQLITE_OK) {
+     sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
+     sqlite3_bind_int(q, 2, u->level);
+     sqlite3_bind_double(q, 3, u->score);
+-    sqlite3_bind_text(q, 4, u->level ? exp : "", -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 4, u->level ? (u->expires_us ? exp : NEVER) : "", -1, SQLITE_TRANSIENT);
+     sqlite3_bind_text(q, 5, upd, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_int(q, 6, u->peak);
++    sqlite3_bind_text(q, 7, prob, -1, SQLITE_TRANSIENT);
+     sqlite3_step(q);
+   }
+   sqlite3_finalize(q);
+@@ -72,6 +80,13 @@
+   json_object_object_add(o, "others_ul", json_object_new_int(f->others_ul));
+   json_object_object_add(o, "others_dl", json_object_new_int(f->others_dl));
+   json_object_object_add(o, "class", json_object_new_string(cfg.classes[u->cls].name));
++  if (f->has_urr) {
++    json_object_object_add(o, "urr_ul_kbps", json_object_new_double(f->urr_ul_kbps));
++    json_object_object_add(o, "urr_dl_kbps", json_object_new_double(f->urr_dl_kbps));
++  }
++  json_object_object_add(o, "ran_hit_age_s", json_object_new_double(u->ran_hit_us ? (now - u->ran_hit_us) / 1e6 : -1));
++  json_object_object_add(o, "core_hit_age_s", json_object_new_double(u->core_hit_us ? (now - u->core_hit_us) / 1e6 : -1));
++  json_object_object_add(o, "repeats", json_object_new_int((int)u->repeats));
+   event(o);
+ }
+ 
+@@ -92,6 +107,9 @@
+            "CREATE TABLE IF NOT EXISTS e2_trust(e2_node TEXT PRIMARY KEY,kpm_trust REAL NOT NULL DEFAULT 1.0,"
+            "ctrl_trust REAL NOT NULL DEFAULT 1.0,last_mismatch TEXT,alarm INTEGER NOT NULL DEFAULT 0);"
+            "CREATE TABLE IF NOT EXISTS policy(supi TEXT PRIMARY KEY,class TEXT NOT NULL,updated_at TEXT NOT NULL);");
++  /* L1 columns on a DB created by an older xApp (fails harmlessly when present) */
++  sqlite3_exec(db, "ALTER TABLE reputation ADD COLUMN peak INTEGER NOT NULL DEFAULT 0", NULL, NULL, NULL);
++  sqlite3_exec(db, "ALTER TABLE reputation ADD COLUMN probation_until TEXT NOT NULL DEFAULT ''", NULL, NULL, NULL);
+ }
+ 
+ /* KPM trust of an E2 node (design 5.5; updated by the consistency check in
+@@ -152,41 +170,81 @@
+ void policy_set_level(ue_t *u, int level, int64_t now, const char *why) {
+   int old = u->level;
+   u->level = level;
+-  u->expires_us = level > 0 ? now + (int64_t)cfg.expiry_s[level > 2 ? 1 : level - 1] * 1000000 : 0;
++  int exp = level > 0 ? cfg.expiry_s[level - 1] : 0;
++  u->expires_us = exp > 0 ? now + (int64_t)exp * 1000000 : 0; /* level 4 in lab: until reset */
++  if (level > u->peak) u->peak = level;
++  if (old < 3 && level >= 3) u->release_pending = true;
++  if (level < 3) u->release_pending = false;
+   save_reputation(u, now);
+   if (old != level) {
+     json_object *o = event_base("level", u, now);
+     json_object_object_add(o, "from", json_object_new_int(old));
+     json_object_object_add(o, "why", json_object_new_string(why));
++    json_object_object_add(o, "peak", json_object_new_int(u->peak));
++    json_object_object_add(o, "pending", json_object_new_int(u->pending));
+     event(o);
+     printf("[defense] %s level %d -> %d (%s)\n", u->supi, old, level, why);
+     fflush(stdout);
+   }
+ }
+ 
+-/* One classifier result: an attack label is evidence and moves the level
+-   (a repeat within the probation -> 2; RAN evidence alone stops at 2,
+-   design 6). Returns the decision ID, 0 when nothing was decided. */
++static bool recent(int64_t at, int64_t now) {
++  return at && now - at <= (int64_t)cfg.fusion_s * 1000000;
++}
++
++/* One classifier result. Both layers' window hits are timestamped (fusion);
++   an attack label is evidence and moves the level by policy_next() (levels
++   >= 3 only with both layers within fusion_s); a capped level completes
++   when the second layer's evidence arrives. Returns the decision ID, 0 when
++   nothing was decided. */
+ uint64_t policy_apply(ue_t *u, const features_t *f, const cls_result_t *r, int64_t now) {
+   if (r->uncongested) uncongested++; /* heavy use of an idle cell: not a violation */
+-  if (r->label != LABEL_ATTACK) return 0;
++  if (r->ran_hit) u->ran_hit_us = now;
++  if (r->core_hit) u->core_hit_us = now;
++  const bool both = recent(u->ran_hit_us, now) && recent(u->core_hit_us, now);
++  const bool attack = r->label == LABEL_ATTACK;
++  if (!attack && !(u->pending > u->level && both)) return 0;
++
++  const bool in_prob = u->level == 0 && now < u->probation_us;
++  policy_next_t n = policy_next(u->level, u->peak, in_prob, u->pending, both);
++  const bool escalates = n.level != u->level;
++  if (attack) u->since_seq = f->seq; /* later decisions use later samples only */
++  if (!escalates && u->level >= 1) {
++    /* repeated label while the level is in force: refresh its expiry; with
++       the "refresh" strategy evidence is recorded sparsely */
++    u->pending = n.pending;
++    if (!attack) return 0;
++    if (!cfg.repeat_every && now - u->evidence_us < (int64_t)cfg.evidence_interval_s * 1000000) {
++      u->repeats++;
++      policy_set_level(u, u->level, now, r->kind);
++      return 0;
++    }
++  }
+   double trust = kpm_trust(f->node);
+-  bool repeat = u->level == 0 && now < u->probation_us;
+-  double sev = cfg.sev_rate + (repeat ? cfg.sev_repeat : 0);
++  double sev = cfg.sev_rate + (in_prob ? cfg.sev_repeat : 0);
+   add_score(u, now, sev * trust);
+   u->decision_id = ++next_decision;
+-  save_evidence(u, now, sev, trust, f, r);
+-  u->since_seq = f->seq; /* later decisions use later samples only */
+-  if (repeat) policy_set_level(u, 2, now, "repeat_offense");
+-  else policy_set_level(u, u->level > 1 ? u->level : 1, now, r->kind);
++  cls_result_t ev = *r;
++  if (!attack) { /* the second layer completed a capped escalation */
++    snprintf(ev.kind, sizeof(ev.kind), "second_layer");
++    snprintf(ev.layer, sizeof(ev.layer), "both");
++  }
++  save_evidence(u, now, sev, trust, f, &ev);
++  u->evidence_us = now;
++  u->repeats = 0;
++  if (u->level == 0 && !in_prob) u->peak = 0; /* a new episode */
++  u->pending = n.pending;
++  policy_set_level(u, n.level, now, !attack ? "both_layers" : escalates && in_prob ? "repeat_offense" : r->kind);
+   return u->decision_id;
+ }
+ 
++/* a level in force runs out to the one below; at 0 the probation starts */
+ void policy_expire(int64_t now) {
+   for (int i = 0; i < MAX_UES; i++) {
+     ue_t *u = &ues[i];
+-    if (!u->used || u->level == 0 || now < u->expires_us) continue;
+-    if (u->level == 1) u->probation_us = now + (int64_t)cfg.probation_s * 1000000; /* quota lifted on probation */
++    if (!u->used || u->level == 0 || !u->expires_us || now < u->expires_us) continue;
++    if (u->level == 1) u->probation_us = now + (int64_t)cfg.probation_s * 1000000;
++    u->pending = 0;
+     policy_set_level(u, u->level - 1, now, "expired");
+   }
+ }
+@@ -198,7 +256,8 @@
+   sqlite3_stmt *q = NULL;
+   char now_iso[40];
+   iso(time_now_us(), now_iso, sizeof(now_iso));
+-  if (sqlite3_prepare_v2(db, "SELECT supi,level,score,expires_at FROM reputation WHERE level>0 AND expires_at>?", -1, &q, NULL) == SQLITE_OK) {
++  if (sqlite3_prepare_v2(db, "SELECT supi,level,score,expires_at,peak,probation_until FROM reputation "
++                             "WHERE (level>0 AND expires_at>?1) OR probation_until>?1", -1, &q, NULL) == SQLITE_OK) {
+     sqlite3_bind_text(q, 1, now_iso, -1, SQLITE_TRANSIENT);
+     while (sqlite3_step(q) == SQLITE_ROW) {
+       ue_t *u = ue_for((const char *)sqlite3_column_text(q, 0), true);
+@@ -206,10 +265,14 @@
+       u->level = sqlite3_column_int(q, 1);
+       u->score = sqlite3_column_double(q, 2);
+       u->score_us = time_now_us();
++      u->peak = sqlite3_column_int(q, 4);
++      const char *exp = (const char *)sqlite3_column_text(q, 3), *prob = (const char *)sqlite3_column_text(q, 5);
+       struct tm tm = {0};
+-      if (strptime((const char *)sqlite3_column_text(q, 3), "%Y-%m-%dT%H:%M:%S", &tm))
++      if (u->level && strcmp(exp, NEVER) != 0 && strptime(exp, "%Y-%m-%dT%H:%M:%S", &tm))
+         u->expires_us = (int64_t)timegm(&tm) * 1000000;
+-      printf("[defense] restored %s at level %d\n", u->supi, u->level);
++      memset(&tm, 0, sizeof(tm));
++      if (prob && *prob && strptime(prob, "%Y-%m-%dT%H:%M:%S", &tm)) u->probation_us = (int64_t)timegm(&tm) * 1000000;
++      printf("[defense] restored %s at level %d (peak %d%s)\n", u->supi, u->level, u->peak, u->probation_us ? ", on probation" : "");
+     }
+   }
+   sqlite3_finalize(q);
+diff -ruN a/examples/xApp/c/monitor/policy_rules.h b/examples/xApp/c/monitor/policy_rules.h
+--- a/examples/xApp/c/monitor/policy_rules.h	1970-01-01 08:00:00.000000000 +0800
++++ b/examples/xApp/c/monitor/policy_rules.h	2026-10-05 21:14:21.571255740 +0700
+@@ -0,0 +1,32 @@
++#ifndef OAI_LAB_POLICY_RULES_H
++#define OAI_LAB_POLICY_RULES_H
++/* Escalation table of the policy layer (design 6), free of state and I/O so
++   it is unit-tested on its own (tests/xapp/test_policy_rules.c).
++     level 0, no probation        -> 1   suspicion
++     level 0, within probation    -> peak + 1   repeat offense after the
++                                         previous episode decayed (2, 3, 4)
++     level >= 1                   -> unchanged (expiry refreshed), unless a
++                                     capped escalation is pending and both
++                                     layers now agree
++   Levels >= 3 need evidence of both layers (KPM and URR) within the fusion
++   window; one layer alone stops at 2, the wanted level stays pending. */
++#include <stdbool.h>
++
++#define POLICY_MAX_LEVEL 4
++
++typedef struct {
++  int level;   /* new level (never below the current one) */
++  int pending; /* level wanted but capped by single-layer evidence, 0 none */
++} policy_next_t;
++
++static inline policy_next_t policy_next(int level, int peak, bool in_probation, int pending, bool both_layers) {
++  int want = level == 0 ? (in_probation ? peak + 1 : 1) : (pending > level ? pending : level);
++  if (want > POLICY_MAX_LEVEL) want = POLICY_MAX_LEVEL;
++  if (want < 1) want = 1;
++  const int cap = both_layers ? POLICY_MAX_LEVEL : 2;
++  policy_next_t n = {.level = want < cap ? want : cap, .pending = 0};
++  if (n.level < level) n.level = level;
++  if (want > n.level) n.pending = want;
++  return n;
++}
++#endif
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.c b/examples/xApp/c/monitor/urr_receiver.c
+--- a/examples/xApp/c/monitor/urr_receiver.c	2026-10-05 18:23:09.377042623 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.c	2026-10-05 21:36:20.168040129 +0700
+@@ -30,16 +30,28 @@
+ static size_t identity_count;
+ 
+ /* latest report of each SUPI and when it arrived (features of the defense) */
+-static struct { urr_record_t r; int64_t received_us; } per_supi[MAX_UE_IDENTITIES];
++/* plus the last URR_RING reports, to align URR with KPM by measurement time */
++#define URR_RING 16
++static struct { urr_record_t r; int64_t received_us; urr_record_t ring[URR_RING]; int64_t ring_rx[URR_RING]; int ring_head; }
++  per_supi[MAX_UE_IDENTITIES];
+ static size_t per_supi_count;
+ 
+ static void remember_usage(const urr_record_t *r){
+   if(!r->supi[0])return;
+   size_t slot=per_supi_count;
+   for(size_t i=0;i<per_supi_count;i++)if(strcmp(per_supi[i].r.supi,r->supi)==0){slot=i;break;}
++  bool known=slot<per_supi_count;
+   if(slot==per_supi_count){if(per_supi_count==MAX_UE_IDENTITIES)return;per_supi_count++;}
+   struct timespec ts;clock_gettime(CLOCK_REALTIME,&ts);
+-  per_supi[slot].r=*r;per_supi[slot].received_us=(int64_t)ts.tv_sec*1000000+ts.tv_nsec/1000;
++  const urr_record_t *prev=&per_supi[slot].r;
++  uint64_t interval=1;
++  if(known && prev->seid==r->seid && r->duration_seconds>prev->duration_seconds && r->duration_seconds-prev->duration_seconds<=60)
++    interval=r->duration_seconds-prev->duration_seconds;
++  per_supi[slot].r=*r;
++  per_supi[slot].r.interval_seconds=interval;per_supi[slot].received_us=(int64_t)ts.tv_sec*1000000+ts.tv_nsec/1000;
++  per_supi[slot].ring[per_supi[slot].ring_head]=per_supi[slot].r;
++  per_supi[slot].ring_rx[per_supi[slot].ring_head]=per_supi[slot].received_us;
++  per_supi[slot].ring_head=(per_supi[slot].ring_head+1)%URR_RING;
+ }
+ 
+ static void remember_identity(const urr_record_t *r){
+@@ -325,6 +337,20 @@
+   return found;
+ }
+ 
++int urr_receiver_supi_at(const char *supi,uint64_t end_unix,urr_record_t *out,int64_t *received_us){
++  int found=0;
++  pthread_mutex_lock(&lock);
++  for(size_t i=0;i<per_supi_count && !found;i++){
++    if(strcmp(per_supi[i].r.supi,supi)!=0)continue;
++    for(int k=0;k<URR_RING && !found;k++)
++      if(per_supi[i].ring[k].end_time_unix==end_unix && per_supi[i].ring[k].supi[0]){
++        *out=per_supi[i].ring[k];if(received_us)*received_us=per_supi[i].ring_rx[k];found=1;}
++    break;
++  }
++  pthread_mutex_unlock(&lock);
++  return found;
++}
++
+ int urr_receiver_latest_for_supi(const char *supi,urr_record_t *out,int64_t *received_us){
+   int found=0;
+   pthread_mutex_lock(&lock);
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.h b/examples/xApp/c/monitor/urr_receiver.h
+--- a/examples/xApp/c/monitor/urr_receiver.h	2026-10-05 18:23:09.378042642 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.h	2026-10-05 21:36:20.168040129 +0700
+@@ -12,6 +12,11 @@
+      PFCP End Time of the measurement (Unix s, 1 s resolution) */
+   bool has_ran_identity;
+   uint64_t amf_ue_ngap_id,end_time_unix;
++  /* measurement period of this report (s), set by the receiver: OAI UPF's
++     Duration Measurement counts from the session start while the volumes
++     count since the previous report, so the period is the difference of two
++     consecutive durations of the session (1 = PERIO when unknown) */
++  uint64_t interval_seconds;
+ } urr_record_t;
+ int urr_receiver_start(void);
+ void urr_receiver_stop(void);
+@@ -24,4 +29,6 @@
+ /* latest report of a SUPI (usage since its previous report) and its arrival
+    time (Unix us); 1 if any */
+ int urr_receiver_latest_for_supi(const char *supi,urr_record_t *out,int64_t *received_us);
++/* the SUPI's report whose PFCP End Time is end_unix (one of the last 16); 1 if any */
++int urr_receiver_supi_at(const char *supi,uint64_t end_unix,urr_record_t *out,int64_t *received_us);
+ #endif

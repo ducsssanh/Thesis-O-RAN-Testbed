@@ -1,0 +1,160 @@
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.c b/examples/xApp/c/monitor/urr_receiver.c
+--- a/examples/xApp/c/monitor/urr_receiver.c	2026-10-18 11:43:25.668924789 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.c	2026-10-18 11:45:00.699090760 +0700
+@@ -24,6 +24,12 @@
+ static urr_record_t last_report;
+ static int has_last_report;
+ static unsigned long long duplicate_count, error_count;
++/* closed-loop information types other than URR, common envelope
++   (docs/CLOSED-LOOP-FRAMEWORK.md 3.2), delivered at /v1/<kind>/events */
++static const char *core_kinds[]={"test","session","profile","event"};
++#define CORE_KINDS (sizeof(core_kinds)/sizeof(*core_kinds))
++static unsigned long long core_received[CORE_KINDS],core_duplicates[CORE_KINDS],core_errors[CORE_KINDS];
++static char core_export_path[PATH_MAX];
+ /* AMF UE NGAP ID -> SUPI, one entry per SUPI (a re-attach gets a new ID) */
+ #define MAX_UE_IDENTITIES 64
+ static struct { uint64_t amf_ue_ngap_id; char supi[96]; } identities[MAX_UE_IDENTITIES];
+@@ -247,6 +253,96 @@
+   return reply(c,500,"{\"error\":\"storage failure\"}");
+ }
+ 
++/* One envelope record: type, source, source_epoch, seq, supi, time_unix and
++   a body; its event ID must be <job>:<source>:<source_epoch>:<seq>. Stored in
++   core_events (deduplicated like URR) and appended to core-received.jsonl
++   with the arrival time in ms, for the latency of the path. */
++static int valid_envelope(json_object *o,char *key,size_t capacity){
++  uint64_t seq=0,t=0;json_object *body=NULL;
++  if(!o || !json_object_is_type(o,json_type_object) || !uint_field(o,"seq",&seq) || !seq || !uint_field(o,"time_unix",&t) || !t)return 0;
++  const char *strings[]={"type","source","source_epoch","supi"};
++  for(size_t i=0;i<sizeof(strings)/sizeof(*strings);i++)if(!string_field(o,strings[i]))return 0;
++  if(!json_object_object_get_ex(o,"body",&body))return 0;
++  json_object *src=NULL,*ep=NULL;json_object_object_get_ex(o,"source",&src);json_object_object_get_ex(o,"source_epoch",&ep);
++  return snprintf(key,capacity,"%s:%s:%llu",json_object_get_string(src),json_object_get_string(ep),(unsigned long long)seq)<(int)capacity;
++}
++
++static enum MHD_Result ingest_core(struct MHD_Connection *c,request_t *req,size_t kind){
++  json_tokener *tok=json_tokener_new();
++  json_object *o=json_tokener_parse_ex(tok,req->body,(int)req->used);
++  int parsed=json_tokener_get_error(tok)==json_tokener_success;
++  json_tokener_free(tok);
++  json_object *eid=NULL,*jid=NULL,*report=NULL;char key[256];
++  if(!parsed || !o || !json_object_object_get_ex(o,"event_id",&eid) || !json_object_is_type(eid,json_type_string) ||
++     !json_object_object_get_ex(o,"job_id",&jid) || !json_object_is_type(jid,json_type_string) ||
++     !json_object_object_get_ex(o,"report",&report) || !valid_envelope(report,key,sizeof(key))){
++    pthread_mutex_lock(&lock);core_errors[kind]++;pthread_mutex_unlock(&lock);
++    if(o)json_object_put(o);return reply(c,400,"{\"error\":\"invalid envelope\"}");
++  }
++  const char *id=json_object_get_string(eid),*job=json_object_get_string(jid);
++  size_t jl=strlen(job);
++  if(!jl || jl>128 || strlen(id)>255 || strncmp(id,job,jl)!=0 || id[jl]!=':' || strcmp(id+jl+1,key)!=0){
++    pthread_mutex_lock(&lock);core_errors[kind]++;pthread_mutex_unlock(&lock);
++    json_object_put(o);return reply(c,400,"{\"error\":\"event ID mismatch\"}");
++  }
++  const char *raw=json_object_to_json_string_ext(report,JSON_C_TO_STRING_PLAIN);
++  pthread_mutex_lock(&lock);
++  sqlite3_stmt *q=NULL;int status=500;
++  if(sqlite3_prepare_v2(db,"SELECT report FROM core_events WHERE event_id=?",-1,&q,NULL)==SQLITE_OK){
++    sqlite3_bind_text(q,1,id,-1,SQLITE_TRANSIENT);
++    if(sqlite3_step(q)==SQLITE_ROW){
++      json_object *old=json_tokener_parse((const char*)sqlite3_column_text(q,0));
++      status=old && json_object_equal(old,report)?200:409;
++      if(old)json_object_put(old);
++    }else status=201;
++  }
++  sqlite3_finalize(q);
++  if(status==201){
++    const char *run=getenv("RUN_ID");if(!run)run="bootstrap";
++    struct timespec ts;clock_gettime(CLOCK_REALTIME,&ts);struct tm t;gmtime_r(&ts.tv_sec,&t);
++    char when[48],sec[32];strftime(sec,sizeof(sec),"%Y-%m-%dT%H:%M:%S",&t);
++    snprintf(when,sizeof(when),"%s.%03ldZ",sec,ts.tv_nsec/1000000);
++    if(sqlite3_prepare_v2(db,"INSERT INTO core_events(event_id,kind,job_id,report,received_at,run_id) VALUES(?,?,?,?,?,?)",-1,&q,NULL)==SQLITE_OK){
++      sqlite3_bind_text(q,1,id,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q,2,core_kinds[kind],-1,SQLITE_STATIC);
++      sqlite3_bind_text(q,3,job,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q,4,raw,-1,SQLITE_TRANSIENT);
++      sqlite3_bind_text(q,5,when,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q,6,run,-1,SQLITE_TRANSIENT);
++      if(sqlite3_step(q)!=SQLITE_DONE)status=500;
++    }else status=500;
++    sqlite3_finalize(q);
++    if(status==201){
++      FILE *f=fopen(core_export_path,"ab");
++      if(f){
++        json_object *v=json_object_new_object();
++        json_object_object_add(v,"event_id",json_object_new_string(id));
++        json_object_object_add(v,"kind",json_object_new_string(core_kinds[kind]));
++        json_object_object_add(v,"report",json_object_get(report));
++        json_object_object_add(v,"received_at",json_object_new_string(when));
++        json_object_object_add(v,"received_unix_ms",json_object_new_int64((int64_t)ts.tv_sec*1000+ts.tv_nsec/1000000));
++        json_object_object_add(v,"xapp_run_id",json_object_new_string(run));
++        fputs(json_object_to_json_string_ext(v,JSON_C_TO_STRING_PLAIN),f);fputc('\n',f);
++        json_object_put(v);fclose(f);
++      }
++      core_received[kind]++;
++    }
++  }
++  if(status==200)core_duplicates[kind]++;
++  else if(status!=201)core_errors[kind]++;
++  pthread_mutex_unlock(&lock);json_object_put(o);
++  if(status==201)return reply(c,201,"{\"status\":\"stored\"}");
++  if(status==200)return reply(c,200,"{\"status\":\"duplicate\"}");
++  if(status==409)return reply(c,409,"{\"error\":\"conflicting payload\"}");
++  return reply(c,500,"{\"error\":\"storage failure\"}");
++}
++
++/* index of the closed-loop kind of a /v1/<kind>/events URL, -1 if none */
++static int core_kind_of(const char *url){
++  for(size_t i=0;i<CORE_KINDS;i++){
++    char path[64];snprintf(path,sizeof(path),"/v1/%s/events",core_kinds[i]);
++    if(strcmp(url,path)==0)return (int)i;
++  }
++  return -1;
++}
++
+ static enum MHD_Result handle(void *cls,struct MHD_Connection *c,const char *url,const char *method,const char *version,
+                               const char *upload,size_t *size,void **context){
+   (void)cls;(void)version;
+@@ -270,13 +366,27 @@
+       json_object_object_add(status,"last_event_id",json_object_new_string(latest));
+       enum MHD_Result rc=reply(c,200,json_object_to_json_string(status));json_object_put(status);return rc;
+     }
++    if(strcmp(url,"/v1/core/status")==0){
++      json_object *status=json_object_new_object();
++      pthread_mutex_lock(&lock);
++      for(size_t i=0;i<CORE_KINDS;i++){
++        json_object *k=json_object_new_object();
++        json_object_object_add(k,"received",json_object_new_uint64(core_received[i]));
++        json_object_object_add(k,"duplicates",json_object_new_uint64(core_duplicates[i]));
++        json_object_object_add(k,"errors",json_object_new_uint64(core_errors[i]));
++        json_object_object_add(status,core_kinds[i],k);
++      }
++      pthread_mutex_unlock(&lock);
++      enum MHD_Result rc=reply(c,200,json_object_to_json_string(status));json_object_put(status);return rc;
++    }
+     return reply(c,404,"{}");
+   }
+-  if(strcmp(url,"/v1/urr/events")!=0 || strcmp(method,"POST")!=0)return reply(c,404,"{}");
++  int kind=core_kind_of(url);
++  if((strcmp(url,"/v1/urr/events")!=0 && kind<0) || strcmp(method,"POST")!=0)return reply(c,404,"{}");
+   if(*context==NULL){request_t *r=calloc(1,sizeof(*r));if(!r)return MHD_NO;r->body=calloc(MAX_BODY+1,1);if(!r->body){free(r);return MHD_NO;}*context=r;return MHD_YES;}
+   request_t *r=*context;
+   if(*size){if(r->used+*size>MAX_BODY)return reply(c,413,"{\"error\":\"body too large\"}");memcpy(r->body+r->used,upload,*size);r->used+=*size;*size=0;return MHD_YES;}
+-  return ingest(c,r);
++  return kind>=0?ingest_core(c,r,(size_t)kind):ingest(c,r);
+ }
+ 
+ static void completed(void *cls,struct MHD_Connection *c,void **context,enum MHD_RequestTerminationCode reason){
+@@ -288,7 +398,15 @@
+   const char *out=getenv("URR_EXPORT_PATH");if(!out)out="/artifacts/urr-received.jsonl";
+   if(snprintf(export_path,sizeof(export_path),"%s",out)>=(int)sizeof(export_path))return -1;
+   if(sqlite3_open(path,&db)!=SQLITE_OK)return -1;
+-  if(sqlite3_exec(db,"PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS urr(event_id TEXT PRIMARY KEY,job_id TEXT NOT NULL,report TEXT NOT NULL,received_at TEXT NOT NULL,run_id TEXT NOT NULL);",NULL,NULL,NULL)!=SQLITE_OK)return -1;
++  if(sqlite3_exec(db,"PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; CREATE TABLE IF NOT EXISTS urr(event_id TEXT PRIMARY KEY,job_id TEXT NOT NULL,report TEXT NOT NULL,received_at TEXT NOT NULL,run_id TEXT NOT NULL);"
++                  "CREATE TABLE IF NOT EXISTS core_events(event_id TEXT PRIMARY KEY,kind TEXT NOT NULL,job_id TEXT NOT NULL,report TEXT NOT NULL,received_at TEXT NOT NULL,run_id TEXT NOT NULL);",NULL,NULL,NULL)!=SQLITE_OK)return -1;
++  /* closed-loop records next to the URR export unless CORE_EXPORT_PATH */
++  const char *core_out=getenv("CORE_EXPORT_PATH");
++  if(core_out){if(snprintf(core_export_path,sizeof(core_export_path),"%s",core_out)>=(int)sizeof(core_export_path))return -1;}
++  else{
++    const char *slash=strrchr(export_path,'/');int dir=slash?(int)(slash-export_path)+1:0;
++    if(snprintf(core_export_path,sizeof(core_export_path),"%.*score-received.jsonl",dir,export_path)>=(int)sizeof(core_export_path))return -1;
++  }
+   sqlite3_stmt *last=NULL;
+   if(sqlite3_prepare_v2(db,"SELECT report FROM urr ORDER BY rowid DESC LIMIT 1",-1,&last,NULL)==SQLITE_OK && sqlite3_step(last)==SQLITE_ROW){
+     json_object *r=json_tokener_parse((const char*)sqlite3_column_text(last,0));

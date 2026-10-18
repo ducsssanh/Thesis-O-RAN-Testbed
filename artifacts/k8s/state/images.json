@@ -7,8 +7,8 @@
       "repoDigests": []
     },
     "upf": {
-      "image": "oai-lab-upf:ttl-afdf292e9d3a",
-      "id": "sha256:379310aaf57777fd9581f742cad0b359d8f1c3b42d49288c9b775a42ce80b255",
+      "image": "oai-lab-upf:reflex-d1d70c85996b",
+      "id": "sha256:884b4e52b44d4485babc85a276fa85af567fcaffc73e70b33af2f8b9d5b8d03a",
       "repoDigests": []
     },
     "radio": {

@@ -1,0 +1,26 @@
+name: e2-benign-fpr
+description: |
+  E2 - false positives on benign traffic (both layers on, real lab timing).
+  A heavy UE alone in the cell, two moderate UEs, on/off bursts. Expected:
+  no evidence, level 0 for both UEs. Also produces the feature dataset
+  (defense/features.jsonl) with correct URR for the AI phase.
+ues: {ue1: benign, ue2: benign}
+reps: 3
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+defense_common:
+  classes: {ue1: default, ue2: default}
+  timing: {expiryS: [60, 180, 600, 0], probationS: 180, fusionS: 10}
+variants:
+  - name: two-layer
+    defense: {enabled: true, core: true, mode: slice}
+phases:
+  - {name: heavy-alone, duration: 120, flows: {ue1: {ul: 4M}}}
+  - {name: two-moderate, duration: 120, baseline: true, flows: {ue1: {ul: 1500k}, ue2: {ul: 1500k}}}
+  - {name: burst-on-1, duration: 10, flows: {ue1: {ul: 3M}, ue2: {ul: 1M}}}
+  - {name: burst-off-1, duration: 10, flows: {ue2: {ul: 1M}}}
+  - {name: burst-on-2, duration: 10, flows: {ue1: {ul: 3M}, ue2: {ul: 1M}}}
+  - {name: burst-off-2, duration: 10, flows: {ue2: {ul: 1M}}}
+  - {name: burst-on-3, duration: 10, flows: {ue1: {ul: 3M}, ue2: {ul: 1M}}}
+  - {name: dl-heavy, duration: 60, flows: {ue1: {dl: 10M}, ue2: {dl: 5M}}}
+report: [benign_max_level, benign_evidence, benign_delivered_ratio_baseline]

@@ -62,7 +62,8 @@ mv "$W/upf-common-src" "$W/upf/src/common-src"; mv "$W/upf-common-build" "$W/upf
 mv "$W/upf-common-ci" "$W/upf/ci-scripts/common"
 for x in oai-upf-00b7485-pfcp-urr-reporting oai-upf-xdp-mode oai-upf-cp-initiated-association oai-upf-build-jobs \
          oai-upf-00b7485-dl-qfi-from-access-pdr oai-upf-session-teardown-ue-ip-mapping oai-upf-teardown-best-effort \
-         oai-upf-user-id-session-ttl oai-upf-urr-report-semantics; do
+         oai-upf-user-id-session-ttl oai-upf-urr-report-semantics oai-upf-per-supi-security \
+         oai-upf-closed-loop-profile; do
   apply "$W/upf" "$P/$x.patch"
 done
 compare "oai-upf" "$W/upf" "$ROOT/src/oai-upf"
@@ -105,6 +106,12 @@ apply "$F" "$P/flexric-xapp-ran-control.patch"
 apply "$F" "$P/flexric-xapp-defense.patch"
 apply "$F" "$P/flexric-xapp-fair-use-policy.patch"
 apply "$F" "$P/flexric-xapp-slice-quarantine.patch"
+apply "$F" "$P/flexric-xapp-layered-defense.patch"
+apply "$F" "$P/flexric-xapp-two-layer-loop.patch"
+apply "$F" "$P/flexric-xapp-deferred-dataset.patch"
+apply "$F" "$P/flexric-xapp-core-info-types.patch"   # CL-1: closed-loop info types (docs/CLOSED-LOOP-FRAMEWORK.md)
+apply "$F" "$P/flexric-xapp-session-events.patch"     # CL-2: session table, seid/session_epoch in the vector
+apply "$F" "$P/flexric-xapp-upf-profile.patch"        # CL-3: UPF packet mix in the vector
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722

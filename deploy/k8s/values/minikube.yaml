@@ -36,6 +36,30 @@ global:
         deactivatedReleaseS: 120  # T1 (also the grace after a T2 UPIR)
         upInactivityS: 60         # T2, PFCP IE 117
       ueKeepaliveS: 20          # benign UE background traffic, < upInactivityS; 0 = off
+      upfSecurity:              # per-SUPI block/ratelimit/monitor in the eBPF UPF (Phase U, design 5.1-5.3a, 6.1)
+        enabled: true           # HTTP API (no TLS, design 8) for the xApp; changing this block restarts only the UPF
+        port: 8095              # Service oai-upf-security.oai-core.svc
+        storageSize: 64Mi       # PVC oai-lab-upf-security: SQLite policy DB + audit.jsonl survive UPF restarts
+        dbPath: /upf-sec/sec_policy.db
+        auditPath: /upf-sec/audit.jsonl
+        maxTtlS: 86400          # security.max_ttl_s: a captured xApp cannot block for longer
+        maxCmdsPerS: 10         # security.max_cmds_per_s -> 429
+        maxBlockedRatio: 0.5    # security.max_blocked_ratio (lab) -> 403; of SUPIs with a live session or a block
+        maxPolicies: 16384      # sec_policy_by_supi entries (overhead runs use 10k)
+        ratelimitBurstMs: 100   # token bucket depth of ratelimit (minimal v1: bytes of the whole packet)
+        sweepS: 5               # expired policies are ignored by XDP at once, removed from DB/maps this often
+        profile: true           # CL-3: packet mix per session in XDP + GET /v1/telemetry (off: E4 baseline)
+        telemetryRing: 7200     # telemetry records kept for the producer's cursor (~1 h for 2 UEs)
+        dropSpoofed: true       # fixed rule: UL whose GTP-U TEID is not the session's own tunnel
+        dropGtpInGtp: true      # fixed rule: UL inner UDP to the GTP-U port 2152
+        dropUnknownUl: true     # fixed rule: UL source IP owned by no session (upstream: passed to the kernel)
+        reflex:                 # UPF's own response to a UL flood (uplink only), xApp policy always overrides
+          mode: ratelimit       # off = detect+report only; ratelimit = also limit (comparison switch)
+          quotaUlBytes: 3125000 # UL bytes/s over which the reflex trips (25 Mbit/s)
+          rateUlKbps: 2000      # ratelimit the reflex applies
+          ttlS: 10              # expires unless the xApp confirms it
+          ttlMaxS: 60           # a repeat within the TTL doubles it, up to here
+          maxShare: 1.0         # at most this share of live sessions under a reflex at once (lab has 2-4 UEs; production ~0.2)
       xapp:                     # RAN layer in the xApp (plan R3, design 6 / 6.1)
         enabled: true
         profile: lab            # escalation.profile
@@ -50,6 +74,11 @@ global:
             ulCellPrbPct: 80    # sum of the UEs' PRB shares; R2 UL flood 71-99 % (mean 94)
             dlCellPrbPct: 60    # R2 DL flood 59-76 % (mean 69): DL does not fill the PRBs
             otherUeKbps: 100    # ...and another UE sends >= this in that direction (a UE alone gets ~98 % PRB, R3 05/10)
+        classifier:             # Phase X: window of feature vectors per SUPI -> label (design 5.6)
+          kind: rules           # rules (v1) | external: model sidecar on the xApp loopback (AI later);
+          endpoint: http://127.0.0.1:8091/classify   # unknown, timeout or failure -> rules
+          window: 10            # vectors (1 s each) sent to the model
+          timeoutMs: 200
         detector:               # hits of the last samples (1 s each)
           ulPrbPct: 0           # 0 = rule off (a busy benign UE also takes ~40 % of the PRBs)
           dlPrbPct: 0
@@ -63,9 +92,24 @@ global:
           defaultSlice: {sst: 1, sd: "FFFFFF"}   # the lab slice (global.lab.slice); no RAN slice -> unlimited
         confirm:                # level 2: violates again within probationS after the level-1 quota expired
           probationS: 180       # (PRB "quota full" cannot confirm: spare PRBs go to any active UE, R3 05/10)
-        expiryS:                # [level 1, level 2] per profile (design 6)
-          lab: [60, 180]
-          production: [300, 3600]
+        expiryS:                # [level 1, 2, 3, 4] per profile (design 6); 0 = until admin reset (level 4)
+          lab: [60, 180, 600, 0]
+          production: [300, 3600, 86400, 0]
+        core:                   # core layer (plan L1): URR rule in classifier v1 + UPF Security API actions per level
+          enabled: true         # false = RAN only (R3 behaviour, levels stop at 2)
+          upfApi: http://oai-upf-security.oai-core.svc.cluster.local:8095   # plain HTTP (C35, design 8)
+          timeoutMs: 1000
+          syncS: 10             # GET /v1/info (boot_id) + /v1/ues against the xApp's view
+          ttlMarginS: 30        # UPF policy outlives the level by this much (xApp dead -> it still expires)
+          maxTtlS: 86400        # level 4: block TTL (<= upfSecurity.maxTtlS), renewed at half
+          ratelimitFactor: 1.0  # level 2: UPF ratelimit = fair-use class rate x factor
+          urrMaxAgeS: 5         # older URR reports are not features
+          fusionS: 10           # KPM and URR window hits within this many seconds = both layers (levels >= 3)
+          verifyS: 10           # RAN limit must lower the SUPI's URR, UPF action must show in URR, within this
+          releaseEveryS: 10     # level 4: at most one RRC release per this many seconds
+        repeat:                 # attack labels while a level is in force (plan L1 step 0a; policy not settled)
+          strategy: refresh     # refresh: refresh the expiry, evidence at most every evidenceIntervalS | every
+          evidenceIntervalS: 10
         severity: {kpmRate: 2, repeat: 1}
         scoreHalfLifeS: 60
     toolsImage: oai-lab-tools:unbuilt

@@ -1,0 +1,114 @@
+{
+ "start": {
+  "upf_n3": {
+   "rx": {
+    "bytes": 421229217,
+    "packets": 329248,
+    "errors": 0,
+    "dropped": 0,
+    "over_errors": 0,
+    "multicast": 0
+   },
+   "tx": {
+    "bytes": 11610441,
+    "packets": 10780,
+    "errors": 0,
+    "dropped": 0,
+    "carrier_errors": 0,
+    "collisions": 0
+   }
+  },
+  "upf_n6": {
+   "rx": {
+    "bytes": 11135619,
+    "packets": 10631,
+    "errors": 0,
+    "dropped": 0,
+    "over_errors": 0,
+    "multicast": 0
+   },
+   "tx": {
+    "bytes": 398699629,
+    "packets": 322529,
+    "errors": 0,
+    "dropped": 0,
+    "carrier_errors": 0,
+    "collisions": 0
+   }
+  },
+  "dn_n6": {
+   "rx": {
+    "bytes": 405310370,
+    "packets": 327909,
+    "errors": 0,
+    "dropped": 0,
+    "over_errors": 0,
+    "multicast": 0
+   },
+   "tx": {
+    "bytes": 12068992,
+    "packets": 11389,
+    "errors": 0,
+    "dropped": 0,
+    "carrier_errors": 0,
+    "collisions": 0
+   }
+  }
+ },
+ "end": {
+  "upf_n3": {
+   "rx": {
+    "bytes": 429691891,
+    "packets": 335858,
+    "errors": 0,
+    "dropped": 0,
+    "over_errors": 0,
+    "multicast": 0
+   },
+   "tx": {
+    "bytes": 22880857,
+    "packets": 19573,
+    "errors": 0,
+    "dropped": 0,
+    "carrier_errors": 0,
+    "collisions": 0
+   }
+  },
+  "upf_n6": {
+   "rx": {
+    "bytes": 22019797,
+    "packets": 19421,
+    "errors": 0,
+    "dropped": 0,
+    "over_errors": 0,
+    "multicast": 0
+   },
+   "tx": {
+    "bytes": 406870207,
+    "packets": 329135,
+    "errors": 0,
+    "dropped": 0,
+    "carrier_errors": 0,
+    "collisions": 0
+   }
+  },
+  "dn_n6": {
+   "rx": {
+    "bytes": 413480948,
+    "packets": 334515,
+    "errors": 0,
+    "dropped": 0,
+    "over_errors": 0,
+    "multicast": 0
+   },
+   "tx": {
+    "bytes": 22953170,
+    "packets": 20179,
+    "errors": 0,
+    "dropped": 0,
+    "carrier_errors": 0,
+    "collisions": 0
+   }
+  }
+ }
+}

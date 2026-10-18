@@ -1,0 +1,25 @@
+{{- /* Phase U: UPF Security API (design 5.3a). PVC keeps the per-SUPI policy DB across UPF restarts. */}}
+{{- $sec := ((.Values.global.lab.defense | default dict).upfSecurity | default dict) }}
+{{- if $sec.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oai-lab-upf-security
+  annotations: {helm.sh/resource-policy: keep}
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests: {storage: {{ $sec.storageSize | default "64Mi" }}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oai-upf-security
+  labels: {oai-lab/component: upf}
+spec:
+  type: ClusterIP
+  selector: {oai-lab/component: upf}
+  ports:
+    - {name: sec-api, port: {{ $sec.port | default 8095 }}, targetPort: sec-api, protocol: TCP}
+{{- end }}

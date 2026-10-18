@@ -1,0 +1,53 @@
+22:22:46 UE IPs {'oai-nr-ue': '10.1.0.3', 'oai-nr-ue2': '10.1.0.2'} run 20261003T164156Z-m35
+22:22:57 drain {'oai-nr-ue': 4.7, 'oai-nr-ue2': 4.6}
+22:22:57 flood 150 s: UE1 10M + UE2 1M
+22:22:57 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:23:09 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:23:20 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:23:31 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:23:42 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:23:53 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:24:04 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:24:15 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:24:24 level 3 after 87.0 s
+22:24:26 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:24:37 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:24:49 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:25:00 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:25:11 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:25:22 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:25:33 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:25:55 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:26:06 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:26:17 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:26:28 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:26:39 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:26:50 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:27:01 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:27:12 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:27:23 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:27:30 reconnect {"ue1_ip": "10.1.0.3", "dn_pkts_from_ue1": 0, "iperf_mbps": null, "new_session_stats": {"drop_dl_bytes": 0, "drop_dl_pkts": 0, "drop_ul_bytes": 1667416, "drop_ul_pkts": 1304, "last_drop_ns": 150343863321318, "seen_dl_bytes": 0, "seen_dl_pkts": 0, "seen_ul_bytes": 1667416, "seen_ul_pkts": 1304}, "res
+22:27:34 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:27:45 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:27:56 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:28:07 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:28:18 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:28:29 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:28:40 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:28:51 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:29:03 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:29:14 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:29:25 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:29:36 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:29:47 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:29:58 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:30:09 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:30:11 PASS l1_ran_slice_and_upf_monitor {"level_event": {"at_ms": 1791213783742, "type": "level", "supi": "imsi-001010123456780", "level": 1, "decision_id": 1, "from": 0, "why": "kpm_rate_ul", "peak": 1, "pending": 0}, "ran": 200, "core": 200}
+22:30:11 PASS ran_limit_confirmed_by_urr {"verdicts": [["verified", 933.984], ["verified", 1410.912]]}
+22:30:11 PASS l2_repeat_offense_upf_ratelimit {"level_event": {"at_ms": 1791213807738, "type": "level", "supi": "imsi-001010123456780", "level": 2, "decision_id": 2, "from": 0, "why": "repeat_offense", "peak": 2, "pending": 0}, "core": {"http": 200, "rate_ul_kbps": 2000.0, "ttl_s": 61}}
+22:30:11 PASS l3_both_layers_block_and_release {"level_event": {"at_ms": 1791213863738, "type": "level", "supi": "imsi-001010123456780", "level": 3, "decision_id": 4, "from": 2, "why": "both_layers", "peak": 3, "pending": 0}, "evidence": {"kind": "second_layer", "layer": "both", "ran_hit_age_s": 0.999761, "core_hit_age_s": 0.0, "urr_ul_kbps": null}, "core": 200, "release": 200, "upf": {"action": "block", "enforced": true, "level": 3}}
+22:30:11 PASS block_confirmed_by_urr {"verdicts": [["verified", 0.0, 2.947498], ["verified", 0.0, 1.585194]]}
+22:30:11 PASS reconnect_blocked_level_restored {"ue1_ip": "10.1.0.3", "dn_pkts_from_ue1": 0, "iperf_mbps": null, "new_session_stats": {"drop_dl_bytes": 0, "drop_dl_pkts": 0, "drop_ul_bytes": 1667416, "drop_ul_pkts": 1304, "last_drop_ns": 150343863321318, "seen_dl_bytes": 0, "seen_dl_pkts": 0, "seen_ul_bytes": 1667416, "seen_ul_pkts": 1304}, "restored": ["[defense] restored imsi-001010123456780 at level 3 (peak 3, on probation)"], "level_after"
+22:30:11 PASS expiry_clears_both_layers {"reached_s": 104.2, "upf_policy": null, "ue1_mbps": 1.057, "session_released_by_t2": true, "sessions": [{"policy_in_map": false, "seid": 11, "supi": "imsi-001010123456780"}]}
+22:30:11 PASS benign_ue2_not_above_1 {"max_level": 0, "core": ["none"]}
+22:30:11 Gate L1 PASS -> artifacts/k8s/diagnostics/l1-20261005/run7-final/result.json

@@ -1,0 +1,114 @@
+{
+ "run": "/home/ducsssanh/6G/O-RAN/DATN/Codebase/artifacts/experiments/20261006-005453_e3-reconnect_check/runs/two-layer/rep-01",
+ "status": "ok",
+ "pass": false,
+ "checks": {
+  "hops": {
+   "pass": true,
+   "n4_reports": 637,
+   "missing": {
+    "smf_raw": 0,
+    "producer": 0,
+    "adapter": 0,
+    "xapp": 0
+   },
+   "xapp_duplicates": 0
+  },
+  "kpm": {
+   "pass": false,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "vectors": 199,
+     "per_s": 0.783
+    },
+    "imsi-001010123456781": {
+     "vectors": 273,
+     "per_s": 1.003
+    }
+   }
+  },
+  "coverage": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "same_s": 0.985,
+     "pm1_s": 1.0
+    },
+    "imsi-001010123456781": {
+     "same_s": 0.974,
+     "pm1_s": 1.0
+    }
+   }
+  },
+  "volume": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "ul": {
+      "median_err": -0.007,
+      "n": 196
+     }
+    },
+    "imsi-001010123456781": {
+     "ul": {
+      "median_err": -0.024,
+      "n": 266
+     }
+    }
+   },
+   "swapped": [
+    {
+     "phase": "reconnect",
+     "dir": "ul",
+     "median_err": 0.712,
+     "n": 6
+    }
+   ]
+  },
+  "identity": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "compared": 199,
+     "mismatch": 0
+    },
+    "imsi-001010123456781": {
+     "compared": 273,
+     "mismatch": 0
+    }
+   }
+  },
+  "latency": {
+   "pass": true,
+   "p50_s": 2.0,
+   "p95_s": 3.0,
+   "max_s": 8.0,
+   "n": 638
+  },
+  "idle": {
+   "pass": null,
+   "phases": {}
+  },
+  "reconnect": {
+   "pass": true,
+   "events": [
+    {
+     "ue": "ue1",
+     "old_amf": 15,
+     "new_amf": 16,
+     "kpm_labelled_after_ip_s": 10.77,
+     "new_seid": 16,
+     "urr_new_session_after_ip_s": -3.67,
+     "urr_ran_identity_new_amf": true,
+     "new_amf_under_other_supi": 0,
+     "kpm_rows_without_supi": 12,
+     "pass": true
+    }
+   ]
+  },
+  "dataset": {
+   "pass": null,
+   "skipped": "xApp image without the deferred dataset write (no urr_at_decision field)"
+  }
+ }
+}

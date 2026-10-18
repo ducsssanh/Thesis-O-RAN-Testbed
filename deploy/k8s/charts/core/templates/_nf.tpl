@@ -19,9 +19,10 @@ spec:
         oai-lab/component: {{ $nf | quote }}
         {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 8 }}
       annotations:
-        {{- /* defense.xapp only configures the xApp: changing it must not restart NFs */}}
+        {{- /* defense.xapp only configures the xApp and defense.upfSecurity only the UPF
+               (its env below): changing them must not restart the other NFs */}}
         {{- $cfg := omit $lab "defense" }}
-        {{- if hasKey $lab "defense" }}{{- $_ := set $cfg "defense" (omit $lab.defense "xapp") }}{{- end }}
+        {{- if hasKey $lab "defense" }}{{- $_ := set $cfg "defense" (omit $lab.defense "xapp" "upfSecurity") }}{{- end }}
         oai-lab/config-checksum: {{ toJson $cfg | sha256sum | quote }}
         k8s.v1.cni.cncf.io/networks: {{ include "lab.attachments" (dict "lab" $lab "nf" $nf) | quote }}
     spec:
@@ -75,6 +76,34 @@ spec:
           {{- if eq $nf "smf" }}
           env: [{name: SSL_CERT_FILE, value: /etc/ssl/certs/ca-certificates.crt}]
           {{- end }}
+          {{- $sec := (($lab.defense | default dict).upfSecurity | default dict) }}
+          {{- if and (eq $nf "upf") $sec.enabled }}
+          env:
+            - {name: UPF_SEC_ENABLED, value: "true"}
+            - {name: UPF_SEC_PORT, value: {{ $sec.port | default 8095 | quote }}}
+            - {name: UPF_SEC_DB_PATH, value: {{ $sec.dbPath | default "/upf-sec/sec_policy.db" | quote }}}
+            - {name: UPF_SEC_AUDIT_PATH, value: {{ $sec.auditPath | default "/upf-sec/audit.jsonl" | quote }}}
+            - {name: UPF_SEC_MAX_TTL_S, value: {{ $sec.maxTtlS | default 86400 | quote }}}
+            - {name: UPF_SEC_MAX_CMDS_PER_S, value: {{ $sec.maxCmdsPerS | default 10 | quote }}}
+            - {name: UPF_SEC_MAX_BLOCKED_RATIO, value: {{ $sec.maxBlockedRatio | default 0.5 | quote }}}
+            - {name: UPF_SEC_MAX_POLICIES, value: {{ $sec.maxPolicies | default 16384 | quote }}}
+            - {name: UPF_SEC_RATELIMIT_BURST_MS, value: {{ $sec.ratelimitBurstMs | default 100 | quote }}}
+            - {name: UPF_SEC_SWEEP_S, value: {{ $sec.sweepS | default 5 | quote }}}
+            - {name: UPF_SEC_PROFILE, value: {{ (hasKey $sec "profile" | ternary $sec.profile true) | quote }}}
+            - {name: UPF_SEC_TELEMETRY_RING, value: {{ $sec.telemetryRing | default 7200 | quote }}}
+            - {name: UPF_SEC_DROP_SPOOFED, value: {{ (hasKey $sec "dropSpoofed" | ternary $sec.dropSpoofed true) | quote }}}
+            - {name: UPF_SEC_DROP_GTP_IN_GTP, value: {{ (hasKey $sec "dropGtpInGtp" | ternary $sec.dropGtpInGtp true) | quote }}}
+            - {name: UPF_SEC_DROP_UNKNOWN_UL, value: {{ (hasKey $sec "dropUnknownUl" | ternary $sec.dropUnknownUl true) | quote }}}
+            {{- $reflex := ($sec.reflex | default dict) }}
+            - {name: UPF_SEC_REFLEX_MODE, value: {{ $reflex.mode | default "off" | quote }}}
+            - {name: UPF_SEC_REFLEX_QUOTA_UL_BYTES, value: {{ $reflex.quotaUlBytes | default 3125000 | quote }}}
+            - {name: UPF_SEC_REFLEX_RATE_UL_KBPS, value: {{ $reflex.rateUlKbps | default 2000 | quote }}}
+            - {name: UPF_SEC_REFLEX_TTL_S, value: {{ $reflex.ttlS | default 10 | quote }}}
+            - {name: UPF_SEC_REFLEX_TTL_MAX_S, value: {{ $reflex.ttlMaxS | default 60 | quote }}}
+            - {name: UPF_SEC_REFLEX_MAX_SHARE, value: {{ $reflex.maxShare | default 0.2 | quote }}}
+          ports:
+            - {name: sec-api, containerPort: {{ $sec.port | default 8095 }}, protocol: TCP}
+          {{- end }}
           resources:
             requests: {{ toJson $w.requests }}
             limits: {{ toJson $w.limits }}
@@ -94,6 +123,9 @@ spec:
             {{- if eq $nf "nr-ue" }}
             - {name: tun, mountPath: /dev/net/tun}
             {{- end }}
+            {{- if and (eq $nf "upf") $sec.enabled }}
+            - {name: upf-security, mountPath: /upf-sec}
+            {{- end }}
         {{- if eq $nf "smf" }}
         - name: capture
           image: {{ $lab.toolsImage | quote }}
@@ -111,6 +143,10 @@ spec:
         {{- if eq $nf "nr-ue" }}
         - name: tun
           hostPath: {path: /dev/net/tun, type: CharDevice}
+        {{- end }}
+        {{- if and (eq $nf "upf") $sec.enabled }}
+        - name: upf-security
+          persistentVolumeClaim: {claimName: oai-lab-upf-security}
         {{- end }}
         {{- if eq $nf "smf" }}
         - name: lab-ca

@@ -1,0 +1,1453 @@
+diff -ruN a/docker/Dockerfile.upf.ubuntu b/docker/Dockerfile.upf.ubuntu
+--- a/docker/Dockerfile.upf.ubuntu	2026-09-28 23:20:54.514434757 +0700
++++ b/docker/Dockerfile.upf.ubuntu	2026-10-05 20:01:12.285695808 +0700
+@@ -49,6 +49,12 @@
+ #---------------------------------------------------------------------
+ FROM oai-upf-base AS oai-upf-builder
+ ARG BUILD_CPUSET=""
++# UPF Security API (HTTP server + policy DB)
++RUN apt-get update && \
++    DEBIAN_FRONTEND=noninteractive apt-get install --yes \
++    libmicrohttpd-dev \
++    libsqlite3-dev \
++    && rm -rf /var/lib/apt/lists/*
+ # Copy the rest of source code
+ COPY . /openair-upf
+ # Building UPF
+@@ -112,6 +118,8 @@
+     libpsl5 \
+     libnghttp2-14 \
+     libcurl?-gnutls \
++    libmicrohttpd12 \
++    libsqlite3-0 \
+     # Ubuntu 20 --> boost71
+     # Ubuntu 22 --> boost74
+     libboost-thread1.7?.0 \
+diff -ruN a/src/upf_app/CMakeLists.txt b/src/upf_app/CMakeLists.txt
+--- a/src/upf_app/CMakeLists.txt	2026-09-03 16:19:52.855267965 +0700
++++ b/src/upf_app/CMakeLists.txt	2026-10-05 20:01:12.285695808 +0700
+@@ -69,6 +69,8 @@
+   control/SessionProgramManager.cpp
+   control/SessionManager.cpp
+   control/SessionPrograms.cpp
++  control/SecurityPolicyStore.cpp
++  control/SecurityApi.cpp
+ )
+ 
+ set(UPF_HELPER_SOURCES
+@@ -145,6 +147,7 @@
+   ${CMAKE_CURRENT_SOURCE_DIR}/../../build/ext/libbpf/src/libbpf.so
+   PRIVATE elf
+   PRIVATE z qer_tc eth_broadcast_tc   # TC skeletons for QERProgram + EthBroadcastTCProgram
++  PUBLIC microhttpd sqlite3          # UPF Security API (SecurityApi, SecurityPolicyStore)
+ )
+ 
+ add_dependencies(UPF_XDP upf_xdp_all)
+@@ -194,6 +197,7 @@
+   PRIVATE z
+   libnl-3.so
+   libnl-route-3.so
++  PUBLIC microhttpd sqlite3          # UPF Security API
+ )
+ 
+   add_dependencies(UPF_TC upf_xdp_all)
+diff -ruN a/src/upf_app/control/SecurityApi.cpp b/src/upf_app/control/SecurityApi.cpp
+--- a/src/upf_app/control/SecurityApi.cpp	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/control/SecurityApi.cpp	2026-10-05 20:00:45.836624387 +0700
+@@ -0,0 +1,148 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#include "SecurityApi.h"
++
++#include <arpa/inet.h>
++#include <microhttpd.h>
++#include <netinet/in.h>
++
++#include <cstring>
++#include <string>
++
++#include "SecurityPolicyStore.h"
++#include "logger.hpp"
++
++#if MHD_VERSION < 0x00097002
++typedef int MHD_Result;
++#endif
++
++using json = nlohmann::json;
++
++namespace {
++
++constexpr size_t kMaxBody = 64 * 1024;
++
++struct Request {
++  std::string body;
++  bool too_large = false;
++};
++
++MHD_Result Send(struct MHD_Connection* c, int status, const json& body) {
++  const std::string s = body.dump();
++  struct MHD_Response* r = MHD_create_response_from_buffer(
++      s.size(), (void*) s.data(), MHD_RESPMEM_MUST_COPY);
++  MHD_add_response_header(r, "Content-Type", "application/json");
++  MHD_Result ret = MHD_queue_response(c, status, r);
++  MHD_destroy_response(r);
++  return ret;
++}
++
++std::string Peer(struct MHD_Connection* c) {
++  const union MHD_ConnectionInfo* ci =
++      MHD_get_connection_info(c, MHD_CONNECTION_INFO_CLIENT_ADDRESS);
++  if (!ci || !ci->client_addr) return "?";
++  char buf[INET6_ADDRSTRLEN] = {0};
++  const struct sockaddr* sa  = ci->client_addr;
++  if (sa->sa_family == AF_INET)
++    inet_ntop(
++        AF_INET, &((const struct sockaddr_in*) sa)->sin_addr, buf, sizeof(buf));
++  else if (sa->sa_family == AF_INET6)
++    inet_ntop(
++        AF_INET6, &((const struct sockaddr_in6*) sa)->sin6_addr, buf,
++        sizeof(buf));
++  return buf;
++}
++
++MHD_Result Handle(
++    void*, struct MHD_Connection* c, const char* url, const char* method,
++    const char*, const char* upload_data, size_t* upload_size, void** con_cls) {
++  if (*con_cls == nullptr) {
++    *con_cls = new Request();
++    return MHD_YES;
++  }
++  Request* req = static_cast<Request*>(*con_cls);
++  if (*upload_size != 0) {
++    if (req->body.size() + *upload_size > kMaxBody)
++      req->too_large = true;
++    else
++      req->body.append(upload_data, *upload_size);
++    *upload_size = 0;
++    return MHD_YES;
++  }
++  if (req->too_large) return Send(c, 413, {{"error", "body too large"}});
++
++  auto& store       = SecurityPolicyStore::GetInstance();
++  const std::string path(url);
++  const std::string m(method);
++  const std::string ues = "/v1/ues/";
++  try {
++    if (m == "GET" && path == "/v1/info") return Send(c, 200, store.Info());
++    if (m == "GET" && (path == "/v1/ues" || path == "/v1/ues/"))
++      return Send(c, 200, store.List());
++    if (m == "GET" && path == "/v1/sessions")
++      return Send(c, 200, store.Sessions());
++    if (m == "GET" && path == "/v1/stats") {
++      const char* q =
++          MHD_lookup_connection_value(c, MHD_GET_ARGUMENT_KIND, "supi");
++      return Send(c, 200, store.Stats(q ? q : ""));
++    }
++    if (path.rfind(ues, 0) == 0 && path.size() > ues.size()) {
++      const std::string supi = path.substr(ues.size());
++      SecurityPolicyStore::Reply r = {405, {{"error", "method not allowed"}}};
++      if (m == "PUT")
++        r = store.Put(supi, req->body, Peer(c));
++      else if (m == "DELETE")
++        r = store.Delete(supi, Peer(c));
++      else if (m == "GET")
++        r = store.Get(supi);
++      return Send(c, r.status, r.body);
++    }
++    return Send(c, 404, {{"error", "not found"}});
++  } catch (const std::exception& e) {
++    return Send(c, 400, {{"error", std::string("bad request: ") + e.what()}});
++  }
++}
++
++void Completed(
++    void*, struct MHD_Connection*, void** con_cls,
++    enum MHD_RequestTerminationCode) {
++  delete static_cast<Request*>(*con_cls);
++  *con_cls = nullptr;
++}
++
++}  // namespace
++
++//------------------------------------------------------------------------------
++SecurityApi& SecurityApi::GetInstance() {
++  static SecurityApi inst;
++  return inst;
++}
++
++SecurityApi::~SecurityApi() {
++  Stop();
++}
++
++//------------------------------------------------------------------------------
++bool SecurityApi::Start(uint16_t port) {
++  if (daemon_) return true;
++  daemon_ = MHD_start_daemon(
++      MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_ERROR_LOG, port, nullptr,
++      nullptr, &Handle, nullptr, MHD_OPTION_NOTIFY_COMPLETED, &Completed,
++      nullptr, MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int) 10,
++      MHD_OPTION_END);
++  if (!daemon_) {
++    Logger::upf_app().error(
++        "UPF security: cannot start HTTP API on port %u", port);
++    return false;
++  }
++  Logger::upf_app().info("UPF security: HTTP API listening on port %u", port);
++  return true;
++}
++
++//------------------------------------------------------------------------------
++void SecurityApi::Stop() {
++  if (daemon_) MHD_stop_daemon(daemon_);
++  daemon_ = nullptr;
++}
+diff -ruN a/src/upf_app/control/SecurityApi.h b/src/upf_app/control/SecurityApi.h
+--- a/src/upf_app/control/SecurityApi.h	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/control/SecurityApi.h	2026-10-05 20:00:45.784624247 +0700
+@@ -0,0 +1,37 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#ifndef SECURITY_API_H_
++#define SECURITY_API_H_
++
++/**
++ * @file SecurityApi.h
++ * @brief UPF Security API: plain HTTP (lab; design 5.3a), own MHD thread.
++ *
++ *   PUT    /v1/ues/{supi}   {action, ttl_s, rate_ul_kbps?, rate_dl_kbps?,
++ *                            epoch?, level?}
++ *   DELETE /v1/ues/{supi}
++ *   GET    /v1/ues[/{supi}]
++ *   GET    /v1/stats[?supi=]
++ *   GET    /v1/sessions
++ *   GET    /v1/info         (boot_id)
++ */
++
++#include <cstdint>
++
++struct MHD_Daemon;
++
++class SecurityApi {
++ public:
++  static SecurityApi& GetInstance();
++  bool Start(uint16_t port);
++  void Stop();
++
++ private:
++  SecurityApi() = default;
++  ~SecurityApi();
++  struct MHD_Daemon* daemon_ = nullptr;
++};
++
++#endif  // SECURITY_API_H_
+diff -ruN a/src/upf_app/control/SecurityPolicyStore.cpp b/src/upf_app/control/SecurityPolicyStore.cpp
+--- a/src/upf_app/control/SecurityPolicyStore.cpp	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/control/SecurityPolicyStore.cpp	2026-10-05 20:07:52.710777078 +0700
+@@ -0,0 +1,683 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#include "SecurityPolicyStore.h"
++
++#include <bpf/bpf.h>
++#include <bpf/libbpf.h>
++#include <sqlite3.h>
++#include <sys/stat.h>
++#include <time.h>
++#include <inttypes.h>
++
++#include <algorithm>
++#include <cctype>
++#include <cerrno>
++#include <chrono>
++#include <cstdlib>
++#include <fstream>
++#include <set>
++#include <vector>
++
++#include "common_root_types.h"
++#include "logger.hpp"
++#include "wrappers/BPFMap.hpp"
++
++using json = nlohmann::json;
++
++namespace {
++
++int64_t WallMs() {
++  return std::chrono::duration_cast<std::chrono::milliseconds>(
++             std::chrono::system_clock::now().time_since_epoch())
++      .count();
++}
++
++// Same clock as bpf_ktime_get_ns()
++uint64_t MonoNs() {
++  struct timespec ts;
++  clock_gettime(CLOCK_MONOTONIC, &ts);
++  return (uint64_t) ts.tv_sec * 1000000000ULL + ts.tv_nsec;
++}
++
++std::string EnvStr(const char* name, const std::string& def) {
++  const char* v = std::getenv(name);
++  return (v && *v) ? std::string(v) : def;
++}
++
++uint64_t EnvU64(const char* name, uint64_t def) {
++  const char* v = std::getenv(name);
++  if (!v || !*v) return def;
++  char* end = nullptr;
++  unsigned long long x = std::strtoull(v, &end, 10);
++  return (end && *end == '\0') ? x : def;
++}
++
++double EnvDouble(const char* name, double def) {
++  const char* v = std::getenv(name);
++  if (!v || !*v) return def;
++  char* end = nullptr;
++  double x  = std::strtod(v, &end);
++  return (end && *end == '\0') ? x : def;
++}
++
++bool EnvBool(const char* name, bool def) {
++  std::string v = EnvStr(name, "");
++  if (v.empty()) return def;
++  return v == "1" || v == "true" || v == "yes" || v == "on";
++}
++
++// "imsi-<5..15 digits>" -> IMSI as integer (sec_policy_by_supi key)
++bool ParseSupi(const std::string& supi, uint64_t& imsi) {
++  if (supi.rfind("imsi-", 0) != 0) return false;
++  std::string d = supi.substr(5);
++  if (d.size() < 5 || d.size() > 15) return false;
++  if (!std::all_of(d.begin(), d.end(), ::isdigit)) return false;
++  imsi = std::stoull(d);
++  return true;
++}
++
++uint32_t ActionCode(const std::string& a) {
++  if (a == "block") return SEC_ACTION_BLOCK;
++  if (a == "ratelimit") return SEC_ACTION_RATELIMIT;
++  if (a == "monitor") return SEC_ACTION_MONITOR;
++  return SEC_ACTION_NONE;
++}
++
++void MkdirParent(const std::string& path) {
++  auto pos = path.rfind('/');
++  if (pos == std::string::npos || pos == 0) return;
++  std::string dir = path.substr(0, pos);
++  for (size_t i = 1; i <= dir.size(); i++) {
++    if (i == dir.size() || dir[i] == '/') {
++      std::string p = dir.substr(0, i);
++      if (mkdir(p.c_str(), 0755) != 0 && errno != EEXIST) return;
++    }
++  }
++}
++
++json StatsJson(const struct sec_stats& s) {
++  return {{"drop_ul_pkts", s.drop_ul_pkts},   {"drop_ul_bytes", s.drop_ul_bytes},
++          {"drop_dl_pkts", s.drop_dl_pkts},   {"drop_dl_bytes", s.drop_dl_bytes},
++          {"seen_ul_pkts", s.seen_ul_pkts},   {"seen_ul_bytes", s.seen_ul_bytes},
++          {"seen_dl_pkts", s.seen_dl_pkts},   {"seen_dl_bytes", s.seen_dl_bytes},
++          {"last_drop_ns", s.last_drop_ns}};
++}
++
++void AddStats(struct sec_stats& a, const struct sec_stats& b) {
++  a.drop_ul_pkts += b.drop_ul_pkts;
++  a.drop_ul_bytes += b.drop_ul_bytes;
++  a.drop_dl_pkts += b.drop_dl_pkts;
++  a.drop_dl_bytes += b.drop_dl_bytes;
++  a.seen_ul_pkts += b.seen_ul_pkts;
++  a.seen_ul_bytes += b.seen_ul_bytes;
++  a.seen_dl_pkts += b.seen_dl_pkts;
++  a.seen_dl_bytes += b.seen_dl_bytes;
++  a.last_drop_ns = std::max(a.last_drop_ns, b.last_drop_ns);
++}
++
++}  // namespace
++
++//------------------------------------------------------------------------------
++const SecurityConfig& SecurityConfig::Get() {
++  static const SecurityConfig cfg = [] {
++    SecurityConfig c;
++    c.enabled    = EnvBool("UPF_SEC_ENABLED", c.enabled);
++    c.port       = (uint16_t) EnvU64("UPF_SEC_PORT", c.port);
++    c.db_path    = EnvStr("UPF_SEC_DB_PATH", c.db_path);
++    c.audit_path = EnvStr("UPF_SEC_AUDIT_PATH", c.audit_path);
++    c.max_ttl_s  = (uint32_t) EnvU64("UPF_SEC_MAX_TTL_S", c.max_ttl_s);
++    c.max_cmds_per_s =
++        (uint32_t) EnvU64("UPF_SEC_MAX_CMDS_PER_S", c.max_cmds_per_s);
++    c.max_blocked_ratio =
++        EnvDouble("UPF_SEC_MAX_BLOCKED_RATIO", c.max_blocked_ratio);
++    c.max_policies = (uint32_t) EnvU64("UPF_SEC_MAX_POLICIES", c.max_policies);
++    if (c.max_policies == 0) c.max_policies = 1;
++    c.ratelimit_burst_ms =
++        (uint32_t) EnvU64("UPF_SEC_RATELIMIT_BURST_MS", c.ratelimit_burst_ms);
++    c.sweep_s = (uint32_t) EnvU64("UPF_SEC_SWEEP_S", c.sweep_s);
++    if (c.sweep_s == 0) c.sweep_s = 1;
++    return c;
++  }();
++  return cfg;
++}
++
++//------------------------------------------------------------------------------
++SecurityPolicyStore& SecurityPolicyStore::GetInstance() {
++  static SecurityPolicyStore inst;
++  return inst;
++}
++
++SecurityPolicyStore::~SecurityPolicyStore() {
++  Stop();
++}
++
++//------------------------------------------------------------------------------
++bool SecurityPolicyStore::Start(
++    std::shared_ptr<BPFMap> by_supi, std::shared_ptr<BPFMap> by_seid,
++    std::shared_ptr<BPFMap> stats) {
++  std::unique_lock<std::mutex> lk(mtx_);
++  if (running_) return true;
++  if (!by_supi || !by_seid || !stats) {
++    Logger::upf_app().error("UPF security: sec_policy maps not found");
++    return false;
++  }
++  by_supi_    = by_supi;
++  by_seid_    = by_seid;
++  stats_      = stats;
++  fd_by_supi_ = by_supi_->GetFd();
++  fd_by_seid_ = by_seid_->GetFd();
++  fd_stats_   = stats_->GetFd();
++  ncpus_      = std::max(1, libbpf_num_possible_cpus());
++
++  std::ifstream bid("/proc/sys/kernel/random/uuid");
++  std::getline(bid, boot_id_);
++  started_at_ms_ = WallMs();
++
++  if (!OpenDb()) return false;
++
++  // Reload the subscriber memory; expired rows are dropped here
++  const int64_t now = WallMs();
++  sqlite3_stmt* st  = nullptr;
++  sqlite3_prepare_v2(
++      db_,
++      "SELECT supi, action, rate_ul_kbps, rate_dl_kbps, expires_at_ms, epoch, "
++      "level, updated_at_ms FROM policy",
++      -1, &st, nullptr);
++  std::vector<std::string> expired;
++  while (st && sqlite3_step(st) == SQLITE_ROW) {
++    SecPolicyRecord r;
++    r.supi          = (const char*) sqlite3_column_text(st, 0);
++    r.action        = (const char*) sqlite3_column_text(st, 1);
++    r.rate_ul_kbps  = sqlite3_column_int64(st, 2);
++    r.rate_dl_kbps  = sqlite3_column_int64(st, 3);
++    r.expires_at_ms = sqlite3_column_int64(st, 4);
++    r.epoch         = sqlite3_column_int64(st, 5);
++    r.level         = sqlite3_column_int(st, 6);
++    r.updated_at_ms = sqlite3_column_int64(st, 7);
++    if (!ActiveLocked(r, now)) {
++      expired.push_back(r.supi);
++      continue;
++    }
++    policies_[r.supi] = r;
++    ApplyLocked(r);
++  }
++  sqlite3_finalize(st);
++  for (const auto& s : expired) DbDelete(s);
++
++  Logger::upf_app().info(
++      "UPF security: %zu policies loaded from %s (%zu expired dropped), "
++      "boot_id %s",
++      policies_.size(), SecurityConfig::Get().db_path.c_str(), expired.size(),
++      boot_id_.c_str());
++  Audit("load", "", 200, {{"policies", policies_.size()}}, "local");
++
++  running_ = true;
++  sweeper_ = std::thread(&SecurityPolicyStore::SweepLoop, this);
++  return true;
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::Stop() {
++  {
++    std::lock_guard<std::mutex> lk(mtx_);
++    if (!running_) return;
++    running_ = false;
++  }
++  sweep_cv_.notify_all();
++  if (sweeper_.joinable()) sweeper_.join();
++  std::lock_guard<std::mutex> lk(mtx_);
++  if (db_) sqlite3_close(db_);
++  db_ = nullptr;
++}
++
++//------------------------------------------------------------------------------
++bool SecurityPolicyStore::OpenDb() {
++  const auto& cfg = SecurityConfig::Get();
++  MkdirParent(cfg.db_path);
++  MkdirParent(cfg.audit_path);
++  if (sqlite3_open_v2(
++          cfg.db_path.c_str(), &db_,
++          SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX,
++          nullptr) != SQLITE_OK) {
++    Logger::upf_app().error(
++        "UPF security: cannot open %s: %s", cfg.db_path.c_str(),
++        db_ ? sqlite3_errmsg(db_) : "?");
++    return false;
++  }
++  char* err       = nullptr;
++  const char* ddl =
++      "CREATE TABLE IF NOT EXISTS policy("
++      " supi TEXT PRIMARY KEY, action TEXT NOT NULL,"
++      " rate_ul_kbps INTEGER, rate_dl_kbps INTEGER, expires_at_ms INTEGER,"
++      " epoch INTEGER, level INTEGER, updated_at_ms INTEGER);"
++      "CREATE TABLE IF NOT EXISTS audit("
++      " id INTEGER PRIMARY KEY AUTOINCREMENT, ts_ms INTEGER, op TEXT,"
++      " supi TEXT, status INTEGER, detail TEXT, peer TEXT);";
++  if (sqlite3_exec(db_, ddl, nullptr, nullptr, &err) != SQLITE_OK) {
++    Logger::upf_app().error("UPF security: schema: %s", err ? err : "?");
++    sqlite3_free(err);
++    return false;
++  }
++  return true;
++}
++
++//------------------------------------------------------------------------------
++bool SecurityPolicyStore::DbUpsert(const SecPolicyRecord& r) {
++  sqlite3_stmt* st = nullptr;
++  if (sqlite3_prepare_v2(
++          db_,
++          "INSERT OR REPLACE INTO policy(supi, action, rate_ul_kbps, "
++          "rate_dl_kbps, expires_at_ms, epoch, level, updated_at_ms) "
++          "VALUES(?,?,?,?,?,?,?,?)",
++          -1, &st, nullptr) != SQLITE_OK)
++    return false;
++  sqlite3_bind_text(st, 1, r.supi.c_str(), -1, SQLITE_TRANSIENT);
++  sqlite3_bind_text(st, 2, r.action.c_str(), -1, SQLITE_TRANSIENT);
++  sqlite3_bind_int64(st, 3, r.rate_ul_kbps);
++  sqlite3_bind_int64(st, 4, r.rate_dl_kbps);
++  sqlite3_bind_int64(st, 5, r.expires_at_ms);
++  sqlite3_bind_int64(st, 6, r.epoch);
++  sqlite3_bind_int(st, 7, r.level);
++  sqlite3_bind_int64(st, 8, r.updated_at_ms);
++  bool ok = sqlite3_step(st) == SQLITE_DONE;
++  sqlite3_finalize(st);
++  return ok;
++}
++
++//------------------------------------------------------------------------------
++bool SecurityPolicyStore::DbDelete(const std::string& supi) {
++  sqlite3_stmt* st = nullptr;
++  if (sqlite3_prepare_v2(
++          db_, "DELETE FROM policy WHERE supi = ?", -1, &st, nullptr) !=
++      SQLITE_OK)
++    return false;
++  sqlite3_bind_text(st, 1, supi.c_str(), -1, SQLITE_TRANSIENT);
++  bool ok = sqlite3_step(st) == SQLITE_DONE;
++  sqlite3_finalize(st);
++  return ok;
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::Audit(
++    const std::string& op, const std::string& supi, int status,
++    const json& detail, const std::string& peer) {
++  const int64_t ts = WallMs();
++  json line = {{"ts_ms", ts},       {"op", op},     {"supi", supi},
++               {"status", status},  {"detail", detail}, {"peer", peer}};
++  std::ofstream f(SecurityConfig::Get().audit_path, std::ios::app);
++  if (f) f << line.dump() << "\n";
++  if (!db_) return;
++  sqlite3_stmt* st = nullptr;
++  if (sqlite3_prepare_v2(
++          db_,
++          "INSERT INTO audit(ts_ms, op, supi, status, detail, peer) "
++          "VALUES(?,?,?,?,?,?)",
++          -1, &st, nullptr) != SQLITE_OK)
++    return;
++  const std::string d = detail.dump();
++  sqlite3_bind_int64(st, 1, ts);
++  sqlite3_bind_text(st, 2, op.c_str(), -1, SQLITE_TRANSIENT);
++  sqlite3_bind_text(st, 3, supi.c_str(), -1, SQLITE_TRANSIENT);
++  sqlite3_bind_int(st, 4, status);
++  sqlite3_bind_text(st, 5, d.c_str(), -1, SQLITE_TRANSIENT);
++  sqlite3_bind_text(st, 6, peer.c_str(), -1, SQLITE_TRANSIENT);
++  sqlite3_step(st);
++  sqlite3_finalize(st);
++}
++
++//------------------------------------------------------------------------------
++bool SecurityPolicyStore::ActiveLocked(
++    const SecPolicyRecord& r, int64_t now_ms) const {
++  return r.expires_at_ms == 0 || r.expires_at_ms > now_ms;
++}
++
++//------------------------------------------------------------------------------
++struct sec_policy SecurityPolicyStore::ToKernel(const SecPolicyRecord& r) const {
++  struct sec_policy p = {};
++  p.action            = ActionCode(r.action);
++  p.level             = r.level;
++  p.rate_ul_bytes_s   = r.rate_ul_kbps * 1000 / 8;
++  p.rate_dl_bytes_s   = r.rate_dl_kbps * 1000 / 8;
++  // Bucket depth: burst_ms of traffic, at least two full-size packets
++  const uint64_t ms = SecurityConfig::Get().ratelimit_burst_ms;
++  p.burst_ul_bytes  = std::max<uint64_t>(p.rate_ul_bytes_s * ms / 1000, 3000);
++  p.burst_dl_bytes  = std::max<uint64_t>(p.rate_dl_bytes_s * ms / 1000, 3000);
++  p.tokens_ul       = p.burst_ul_bytes;
++  p.tokens_dl       = p.burst_dl_bytes;
++  if (r.expires_at_ms) {
++    const int64_t left_ms = std::max<int64_t>(r.expires_at_ms - WallMs(), 0);
++    p.expires_at_ns       = MonoNs() + (uint64_t) left_ms * 1000000ULL;
++    if (p.expires_at_ns == 0) p.expires_at_ns = 1;
++  }
++  p.epoch = r.epoch;
++  return p;
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::WriteSeidLocked(
++    uint64_t seid, const struct sec_policy& p) {
++  if (bpf_map_update_elem(fd_by_seid_, &seid, &p, BPF_ANY) != 0)
++    Logger::upf_app().error(
++        "UPF security: sec_policy_by_seid update failed for SEID " SEID_FMT
++        " (errno %d)",
++        seid, errno);
++  // Counters keep their values across policy changes of a session
++  std::vector<struct sec_stats> zero(ncpus_);
++  bpf_map_update_elem(fd_stats_, &seid, zero.data(), BPF_NOEXIST);
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::ApplyLocked(const SecPolicyRecord& r) {
++  uint64_t imsi = 0;
++  if (!ParseSupi(r.supi, imsi)) return;
++  const struct sec_policy p = ToKernel(r);
++  if (bpf_map_update_elem(fd_by_supi_, &imsi, &p, BPF_ANY) != 0)
++    Logger::upf_app().error(
++        "UPF security: sec_policy_by_supi update failed for %s (errno %d)",
++        r.supi.c_str(), errno);
++  for (const auto& [seid, supi] : seid_supi_)
++    if (supi == r.supi) WriteSeidLocked(seid, p);
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::ClearLocked(const std::string& supi) {
++  uint64_t imsi = 0;
++  if (ParseSupi(supi, imsi)) bpf_map_delete_elem(fd_by_supi_, &imsi);
++  for (const auto& [seid, s] : seid_supi_)
++    if (s == supi) bpf_map_delete_elem(fd_by_seid_, &seid);
++}
++
++//------------------------------------------------------------------------------
++bool SecurityPolicyStore::ReadStatsLocked(
++    uint64_t seid, struct sec_stats& sum) const {
++  std::vector<struct sec_stats> v(ncpus_);
++  if (bpf_map_lookup_elem(fd_stats_, &seid, v.data()) != 0) return false;
++  for (const auto& s : v) AddStats(sum, s);
++  return true;
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::OnSessionEstablished(
++    uint64_t seid, const std::string& supi) {
++  if (!running_ || supi.empty()) return;
++  std::lock_guard<std::mutex> lk(mtx_);
++  seid_supi_[seid] = supi;
++  auto it          = policies_.find(supi);
++  if (it == policies_.end() || !ActiveLocked(it->second, WallMs())) return;
++  // Written before the session pipeline (session_by_ue_ip_map) exists, so
++  // the first packet of the session already sees the policy
++  WriteSeidLocked(seid, ToKernel(it->second));
++  Logger::upf_app().info(
++      "UPF security: %s policy applied to new session SEID " SEID_FMT,
++      it->second.action.c_str(), seid);
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::OnSessionRemoved(uint64_t seid) {
++  if (!running_) return;
++  std::lock_guard<std::mutex> lk(mtx_);
++  auto it = seid_supi_.find(seid);
++  if (it != seid_supi_.end()) {
++    struct sec_stats s = {};
++    if (ReadStatsLocked(seid, s)) AddStats(closed_stats_[it->second], s);
++    seid_supi_.erase(it);
++  }
++  bpf_map_delete_elem(fd_by_seid_, &seid);
++  bpf_map_delete_elem(fd_stats_, &seid);
++}
++
++//------------------------------------------------------------------------------
++json SecurityPolicyStore::RecordJsonLocked(const SecPolicyRecord& r) const {
++  json seids = json::array();
++  bool enforced = false;
++  for (const auto& [seid, s] : seid_supi_) {
++    if (s != r.supi) continue;
++    struct sec_policy p;
++    uint64_t k = seid;
++    bool in_map = bpf_map_lookup_elem(fd_by_seid_, &k, &p) == 0;
++    enforced |= in_map;
++    seids.push_back({{"seid", seid}, {"in_map", in_map}});
++  }
++  const int64_t now = WallMs();
++  return {{"supi", r.supi},
++          {"action", r.action},
++          {"rate_ul_kbps", r.rate_ul_kbps},
++          {"rate_dl_kbps", r.rate_dl_kbps},
++          {"expires_at_ms", r.expires_at_ms},
++          {"expires_in_s",
++           r.expires_at_ms ? std::max<int64_t>(r.expires_at_ms - now, 0) / 1000.0
++                           : -1.0},
++          {"epoch", r.epoch},
++          {"level", r.level},
++          {"updated_at_ms", r.updated_at_ms},
++          {"active", ActiveLocked(r, now)},
++          {"sessions", seids},
++          {"enforced", enforced}};
++}
++
++//------------------------------------------------------------------------------
++SecurityPolicyStore::Reply SecurityPolicyStore::Put(
++    const std::string& supi, const std::string& body, const std::string& peer) {
++  const auto& cfg = SecurityConfig::Get();
++  std::lock_guard<std::mutex> lk(mtx_);
++  if (!running_) return {503, {{"error", "security store not running"}}};
++
++  const int64_t now = WallMs();
++  auto reject       = [&](int status, const std::string& why,
++                    json detail = json::object()) -> Reply {
++    detail["reason"] = why;
++    Audit("put", supi, status, detail, peer);
++    return {status, {{"error", why}}};
++  };
++
++  // Command rate (sliding 1 s window over accepted-for-processing commands)
++  while (!cmd_times_ms_.empty() && now - cmd_times_ms_.front() >= 1000)
++    cmd_times_ms_.pop_front();
++  if (cmd_times_ms_.size() >= cfg.max_cmds_per_s)
++    return reject(429, "command rate limit exceeded");
++  cmd_times_ms_.push_back(now);
++
++  uint64_t imsi = 0;
++  if (!ParseSupi(supi, imsi)) return reject(400, "invalid SUPI");
++
++  json req = json::parse(body, nullptr, false);
++  if (req.is_discarded() || !req.is_object())
++    return reject(400, "body is not a JSON object");
++
++  SecPolicyRecord r;
++  r.supi   = supi;
++  r.action = req.value("action", "");
++  if (ActionCode(r.action) == SEC_ACTION_NONE)
++    return reject(400, "action must be block, ratelimit or monitor", req);
++  if (!req.contains("ttl_s") || !req["ttl_s"].is_number_unsigned() ||
++      req["ttl_s"].get<uint64_t>() == 0)
++    return reject(400, "ttl_s must be a positive integer", req);
++  const uint64_t ttl_s = req["ttl_s"].get<uint64_t>();
++  if (ttl_s > cfg.max_ttl_s) return reject(403, "ttl_s above maxTtlS", req);
++  r.rate_ul_kbps = req.value("rate_ul_kbps", (uint64_t) 0);
++  r.rate_dl_kbps = req.value("rate_dl_kbps", (uint64_t) 0);
++  if (r.action == "ratelimit" && !r.rate_ul_kbps && !r.rate_dl_kbps)
++    return reject(400, "ratelimit needs rate_ul_kbps or rate_dl_kbps", req);
++  r.level         = req.value("level", (uint32_t) 0);
++  r.expires_at_ms = now + (int64_t) ttl_s * 1000;
++  r.updated_at_ms = now;
++
++  auto old = policies_.find(supi);
++  if (req.contains("epoch")) {
++    r.epoch = req.value("epoch", (uint64_t) 0);
++    if (old != policies_.end() && r.epoch < old->second.epoch)
++      return reject(409, "stale epoch", req);
++  } else {
++    r.epoch = (old != policies_.end()) ? old->second.epoch + 1 : 1;
++  }
++
++  // At most max_blocked_ratio of the known subscribers blocked at once.
++  // Known = live sessions' SUPIs plus every SUPI with an active block.
++  if (r.action == "block") {
++    std::set<std::string> known, blocked;
++    for (const auto& [seid, s] : seid_supi_) known.insert(s);
++    for (const auto& [s, p] : policies_)
++      if (p.action == "block" && ActiveLocked(p, now)) blocked.insert(s);
++    blocked.insert(supi);
++    known.insert(blocked.begin(), blocked.end());
++    const double ratio = (double) blocked.size() / (double) known.size();
++    if (ratio > cfg.max_blocked_ratio + 1e-9)
++      return reject(
++          403, "blocked ratio above maxBlockedRatio",
++          {{"blocked", blocked.size()}, {"known", known.size()}});
++  }
++
++  if (old == policies_.end() && policies_.size() >= cfg.max_policies)
++    return reject(507, "policy table full");
++
++  // DB first: a policy the API acknowledged survives a UPF restart
++  if (!DbUpsert(r)) return reject(500, "database write failed");
++  policies_[supi] = r;
++  ApplyLocked(r);
++
++  json out = RecordJsonLocked(r);
++  Audit("put", supi, 200, req, peer);
++  Logger::upf_app().info(
++      "UPF security: PUT %s %s ttl %" PRIu64 " s epoch %" PRIu64
++      " (%zu live sessions)",
++      supi.c_str(), r.action.c_str(), ttl_s, r.epoch, out["sessions"].size());
++  return {200, out};
++}
++
++//------------------------------------------------------------------------------
++SecurityPolicyStore::Reply SecurityPolicyStore::Delete(
++    const std::string& supi, const std::string& peer) {
++  const auto& cfg = SecurityConfig::Get();
++  std::lock_guard<std::mutex> lk(mtx_);
++  if (!running_) return {503, {{"error", "security store not running"}}};
++  const int64_t now = WallMs();
++  while (!cmd_times_ms_.empty() && now - cmd_times_ms_.front() >= 1000)
++    cmd_times_ms_.pop_front();
++  if (cmd_times_ms_.size() >= cfg.max_cmds_per_s) {
++    Audit("delete", supi, 429, {{"reason", "command rate limit exceeded"}}, peer);
++    return {429, {{"error", "command rate limit exceeded"}}};
++  }
++  cmd_times_ms_.push_back(now);
++
++  auto it = policies_.find(supi);
++  if (it == policies_.end()) {
++    Audit("delete", supi, 404, json::object(), peer);
++    return {404, {{"error", "no policy for SUPI"}}};
++  }
++  if (!DbDelete(supi)) {
++    Audit("delete", supi, 500, {{"reason", "database write failed"}}, peer);
++    return {500, {{"error", "database write failed"}}};
++  }
++  ClearLocked(supi);
++  policies_.erase(it);
++  Audit("delete", supi, 200, json::object(), peer);
++  Logger::upf_app().info("UPF security: DELETE %s", supi.c_str());
++  return {200, {{"supi", supi}, {"deleted", true}}};
++}
++
++//------------------------------------------------------------------------------
++SecurityPolicyStore::Reply SecurityPolicyStore::Get(const std::string& supi) {
++  std::lock_guard<std::mutex> lk(mtx_);
++  auto it = policies_.find(supi);
++  if (it == policies_.end()) return {404, {{"error", "no policy for SUPI"}}};
++  return {200, RecordJsonLocked(it->second)};
++}
++
++//------------------------------------------------------------------------------
++json SecurityPolicyStore::List() {
++  std::lock_guard<std::mutex> lk(mtx_);
++  json arr = json::array();
++  for (const auto& [s, r] : policies_) arr.push_back(RecordJsonLocked(r));
++  return {{"policies", arr}, {"count", arr.size()}};
++}
++
++//------------------------------------------------------------------------------
++json SecurityPolicyStore::Stats(const std::string& supi) {
++  std::lock_guard<std::mutex> lk(mtx_);
++  std::map<std::string, struct sec_stats> live;
++  std::map<std::string, json> seids;
++  for (const auto& [seid, s] : seid_supi_) {
++    if (!supi.empty() && s != supi) continue;
++    struct sec_stats st = {};
++    ReadStatsLocked(seid, st);
++    AddStats(live[s], st);
++    seids[s].push_back({{"seid", seid}, {"stats", StatsJson(st)}});
++  }
++  std::set<std::string> keys;
++  for (const auto& [s, v] : live) keys.insert(s);
++  for (const auto& [s, v] : closed_stats_)
++    if (supi.empty() || s == supi) keys.insert(s);
++  if (!supi.empty()) keys.insert(supi);
++
++  json arr = json::array();
++  for (const auto& s : keys) {
++    struct sec_stats total = {};
++    if (live.count(s)) AddStats(total, live[s]);
++    if (closed_stats_.count(s)) AddStats(total, closed_stats_[s]);
++    arr.push_back(
++        {{"supi", s},
++         {"total", StatsJson(total)},
++         {"sessions", seids.count(s) ? seids[s] : json::array()}});
++  }
++  return {{"stats", arr}};
++}
++
++//------------------------------------------------------------------------------
++json SecurityPolicyStore::Sessions() {
++  std::lock_guard<std::mutex> lk(mtx_);
++  json arr = json::array();
++  for (const auto& [seid, s] : seid_supi_) {
++    struct sec_policy p;
++    uint64_t k  = seid;
++    bool in_map = bpf_map_lookup_elem(fd_by_seid_, &k, &p) == 0;
++    arr.push_back({{"seid", seid}, {"supi", s}, {"policy_in_map", in_map}});
++  }
++  return {{"sessions", arr}};
++}
++
++//------------------------------------------------------------------------------
++json SecurityPolicyStore::Info() {
++  const auto& cfg = SecurityConfig::Get();
++  std::lock_guard<std::mutex> lk(mtx_);
++  return {{"service", "oai-upf-security"},
++          {"version", "C35"},
++          {"running", running_.load()},
++          {"boot_id", boot_id_},
++          {"started_at_ms", started_at_ms_},
++          {"policies", policies_.size()},
++          {"live_sessions", seid_supi_.size()},
++          {"limits",
++           {{"maxTtlS", cfg.max_ttl_s},
++            {"maxCmdsPerS", cfg.max_cmds_per_s},
++            {"maxBlockedRatio", cfg.max_blocked_ratio},
++            {"maxPolicies", cfg.max_policies},
++            {"ratelimitBurstMs", cfg.ratelimit_burst_ms}}},
++          {"db_path", cfg.db_path}};
++}
++
++//------------------------------------------------------------------------------
++void SecurityPolicyStore::SweepLoop() {
++  const auto period = std::chrono::seconds(SecurityConfig::Get().sweep_s);
++  std::unique_lock<std::mutex> lk(mtx_);
++  while (running_) {
++    sweep_cv_.wait_for(lk, period, [this] { return !running_; });
++    if (!running_) break;
++    // XDP already ignores expired entries; this only frees them
++    const int64_t now = WallMs();
++    for (auto it = policies_.begin(); it != policies_.end();) {
++      if (ActiveLocked(it->second, now)) {
++        ++it;
++        continue;
++      }
++      DbDelete(it->first);
++      ClearLocked(it->first);
++      Audit("expire", it->first, 200, {{"action", it->second.action}}, "local");
++      Logger::upf_app().info(
++          "UPF security: %s policy of %s expired", it->second.action.c_str(),
++          it->first.c_str());
++      it = policies_.erase(it);
++    }
++  }
++}
+diff -ruN a/src/upf_app/control/SecurityPolicyStore.h b/src/upf_app/control/SecurityPolicyStore.h
+--- a/src/upf_app/control/SecurityPolicyStore.h	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/control/SecurityPolicyStore.h	2026-10-05 19:58:44.531296826 +0700
+@@ -0,0 +1,137 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#ifndef SECURITY_POLICY_STORE_H_
++#define SECURITY_POLICY_STORE_H_
++
++/**
++ * @file SecurityPolicyStore.h
++ * @brief Per-SUPI security policy of the UPF (lab extension, not 3GPP).
++ *
++ * The xApp decides; the UPF remembers and enforces. Source of truth is a
++ * SQLite DB on the pod's PersistentVolume; sec_policy_by_supi mirrors it in
++ * BPF, and sec_policy_by_seid is derived for every live session of the
++ * subscriber (sec_policy.h applies it in XDP before PDR match).
++ *
++ * All limits come from the environment (chart: global.lab.defense.upfSecurity):
++ *   UPF_SEC_ENABLED, UPF_SEC_PORT, UPF_SEC_DB_PATH, UPF_SEC_AUDIT_PATH,
++ *   UPF_SEC_MAX_TTL_S, UPF_SEC_MAX_CMDS_PER_S, UPF_SEC_MAX_BLOCKED_RATIO,
++ *   UPF_SEC_MAX_POLICIES, UPF_SEC_RATELIMIT_BURST_MS, UPF_SEC_SWEEP_S
++ */
++
++#include <cstdint>
++#include <deque>
++#include <map>
++#include <memory>
++#include <mutex>
++#include <string>
++#include <thread>
++#include <unordered_map>
++#include <atomic>
++#include <condition_variable>
++
++#include <nlohmann/json.hpp>
++
++#include "sec_policy_types.h"
++
++class BPFMap;
++struct sqlite3;
++
++struct SecurityConfig {
++  bool enabled              = false;
++  uint16_t port             = 8095;
++  std::string db_path       = "/upf-sec/sec_policy.db";
++  std::string audit_path    = "/upf-sec/audit.jsonl";
++  uint32_t max_ttl_s        = 86400;
++  uint32_t max_cmds_per_s   = 10;
++  double max_blocked_ratio  = 0.5;
++  uint32_t max_policies     = 16384;
++  uint32_t ratelimit_burst_ms = 100;
++  uint32_t sweep_s          = 5;
++
++  static const SecurityConfig& Get();
++};
++
++struct SecPolicyRecord {
++  std::string supi;  // "imsi-<digits>"
++  std::string action;
++  uint64_t rate_ul_kbps = 0;
++  uint64_t rate_dl_kbps = 0;
++  int64_t expires_at_ms = 0;  // wall clock (DB survives restarts)
++  uint64_t epoch        = 0;
++  uint32_t level        = 0;
++  int64_t updated_at_ms = 0;
++};
++
++class SecurityPolicyStore {
++ public:
++  struct Reply {
++    int status;
++    nlohmann::json body;
++  };
++
++  static SecurityPolicyStore& GetInstance();
++
++  /** Open the DB, load the policies into sec_policy_by_supi, start sweeping. */
++  bool Start(
++      std::shared_ptr<BPFMap> by_supi, std::shared_ptr<BPFMap> by_seid,
++      std::shared_ptr<BPFMap> stats);
++  void Stop();
++  bool Running() const { return running_; }
++
++  /** Before the session pipeline is created: derive sec_policy_by_seid. */
++  void OnSessionEstablished(uint64_t seid, const std::string& supi);
++  /** After the session pipeline is removed: drop by_seid and stats. */
++  void OnSessionRemoved(uint64_t seid);
++
++  /* API operations (SecurityApi) */
++  Reply Put(
++      const std::string& supi, const std::string& body,
++      const std::string& peer);
++  Reply Delete(const std::string& supi, const std::string& peer);
++  Reply Get(const std::string& supi);
++  nlohmann::json List();
++  nlohmann::json Stats(const std::string& supi);
++  nlohmann::json Sessions();
++  nlohmann::json Info();
++
++ private:
++  SecurityPolicyStore() = default;
++  ~SecurityPolicyStore();
++
++  bool OpenDb();
++  bool DbUpsert(const SecPolicyRecord& r);
++  bool DbDelete(const std::string& supi);
++  void Audit(
++      const std::string& op, const std::string& supi, int status,
++      const nlohmann::json& detail, const std::string& peer);
++
++  bool ActiveLocked(const SecPolicyRecord& r, int64_t now_ms) const;
++  struct sec_policy ToKernel(const SecPolicyRecord& r) const;
++  void ApplyLocked(const SecPolicyRecord& r);
++  void ClearLocked(const std::string& supi);
++  void WriteSeidLocked(uint64_t seid, const struct sec_policy& p);
++  bool ReadStatsLocked(uint64_t seid, struct sec_stats& sum) const;
++  nlohmann::json RecordJsonLocked(const SecPolicyRecord& r) const;
++  void SweepLoop();
++
++  mutable std::mutex mtx_;
++  std::atomic<bool> running_{false};
++  sqlite3* db_ = nullptr;
++  int fd_by_supi_ = -1, fd_by_seid_ = -1, fd_stats_ = -1;
++  std::shared_ptr<BPFMap> by_supi_, by_seid_, stats_;
++  int ncpus_ = 1;
++  std::string boot_id_;
++  int64_t started_at_ms_ = 0;
++
++  std::map<std::string, SecPolicyRecord> policies_;
++  std::unordered_map<uint64_t, std::string> seid_supi_;  // live sessions
++  std::map<std::string, struct sec_stats> closed_stats_;  // ended sessions
++  std::deque<int64_t> cmd_times_ms_;
++
++  std::thread sweeper_;
++  std::condition_variable sweep_cv_;
++};
++
++#endif  // SECURITY_POLICY_STORE_H_
+diff -ruN a/src/upf_app/control/SessionManager.cpp b/src/upf_app/control/SessionManager.cpp
+--- a/src/upf_app/control/SessionManager.cpp	2026-09-28 00:04:20.896959214 +0700
++++ b/src/upf_app/control/SessionManager.cpp	2026-10-05 20:00:58.869659580 +0700
+@@ -19,6 +19,7 @@
+ #include "pfcp_mar.hpp"
+ #include "itti_msg_n4.hpp"
+ #include "pfcp_switch.hpp"
++#include "SecurityPolicyStore.h"
+ 
+ using namespace oai::config;
+ extern upf_config upf_cfg;
+@@ -150,6 +151,11 @@
+       }
+     }
+ 
++    // Per-SUPI security policy before the pipeline makes the session
++    // reachable (session_by_ue_ip_map): no packet passes unchecked
++    SecurityPolicyStore::GetInstance().OnSessionEstablished(
++        seid, session->supi);
++
+     // Create BPF pipeline
+     session_program_manager_->CreatePipeline(session);
+ 
+@@ -321,6 +327,7 @@
+         seid);
+ 
+     session_program_manager_->RemovePipeline(session);
++    SecurityPolicyStore::GetInstance().OnSessionRemoved(seid);
+ 
+     Logger::upf_app().info(
+         "[N4] Delete Session: seid " SEID_FMT
+diff -ruN a/src/upf_app/control/UserPlaneComponent.cpp b/src/upf_app/control/UserPlaneComponent.cpp
+--- a/src/upf_app/control/UserPlaneComponent.cpp	2026-10-03 20:18:39.788450373 +0700
++++ b/src/upf_app/control/UserPlaneComponent.cpp	2026-10-05 20:00:58.869659580 +0700
+@@ -7,6 +7,8 @@
+ #include "SessionProgramManager.h"
+ #include "SignalHandler.h"
+ #include "UrrReportConsumer.h"
++#include "SecurityApi.h"
++#include "SecurityPolicyStore.h"
+ #include <upf_xdp_user.h>
+ #include "logger.hpp"
+ #include "Configuration.h"
+@@ -133,6 +135,19 @@
+   //   - Links entry programs to N3/N6 interfaces
+   upf_xdp_program_->Setup(flags);
+ 
++  // Per-SUPI security policy + HTTP API (lab extension), ready before any
++  // PFCP session can be established
++  if (SecurityConfig::Get().enabled) {
++    auto& store = SecurityPolicyStore::GetInstance();
++    if (store.Start(
++            upf_xdp_program_->GetMapByName("sec_policy_by_supi"),
++            upf_xdp_program_->GetMapByName("sec_policy_by_seid"),
++            upf_xdp_program_->GetMapByName("sec_stats_by_seid")))
++      SecurityApi::GetInstance().Start(SecurityConfig::Get().port);
++    else
++      Logger::upf_app().error("UPF security: disabled (store start failed)");
++  }
++
+   // Get SessionProgramManager singleton
+   SessionProgramManager& session_program_manager =
+       SessionProgramManager::GetInstance();
+diff -ruN a/src/upf_app/kernel/include/sec_policy.h b/src/upf_app/kernel/include/sec_policy.h
+--- a/src/upf_app/kernel/include/sec_policy.h	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/kernel/include/sec_policy.h	2026-10-05 19:57:24.951081935 +0700
+@@ -0,0 +1,99 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#ifndef __SEC_POLICY_H__
++#define __SEC_POLICY_H__
++
++#include <linux/bpf.h>
++#include <bpf/bpf_helpers.h>
++#include "packet_context.h"
++#include "sec_policy_maps.h"
++
++#define SEC_NSEC_PER_SEC 1000000000ULL
++
++/* Refill and take len bytes. Returns 1 if the packet fits. */
++static __always_inline int sec_bucket_take(
++    __u64* tokens, __u64* last_ns, __u64 rate, __u64 burst, __u64 now,
++    __u64 len) {
++  if (rate == 0) return 1;
++
++  __u64 elapsed = now - *last_ns;
++  if (elapsed > SEC_NSEC_PER_SEC) elapsed = SEC_NSEC_PER_SEC;
++  __u64 add = elapsed * rate / SEC_NSEC_PER_SEC;
++  __u64 t   = *tokens;
++  /* Keep the remainder when the refill rounds to 0 bytes */
++  if (add) {
++    t += add;
++    if (t > burst) t = burst;
++    *last_ns = now;
++  }
++  if (t < len) {
++    *tokens = t;
++    return 0;
++  }
++  *tokens = t - len;
++  return 1;
++}
++
++/*
++ * Per-SUPI security stage, inline at the end of session lookup (SEID known,
++ * PFCP rules not yet touched). No entry or expired entry: one lookup, pass.
++ * Returns 1 to drop the packet.
++ */
++static __always_inline int sec_policy_apply(
++    struct xdp_md* ctx, struct packet_context* pctx) {
++  __u64 seid           = pctx->seid;
++  struct sec_policy* p = bpf_map_lookup_elem(&sec_policy_by_seid, &seid);
++  if (!p) return 0;
++
++  __u32 action = p->action;
++  if (action == SEC_ACTION_NONE) return 0;
++  __u64 now = bpf_ktime_get_ns();
++  if (p->expires_at_ns && now >= p->expires_at_ns) return 0;
++
++  __u64 len = ctx->data_end - ctx->data;
++  int ul    = IS_UPLINK(pctx->session_type);
++  int drop  = 0;
++  if (action == SEC_ACTION_BLOCK) {
++    drop = 1;
++  } else if (action == SEC_ACTION_RATELIMIT) {
++    if (ul)
++      drop = !sec_bucket_take(
++          &p->tokens_ul, &p->last_ul_ns, p->rate_ul_bytes_s, p->burst_ul_bytes,
++          now, len);
++    else
++      drop = !sec_bucket_take(
++          &p->tokens_dl, &p->last_dl_ns, p->rate_dl_bytes_s, p->burst_dl_bytes,
++          now, len);
++  }
++
++  struct sec_stats* st = bpf_map_lookup_elem(&sec_stats_by_seid, &seid);
++  if (!st) {
++    struct sec_stats zero = {};
++    bpf_map_update_elem(&sec_stats_by_seid, &seid, &zero, BPF_NOEXIST);
++    st = bpf_map_lookup_elem(&sec_stats_by_seid, &seid);
++  }
++  if (st) {
++    /* PERCPU + softirq context: no atomics needed */
++    if (ul) {
++      st->seen_ul_pkts++;
++      st->seen_ul_bytes += len;
++      if (drop) {
++        st->drop_ul_pkts++;
++        st->drop_ul_bytes += len;
++      }
++    } else {
++      st->seen_dl_pkts++;
++      st->seen_dl_bytes += len;
++      if (drop) {
++        st->drop_dl_pkts++;
++        st->drop_dl_bytes += len;
++      }
++    }
++    if (drop) st->last_drop_ns = now;
++  }
++  return drop;
++}
++
++#endif /* __SEC_POLICY_H__ */
+diff -ruN a/src/upf_app/kernel/include/sec_policy_maps.h b/src/upf_app/kernel/include/sec_policy_maps.h
+--- a/src/upf_app/kernel/include/sec_policy_maps.h	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/kernel/include/sec_policy_maps.h	2026-10-05 19:57:24.926081867 +0700
+@@ -0,0 +1,42 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#ifndef __SEC_POLICY_MAPS_H__
++#define __SEC_POLICY_MAPS_H__
++
++#include <linux/bpf.h>
++#include <bpf/bpf_helpers.h>
++#include "sec_policy_types.h"
++
++/*
++ * Owned by session_lookup_ip (sized in SessionLookupIPProgram::ConfigureMaps)
++ * and shared into session_lookup_eth via bpf_map__reuse_fd.
++ */
++
++/* IMSI -> policy. Not read by XDP: the subscriber memory that userspace
++ * derives sec_policy_by_seid from when a session is established. */
++struct {
++  __uint(type, BPF_MAP_TYPE_HASH);
++  __uint(max_entries, 1); /* Runtime: UPF_SEC_MAX_POLICIES */
++  __type(key, __u64);
++  __type(value, struct sec_policy);
++} sec_policy_by_supi SEC(".maps");
++
++/* SEID -> policy of the session's subscriber. Removed with the session. */
++struct {
++  __uint(type, BPF_MAP_TYPE_HASH);
++  __uint(max_entries, 1); /* Runtime: MAX_PDU_SESSIONS */
++  __type(key, __u64);
++  __type(value, struct sec_policy);
++} sec_policy_by_seid SEC(".maps");
++
++/* SEID -> drop / match counters. Dropped packets never reach URR. */
++struct {
++  __uint(type, BPF_MAP_TYPE_PERCPU_HASH);
++  __uint(max_entries, 1); /* Runtime: MAX_PDU_SESSIONS */
++  __type(key, __u64);
++  __type(value, struct sec_stats);
++} sec_stats_by_seid SEC(".maps");
++
++#endif /* __SEC_POLICY_MAPS_H__ */
+diff -ruN a/src/upf_app/kernel/include/sec_policy_types.h b/src/upf_app/kernel/include/sec_policy_types.h
+--- a/src/upf_app/kernel/include/sec_policy_types.h	1970-01-01 08:00:00.000000000 +0800
++++ b/src/upf_app/kernel/include/sec_policy_types.h	2026-10-05 19:57:24.897081789 +0700
+@@ -0,0 +1,56 @@
++/*
++ * SPDX-License-Identifier: LicenseRef-CSSL-1.0
++ */
++
++#ifndef __SEC_POLICY_TYPES_H__
++#define __SEC_POLICY_TYPES_H__
++
++#include <linux/types.h>
++
++/* ==========================================================================
++ * Per-SUPI security policy (lab extension, not 3GPP)
++ *
++ * Written by the UPF Security API (control/SecurityPolicyStore.cpp):
++ *   sec_policy_by_supi  IMSI (u64)  -> struct sec_policy   memory per subscriber
++ *   sec_policy_by_seid  SEID (u64)  -> struct sec_policy   derived per live session
++ * Read by session_lookup_ip / session_lookup_eth (sec_policy.h) before
++ * PDR match, so a dropped packet never touches the PFCP rules.
++ * ========================================================================== */
++
++enum sec_action {
++  SEC_ACTION_NONE      = 0,
++  SEC_ACTION_MONITOR   = 1, /* count, forward */
++  SEC_ACTION_RATELIMIT = 2, /* token bucket per direction, drop on empty */
++  SEC_ACTION_BLOCK     = 3, /* drop UL and DL */
++};
++
++struct sec_policy {
++  __u32 action; /* enum sec_action */
++  __u32 level;  /* escalation level given by the xApp (informative) */
++  __u64 rate_ul_bytes_s; /* RATELIMIT: 0 = no limit in this direction */
++  __u64 rate_dl_bytes_s;
++  __u64 burst_ul_bytes; /* RATELIMIT: bucket depth */
++  __u64 burst_dl_bytes;
++  __u64 expires_at_ns; /* bpf_ktime_get_ns() clock; 0 = never */
++  __u64 epoch;
++  /* Token bucket state, updated by XDP without locking (approximate). */
++  __u64 tokens_ul;
++  __u64 tokens_dl;
++  __u64 last_ul_ns;
++  __u64 last_dl_ns;
++};
++
++/* sec_stats_by_seid value (PERCPU_HASH, summed by userspace). */
++struct sec_stats {
++  __u64 drop_ul_pkts;
++  __u64 drop_ul_bytes;
++  __u64 drop_dl_pkts;
++  __u64 drop_dl_bytes;
++  __u64 seen_ul_pkts; /* packets matched by an active policy, any verdict */
++  __u64 seen_ul_bytes;
++  __u64 seen_dl_pkts;
++  __u64 seen_dl_bytes;
++  __u64 last_drop_ns;
++};
++
++#endif /* __SEC_POLICY_TYPES_H__ */
+diff -ruN a/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c b/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c	2026-08-27 16:20:32.234519286 +0700
++++ b/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c	2026-10-05 19:57:39.791122008 +0700
+@@ -27,6 +27,7 @@
+ #include "tail_call_dispatcher.h"
+ #include "stats_maps.h"
+ #include "stats_types.h"
++#include "sec_policy.h"
+ 
+ /* ========================================================================== */
+ /*                     ETH SESSION LOOKUP ENTRY POINT                         */
+@@ -114,6 +115,10 @@
+ 
+   bpf_debug("ETH Lookup: rules_enabled=0x%x", pctx->rules_enabled);
+ 
++  /* Per-SUPI security policy (UPF Security API) before PDR match */
++  if (sec_policy_apply(ctx, pctx))
++    return xdp_stats_record_action(ctx, XDP_DROP);
++
+   /* ---------------------------------------------------------- */
+   /*  Tail call: PDR Match (shared with IP PDU sessions)        */
+   /*                                                            */
+diff -ruN a/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c b/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c	2026-08-27 16:20:32.235519287 +0700
++++ b/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c	2026-10-05 19:57:33.311104510 +0700
+@@ -29,6 +29,7 @@
+ #include "tail_call_dispatcher.h"
+ #include "stats_maps.h"
+ #include "stats_types.h"
++#include "sec_policy.h"
+ 
+ /* ========================================================================== */
+ /*                    PFCP SESSION LOOKUP (IP PDU)                            */
+@@ -105,6 +106,10 @@
+     bpf_debug("No rule flags for SEID = %llu — all rules disabled", seid);
+   }
+ 
++  /* Per-SUPI security policy (UPF Security API) before PDR match */
++  if (sec_policy_apply(ctx, pctx))
++    return xdp_stats_record_action(ctx, XDP_DROP);
++
+   /* Tail call: PDR Match */
+   TAIL_CALL_NEXT(ctx, PROG_PDR_MATCH);
+ 
+diff -ruN a/src/upf_app/user/session_lookup_ip_user.cpp b/src/upf_app/user/session_lookup_ip_user.cpp
+--- a/src/upf_app/user/session_lookup_ip_user.cpp	2026-08-27 16:20:32.238519291 +0700
++++ b/src/upf_app/user/session_lookup_ip_user.cpp	2026-10-05 19:57:52.733156955 +0700
+@@ -10,6 +10,7 @@
+ #include "logger.hpp"
+ #include "upf_xdp_limits.h"
+ #include "utils/bpf_utils.hpp"
++#include "SecurityPolicyStore.h"
+ 
+ using namespace oai::utils::bpf;
+ 
+@@ -45,6 +46,19 @@
+       skel->maps.m_framed_route_mapping, "m_framed_route_mapping",
+       upf::GetMaxPduSessions());
+ 
++  /* sec_policy_maps.h -- UPF Security API (shared into session_lookup_eth) */
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_policy_by_supi, "sec_policy_by_supi",
++      SecurityConfig::Get().max_policies);
++
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_policy_by_seid, "sec_policy_by_seid",
++      upf::GetMaxPduSessions());
++
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_stats_by_seid, "sec_stats_by_seid",
++      upf::GetMaxPduSessions());
++
+   /*
+    * framed_routing_flag: BPF_MAP_TYPE_ARRAY, max_entries=1 (boolean flag).
+    * feature_dispatch_map: BPF_MAP_TYPE_PROG_ARRAY, tail-call table.
+diff -ruN a/src/upf_app/user/upf_xdp_user.cpp b/src/upf_app/user/upf_xdp_user.cpp
+--- a/src/upf_app/user/upf_xdp_user.cpp	2026-08-27 16:20:32.238519291 +0700
++++ b/src/upf_app/user/upf_xdp_user.cpp	2026-10-05 19:57:52.734156958 +0700
+@@ -193,6 +193,12 @@
+     if (urr_) ShareMapsOwned(sl_obj, urr_->GetBpfObject(), pipeline_owned);
+     if (bar_) ShareMapsOwned(sl_obj, bar_->GetBpfObject(), pipeline_owned);
+     if (mar_) ShareMapsOwned(sl_obj, mar_->GetBpfObject(), pipeline_owned);
++
++    /* sec_policy_maps.h: session_lookup_eth applies the same per-SUPI
++     * policy, so it must see sl_ip_'s maps (it loads in Step 4a'). */
++    const std::initializer_list<const char*> sec_owned = {
++        "sec_policy_by_supi", "sec_policy_by_seid", "sec_stats_by_seid"};
++    if (sl_eth_) ShareMapsOwned(sl_obj, sl_eth_->GetBpfObject(), sec_owned);
+   }
+ 
+   /* ── Step 4a' (ETH path mirror of Step 4a): Load sl_eth_ BEFORE the other
+@@ -634,6 +640,15 @@
+   if (n == "feature_dispatch_map")
+     return sl_ip_ ? sl_ip_->GetFeatureDispatchMap() : nullptr;
+ 
++  /* Security policy maps -- owned by SessionLookupIPProgram */
++  if (n == "sec_policy_by_supi" || n == "sec_policy_by_seid" ||
++      n == "sec_stats_by_seid") {
++    if (!sl_ip_) return nullptr;
++    struct bpf_map* m =
++        bpf_object__find_map_by_name(sl_ip_->GetBpfObject(), n.c_str());
++    return m ? std::make_shared<BPFMap>(m, n) : nullptr;
++  }
++
+   /* ETH session maps -- SessionLookupETHProgram */
+   if (n == "session_by_mac_map")
+     return sl_eth_ ? sl_eth_->GetSessionByMacMap() : nullptr;

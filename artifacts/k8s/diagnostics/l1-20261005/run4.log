@@ -1,0 +1,70 @@
+21:47:09 UE IPs {'oai-nr-ue': '10.1.0.3', 'oai-nr-ue2': '10.1.0.2'} run 20261003T164156Z-m35
+21:47:20 drain {'oai-nr-ue': 4.7, 'oai-nr-ue2': 4.7}
+21:47:20 flood 150 s: UE1 10M + UE2 1M
+21:47:20 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+21:47:31 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+21:47:42 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+21:47:53 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+21:48:04 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+21:48:15 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+21:48:26 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+21:48:37 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+21:48:49 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:48:49 level 3 after 89.1 s
+21:49:00 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:49:11 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:49:22 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+Exception in thread Thread-2 (<lambda>):
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.12/threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/phase0/l1_gate.py", line 152, in <lambda>
+    th = threading.Thread(target=lambda: holder.update(flows=r3.load({UE1: "10M", UE2: "1M"}, flood_s)))
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/phase0/r3_gate.py", line 96, in load
+    rep, window = r2.run_flows("ul", dur, rates)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/phase0/r2_gate.py", line 136, in run_flows
+    out, _ = s.communicate(timeout=30)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['kubectl', '--context', 'oai-lab', '-n', 'oai-core', 'exec', 'deploy/oai-lab-dn', '-c', 'dn', '--', 'timeout', '-k', '5', '162', 'iperf', '-s', '-u', '-p', '5201', '-y', 'C']' timed out after 30 seconds
+21:49:33 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:49:44 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:49:55 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:50:06 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:50:17 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:50:28 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:50:39 timeline {"oai-nr-ue": [3, "block", 0], "oai-nr-ue2": [null, null, null]}
+21:50:50 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:51:01 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:51:12 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:51:23 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:51:34 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:51:45 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:51:56 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:52:07 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:52:18 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:52:22 reconnect {"ue1_ip": "10.1.0.3", "dn_pkts_from_ue1": 0, "iperf_mbps": null, "upf_stats": {"drop_dl_bytes": 340, "drop_dl_pkts": 2, "drop_ul_bytes": 1667226, "drop_ul_pkts": 1302, "last_drop_ns": 148135854841902, "seen_dl_bytes": 105114, "seen_dl_pkts": 204, "seen_ul_bytes": 78686692, "seen_ul_pkts": 61205}, "
+21:52:29 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:52:40 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+21:52:52 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+21:53:03 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+Traceback (most recent call last):
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/phase0/l1_gate.py", line 248, in <module>
+    (out / "result.json").write_text(json.dumps(result, indent=2, default=str) + "\n")
+             ^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/phase0/l1_gate.py", line 184, in main
+    "upf_stats": st[0]["total"] if st else None,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/phase0/l1_gate.py", line 98, in wait_level
+    time.sleep(2)
+KeyboardInterrupt

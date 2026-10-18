@@ -88,8 +88,10 @@ func (s *Server) IdentityLoop(ctx context.Context) {
 			log.Printf("AMF UE table: %v", err)
 		} else if m != nil {
 			s.mu.Lock()
+			old := s.identities
 			s.identities = m
 			s.mu.Unlock()
+			s.identityChanged(old, m)
 		}
 		select {
 		case <-ctx.Done():

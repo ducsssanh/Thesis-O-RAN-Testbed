@@ -1,0 +1,103 @@
+{
+ "scenario": "smoke",
+ "variant": "two-layer",
+ "rep": 1,
+ "status": "ok",
+ "defense": {
+  "classes": {
+   "ue1": "default",
+   "ue2": "default"
+  },
+  "enabled": true,
+  "core": true,
+  "mode": "slice"
+ },
+ "drain_s": 4.7,
+ "preflight": {
+  "run_id": "20261003T164156Z-m35",
+  "disk_free_gib": 46.5,
+  "defense": {
+   "enabled": true,
+   "profile": "lab",
+   "action_mode": "slice",
+   "timing": {
+    "expiry_s": [
+     60,
+     180,
+     600,
+     0
+    ],
+    "probation_s": 180,
+    "fusion_s": 10
+   },
+   "unlabelled_samples": 6,
+   "core": true
+  },
+  "ues": {
+   "ue1": {
+    "deployment": "oai-nr-ue",
+    "supi": "imsi-001010123456780",
+    "ip": "10.1.0.3",
+    "amf_ue_ngap_id": 15
+   },
+   "ue2": {
+    "deployment": "oai-nr-ue2",
+    "supi": "imsi-001010123456781",
+    "ip": "10.1.0.2",
+    "amf_ue_ngap_id": 4
+   }
+  },
+  "upf": {
+   "boot_id": "87afbd96-2ab7-4c1d-94f8-3fc7bb9d4b29",
+   "policies": 0,
+   "limits": {
+    "maxBlockedRatio": 0.5,
+    "maxCmdsPerS": 10,
+    "maxPolicies": 16384,
+    "maxTtlS": 86400,
+    "ratelimitBurstMs": 100
+   }
+  }
+ },
+ "healed": [],
+ "ues": {
+  "ue1": {
+   "supi": "imsi-001010123456780",
+   "role": "benign",
+   "deployment": "oai-nr-ue",
+   "ip_history": [
+    [
+     0,
+     "10.1.0.3"
+    ]
+   ]
+  },
+  "ue2": {
+   "supi": "imsi-001010123456781",
+   "role": "benign",
+   "deployment": "oai-nr-ue2",
+   "ip_history": [
+    [
+     0,
+     "10.1.0.2"
+    ]
+   ]
+  }
+ },
+ "phases": [
+  {
+   "name": "baseline",
+   "baseline": true,
+   "t_start": 1791222716.912,
+   "t_end": 1791222746.942
+  },
+  {
+   "name": "dl",
+   "t_start": 1791222763.353,
+   "t_end": 1791222783.376
+  }
+ ],
+ "t_start": 1791222712.8490875,
+ "t_end": 1791222805.6713374,
+ "recorder_errors": 0
+}

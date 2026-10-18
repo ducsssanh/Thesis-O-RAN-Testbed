@@ -1,0 +1,5712 @@
+{
+  "started_unix": 1791212817.6969306,
+  "run": "20261003T164156Z-m35",
+  "timing": {
+    "expiryS": [
+      20,
+      30,
+      240,
+      240
+    ],
+    "probationS": 120,
+    "fusionS": 10
+  },
+  "checks": {
+    "l1_ran_slice_and_upf_monitor": {
+      "ok": true,
+      "level_event": {
+        "at_ms": 1791212835519,
+        "type": "level",
+        "supi": "imsi-001010123456780",
+        "level": 1,
+        "decision_id": 1,
+        "from": 0,
+        "why": "kpm_rate_ul",
+        "peak": 1,
+        "pending": 0
+      },
+      "ran": 200,
+      "core": 200
+    },
+    "ran_limit_confirmed_by_urr": {
+      "ok": true,
+      "verdicts": [
+        [
+          "verified",
+          973.728
+        ],
+        [
+          "verified",
+          1003.536
+        ],
+        [
+          "verified",
+          1063.152
+        ],
+        [
+          "verified",
+          0.0
+        ]
+      ]
+    },
+    "l2_repeat_offense_upf_ratelimit": {
+      "ok": true,
+      "level_event": {
+        "at_ms": 1791212859519,
+        "type": "level",
+        "supi": "imsi-001010123456780",
+        "level": 2,
+        "decision_id": 2,
+        "from": 0,
+        "why": "repeat_offense",
+        "peak": 2,
+        "pending": 0
+      },
+      "core": {
+        "http": 200,
+        "rate_ul_kbps": 2000.0,
+        "ttl_s": 61
+      }
+    },
+    "l3_both_layers_block_and_release": {
+      "ok": true,
+      "level_event": {
+        "at_ms": 1791212971518,
+        "type": "level",
+        "supi": "imsi-001010123456780",
+        "level": 3,
+        "decision_id": 5,
+        "from": 2,
+        "why": "both_layers",
+        "peak": 3,
+        "pending": 0
+      },
+      "evidence": {
+        "kind": "second_layer",
+        "layer": "both",
+        "ran_hit_age_s": 2.000126,
+        "core_hit_age_s": 0.0,
+        "urr_ul_kbps": null
+      },
+      "core": 200,
+      "release": 200,
+      "upf": {
+        "action": "block",
+        "enforced": true,
+        "level": 3
+      }
+    },
+    "block_confirmed_by_urr": {
+      "ok": true,
+      "verdicts": [
+        [
+          "unverified",
+          3527.28,
+          1.150204
+        ],
+        [
+          "verified",
+          0.0,
+          2.050774
+        ]
+      ]
+    },
+    "reconnect_blocked_level_restored": {
+      "ok": true,
+      "ue1_ip": "10.1.0.3",
+      "dn_pkts_from_ue1": 0,
+      "iperf_mbps": null,
+      "new_session_stats": {
+        "drop_dl_bytes": 0,
+        "drop_dl_pkts": 0,
+        "drop_ul_bytes": 1667416,
+        "drop_ul_pkts": 1304,
+        "last_drop_ns": 149451761180765,
+        "seen_dl_bytes": 0,
+        "seen_dl_pkts": 0,
+        "seen_ul_bytes": 1667416,
+        "seen_ul_pkts": 1304
+      },
+      "restored": [
+        "[defense] restored imsi-001010123456780 at level 3 (peak 3, on probation)"
+      ],
+      "level_after": 3
+    },
+    "expiry_clears_both_layers": {
+      "ok": true,
+      "reached_s": 104.2,
+      "upf_policy": null,
+      "ue1_mbps": 1.058,
+      "session_released_by_t2": true,
+      "sessions": [
+        {
+          "policy_in_map": false,
+          "seid": 9,
+          "supi": "imsi-001010123456780"
+        }
+      ]
+    },
+    "benign_ue2_not_above_1": {
+      "ok": true,
+      "max_level": 0,
+      "core": [
+        "none"
+      ]
+    }
+  },
+  "saved_timing": {
+    "expiryS": [
+      60,
+      180,
+      600,
+      0
+    ],
+    "probationS": 180,
+    "fusionS": 10
+  },
+  "flood_mbps": {
+    "oai-nr-ue": 1.405,
+    "oai-nr-ue2": 1.049
+  },
+  "level3": {
+    "reached_s": 142.4,
+    "upf_policy": {
+      "action": "block",
+      "active": true,
+      "enforced": true,
+      "epoch": 2,
+      "expires_at_ms": 1791213242521,
+      "expires_in_s": 258.677,
+      "level": 3,
+      "rate_dl_kbps": 0,
+      "rate_ul_kbps": 0,
+      "sessions": [
+        {
+          "in_map": true,
+          "seid": 7
+        }
+      ],
+      "supi": "imsi-001010123456780",
+      "updated_at_ms": 1791212971521
+    }
+  },
+  "reconnect": {
+    "ue1_ip": "10.1.0.3",
+    "dn_pkts_from_ue1": 0,
+    "iperf_mbps": null,
+    "new_session_stats": {
+      "drop_dl_bytes": 0,
+      "drop_dl_pkts": 0,
+      "drop_ul_bytes": 1667416,
+      "drop_ul_pkts": 1304,
+      "last_drop_ns": 149451761180765,
+      "seen_dl_bytes": 0,
+      "seen_dl_pkts": 0,
+      "seen_ul_bytes": 1667416,
+      "seen_ul_pkts": 1304
+    },
+    "restored": [
+      "[defense] restored imsi-001010123456780 at level 3 (peak 3, on probation)"
+    ],
+    "level_after": 3
+  },
+  "expiry": {
+    "reached_s": 104.2,
+    "upf_policy": null,
+    "ue1_mbps": 1.058,
+    "session_released_by_t2": true,
+    "sessions": [
+      {
+        "policy_in_map": false,
+        "seid": 9,
+        "supi": "imsi-001010123456780"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "t": 1791212829.5,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212831.7,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212834.0,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 7098.704,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.6879999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212836.2,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 6725.088000000001,
+        "ran_hit_age_s": 0.629395,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.6879999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212838.4,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 904.544,
+        "ran_hit_age_s": 2.824847,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.6879999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212840.6,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1002.864,
+        "ran_hit_age_s": 5.051469,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212842.8,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 727.568,
+        "ran_hit_age_s": 7.297822,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1052.0240000000001,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212845.1,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 786.5600000000001,
+        "ran_hit_age_s": 9.505766,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.488,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212847.3,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 973.368,
+        "ran_hit_age_s": 11.720816,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1120.848,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212849.5,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 934.04,
+        "ran_hit_age_s": 13.957181,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212851.7,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 973.368,
+        "ran_hit_age_s": 16.188019,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212853.9,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 983.1999999999999,
+        "ran_hit_age_s": 18.394112,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1012.696,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212856.1,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1238.8319999999999,
+        "ran_hit_age_s": 20.605736,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1120.848,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212858.3,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 1,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 6813.576,
+        "ran_hit_age_s": 22.807657,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1052.0240000000001,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212860.5,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1002.864,
+        "ran_hit_age_s": 0.010459,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1032.36,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212862.8,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 983.1999999999999,
+        "ran_hit_age_s": 2.243264,
+        "core_hit_age_s": 0.243644
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212865.0,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 894.712,
+        "ran_hit_age_s": 4.456222,
+        "core_hit_age_s": 1.456367
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.992,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212867.2,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 894.712,
+        "ran_hit_age_s": 6.674383,
+        "core_hit_age_s": 3.674528
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212869.4,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 8.893219,
+        "core_hit_age_s": 5.893364
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212871.6,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 943.8720000000001,
+        "ran_hit_age_s": 11.097923,
+        "core_hit_age_s": 8.098068
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1140.512,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212873.9,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1356.816,
+        "ran_hit_age_s": 13.33262,
+        "core_hit_age_s": 10.332765
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1052.0240000000001,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212876.1,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 825.8879999999999,
+        "ran_hit_age_s": 15.56283,
+        "core_hit_age_s": 12.562975
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212878.4,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 835.72,
+        "ran_hit_age_s": 17.84546,
+        "core_hit_age_s": 14.845605
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1160.1760000000002,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212880.6,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 757.064,
+        "ran_hit_age_s": 20.058513,
+        "core_hit_age_s": 17.058658
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212882.8,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 825.8879999999999,
+        "ran_hit_age_s": 22.296916,
+        "core_hit_age_s": 19.297061
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212885.1,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 796.3919999999999,
+        "ran_hit_age_s": 24.560605,
+        "core_hit_age_s": 21.56075
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.656,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212887.3,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 855.384,
+        "ran_hit_age_s": 26.786235,
+        "core_hit_age_s": 23.78638
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1140.512,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212889.5,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 825.8879999999999,
+        "ran_hit_age_s": 28.984258,
+        "core_hit_age_s": 25.984403
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 993.032,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212891.7,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1032.36,
+        "ran_hit_age_s": 31.194528,
+        "core_hit_age_s": 28.194673
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1160.1760000000002,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212894.0,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1071.6879999999999,
+        "ran_hit_age_s": 33.430947,
+        "core_hit_age_s": 30.431092
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1140.512,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212896.2,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1032.36,
+        "ran_hit_age_s": 35.69976,
+        "core_hit_age_s": 32.699905
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212898.4,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 973.368,
+        "ran_hit_age_s": 37.897635,
+        "core_hit_age_s": 34.89778
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212900.7,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 40.133047,
+        "core_hit_age_s": 37.133192
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212902.9,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 914.376,
+        "ran_hit_age_s": 42.333275,
+        "core_hit_age_s": 39.33342
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1111.016,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212905.1,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 973.368,
+        "ran_hit_age_s": 44.527814,
+        "core_hit_age_s": 41.527959
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.656,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212907.3,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 46.746008,
+        "core_hit_age_s": 43.746153
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212909.5,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1523.96,
+        "ran_hit_age_s": 48.948906,
+        "core_hit_age_s": 45.949051
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212911.7,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 51.141542,
+        "core_hit_age_s": 48.141687
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212913.9,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 7295.344,
+        "ran_hit_age_s": 53.345884,
+        "core_hit_age_s": 50.346029
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212916.1,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 6262.984,
+        "ran_hit_age_s": 0.574223,
+        "core_hit_age_s": 52.573897
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1111.016,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212918.4,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 816.056,
+        "ran_hit_age_s": 2.839517,
+        "core_hit_age_s": 54.839191
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212920.6,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1346.984,
+        "ran_hit_age_s": 5.056978,
+        "core_hit_age_s": 57.056652
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212922.8,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 983.1999999999999,
+        "ran_hit_age_s": 7.258827,
+        "core_hit_age_s": 59.258501
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1111.016,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212925.0,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 9.487457,
+        "core_hit_age_s": 61.487131
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.992,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212927.2,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 11.697825,
+        "core_hit_age_s": 63.697499
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212929.4,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 953.704,
+        "ran_hit_age_s": 13.912329,
+        "core_hit_age_s": 65.912003
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212931.7,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 737.4000000000001,
+        "ran_hit_age_s": 16.137025,
+        "core_hit_age_s": 68.136699
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 973.368,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212933.9,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 786.5600000000001,
+        "ran_hit_age_s": 18.328231,
+        "core_hit_age_s": 70.327905
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1111.016,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212936.1,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 766.8960000000001,
+        "ran_hit_age_s": 20.539464,
+        "core_hit_age_s": 72.539138
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212938.3,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 825.8879999999999,
+        "ran_hit_age_s": 22.753487,
+        "core_hit_age_s": 74.753161
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1130.6799999999998,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212940.5,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 934.04,
+        "ran_hit_age_s": 24.989226,
+        "core_hit_age_s": 76.9889
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1081.52,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212942.8,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1258.496,
+        "ran_hit_age_s": 27.217607,
+        "core_hit_age_s": 79.217281
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.6879999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212945.0,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1445.3039999999999,
+        "ran_hit_age_s": 29.424996,
+        "core_hit_age_s": 81.42467
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.992,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212947.2,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1396.144,
+        "ran_hit_age_s": 31.647469,
+        "core_hit_age_s": 83.647143
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212949.4,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 33.861098,
+        "core_hit_age_s": 85.860772
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1130.6799999999998,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212951.6,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1052.0240000000001,
+        "ran_hit_age_s": 36.076078,
+        "core_hit_age_s": 88.075752
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 983.1999999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212953.8,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1012.696,
+        "ran_hit_age_s": 38.28315,
+        "core_hit_age_s": 90.282824
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212956.1,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 993.032,
+        "ran_hit_age_s": 40.535082,
+        "core_hit_age_s": 92.534756
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1012.696,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212958.3,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1474.8000000000002,
+        "ran_hit_age_s": 42.76675,
+        "core_hit_age_s": 94.766424
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1032.36,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212960.5,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1229.0,
+        "ran_hit_age_s": 44.967165,
+        "core_hit_age_s": 96.966839
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1052.0240000000001,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212962.8,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1032.36,
+        "ran_hit_age_s": 47.240888,
+        "core_hit_age_s": 99.240562
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1111.016,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212965.0,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1012.696,
+        "ran_hit_age_s": 49.435822,
+        "core_hit_age_s": 101.435496
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1032.664,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212967.2,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 2,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 7619.799999999999,
+        "ran_hit_age_s": 51.656114,
+        "core_hit_age_s": 103.655788
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1091.352,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212969.4,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 2,
+        "pending": 3,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 7029.88,
+        "ran_hit_age_s": 0.868848,
+        "core_hit_age_s": 105.869019
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1071.6879999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212971.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 2.110846,
+        "core_hit_age_s": 0.11072
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1120.848,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212973.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 4.318088,
+        "core_hit_age_s": 2.317962
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212976.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 6.519161,
+        "core_hit_age_s": 4.519035
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1061.856,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212978.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 8.769531,
+        "core_hit_age_s": 6.769405
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1032.36,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212980.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 10.986752,
+        "core_hit_age_s": 8.986626
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 993.032,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212982.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 13.203623,
+        "core_hit_age_s": 11.203497
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 11.312,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212985.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 15.420988,
+        "core_hit_age_s": 13.420862
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212987.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 17.607632,
+        "core_hit_age_s": 15.607506
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212989.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 19.782834,
+        "core_hit_age_s": 17.782708
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212991.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 21.981182,
+        "core_hit_age_s": 19.981056
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212993.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 24.222639,
+        "core_hit_age_s": 22.222513
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212996.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 26.440707,
+        "core_hit_age_s": 24.440581
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791212998.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 28.657076,
+        "core_hit_age_s": 26.65695
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213000.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": 30.851672,
+        "core_hit_age_s": 28.851546
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213002.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.392,
+        "ran_hit_age_s": 33.063263,
+        "core_hit_age_s": 0.062661
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213004.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 35.273051,
+        "core_hit_age_s": 1.268895
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213007.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 37.477097,
+        "core_hit_age_s": 3.472941
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213009.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 39.681803,
+        "core_hit_age_s": 5.677647
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213011.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.392,
+        "ran_hit_age_s": 41.884267,
+        "core_hit_age_s": 7.880111
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213013.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": 44.082982,
+        "core_hit_age_s": 10.078826
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213015.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 46.312653,
+        "core_hit_age_s": 12.308497
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213018.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 48.531458,
+        "core_hit_age_s": 14.527302
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213020.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 50.74424,
+        "core_hit_age_s": 16.740084
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213022.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 52.951166,
+        "core_hit_age_s": 18.94701
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213024.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 55.135545,
+        "core_hit_age_s": 21.131389
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213026.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.392,
+        "ran_hit_age_s": 57.346275,
+        "core_hit_age_s": 23.342119
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213029.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 59.535303,
+        "core_hit_age_s": 25.531147
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213031.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 61.743211,
+        "core_hit_age_s": 27.739055
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213033.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 63.947989,
+        "core_hit_age_s": 29.943833
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213035.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 66.155375,
+        "core_hit_age_s": 32.151219
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213037.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 68.365997,
+        "core_hit_age_s": 34.361841
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213040.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 70.586215,
+        "core_hit_age_s": 36.582059
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213042.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 72.818003,
+        "core_hit_age_s": 38.813847
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213044.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 75.034749,
+        "core_hit_age_s": 41.030593
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213046.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": 77.241661,
+        "core_hit_age_s": 43.237505
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213048.8,
+      "error": "Command '['kubectl', '--context', 'oai-lab', '-n', 'near-rt-ric', 'exec', 'deploy/oai-lab-xapp', '-c', 'xapp', '--', 'py"
+    },
+    {
+      "t": 1791213051.7,
+      "error": "Command '['kubectl', '--context', 'oai-lab', '-n', 'near-rt-ric', 'exec', 'deploy/oai-lab-xapp', '-c', 'xapp', '--', 'py"
+    },
+    {
+      "t": 1791213053.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "unknown",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": null,
+        "peak": null,
+        "pending": null,
+        "core_want": null,
+        "core_applied": null,
+        "applied_ratio": null,
+        "rate_ul_kbps": null,
+        "ran_hit_age_s": null,
+        "core_hit_age_s": null
+      }
+    },
+    {
+      "t": 1791213056.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": null,
+        "peak": null,
+        "pending": null,
+        "core_want": null,
+        "core_applied": null,
+        "applied_ratio": null,
+        "rate_ul_kbps": null,
+        "ran_hit_age_s": null,
+        "core_hit_age_s": null
+      }
+    },
+    {
+      "t": 1791213058.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213060.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213062.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 894.712,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213065.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1052.0240000000001,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213067.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 943.8720000000001,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213069.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 963.536,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213071.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 1101.184,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213073.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213076.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213078.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213080.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213082.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213084.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213087.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213089.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213091.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213093.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213095.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213098.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213100.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213102.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213104.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213106.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213109.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213111.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213113.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213115.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213118.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213120.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213122.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213124.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213126.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213129.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213131.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213133.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213135.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213137.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213140.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213142.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213144.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213146.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213149.0,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213151.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213153.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213155.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213157.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213160.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213162.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.392,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213164.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213166.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213168.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213171.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213173.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213175.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213177.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213179.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213182.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213184.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213186.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213188.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213190.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213193.1,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213195.3,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213197.5,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213199.7,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213201.9,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213204.2,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213206.4,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213208.6,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213210.8,
+      "oai-nr-ue": {
+        "level": 3,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "block",
+        "core_applied": "block",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213213.0,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213215.2,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213217.4,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213219.7,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213221.9,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213224.1,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213226.3,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213228.5,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213230.7,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213232.9,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213235.1,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213237.3,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213239.5,
+      "oai-nr-ue": {
+        "level": 2,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "ratelimit",
+        "core_applied": "ratelimit",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213241.8,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213244.0,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.392,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213246.2,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213248.5,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213250.7,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213252.9,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213255.1,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213257.3,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213259.5,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213261.7,
+      "oai-nr-ue": {
+        "level": 1,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "monitor",
+        "core_applied": "monitor",
+        "applied_ratio": 10,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213264.0,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213266.2,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213268.4,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213270.7,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213272.9,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213275.1,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213277.3,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213279.5,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213281.8,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213284.1,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213286.3,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213288.5,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213290.7,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213292.9,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213295.1,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213297.3,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213299.5,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213301.7,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 796.3919999999999,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213303.9,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1130.6799999999998,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.304,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213306.1,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1111.408,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213308.3,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1150.344,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213310.5,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 1042.496,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213312.8,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213314.9,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    },
+    {
+      "t": 1791213317.2,
+      "oai-nr-ue": {
+        "level": 0,
+        "peak": 3,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      },
+      "oai-nr-ue2": {
+        "level": 0,
+        "peak": 0,
+        "pending": 0,
+        "core_want": "none",
+        "core_applied": "none",
+        "applied_ratio": 0,
+        "rate_ul_kbps": 0.0,
+        "ran_hit_age_s": -1.0,
+        "core_hit_age_s": -1.0
+      }
+    }
+  ],
+  "status": "PASS"
+}

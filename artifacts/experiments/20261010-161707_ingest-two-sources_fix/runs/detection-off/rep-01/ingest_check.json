@@ -1,0 +1,168 @@
+{
+ "run": "/home/ducsssanh/6G/O-RAN/DATN/Codebase/artifacts/experiments/20261010-161707_ingest-two-sources_fix/runs/detection-off/rep-01",
+ "status": "ok",
+ "pass": true,
+ "checks": {
+  "hops": {
+   "pass": true,
+   "n4_reports": 553,
+   "missing": {
+    "smf_raw": 0,
+    "producer": 0,
+    "adapter": 0,
+    "xapp": 0
+   },
+   "xapp_duplicates": 0
+  },
+  "kpm": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "vectors": 212,
+     "per_s": 0.999
+    },
+    "imsi-001010123456781": {
+     "vectors": 212,
+     "per_s": 0.999
+    }
+   }
+  },
+  "coverage": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "same_s": 0.972,
+     "pm1_s": 1.0
+    },
+    "imsi-001010123456781": {
+     "same_s": 0.976,
+     "pm1_s": 1.0
+    }
+   }
+  },
+  "volume": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "ul": {
+      "median_err": -0.017,
+      "n": 148
+     },
+     "dl": {
+      "median_err": 0.0,
+      "n": 58
+     }
+    },
+    "imsi-001010123456781": {
+     "ul": {
+      "median_err": -0.024,
+      "n": 149
+     },
+     "dl": {
+      "median_err": -0.006,
+      "n": 58
+     }
+    }
+   },
+   "swapped": [
+    {
+     "phase": "ul-4x",
+     "dir": "ul",
+     "median_err": 1.623,
+     "n": 116
+    },
+    {
+     "phase": "dl-4x",
+     "dir": "dl",
+     "median_err": 1.928,
+     "n": 116
+    },
+    {
+     "phase": "ul-swapped",
+     "dir": "ul",
+     "median_err": 1.053,
+     "n": 76
+    },
+    {
+     "phase": "reconnect",
+     "dir": "ul",
+     "median_err": 0.75,
+     "n": 116
+    }
+   ]
+  },
+  "identity": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "compared": 212,
+     "mismatch": 0
+    },
+    "imsi-001010123456781": {
+     "compared": 212,
+     "mismatch": 0
+    }
+   }
+  },
+  "latency": {
+   "pass": true,
+   "p50_s": 2.0,
+   "p95_s": 3.0,
+   "max_s": 3.0,
+   "n": 504,
+   "during_xapp_restart": {
+    "n": 48,
+    "max_s": 9.0
+   }
+  },
+  "idle": {
+   "pass": true,
+   "phases": {
+    "idle": {
+     "imsi-001010123456780": {
+      "urr": 15,
+      "max_gap_s": 2,
+      "kpm_max_kbps": 0.528
+     },
+     "imsi-001010123456781": {
+      "urr": 15,
+      "max_gap_s": 2,
+      "kpm_max_kbps": 0.528
+     }
+    }
+   }
+  },
+  "reconnect": {
+   "pass": true,
+   "events": [
+    {
+     "ue": "ue2",
+     "old_amf": 3,
+     "new_amf": 4,
+     "kpm_labelled_after_ip_s": 10.574,
+     "new_seid": 4,
+     "urr_new_session_after_ip_s": -1.497,
+     "urr_ran_identity_new_amf": true,
+     "new_amf_under_other_supi": 0,
+     "kpm_rows_without_supi": 6,
+     "pass": true
+    }
+   ]
+  },
+  "dataset": {
+   "pass": true,
+   "per_supi": {
+    "imsi-001010123456780": {
+     "lines": 212,
+     "with_urr": 1.0,
+     "equal_to_received": 0.991
+    },
+    "imsi-001010123456781": {
+     "lines": 212,
+     "with_urr": 1.0,
+     "equal_to_received": 1.0
+    }
+   }
+  }
+ }
+}

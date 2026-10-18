@@ -155,5 +155,8 @@ adapter:
   image: oai-lab-a1-ei-adapter:unbuilt
   xappPushEnabled: false
   allUes: true   # EI job without SUPI filter: URR of every UE (R1)
+  # closed-loop streams "kind=jobID@infoType,..." (docs/CLOSED-LOOP-FRAMEWORK.md 3.3)
+  extraJobs: "session=oai-session-nearrt@oai-session_1.0.0,profile=oai-upf-profile-nearrt@oai-upf-profile_1.0.0"
+  testJob: ""    # gate CL-1 sets test=oai-test-nearrt@oai-test_1.0.0
 oai-flexric:
   enabled: false

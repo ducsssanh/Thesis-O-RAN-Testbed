@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Stand-in for the model sidecar of the xApp classifier (plan Phase X).
+
+Speaks the classifier interface (design 5.6): POST /classify with
+{"supi", "since_seq", "window": [feature vectors]} -> {"label", "score",
+"layer", "kind", "reason"}. Runs on the xApp loopback; Gate X uses it to
+check the external path and the fallback to the rules.
+Usage: stub_classifier.py [--port 8091] [--attack SUPI ...] [--mode answer|unknown|sleep]
+  answer   attack for the SUPIs given, benign for the others
+  unknown  always "unknown" (the xApp falls back to its rules)
+  sleep    answer after 2 s (beyond the xApp timeout)
+Every request is appended to /tmp/stub_classifier.jsonl.
+"""
+import argparse
+import json
+import time
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--port", type=int, default=8091)
+ap.add_argument("--attack", nargs="*", default=[])
+ap.add_argument("--mode", choices=["answer", "unknown", "sleep"], default="answer")
+args = ap.parse_args()
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        req = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
+        with open("/tmp/stub_classifier.jsonl", "a") as f:
+            f.write(json.dumps({"at": time.time(), "supi": req.get("supi"), "n": len(req.get("window", [])),
+                                "since_seq": req.get("since_seq")}) + "\n")
+        if args.mode == "sleep":
+            time.sleep(2)
+        if args.mode == "unknown":
+            ans = {"label": "unknown"}
+        elif req.get("supi") in args.attack:
+            ans = {"label": "attack", "score": 0.99, "layer": "ran", "kind": "stub_attack", "reason": "stub: listed SUPI"}
+        else:
+            ans = {"label": "benign", "score": 0.01, "layer": "ran"}
+        body = json.dumps(ans).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *a):
+        pass
+
+
+HTTPServer(("127.0.0.1", args.port), Handler).serve_forever()

@@ -1,0 +1,1676 @@
+--- a/examples/xApp/c/monitor/CMakeLists.txt
++++ b/examples/xApp/c/monitor/CMakeLists.txt
+@@ -94,6 +94,10 @@
+                 urr_receiver.c
+                 ran_control.c
+                 defense.c
++                features.c
++                classifier.c
++                policy.c
++                actuators.c
+                 ../metrics_factory.c
+                 ../../../../src/util/alg_ds/alg/defer.c
+                 ../../../../src/util/alg_ds/alg/murmur_hash_32.c
+--- a/examples/xApp/c/monitor/defense.c
++++ b/examples/xApp/c/monitor/defense.c
+@@ -1,120 +1,27 @@
+-/* RAN layer of the two-layer defense (plan R3). See defense.h. */
+-#define _GNU_SOURCE /* strptime, timegm */
++/* RAN layer of the two-layer defense (plan R3): configuration, the worker
++   that runs the layers (defense_internal.h), KPM input, HTTP and lifecycle.
++   See defense.h. */
+ #include "defense.h"
+-#include "ran_control.h"
+-#include "urr_receiver.h"
++#include "defense_internal.h"
+ #include "../../../../src/util/time_now_us.h"
+-#include <json-c/json.h>
+-#include <sqlite3.h>
+-#include <pthread.h>
+-#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+-#include <stdbool.h>
+ #include <inttypes.h>
+-#include <math.h>
+ #include <time.h>
+ 
+-#define MAX_UES 64
+ #define QUEUE_LEN 256
+-#define RETRY_US 2000000LL
+-#define UE_GONE_US 10000000LL
+-#define MAX_CLASSES 8
+-#define CELL_WINDOW_US 1500000LL /* other UEs' latest sample counts towards the cell load */
+-
+-/* fair-use class: the per-UE rate the subscriber is entitled to (option b of
+-   SYSTEM-OVERVIEW 6: a profile assigned per SUPI; k x AMBR in Phase L) */
+-typedef struct {
+-  char name[16];
+-  double ul_rate_kbps, dl_rate_kbps;
+-} fair_class_t;
+-
+-typedef struct {
+-  char supi[96];
+-  int cls;
+-} assign_t;
+-
+-typedef struct {
+-  bool enabled;
+-  char profile[16];
+-  /* mean rate over the KPM period from DRB.PdcpSduVolume (DRB.UEThp is the
+-     rate while data is buffered, TS 28.552: a 2 Mbit/s UE reads 3.6 Mbit/s
+-     next to a flood); 0 disables a rule */
+-  fair_class_t classes[MAX_CLASSES]; /* [0] = default */
+-  int n_classes;
+-  assign_t assign[MAX_UES];  /* config supiClass; the DB policy table overrides */
+-  int n_assign;
+-  double ul_prb_pct, dl_prb_pct;
+-  /* a sample above the fair-use rate only counts while the cell is busy in
+-     that direction (sum of the UEs' PRB shares) and another UE sends in it:
+-     a UE alone in the cell gets ~all PRBs from the scheduler and harms nobody */
+-  bool congestion;
+-  double cell_ul_prb_pct, cell_dl_prb_pct, other_ue_kbps;
+-  int k, n;                   /* detector: k of the last n samples */
+-  int max_prb_ratio;          /* RAN action of levels 1-2 */
+-  /* action.mode "slice": levels 1-2 move the UE into a quarantine RAN slice
+-     whose members share max_prb_ratio (inter-slice handover in the gNB,
+-     PDU session kept; C33), level 0 back to the default slice; "ue": a PRB
+-     quota on the UE itself (R2) */
+-  bool slice_mode;
+-  int q_sst, d_sst;
+-  int64_t q_sd, d_sd;
+-  /* level 2 = repeat offense: a violation within probation_s after the
+-     level-1 quota expired (PRB "quota full" cannot confirm: with spare PRBs
+-     the scheduler gives any active UE ~1/3 of the cell, so a benign UE also
+-     fills a 10 % quota, R3 05/10) */
+-  int probation_s;
+-  int expiry_s[2];            /* levels 1, 2 of the active profile */
+-  double sev_rate, sev_repeat, half_life_s;
+-} config_t;
+-
+-typedef struct {
+-  uint64_t amf;
+-  int64_t collect_us;
+-  double rate_ul, rate_dl, thp_ul, thp_dl, prb_ul, prb_dl;
+-  double cell_ul, cell_dl;    /* cell PRB load at this sample (filled by the worker) */
+-  int others_ul, others_dl;   /* other UEs of the cell sending >= other_ue_kbps */
+-  char node[32];
+-} sample_t;
+-
+-/* latest PRB share of every UE per E2 node, for the cell load */
+-typedef struct {
+-  bool used;
+-  char node[32];
+-  uint64_t amf;
+-  int64_t collect_us;
+-  double prb_ul, prb_dl, rate_ul, rate_dl;
+-} cell_ue_t;
+-
+-typedef struct {
+-  bool used;
+-  char supi[96];
+-  int level;
+-  int cls;                    /* fair-use class index */
+-  double score;
+-  int64_t score_us, expires_us, last_seen_us, next_try_us;
+-  int64_t probation_us;       /* repeat offense before this -> level 2 */
+-  double rate_ul, rate_dl;    /* latest sample (drain checks) */
+-  uint32_t over_bits;
+-  uint64_t amf;               /* UE ID of the latest KPM report */
+-  int applied_ratio;          /* quota in force at the gNB for synced_amf (0 none) */
+-  uint64_t synced_amf;        /* UE ID whose gNB quota this xApp has set (0: unknown,
+-                                 e.g. after an xApp restart) */
+-  sqlite3_int64 last_action;  /* row of the latest quota action */
+-  bool verified;
+-} ue_t;
+-
+-static config_t cfg;
+-static ue_t ues[MAX_UES];
+-static cell_ue_t cell_ues[MAX_UES];
++
++config_t cfg;
++ue_t ues[MAX_UES];
++sqlite3 *db;
++pthread_mutex_t st_lock = PTHREAD_MUTEX_INITIALIZER;
++unsigned long long unlabelled, uncongested, dropped;
+ static sample_t queue[QUEUE_LEN];
+ static size_t q_head, q_len;
+-static unsigned long long dropped, unlabelled, uncongested;
+-static pthread_mutex_t q_lock = PTHREAD_MUTEX_INITIALIZER, st_lock = PTHREAD_MUTEX_INITIALIZER;
++static pthread_mutex_t q_lock = PTHREAD_MUTEX_INITIALIZER;
+ static pthread_cond_t q_cond = PTHREAD_COND_INITIALIZER;
+ static pthread_t worker;
+ static bool running;
+-static sqlite3 *db;
+ static FILE *events;
+ 
+ /* ---------- configuration ---------- */
+@@ -136,7 +43,7 @@
+   }
+ }
+ 
+-static int class_index(const char *name) {
++int class_index(const char *name) {
+   for (int i = 0; i < cfg.n_classes; i++)
+     if (strcmp(cfg.classes[i].name, name) == 0) return i;
+   return -1;
+@@ -188,6 +95,7 @@
+ static void load_config(void) {
+   cfg = (config_t){.enabled = false, .profile = "lab", .k = 2, .n = 3,
+                    .max_prb_ratio = 10, .q_sst = 1, .q_sd = 0xBADBAD, .d_sst = 1, .d_sd = 0xFFFFFF, .probation_s = 180, .expiry_s = {60, 180},
++                   .endpoint = "http://127.0.0.1:8091/classify", .window = 10, .timeout_ms = 200,
+                    .sev_rate = 2, .sev_repeat = 1, .half_life_s = 60};
+   load_fair_use(NULL, NULL);
+   const char *env = getenv("DEFENSE_CONFIG");
+@@ -220,6 +128,14 @@
+   snssai(qs, &cfg.q_sst, &cfg.q_sd);
+   snssai(ds, &cfg.d_sst, &cfg.d_sd);
+   cfg.probation_s = (int)num(f, "probationS", cfg.probation_s);
++  json_object *cl = NULL;
++  json_object_object_get_ex(c, "classifier", &cl);
++  if (cl && json_object_object_get_ex(cl, "kind", &x) && json_object_is_type(x, json_type_string))
++    cfg.external = strcmp(json_object_get_string(x), "external") == 0;
++  if (cl && json_object_object_get_ex(cl, "endpoint", &x) && json_object_is_type(x, json_type_string))
++    snprintf(cfg.endpoint, sizeof(cfg.endpoint), "%s", json_object_get_string(x));
++  cfg.window = (int)num(cl, "window", cfg.window);
++  cfg.timeout_ms = (int)num(cl, "timeoutMs", cfg.timeout_ms);
+   json_object *p = NULL;
+   if (e && json_object_object_get_ex(e, cfg.profile, &p) && json_object_is_type(p, json_type_array) && json_object_array_length(p) >= 2) {
+     cfg.expiry_s[0] = json_object_get_int(json_object_array_get_idx(p, 0));
+@@ -231,6 +147,8 @@
+   if (cfg.n < 1 || cfg.n > 32) cfg.n = 3;
+   if (cfg.k < 1 || cfg.k > cfg.n) cfg.k = cfg.n;
+   if (cfg.max_prb_ratio < 1 || cfg.max_prb_ratio > 99) cfg.max_prb_ratio = 10;
++  if (cfg.window < 1 || cfg.window > WINDOW_MAX) cfg.window = 10;
++  if (cfg.timeout_ms < 1) cfg.timeout_ms = 200;
+   json_object_put(c);
+   printf("[defense] %s, profile %s: PDCP rate above the SUPI's fair-use class in %d of %d samples", cfg.enabled ? "enabled" : "disabled",
+          cfg.profile, cfg.k, cfg.n);
+@@ -244,14 +162,16 @@
+     printf(" -> PRB quota %d%%", cfg.max_prb_ratio);
+   printf("; again within %d s of the level-1 expiry -> level 2; expiry %d/%d s\n", cfg.probation_s, cfg.expiry_s[0],
+          cfg.expiry_s[1]);
++  printf("[defense] classifier %s%s%s (window %d, timeout %d ms, fallback rules)\n", cfg.external ? "external " : "rules",
++         cfg.external ? "at " : "", cfg.external ? cfg.endpoint : "", cfg.window, cfg.timeout_ms);
+   for (int i = 0; i < cfg.n_classes; i++)
+     printf("[defense] fair-use class %s: UL %.0f kbps, DL %.0f kbps\n", cfg.classes[i].name, cfg.classes[i].ul_rate_kbps,
+            cfg.classes[i].dl_rate_kbps);
+ }
+ 
+-/* ---------- persistence and event log ---------- */
++/* ---------- shared helpers ---------- */
+ 
+-static void iso(int64_t us, char *buf, size_t n) {
++void iso(int64_t us, char *buf, size_t n) {
+   time_t t = (time_t)(us / 1000000);
+   struct tm tm;
+   gmtime_r(&t, &tm);
+@@ -259,7 +179,7 @@
+   snprintf(buf + len, n - len, ".%03dZ", (int)(us / 1000 % 1000));
+ }
+ 
+-static void event(json_object *o) {
++void event(json_object *o) {
+   if (events) {
+     fputs(json_object_to_json_string_ext(o, JSON_C_TO_STRING_PLAIN), events);
+     fputc('\n', events);
+@@ -268,16 +188,17 @@
+   json_object_put(o);
+ }
+ 
+-static json_object *event_base(const char *type, const ue_t *u, int64_t now) {
++json_object *event_base(const char *type, const ue_t *u, int64_t now) {
+   json_object *o = json_object_new_object();
+   json_object_object_add(o, "at_ms", json_object_new_int64(now / 1000));
+   json_object_object_add(o, "type", json_object_new_string(type));
+   json_object_object_add(o, "supi", json_object_new_string(u->supi));
+   json_object_object_add(o, "level", json_object_new_int(u->level));
++  if (u->decision_id) json_object_object_add(o, "decision_id", json_object_new_uint64(u->decision_id));
+   return o;
+ }
+ 
+-static void exec_sql(const char *sql) {
++void exec_sql(const char *sql) {
+   char *err = NULL;
+   if (sqlite3_exec(db, sql, NULL, NULL, &err) != SQLITE_OK) {
+     fprintf(stderr, "[defense] SQLite: %s\n", err ? err : "?");
+@@ -285,343 +206,23 @@
+   }
+ }
+ 
+-static void save_reputation(const ue_t *u, int64_t now) {
+-  if (!db) return;
+-  sqlite3_stmt *q = NULL;
+-  char exp[40], upd[40];
+-  iso(u->expires_us, exp, sizeof(exp));
+-  iso(now, upd, sizeof(upd));
+-  if (sqlite3_prepare_v2(db, "INSERT INTO reputation(supi,level,score,expires_at,updated_at) VALUES(?,?,?,?,?) "
+-                             "ON CONFLICT(supi) DO UPDATE SET level=excluded.level,score=excluded.score,"
+-                             "expires_at=excluded.expires_at,updated_at=excluded.updated_at", -1, &q, NULL) == SQLITE_OK) {
+-    sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
+-    sqlite3_bind_int(q, 2, u->level);
+-    sqlite3_bind_double(q, 3, u->score);
+-    sqlite3_bind_text(q, 4, u->level ? exp : "", -1, SQLITE_TRANSIENT);
+-    sqlite3_bind_text(q, 5, upd, -1, SQLITE_TRANSIENT);
+-    sqlite3_step(q);
+-  }
+-  sqlite3_finalize(q);
+-}
+-
+-static void save_evidence(const ue_t *u, int64_t now, const char *kind, double severity, double trust, const sample_t *s) {
+-  char ref[96], at[40];
+-  snprintf(ref, sizeof(ref), "kpm:node=%s/ue=%" PRIu64 "/t=%" PRId64, s->node, s->amf, s->collect_us / 1000);
+-  iso(now, at, sizeof(at));
+-  if (db) {
+-    sqlite3_stmt *q = NULL;
+-    if (sqlite3_prepare_v2(db, "INSERT INTO evidence(supi,at,layer,kind,severity,ref,trust) VALUES(?,?,'ran',?,?,?,?)", -1, &q, NULL) == SQLITE_OK) {
+-      sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_text(q, 3, kind, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_double(q, 4, severity);
+-      sqlite3_bind_text(q, 5, ref, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_double(q, 6, trust);
+-      sqlite3_step(q);
+-    }
+-    sqlite3_finalize(q);
+-  }
+-  json_object *o = event_base("evidence", u, now);
+-  json_object_object_add(o, "kind", json_object_new_string(kind));
+-  json_object_object_add(o, "severity", json_object_new_double(severity));
+-  json_object_object_add(o, "trust", json_object_new_double(trust));
+-  json_object_object_add(o, "score", json_object_new_double(u->score));
+-  json_object_object_add(o, "ref", json_object_new_string(ref));
+-  json_object_object_add(o, "collect_ms", json_object_new_int64(s->collect_us / 1000));
+-  json_object_object_add(o, "rate_ul_kbps", json_object_new_double(s->rate_ul));
+-  json_object_object_add(o, "rate_dl_kbps", json_object_new_double(s->rate_dl));
+-  json_object_object_add(o, "thp_ul_kbps", json_object_new_double(s->thp_ul));
+-  json_object_object_add(o, "thp_dl_kbps", json_object_new_double(s->thp_dl));
+-  json_object_object_add(o, "prb_ul_pct", json_object_new_double(s->prb_ul));
+-  json_object_object_add(o, "prb_dl_pct", json_object_new_double(s->prb_dl));
+-  json_object_object_add(o, "cell_prb_ul_pct", json_object_new_double(s->cell_ul));
+-  json_object_object_add(o, "cell_prb_dl_pct", json_object_new_double(s->cell_dl));
+-  json_object_object_add(o, "others_ul", json_object_new_int(s->others_ul));
+-  json_object_object_add(o, "others_dl", json_object_new_int(s->others_dl));
+-  json_object_object_add(o, "class", json_object_new_string(cfg.classes[u->cls].name));
+-  event(o);
+-}
+-
+-static sqlite3_int64 save_action(const ue_t *u, int64_t now, int ratio, uint64_t amf, int code, json_object *res) {
+-  sqlite3_int64 id = 0;
+-  char at[40], detail[64];
+-  iso(now, at, sizeof(at));
+-  snprintf(detail, sizeof(detail), "max_prb_ratio=%d ue=%" PRIu64, ratio, amf);
+-  if (db) {
+-    sqlite3_stmt *q = NULL;
+-    if (sqlite3_prepare_v2(db, "INSERT INTO actions(supi,at,layer,action,detail,status,verified) VALUES(?,?,'ran','prb_quota',?,?,0)", -1, &q, NULL) == SQLITE_OK) {
+-      sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_text(q, 3, detail, -1, SQLITE_TRANSIENT);
+-      sqlite3_bind_int(q, 4, code);
+-      if (sqlite3_step(q) == SQLITE_DONE) id = sqlite3_last_insert_rowid(db);
+-    }
+-    sqlite3_finalize(q);
+-  }
+-  json_object *o = event_base("action", u, now);
+-  json_object_object_add(o, "action", json_object_new_string(cfg.slice_mode ? "slice_handover" : "prb_quota"));
+-  if (cfg.slice_mode) {
+-    char sl[32];
+-    snprintf(sl, sizeof(sl), "%d/%06" PRIx64, ratio < 100 ? cfg.q_sst : cfg.d_sst, ratio < 100 ? cfg.q_sd : cfg.d_sd);
+-    json_object_object_add(o, "slice", json_object_new_string(sl));
+-  }
+-  json_object_object_add(o, "max_prb_ratio", json_object_new_int(ratio));
+-  json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(amf));
+-  json_object_object_add(o, "http", json_object_new_int(code));
+-  if (res) json_object_object_add(o, "result", json_object_get(res));
+-  event(o);
+-  return id;
+-}
+-
+-static void open_db(const char *path) {
+-  if (!path || sqlite3_open(path, &db) != SQLITE_OK) {
+-    fprintf(stderr, "[defense] cannot open %s: reputation not persisted\n", path ? path : "(null)");
+-    if (db) sqlite3_close(db);
+-    db = NULL;
+-    return;
+-  }
+-  exec_sql("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"
+-           "CREATE TABLE IF NOT EXISTS reputation(supi TEXT PRIMARY KEY,level INTEGER NOT NULL,score REAL NOT NULL,"
+-           "expires_at TEXT NOT NULL,updated_at TEXT NOT NULL);"
+-           "CREATE TABLE IF NOT EXISTS evidence(id INTEGER PRIMARY KEY,supi TEXT NOT NULL,at TEXT NOT NULL,layer TEXT NOT NULL,"
+-           "kind TEXT NOT NULL,severity REAL NOT NULL,ref TEXT NOT NULL,trust REAL NOT NULL);"
+-           "CREATE TABLE IF NOT EXISTS actions(id INTEGER PRIMARY KEY,supi TEXT NOT NULL,at TEXT NOT NULL,layer TEXT NOT NULL,"
+-           "action TEXT NOT NULL,detail TEXT NOT NULL,status INTEGER NOT NULL,verified INTEGER NOT NULL);"
+-           "CREATE TABLE IF NOT EXISTS e2_trust(e2_node TEXT PRIMARY KEY,kpm_trust REAL NOT NULL DEFAULT 1.0,"
+-           "ctrl_trust REAL NOT NULL DEFAULT 1.0,last_mismatch TEXT,alarm INTEGER NOT NULL DEFAULT 0);"
+-           "CREATE TABLE IF NOT EXISTS policy(supi TEXT PRIMARY KEY,class TEXT NOT NULL,updated_at TEXT NOT NULL);");
+-}
+-
+-/* KPM trust of an E2 node (design 5.5; updated by the consistency check in
+-   Phase L, 1.0 until then) */
+-static double kpm_trust(const char *node) {
+-  double t = 1.0;
+-  if (!db) return t;
+-  sqlite3_stmt *q = NULL;
+-  if (sqlite3_prepare_v2(db, "INSERT OR IGNORE INTO e2_trust(e2_node) VALUES(?)", -1, &q, NULL) == SQLITE_OK) {
+-    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
+-    sqlite3_step(q);
+-  }
+-  sqlite3_finalize(q);
+-  if (sqlite3_prepare_v2(db, "SELECT kpm_trust FROM e2_trust WHERE e2_node=?", -1, &q, NULL) == SQLITE_OK) {
+-    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
+-    if (sqlite3_step(q) == SQLITE_ROW) t = sqlite3_column_double(q, 0);
+-  }
+-  sqlite3_finalize(q);
+-  return t;
+-}
+-
+-/* fair-use class of a SUPI: DB policy row, else config supiClass, else default */
+-static int resolve_class(const char *supi) {
+-  int cls = -1;
+-  if (db) {
+-    sqlite3_stmt *q = NULL;
+-    if (sqlite3_prepare_v2(db, "SELECT class FROM policy WHERE supi=?", -1, &q, NULL) == SQLITE_OK) {
+-      sqlite3_bind_text(q, 1, supi, -1, SQLITE_TRANSIENT);
+-      if (sqlite3_step(q) == SQLITE_ROW) cls = class_index((const char *)sqlite3_column_text(q, 0));
+-    }
+-    sqlite3_finalize(q);
+-  }
+-  for (int i = 0; cls < 0 && i < cfg.n_assign; i++)
+-    if (strcmp(cfg.assign[i].supi, supi) == 0) cls = cfg.assign[i].cls;
+-  return cls < 0 ? 0 : cls;
+-}
+-
+-/* ---------- state machine ---------- */
+-
+-static ue_t *ue_for(const char *supi, bool create) {
+-  ue_t *free_slot = NULL;
+-  for (int i = 0; i < MAX_UES; i++) {
+-    if (ues[i].used && strcmp(ues[i].supi, supi) == 0) return &ues[i];
+-    if (!ues[i].used && !free_slot) free_slot = &ues[i];
+-  }
+-  if (!create || !free_slot) return NULL;
+-  memset(free_slot, 0, sizeof(*free_slot));
+-  free_slot->used = true;
+-  snprintf(free_slot->supi, sizeof(free_slot->supi), "%s", supi);
+-  free_slot->cls = resolve_class(supi);
+-  return free_slot;
+-}
+-
+-static int popcount_n(uint32_t bits, int n) {
+-  return __builtin_popcount(n >= 32 ? bits : (bits & ((1u << n) - 1)));
+-}
+-
+-static void add_score(ue_t *u, int64_t now, double v) {
+-  if (u->score_us && cfg.half_life_s > 0) u->score *= pow(0.5, (now - u->score_us) / 1e6 / cfg.half_life_s);
+-  u->score += v;
+-  u->score_us = now;
+-}
+-
+-static void set_level(ue_t *u, int level, int64_t now, const char *why) {
+-  int old = u->level;
+-  u->level = level;
+-  u->expires_us = level > 0 ? now + (int64_t)cfg.expiry_s[level > 2 ? 1 : level - 1] * 1000000 : 0;
+-  save_reputation(u, now);
+-  if (old != level) {
+-    json_object *o = event_base("level", u, now);
+-    json_object_object_add(o, "from", json_object_new_int(old));
+-    json_object_object_add(o, "why", json_object_new_string(why));
+-    event(o);
+-    printf("[defense] %s level %d -> %d (%s)\n", u->supi, old, level, why);
+-    fflush(stdout);
+-  }
+-}
+-
+-/* record a UE's PRB share (every sample of a batch first, so UEs reported in
+-   the same period see each other) */
+-static void observe_cell(const sample_t *s) {
+-  cell_ue_t *slot = NULL;
+-  for (int i = 0; i < MAX_UES; i++) {
+-    cell_ue_t *c = &cell_ues[i];
+-    if (c->used && c->amf == s->amf && strcmp(c->node, s->node) == 0) { slot = c; break; }
+-    if (!slot || !c->used || (slot->used && c->collect_us < slot->collect_us)) slot = c; /* free, else oldest */
+-  }
+-  *slot = (cell_ue_t){.used = true, .amf = s->amf, .collect_us = s->collect_us, .prb_ul = s->prb_ul, .prb_dl = s->prb_dl,
+-                      .rate_ul = s->rate_ul, .rate_dl = s->rate_dl};
+-  snprintf(slot->node, sizeof(slot->node), "%s", s->node);
+-}
+-
+-static void cell_load(sample_t *s) {
+-  s->cell_ul = s->cell_dl = 0;
+-  s->others_ul = s->others_dl = 0;
+-  for (int i = 0; i < MAX_UES; i++) {
+-    const cell_ue_t *c = &cell_ues[i];
+-    if (!c->used || strcmp(c->node, s->node) != 0 || llabs(c->collect_us - s->collect_us) > CELL_WINDOW_US) continue;
+-    s->cell_ul += c->prb_ul;
+-    s->cell_dl += c->prb_dl;
+-    if (c->amf == s->amf) continue;
+-    s->others_ul += c->rate_ul >= cfg.other_ue_kbps;
+-    s->others_dl += c->rate_dl >= cfg.other_ue_kbps;
+-  }
+-}
+-
+-static void process(sample_t *s, int64_t now) {
+-  char supi[96] = "";
+-  if (!urr_receiver_supi_for_ue(s->amf, supi, sizeof(supi))) {
+-    unlabelled++;
+-    return;
+-  }
+-  ue_t *u = ue_for(supi, true);
+-  if (!u) return;
+-  u->amf = s->amf;
+-  u->last_seen_us = now;
+-  u->rate_ul = s->rate_ul;
+-  u->rate_dl = s->rate_dl;
+-  if (!cfg.enabled) return;
+-
+-  const fair_class_t *fc = &cfg.classes[u->cls];
+-  cell_load(s);
+-  bool busy_ul = !cfg.congestion || (s->cell_ul >= cfg.cell_ul_prb_pct && s->others_ul > 0);
+-  bool busy_dl = !cfg.congestion || (s->cell_dl >= cfg.cell_dl_prb_pct && s->others_dl > 0);
+-  bool over_ul = (fc->ul_rate_kbps > 0 && s->rate_ul >= fc->ul_rate_kbps) || (cfg.ul_prb_pct > 0 && s->prb_ul >= cfg.ul_prb_pct);
+-  bool over_dl = (fc->dl_rate_kbps > 0 && s->rate_dl >= fc->dl_rate_kbps) || (cfg.dl_prb_pct > 0 && s->prb_dl >= cfg.dl_prb_pct);
+-  const char *kind = NULL;
+-  if (over_ul && busy_ul) kind = fc->ul_rate_kbps > 0 && s->rate_ul >= fc->ul_rate_kbps ? "kpm_rate_ul" : "kpm_prb_ul";
+-  else if (over_dl && busy_dl) kind = fc->dl_rate_kbps > 0 && s->rate_dl >= fc->dl_rate_kbps ? "kpm_rate_dl" : "kpm_prb_dl";
+-  else if (over_ul || over_dl) uncongested++; /* heavy use of an idle cell: not a violation */
+-  u->over_bits = (u->over_bits << 1) | (kind != NULL);
+-  if (kind && popcount_n(u->over_bits, cfg.n) >= cfg.k) {
+-    double trust = kpm_trust(s->node);
+-    bool repeat = u->level == 0 && now < u->probation_us;
+-    double sev = cfg.sev_rate + (repeat ? cfg.sev_repeat : 0);
+-    add_score(u, now, sev * trust);
+-    save_evidence(u, now, kind, sev, trust, s);
+-    u->over_bits = 0;
+-    /* RAN evidence alone stops at level 2 (design 6) */
+-    if (repeat) set_level(u, 2, now, "repeat_offense");
+-    else set_level(u, u->level > 1 ? u->level : 1, now, kind);
+-  }
+-
+-  /* quota in force for this UE ID: verified when the PRB share obeys it */
+-  if (u->applied_ratio > 0 && u->synced_amf == s->amf) {
+-    if (!u->verified && s->prb_ul <= u->applied_ratio + 3 && s->prb_dl <= u->applied_ratio + 3) {
+-      u->verified = true;
+-      if (db && u->last_action) {
+-        char sql[96];
+-        snprintf(sql, sizeof(sql), "UPDATE actions SET verified=1 WHERE id=%lld", (long long)u->last_action);
+-        exec_sql(sql);
+-      }
+-      json_object *o = event_base("verified", u, now);
+-      json_object_object_add(o, "collect_ms", json_object_new_int64(s->collect_us / 1000));
+-      json_object_object_add(o, "prb_ul_pct", json_object_new_double(s->prb_ul));
+-      json_object_object_add(o, "prb_dl_pct", json_object_new_double(s->prb_dl));
+-      event(o);
+-    }
+-  }
+-}
+-
+-static void expire(int64_t now) {
+-  for (int i = 0; i < MAX_UES; i++) {
+-    ue_t *u = &ues[i];
+-    if (!u->used || u->level == 0 || now < u->expires_us) continue;
+-    if (u->level == 1) u->probation_us = now + (int64_t)cfg.probation_s * 1000000; /* quota lifted on probation */
+-    set_level(u, u->level - 1, now, "expired");
+-  }
+-}
+-
+-/* Bring the gNB in line with the levels: quota while level >= 1, on the UE
+-   ID the SUPI currently has (a re-attach gets it again) */
+-static void reconcile(int64_t now) {
+-  for (int i = 0; i < MAX_UES; i++) {
+-    pthread_mutex_lock(&st_lock);
+-    ue_t *u = &ues[i];
+-    if (!u->used || now < u->next_try_us) {
+-      pthread_mutex_unlock(&st_lock);
+-      continue;
+-    }
+-    bool present = u->amf && now - u->last_seen_us <= UE_GONE_US;
+-    int want = u->level >= 1 && cfg.enabled ? cfg.max_prb_ratio : 0;
+-    /* set the quota explicitly once per UE ID: a quota left by an earlier
+-       xApp instance is unknown to this one */
+-    bool needed = present && (u->synced_amf != u->amf || u->applied_ratio != want);
+-    if (!needed) {
+-      pthread_mutex_unlock(&st_lock);
+-      continue;
+-    }
+-    char supi[96];
+-    snprintf(supi, sizeof(supi), "%s", u->supi);
+-    uint64_t amf = u->amf;
+-    pthread_mutex_unlock(&st_lock);
+-
+-    json_object *res = NULL;
+-    int code;
+-    if (!cfg.slice_mode && want) {
+-      code = ran_control_apply(supi, amf, true, "prb_quota", want, "defense", &res);
+-    } else if (want) {
+-      /* (re)define the quarantine slice first: a restarted gNB has none */
+-      code = ran_control_slice(supi, amf, true, "prb_quota", cfg.q_sst, cfg.q_sd, want, "defense", &res);
+-      if (code == 200) {
+-        json_object_put(res);
+-        res = NULL;
+-        code = ran_control_slice(supi, amf, true, "slice_handover", cfg.q_sst, cfg.q_sd, -1, "defense", &res);
+-      }
+-    } else {
+-      /* back to the default slice, and no UE quota left by an earlier
+-         instance or the other mode */
+-      code = ran_control_slice(supi, amf, true, "slice_handover", cfg.d_sst, cfg.d_sd, -1, "defense", &res);
+-      if (code == 200) {
+-        json_object_put(res);
+-        res = NULL;
+-        code = ran_control_apply(supi, amf, true, "prb_quota", 100, "defense", &res);
+-      }
+-    }
++/* ---------- worker: features -> classifier -> policy -> actuators ---------- */
+ 
+-    pthread_mutex_lock(&st_lock);
+-    if (u->used && strcmp(u->supi, supi) == 0) {
+-      if (code == 200) {
+-        u->applied_ratio = want;
+-        u->synced_amf = amf;
+-        u->verified = false;
+-      } else {
+-        u->next_try_us = now + RETRY_US;
+-      }
+-      sqlite3_int64 id = save_action(u, now, want ? want : 100, amf, code, res);
+-      if (want) u->last_action = id;
+-    }
+-    pthread_mutex_unlock(&st_lock);
+-    json_object_put(res);
++static void process(const sample_t *s, int64_t now) {
++  features_t *f = NULL;
++  ue_t *u = features_build(s, now, &f);
++  if (!u) return;
++  if (!cfg.enabled) {
++    features_log(u, f, NULL, 0);
++    return;
+   }
++  window_t w;
++  features_window(u, cfg.window > cfg.n ? cfg.window : cfg.n, &w);
++  cls_result_t r;
++  classifier_classify(u->supi, &w, &r);
++  uint64_t decision = policy_apply(u, f, &r, now);
++  actuators_verify(u, f, now);
++  features_log(u, f, &r, decision);
+ }
+ 
+ static void *run(void *arg) {
+@@ -647,11 +248,11 @@
+ 
+     int64_t now = time_now_us();
+     pthread_mutex_lock(&st_lock);
+-    for (size_t i = 0; i < n; i++) observe_cell(&local[i]);
++    for (size_t i = 0; i < n; i++) features_observe(&local[i]);
+     for (size_t i = 0; i < n; i++) process(&local[i], now);
+-    expire(now);
++    policy_expire(now);
+     pthread_mutex_unlock(&st_lock);
+-    reconcile(now);
++    actuators_reconcile(now);
+   }
+ }
+ 
+@@ -720,6 +321,7 @@
+     json_object_object_add(fu, "classes", cls);
+     json_object_object_add(fu, "congestion", cg);
+     json_object_object_add(o, "fair_use", fu);
++    json_object_object_add(o, "classifier", classifier_state());
+     json_object *arr = json_object_new_array();
+     int64_t now = time_now_us();
+     for (int i = 0; i < MAX_UES; i++) {
+@@ -738,6 +340,7 @@
+       json_object_object_add(e, "probation_s", json_object_new_double(u->probation_us > now ? (u->probation_us - now) / 1e6 : 0));
+       json_object_object_add(e, "rate_ul_kbps", json_object_new_double(u->rate_ul));
+       json_object_object_add(e, "rate_dl_kbps", json_object_new_double(u->rate_dl));
++      json_object_object_add(e, "decision_id", json_object_new_uint64(u->decision_id));
+       json_object_array_add(arr, e);
+     }
+     pthread_mutex_unlock(&st_lock);
+@@ -749,6 +352,8 @@
+   if (strcmp(url, "/v1/defense/enabled") == 0 && in && json_object_object_get_ex(in, "enabled", &x) && json_object_is_type(x, json_type_boolean)) {
+     pthread_mutex_lock(&st_lock);
+     cfg.enabled = json_object_get_boolean(x);
++    /* samples taken while disabled do not count towards a decision */
++    for (int i = 0; i < MAX_UES; i++) ues[i].since_seq = ues[i].seq;
+     pthread_mutex_unlock(&st_lock);
+     json_object_object_add(o, "enabled", json_object_new_boolean(cfg.enabled));
+     printf("[defense] detection %s by request\n", cfg.enabled ? "enabled" : "disabled");
+@@ -758,9 +363,9 @@
+     ue_t *u = ue_for(json_object_get_string(x), false);
+     if (u) {
+       u->score = 0;
+-      u->over_bits = 0;
++      u->since_seq = u->seq;
+       u->probation_us = 0;
+-      set_level(u, 0, time_now_us(), "admin reset");
++      policy_set_level(u, 0, time_now_us(), "admin reset");
+       code = 200;
+     }
+     pthread_mutex_unlock(&st_lock);
+@@ -776,6 +381,20 @@
+     json_object_object_add(o, "mode", json_object_new_string(cfg.slice_mode ? "slice" : "ue"));
+     printf("[defense] action mode %s by request\n", cfg.slice_mode ? "slice" : "ue");
+     code = 200;
++  } else if (strcmp(url, "/v1/defense/classifier") == 0 && in && json_object_object_get_ex(in, "kind", &x) && json_object_is_type(x, json_type_string)
++             && (strcmp(json_object_get_string(x), "rules") == 0 || strcmp(json_object_get_string(x), "external") == 0)) {
++    /* {"kind": "rules"|"external", "endpoint"?, "timeoutMs"?} */
++    json_object *y = NULL;
++    pthread_mutex_lock(&st_lock);
++    cfg.external = strcmp(json_object_get_string(x), "external") == 0;
++    if (json_object_object_get_ex(in, "endpoint", &y) && json_object_is_type(y, json_type_string))
++      snprintf(cfg.endpoint, sizeof(cfg.endpoint), "%s", json_object_get_string(y));
++    if (json_object_object_get_ex(in, "timeoutMs", &y) && json_object_is_type(y, json_type_int) && json_object_get_int(y) > 0)
++      cfg.timeout_ms = json_object_get_int(y);
++    json_object_object_add(o, "classifier", classifier_state());
++    pthread_mutex_unlock(&st_lock);
++    printf("[defense] classifier %s by request\n", cfg.external ? cfg.endpoint : "rules");
++    code = 200;
+   } else if (strcmp(url, "/v1/defense/policy") == 0 && in && json_object_object_get_ex(in, "supi", &x) && json_object_is_type(x, json_type_string)) {
+     /* {"supi", "class"}: persistent fair-use class of a SUPI (admin) */
+     json_object *c = NULL;
+@@ -803,7 +422,7 @@
+       ue_t *u = ue_for(supi, true);
+       if (u && code == 200) {
+         u->cls = cls;
+-        u->over_bits = 0;
++        u->since_seq = u->seq;
+       }
+       json_object_object_add(o, "supi", json_object_new_string(supi));
+       json_object_object_add(o, "class", json_object_new_string(cfg.classes[cls].name));
+@@ -811,7 +430,7 @@
+     }
+     pthread_mutex_unlock(&st_lock);
+   } else {
+-    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset|policy|mode"));
++    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset|policy|mode|classifier"));
+     code = body ? 400 : 404;
+   }
+   if (in) json_object_put(in);
+@@ -822,31 +441,18 @@
+ 
+ int defense_start(const char *db_path, const char *event_log_path) {
+   load_config();
+-  open_db(db_path);
++  policy_open_db(db_path);
+   if (event_log_path && !(events = fopen(event_log_path, "a")))
+     fprintf(stderr, "[defense] cannot open %s\n", event_log_path);
+-  /* reputation survives an xApp restart: levels still in force come back
+-     and their quotas are applied again when the SUPI is next seen */
+-  if (db) {
+-    sqlite3_stmt *q = NULL;
+-    char now_iso[40];
+-    iso(time_now_us(), now_iso, sizeof(now_iso));
+-    if (sqlite3_prepare_v2(db, "SELECT supi,level,score,expires_at FROM reputation WHERE level>0 AND expires_at>?", -1, &q, NULL) == SQLITE_OK) {
+-      sqlite3_bind_text(q, 1, now_iso, -1, SQLITE_TRANSIENT);
+-      while (sqlite3_step(q) == SQLITE_ROW) {
+-        ue_t *u = ue_for((const char *)sqlite3_column_text(q, 0), true);
+-        if (!u) break;
+-        u->level = sqlite3_column_int(q, 1);
+-        u->score = sqlite3_column_double(q, 2);
+-        u->score_us = time_now_us();
+-        struct tm tm = {0};
+-        if (strptime((const char *)sqlite3_column_text(q, 3), "%Y-%m-%dT%H:%M:%S", &tm))
+-          u->expires_us = (int64_t)timegm(&tm) * 1000000;
+-        printf("[defense] restored %s at level %d\n", u->supi, u->level);
+-      }
+-    }
+-    sqlite3_finalize(q);
++  /* dataset next to the event log: <run>/KPI_Metrics_Features.jsonl */
++  if (event_log_path) {
++    char path[512];
++    const char *suffix = strstr(event_log_path, "_Defense.jsonl");
++    if (suffix) snprintf(path, sizeof(path), "%.*s_Features.jsonl", (int)(suffix - event_log_path), event_log_path);
++    else snprintf(path, sizeof(path), "%s.features.jsonl", event_log_path);
++    features_open(path);
+   }
++  policy_restore();
+   running = true;
+   return pthread_create(&worker, NULL, run, NULL) == 0 ? 0 : -1;
+ }
+@@ -860,6 +466,7 @@
+   if (was) pthread_join(worker, NULL);
+   if (events) fclose(events);
+   events = NULL;
++  features_close();
+   if (db) sqlite3_close(db);
+   db = NULL;
+ }
+--- a/examples/xApp/c/monitor/urr_receiver.c
++++ b/examples/xApp/c/monitor/urr_receiver.c
+@@ -29,6 +29,19 @@
+ static struct { uint64_t amf_ue_ngap_id; char supi[96]; } identities[MAX_UE_IDENTITIES];
+ static size_t identity_count;
+ 
++/* latest report of each SUPI and when it arrived (features of the defense) */
++static struct { urr_record_t r; int64_t received_us; } per_supi[MAX_UE_IDENTITIES];
++static size_t per_supi_count;
++
++static void remember_usage(const urr_record_t *r){
++  if(!r->supi[0])return;
++  size_t slot=per_supi_count;
++  for(size_t i=0;i<per_supi_count;i++)if(strcmp(per_supi[i].r.supi,r->supi)==0){slot=i;break;}
++  if(slot==per_supi_count){if(per_supi_count==MAX_UE_IDENTITIES)return;per_supi_count++;}
++  struct timespec ts;clock_gettime(CLOCK_REALTIME,&ts);
++  per_supi[slot].r=*r;per_supi[slot].received_us=(int64_t)ts.tv_sec*1000000+ts.tv_nsec/1000;
++}
++
+ static void remember_identity(const urr_record_t *r){
+   if(!r->has_ran_identity || !r->supi[0])return;
+   size_t slot=identity_count;
+@@ -212,7 +225,7 @@
+       if(sqlite3_step(q)!=SQLITE_DONE)status=500;
+     }else status=500;
+     sqlite3_finalize(q);
+-    if(status==201){last_report=record;has_last_report=1;remember_identity(&record);(void)append_jsonl(id,job,raw,when,run);}
++    if(status==201){last_report=record;has_last_report=1;remember_identity(&record);remember_usage(&record);(void)append_jsonl(id,job,raw,when,run);}
+     else error_count++;
+   }
+   pthread_mutex_unlock(&lock);json_object_put(o);
+@@ -311,3 +324,12 @@
+   pthread_mutex_lock(&lock);int found=has_last_report;if(found)*out=last_report;pthread_mutex_unlock(&lock);
+   return found;
+ }
++
++int urr_receiver_latest_for_supi(const char *supi,urr_record_t *out,int64_t *received_us){
++  int found=0;
++  pthread_mutex_lock(&lock);
++  for(size_t i=0;i<per_supi_count && !found;i++)
++    if(strcmp(per_supi[i].r.supi,supi)==0){*out=per_supi[i].r;if(received_us)*received_us=per_supi[i].received_us;found=1;}
++  pthread_mutex_unlock(&lock);
++  return found;
++}
+--- a/examples/xApp/c/monitor/urr_receiver.h
++++ b/examples/xApp/c/monitor/urr_receiver.h
+@@ -21,4 +21,7 @@
+ int urr_receiver_supi_for_ue(uint64_t amf_ue_ngap_id,char *supi,size_t capacity);
+ /* reverse of the above: current AMF UE NGAP ID of a SUPI; 1 if known */
+ int urr_receiver_ue_for_supi(const char *supi,uint64_t *amf_ue_ngap_id);
++/* latest report of a SUPI (usage since its previous report) and its arrival
++   time (Unix us); 1 if any */
++int urr_receiver_latest_for_supi(const char *supi,urr_record_t *out,int64_t *received_us);
+ #endif
+--- a/examples/xApp/c/monitor/defense_internal.h
++++ b/examples/xApp/c/monitor/defense_internal.h
+@@ -0,0 +1,179 @@
++#ifndef OAI_LAB_DEFENSE_INTERNAL_H
++#define OAI_LAB_DEFENSE_INTERNAL_H
++/* Layers of the defense in the xApp (plan Phase X, design 5.6):
++     features   one vector per SUPI and KPM sample (KPM, cell load, fair-use
++                class, URR of the SUPI, state), a sliding window per SUPI and
++                the dataset file
++     classifier window -> {label, score, layer, kind}: v1 rules, or an
++                external model (sidecar) with the rules as fallback
++     policy     evidence, score, levels, probation, expiry, reputation DB
++     actuators  RAN actions that bring the gNB in line with the levels, and
++                the verifier of their effect
++   The classifier interface is the only part an AI model replaces. */
++#include <json-c/json.h>
++#include <sqlite3.h>
++#include <pthread.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++
++#define MAX_UES 64
++#define MAX_CLASSES 8
++#define WINDOW_MAX 32
++
++/* fair-use class: the per-UE rate the subscriber is entitled to (option b of
++   SYSTEM-OVERVIEW 6: a profile assigned per SUPI; k x AMBR in Phase L) */
++typedef struct {
++  char name[16];
++  double ul_rate_kbps, dl_rate_kbps;
++} fair_class_t;
++
++typedef struct {
++  char supi[96];
++  int cls;
++} assign_t;
++
++typedef struct {
++  bool enabled;
++  char profile[16];
++  /* mean rate over the KPM period from DRB.PdcpSduVolume (DRB.UEThp is the
++     rate while data is buffered, TS 28.552: a 2 Mbit/s UE reads 3.6 Mbit/s
++     next to a flood); 0 disables a rule */
++  fair_class_t classes[MAX_CLASSES]; /* [0] = default */
++  int n_classes;
++  assign_t assign[MAX_UES];  /* config supiClass; the DB policy table overrides */
++  int n_assign;
++  double ul_prb_pct, dl_prb_pct;
++  /* a sample above the fair-use rate only counts while the cell is busy in
++     that direction (sum of the UEs' PRB shares) and another UE sends in it:
++     a UE alone in the cell gets ~all PRBs from the scheduler and harms nobody */
++  bool congestion;
++  double cell_ul_prb_pct, cell_dl_prb_pct, other_ue_kbps;
++  int k, n;                   /* rules: k of the last n samples */
++  /* classifier: "rules" (v1) or "external" (sidecar at endpoint, window
++     vectors per request, timeout_ms; unknown or failure -> rules) */
++  bool external;
++  char endpoint[128];
++  int window, timeout_ms;
++  int max_prb_ratio;          /* RAN action of levels 1-2 */
++  /* action.mode "slice": levels 1-2 move the UE into a quarantine RAN slice
++     whose members share max_prb_ratio (inter-slice handover in the gNB,
++     PDU session kept; C33), level 0 back to the default slice; "ue": a PRB
++     quota on the UE itself (R2) */
++  bool slice_mode;
++  int q_sst, d_sst;
++  int64_t q_sd, d_sd;
++  /* level 2 = repeat offense: a violation within probation_s after the
++     level-1 quota expired (PRB "quota full" cannot confirm: with spare PRBs
++     the scheduler gives any active UE ~1/3 of the cell, so a benign UE also
++     fills a 10 % quota, R3 05/10) */
++  int probation_s;
++  int expiry_s[2];            /* levels 1, 2 of the active profile */
++  double sev_rate, sev_repeat, half_life_s;
++} config_t;
++
++/* one KPM report of one UE, as queued by the FlexRIC callback */
++typedef struct {
++  uint64_t amf;
++  int64_t collect_us;
++  double rate_ul, rate_dl, thp_ul, thp_dl, prb_ul, prb_dl;
++  char node[32];
++} sample_t;
++
++/* feature vector: a KPM sample of a SUPI with its context (the classifier's
++   input and one line of the dataset) */
++typedef struct {
++  uint64_t seq;               /* per SUPI, increasing */
++  int64_t at_us, collect_us;
++  uint64_t amf;
++  char node[32];
++  double rate_ul, rate_dl, thp_ul, thp_dl, prb_ul, prb_dl; /* kbit/s, % */
++  double cell_ul, cell_dl;    /* summed PRB share of the cell */
++  int others_ul, others_dl;   /* other UEs of the cell sending >= other_ue_kbps */
++  int cls;                    /* fair-use class index */
++  double limit_ul, limit_dl;  /* its rates, kbit/s */
++  bool has_urr;               /* latest URR report of the SUPI */
++  double urr_age_s, urr_ul_kbps, urr_dl_kbps, urr_ul_pps, urr_dl_pps;
++  int level;
++  bool limited;               /* in the quarantine slice / under a quota */
++} features_t;
++
++typedef struct {
++  const features_t *v[WINDOW_MAX]; /* oldest first */
++  int n;
++  uint64_t since_seq;         /* vectors up to this one were already decided on */
++} window_t;
++
++typedef enum { LABEL_UNKNOWN = 0, LABEL_BENIGN, LABEL_SUSPICIOUS, LABEL_ATTACK } label_t;
++
++typedef struct {
++  label_t label;
++  double score;               /* 0..1 */
++  char layer[8];              /* ran | core | both */
++  char kind[32];              /* evidence kind, e.g. kpm_rate_ul */
++  char reason[96];
++  char source[12];            /* rules | external | fallback */
++  bool uncongested;           /* above the class while the cell was not busy */
++} cls_result_t;
++
++typedef struct {
++  bool used;
++  char supi[96];
++  int level;
++  int cls;                    /* fair-use class index */
++  double score;
++  int64_t score_us, expires_us, last_seen_us, next_try_us;
++  int64_t probation_us;       /* repeat offense before this -> level 2 */
++  double rate_ul, rate_dl;    /* latest sample (drain checks) */
++  uint64_t amf;               /* UE ID of the latest KPM report */
++  int applied_ratio;          /* quota in force at the gNB for synced_amf (0 none) */
++  uint64_t synced_amf;        /* UE ID whose gNB quota this xApp has set (0: unknown,
++                                 e.g. after an xApp restart) */
++  sqlite3_int64 last_action;  /* row of the latest quota action */
++  bool verified;
++  uint64_t decision_id;       /* latest decision on this SUPI */
++  /* feature window */
++  features_t win[WINDOW_MAX];
++  int win_len, win_head;
++  uint64_t seq, since_seq;
++} ue_t;
++
++extern config_t cfg;
++extern ue_t ues[MAX_UES];
++extern sqlite3 *db;
++extern pthread_mutex_t st_lock;    /* cfg, ues, the counters below */
++extern unsigned long long unlabelled, uncongested, dropped;
++
++/* defense.c */
++void iso(int64_t us, char *buf, size_t n);
++void event(json_object *o);
++json_object *event_base(const char *type, const ue_t *u, int64_t now);
++void exec_sql(const char *sql);
++int class_index(const char *name);
++
++/* features.c */
++int features_open(const char *path);
++void features_close(void);
++void features_observe(const sample_t *s);
++ue_t *features_build(const sample_t *s, int64_t now, features_t **out);
++void features_window(const ue_t *u, int n, window_t *w);
++void features_log(const ue_t *u, const features_t *f, const cls_result_t *r, uint64_t decision_id);
++json_object *features_json(const features_t *f, const char *supi);
++
++/* classifier.c */
++void classifier_classify(const char *supi, const window_t *w, cls_result_t *out);
++json_object *classifier_state(void);
++const char *label_name(label_t l);
++
++/* policy.c */
++ue_t *ue_for(const char *supi, bool create);
++uint64_t policy_apply(ue_t *u, const features_t *f, const cls_result_t *r, int64_t now);
++void policy_expire(int64_t now);
++void policy_set_level(ue_t *u, int level, int64_t now, const char *why);
++void policy_open_db(const char *path);
++void policy_restore(void);
++
++/* actuators.c */
++void actuators_verify(ue_t *u, const features_t *f, int64_t now);
++void actuators_reconcile(int64_t now);
++#endif
+--- a/examples/xApp/c/monitor/features.c
++++ b/examples/xApp/c/monitor/features.c
+@@ -0,0 +1,162 @@
++/* features layer of the defense (see defense_internal.h): cell load, the
++   feature vector of a KPM sample, the window per SUPI and the dataset file */
++#include "defense_internal.h"
++#include "urr_receiver.h"
++#include <stdlib.h>
++#include <string.h>
++
++#define CELL_WINDOW_US 1500000LL /* other UEs' latest sample counts towards the cell load */
++
++/* latest PRB share of every UE per E2 node, for the cell load */
++typedef struct {
++  bool used;
++  char node[32];
++  uint64_t amf;
++  int64_t collect_us;
++  double prb_ul, prb_dl, rate_ul, rate_dl;
++} cell_ue_t;
++
++static cell_ue_t cell_ues[MAX_UES];
++static FILE *dataset;
++
++int features_open(const char *path) {
++  if (path && !(dataset = fopen(path, "a"))) {
++    fprintf(stderr, "[defense] cannot open %s\n", path);
++    return -1;
++  }
++  return 0;
++}
++
++void features_close(void) {
++  if (dataset) fclose(dataset);
++  dataset = NULL;
++}
++
++/* record a UE's PRB share (every sample of a batch first, so UEs reported in
++   the same period see each other) */
++void features_observe(const sample_t *s) {
++  cell_ue_t *slot = NULL;
++  for (int i = 0; i < MAX_UES; i++) {
++    cell_ue_t *c = &cell_ues[i];
++    if (c->used && c->amf == s->amf && strcmp(c->node, s->node) == 0) { slot = c; break; }
++    if (!slot || !c->used || (slot->used && c->collect_us < slot->collect_us)) slot = c; /* free, else oldest */
++  }
++  *slot = (cell_ue_t){.used = true, .amf = s->amf, .collect_us = s->collect_us, .prb_ul = s->prb_ul, .prb_dl = s->prb_dl,
++                      .rate_ul = s->rate_ul, .rate_dl = s->rate_dl};
++  snprintf(slot->node, sizeof(slot->node), "%s", s->node);
++}
++
++static void cell_load(features_t *f) {
++  for (int i = 0; i < MAX_UES; i++) {
++    const cell_ue_t *c = &cell_ues[i];
++    if (!c->used || strcmp(c->node, f->node) != 0 || llabs(c->collect_us - f->collect_us) > CELL_WINDOW_US) continue;
++    f->cell_ul += c->prb_ul;
++    f->cell_dl += c->prb_dl;
++    if (c->amf == f->amf) continue;
++    f->others_ul += c->rate_ul >= cfg.other_ue_kbps;
++    f->others_dl += c->rate_dl >= cfg.other_ue_kbps;
++  }
++}
++
++/* URR of the SUPI: usage since the previous report (PERIO 1 s), as rates */
++static void core_usage(features_t *f, const char *supi, int64_t now) {
++  urr_record_t r;
++  int64_t received_us = 0;
++  if (!urr_receiver_latest_for_supi(supi, &r, &received_us)) return;
++  const double d = r.duration_seconds ? (double)r.duration_seconds : 1.0;
++  f->has_urr = true;
++  f->urr_age_s = (now - received_us) / 1e6;
++  f->urr_ul_kbps = r.ul_bytes * 8 / 1000.0 / d;
++  f->urr_dl_kbps = r.dl_bytes * 8 / 1000.0 / d;
++  f->urr_ul_pps = r.ul_packets / d;
++  f->urr_dl_pps = r.dl_packets / d;
++}
++
++/* Feature vector of a sample, appended to the window of its SUPI; NULL when
++   the UE ID has no SUPI yet (counted in unlabelled) */
++ue_t *features_build(const sample_t *s, int64_t now, features_t **out) {
++  char supi[96] = "";
++  if (!urr_receiver_supi_for_ue(s->amf, supi, sizeof(supi))) {
++    unlabelled++;
++    return NULL;
++  }
++  ue_t *u = ue_for(supi, true);
++  if (!u) return NULL;
++  u->amf = s->amf;
++  u->last_seen_us = now;
++  u->rate_ul = s->rate_ul;
++  u->rate_dl = s->rate_dl;
++
++  features_t *f = &u->win[u->win_head];
++  u->win_head = (u->win_head + 1) % WINDOW_MAX;
++  if (u->win_len < WINDOW_MAX) u->win_len++;
++  *f = (features_t){.seq = ++u->seq, .at_us = now, .collect_us = s->collect_us, .amf = s->amf, .rate_ul = s->rate_ul,
++                    .rate_dl = s->rate_dl, .thp_ul = s->thp_ul, .thp_dl = s->thp_dl, .prb_ul = s->prb_ul, .prb_dl = s->prb_dl,
++                    .cls = u->cls, .limit_ul = cfg.classes[u->cls].ul_rate_kbps, .limit_dl = cfg.classes[u->cls].dl_rate_kbps,
++                    .level = u->level, .limited = u->applied_ratio > 0 && u->synced_amf == s->amf};
++  snprintf(f->node, sizeof(f->node), "%s", s->node);
++  cell_load(f);
++  core_usage(f, supi, now);
++  *out = f;
++  return u;
++}
++
++/* the latest n vectors of a SUPI, oldest first */
++void features_window(const ue_t *u, int n, window_t *w) {
++  if (n > u->win_len) n = u->win_len;
++  if (n > WINDOW_MAX) n = WINDOW_MAX;
++  w->n = n;
++  w->since_seq = u->since_seq;
++  for (int i = 0; i < n; i++) w->v[i] = &u->win[(u->win_head - n + i + 2 * WINDOW_MAX) % WINDOW_MAX];
++}
++
++json_object *features_json(const features_t *f, const char *supi) {
++  json_object *o = json_object_new_object();
++  json_object_object_add(o, "supi", json_object_new_string(supi));
++  json_object_object_add(o, "seq", json_object_new_uint64(f->seq));
++  json_object_object_add(o, "at_ms", json_object_new_int64(f->at_us / 1000));
++  json_object_object_add(o, "collect_ms", json_object_new_int64(f->collect_us / 1000));
++  json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(f->amf));
++  json_object_object_add(o, "e2_node", json_object_new_string(f->node));
++  json_object_object_add(o, "rate_ul_kbps", json_object_new_double(f->rate_ul));
++  json_object_object_add(o, "rate_dl_kbps", json_object_new_double(f->rate_dl));
++  json_object_object_add(o, "thp_ul_kbps", json_object_new_double(f->thp_ul));
++  json_object_object_add(o, "thp_dl_kbps", json_object_new_double(f->thp_dl));
++  json_object_object_add(o, "prb_ul_pct", json_object_new_double(f->prb_ul));
++  json_object_object_add(o, "prb_dl_pct", json_object_new_double(f->prb_dl));
++  json_object_object_add(o, "cell_prb_ul_pct", json_object_new_double(f->cell_ul));
++  json_object_object_add(o, "cell_prb_dl_pct", json_object_new_double(f->cell_dl));
++  json_object_object_add(o, "others_ul", json_object_new_int(f->others_ul));
++  json_object_object_add(o, "others_dl", json_object_new_int(f->others_dl));
++  json_object_object_add(o, "class", json_object_new_string(cfg.classes[f->cls].name));
++  json_object_object_add(o, "limit_ul_kbps", json_object_new_double(f->limit_ul));
++  json_object_object_add(o, "limit_dl_kbps", json_object_new_double(f->limit_dl));
++  if (f->has_urr) {
++    json_object_object_add(o, "urr_age_s", json_object_new_double(f->urr_age_s));
++    json_object_object_add(o, "urr_ul_kbps", json_object_new_double(f->urr_ul_kbps));
++    json_object_object_add(o, "urr_dl_kbps", json_object_new_double(f->urr_dl_kbps));
++    json_object_object_add(o, "urr_ul_pps", json_object_new_double(f->urr_ul_pps));
++    json_object_object_add(o, "urr_dl_pps", json_object_new_double(f->urr_dl_pps));
++  }
++  json_object_object_add(o, "level", json_object_new_int(f->level));
++  json_object_object_add(o, "limited", json_object_new_boolean(f->limited));
++  return o;
++}
++
++/* one dataset line: the vector, the classifier output and the decision it
++   led to (0: none) */
++void features_log(const ue_t *u, const features_t *f, const cls_result_t *r, uint64_t decision_id) {
++  if (!dataset) return;
++  json_object *o = features_json(f, u->supi);
++  if (r) {
++    json_object_object_add(o, "label", json_object_new_string(label_name(r->label)));
++    json_object_object_add(o, "score", json_object_new_double(r->score));
++    json_object_object_add(o, "source", json_object_new_string(r->source));
++    if (r->kind[0]) json_object_object_add(o, "kind", json_object_new_string(r->kind));
++  }
++  if (decision_id) json_object_object_add(o, "decision_id", json_object_new_uint64(decision_id));
++  fputs(json_object_to_json_string_ext(o, JSON_C_TO_STRING_PLAIN), dataset);
++  fputc('\n', dataset);
++  fflush(dataset);
++  json_object_put(o);
++}
+--- a/examples/xApp/c/monitor/classifier.c
++++ b/examples/xApp/c/monitor/classifier.c
+@@ -0,0 +1,192 @@
++/* classifier layer of the defense (see defense_internal.h). The interface
++   is the window of feature vectors of one SUPI in, a label out:
++     v1 "rules"     the fair-use rule: rate above the SUPI's class while the
++                    cell is busy, in k of the last n samples
++     "external"     a model behind a loopback HTTP endpoint (sidecar):
++                    POST {"supi","since_seq","window":[vectors]} ->
++                    {"label":"benign|suspicious|attack|unknown","score","layer","kind","reason"};
++                    unknown, timeout or any failure falls back to v1 */
++#include "defense_internal.h"
++#include <arpa/inet.h>
++#include <errno.h>
++#include <netinet/in.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/socket.h>
++#include <sys/time.h>
++#include <unistd.h>
++
++static unsigned long long calls, fallbacks, failures;
++static char last_error[96];
++
++const char *label_name(label_t l) {
++  return l == LABEL_BENIGN ? "benign" : l == LABEL_SUSPICIOUS ? "suspicious" : l == LABEL_ATTACK ? "attack" : "unknown";
++}
++
++static label_t label_of(const char *s) {
++  return strcmp(s, "benign") == 0 ? LABEL_BENIGN : strcmp(s, "suspicious") == 0 ? LABEL_SUSPICIOUS
++       : strcmp(s, "attack") == 0 ? LABEL_ATTACK : LABEL_UNKNOWN;
++}
++
++/* violation kind of one vector, NULL if none; *idle when above the class
++   while the cell was not busy */
++static const char *violation(const features_t *f, bool *idle) {
++  bool busy_ul = !cfg.congestion || (f->cell_ul >= cfg.cell_ul_prb_pct && f->others_ul > 0);
++  bool busy_dl = !cfg.congestion || (f->cell_dl >= cfg.cell_dl_prb_pct && f->others_dl > 0);
++  bool rate_ul = f->limit_ul > 0 && f->rate_ul >= f->limit_ul, rate_dl = f->limit_dl > 0 && f->rate_dl >= f->limit_dl;
++  bool over_ul = rate_ul || (cfg.ul_prb_pct > 0 && f->prb_ul >= cfg.ul_prb_pct);
++  bool over_dl = rate_dl || (cfg.dl_prb_pct > 0 && f->prb_dl >= cfg.dl_prb_pct);
++  *idle = false;
++  if (over_ul && busy_ul) return rate_ul ? "kpm_rate_ul" : "kpm_prb_ul";
++  if (over_dl && busy_dl) return rate_dl ? "kpm_rate_dl" : "kpm_prb_dl";
++  *idle = over_ul || over_dl;
++  return NULL;
++}
++
++/* v1: the newest vector violates and k of the last n undecided ones do */
++static void rules(const window_t *w, cls_result_t *out) {
++  *out = (cls_result_t){.label = LABEL_BENIGN, .layer = "ran", .source = "rules"};
++  if (w->n == 0) return;
++  bool idle;
++  const char *kind = violation(w->v[w->n - 1], &out->uncongested);
++  int hits = 0, seen = 0;
++  for (int i = w->n - 1; i >= 0 && seen < cfg.n; i--, seen++) {
++    if (w->v[i]->seq <= w->since_seq) break;
++    hits += violation(w->v[i], &idle) != NULL;
++  }
++  out->score = (double)hits / cfg.n;
++  if (!kind) return;
++  snprintf(out->kind, sizeof(out->kind), "%s", kind);
++  out->label = hits >= cfg.k ? LABEL_ATTACK : LABEL_SUSPICIOUS;
++  snprintf(out->reason, sizeof(out->reason), "%d of the last %d samples above class %s", hits, cfg.n, cfg.classes[w->v[w->n - 1]->cls].name);
++}
++
++/* minimal HTTP/1.0 POST to http://<IPv4>:<port><path>; returns the body */
++static char *post(const char *endpoint, const char *body, int timeout_ms, int *status) {
++  char host[64] = "";
++  int port = 80;
++  char path[96] = "/";
++  if (sscanf(endpoint, "http://%63[^:/]:%d%95s", host, &port, path) < 2) {
++    snprintf(last_error, sizeof(last_error), "bad endpoint %s", endpoint);
++    return NULL;
++  }
++  struct sockaddr_in a = {.sin_family = AF_INET, .sin_port = htons((uint16_t)port)};
++  if (inet_pton(AF_INET, host, &a.sin_addr) != 1) {
++    snprintf(last_error, sizeof(last_error), "endpoint host must be an IPv4 address");
++    return NULL;
++  }
++  int fd = socket(AF_INET, SOCK_STREAM, 0);
++  if (fd < 0) return NULL;
++  struct timeval tv = {.tv_sec = timeout_ms / 1000, .tv_usec = timeout_ms % 1000 * 1000};
++  setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
++  setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
++  char *resp = NULL;
++  if (connect(fd, (struct sockaddr *)&a, sizeof(a)) != 0) {
++    snprintf(last_error, sizeof(last_error), "connect: %s", strerror(errno));
++    goto out;
++  }
++  char head[256];
++  int hl = snprintf(head, sizeof(head), "POST %s HTTP/1.0\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n", path,
++                    host, strlen(body));
++  if (send(fd, head, (size_t)hl, MSG_NOSIGNAL) != hl || send(fd, body, strlen(body), MSG_NOSIGNAL) != (ssize_t)strlen(body)) {
++    snprintf(last_error, sizeof(last_error), "send: %s", strerror(errno));
++    goto out;
++  }
++  size_t cap = 4096, len = 0;
++  resp = malloc(cap);
++  for (;;) {
++    if (len + 1 >= cap) {
++      if (cap >= 65536) break;
++      resp = realloc(resp, cap *= 2);
++    }
++    ssize_t r = recv(fd, resp + len, cap - len - 1, 0);
++    if (r == 0) break;
++    if (r < 0) {
++      snprintf(last_error, sizeof(last_error), "recv: %s", errno == EAGAIN ? "timeout" : strerror(errno));
++      free(resp);
++      resp = NULL;
++      goto out;
++    }
++    len += (size_t)r;
++  }
++  resp[len] = '\0';
++  if (sscanf(resp, "HTTP/%*s %d", status) != 1) *status = 0;
++  char *b = strstr(resp, "\r\n\r\n");
++  if (!b) {
++    snprintf(last_error, sizeof(last_error), "no HTTP body");
++    free(resp);
++    resp = NULL;
++    goto out;
++  }
++  memmove(resp, b + 4, strlen(b + 4) + 1);
++out:
++  close(fd);
++  return resp;
++}
++
++/* 0: answered, 1: the model does not know, -1: failure (last_error) */
++static int external(const char *supi, const window_t *w, cls_result_t *out) {
++  json_object *req = json_object_new_object(), *arr = json_object_new_array();
++  json_object_object_add(req, "supi", json_object_new_string(supi));
++  json_object_object_add(req, "since_seq", json_object_new_uint64(w->since_seq));
++  for (int i = 0; i < w->n; i++) json_object_array_add(arr, features_json(w->v[i], supi));
++  json_object_object_add(req, "window", arr);
++  int status = 0;
++  char *body = post(cfg.endpoint, json_object_to_json_string_ext(req, JSON_C_TO_STRING_PLAIN), cfg.timeout_ms, &status);
++  json_object_put(req);
++  if (!body) return -1;
++  json_object *r = status == 200 ? json_tokener_parse(body) : NULL, *x = NULL;
++  if (status != 200) snprintf(last_error, sizeof(last_error), "HTTP %d", status);
++  free(body);
++  if (!r || !json_object_object_get_ex(r, "label", &x) || !json_object_is_type(x, json_type_string)) {
++    if (status == 200) snprintf(last_error, sizeof(last_error), "no label in the answer");
++    if (r) json_object_put(r);
++    return -1;
++  }
++  label_t l = label_of(json_object_get_string(x));
++  if (l != LABEL_UNKNOWN) {
++    out->label = l;
++    snprintf(out->source, sizeof(out->source), "external");
++    out->score = json_object_object_get_ex(r, "score", &x) ? json_object_get_double(x) : (l == LABEL_ATTACK ? 1.0 : 0.0);
++    if (json_object_object_get_ex(r, "layer", &x) && json_object_is_type(x, json_type_string))
++      snprintf(out->layer, sizeof(out->layer), "%s", json_object_get_string(x));
++    if (json_object_object_get_ex(r, "kind", &x) && json_object_is_type(x, json_type_string))
++      snprintf(out->kind, sizeof(out->kind), "%s", json_object_get_string(x));
++    else if (l == LABEL_ATTACK && !out->kind[0])
++      snprintf(out->kind, sizeof(out->kind), "model_attack");
++    if (json_object_object_get_ex(r, "reason", &x) && json_object_is_type(x, json_type_string))
++      snprintf(out->reason, sizeof(out->reason), "%s", json_object_get_string(x));
++  }
++  json_object_put(r);
++  return l == LABEL_UNKNOWN ? 1 : 0;
++}
++
++void classifier_classify(const char *supi, const window_t *w, cls_result_t *out) {
++  rules(w, out); /* always: the fallback, and the idle-cell count */
++  if (!cfg.external) return;
++  calls++;
++  cls_result_t ext = *out;
++  ext.kind[0] = ext.reason[0] = '\0';
++  int rc = external(supi, w, &ext);
++  if (rc == 0) {
++    ext.uncongested = out->uncongested;
++    *out = ext;
++    return;
++  }
++  failures += rc < 0;
++  fallbacks++;
++  snprintf(out->source, sizeof(out->source), "fallback");
++}
++
++json_object *classifier_state(void) {
++  json_object *o = json_object_new_object();
++  json_object_object_add(o, "kind", json_object_new_string(cfg.external ? "external" : "rules"));
++  json_object_object_add(o, "endpoint", json_object_new_string(cfg.endpoint));
++  json_object_object_add(o, "window", json_object_new_int(cfg.window));
++  json_object_object_add(o, "timeout_ms", json_object_new_int(cfg.timeout_ms));
++  json_object_object_add(o, "external_calls", json_object_new_uint64(calls));
++  json_object_object_add(o, "fallbacks", json_object_new_uint64(fallbacks));
++  json_object_object_add(o, "failures", json_object_new_uint64(failures));
++  json_object_object_add(o, "last_error", json_object_new_string(last_error));
++  return o;
++}
+--- a/examples/xApp/c/monitor/policy.c
++++ b/examples/xApp/c/monitor/policy.c
+@@ -0,0 +1,216 @@
++/* policy layer of the defense (see defense_internal.h): the RAN part of
++   the escalation (design 6) from the classifier's labels, independent of
++   which classifier produced them, and the reputation DB */
++#define _GNU_SOURCE /* strptime, timegm */
++#include "defense_internal.h"
++#include "../../../../src/util/time_now_us.h"
++#include <inttypes.h>
++#include <math.h>
++#include <stdlib.h>
++#include <string.h>
++#include <time.h>
++
++static uint64_t next_decision;
++
++static void save_reputation(const ue_t *u, int64_t now) {
++  if (!db) return;
++  sqlite3_stmt *q = NULL;
++  char exp[40], upd[40];
++  iso(u->expires_us, exp, sizeof(exp));
++  iso(now, upd, sizeof(upd));
++  if (sqlite3_prepare_v2(db, "INSERT INTO reputation(supi,level,score,expires_at,updated_at) VALUES(?,?,?,?,?) "
++                             "ON CONFLICT(supi) DO UPDATE SET level=excluded.level,score=excluded.score,"
++                             "expires_at=excluded.expires_at,updated_at=excluded.updated_at", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
++    sqlite3_bind_int(q, 2, u->level);
++    sqlite3_bind_double(q, 3, u->score);
++    sqlite3_bind_text(q, 4, u->level ? exp : "", -1, SQLITE_TRANSIENT);
++    sqlite3_bind_text(q, 5, upd, -1, SQLITE_TRANSIENT);
++    sqlite3_step(q);
++  }
++  sqlite3_finalize(q);
++}
++
++static void save_evidence(const ue_t *u, int64_t now, double severity, double trust, const features_t *f, const cls_result_t *r) {
++  char ref[96], at[40];
++  snprintf(ref, sizeof(ref), "kpm:node=%s/ue=%" PRIu64 "/t=%" PRId64, f->node, f->amf, f->collect_us / 1000);
++  iso(now, at, sizeof(at));
++  if (db) {
++    sqlite3_stmt *q = NULL;
++    if (sqlite3_prepare_v2(db, "INSERT INTO evidence(supi,at,layer,kind,severity,ref,trust) VALUES(?,?,?,?,?,?,?)", -1, &q, NULL) == SQLITE_OK) {
++      sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 3, r->layer, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 4, r->kind, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_double(q, 5, severity);
++      sqlite3_bind_text(q, 6, ref, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_double(q, 7, trust);
++      sqlite3_step(q);
++    }
++    sqlite3_finalize(q);
++  }
++  json_object *o = event_base("evidence", u, now);
++  json_object_object_add(o, "kind", json_object_new_string(r->kind));
++  json_object_object_add(o, "layer", json_object_new_string(r->layer));
++  json_object_object_add(o, "label", json_object_new_string(label_name(r->label)));
++  json_object_object_add(o, "classifier", json_object_new_string(r->source));
++  json_object_object_add(o, "classifier_score", json_object_new_double(r->score));
++  json_object_object_add(o, "reason", json_object_new_string(r->reason));
++  json_object_object_add(o, "severity", json_object_new_double(severity));
++  json_object_object_add(o, "trust", json_object_new_double(trust));
++  json_object_object_add(o, "score", json_object_new_double(u->score));
++  json_object_object_add(o, "ref", json_object_new_string(ref));
++  json_object_object_add(o, "collect_ms", json_object_new_int64(f->collect_us / 1000));
++  json_object_object_add(o, "rate_ul_kbps", json_object_new_double(f->rate_ul));
++  json_object_object_add(o, "rate_dl_kbps", json_object_new_double(f->rate_dl));
++  json_object_object_add(o, "thp_ul_kbps", json_object_new_double(f->thp_ul));
++  json_object_object_add(o, "thp_dl_kbps", json_object_new_double(f->thp_dl));
++  json_object_object_add(o, "prb_ul_pct", json_object_new_double(f->prb_ul));
++  json_object_object_add(o, "prb_dl_pct", json_object_new_double(f->prb_dl));
++  json_object_object_add(o, "cell_prb_ul_pct", json_object_new_double(f->cell_ul));
++  json_object_object_add(o, "cell_prb_dl_pct", json_object_new_double(f->cell_dl));
++  json_object_object_add(o, "others_ul", json_object_new_int(f->others_ul));
++  json_object_object_add(o, "others_dl", json_object_new_int(f->others_dl));
++  json_object_object_add(o, "class", json_object_new_string(cfg.classes[u->cls].name));
++  event(o);
++}
++
++void policy_open_db(const char *path) {
++  if (!path || sqlite3_open(path, &db) != SQLITE_OK) {
++    fprintf(stderr, "[defense] cannot open %s: reputation not persisted\n", path ? path : "(null)");
++    if (db) sqlite3_close(db);
++    db = NULL;
++    return;
++  }
++  exec_sql("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;"
++           "CREATE TABLE IF NOT EXISTS reputation(supi TEXT PRIMARY KEY,level INTEGER NOT NULL,score REAL NOT NULL,"
++           "expires_at TEXT NOT NULL,updated_at TEXT NOT NULL);"
++           "CREATE TABLE IF NOT EXISTS evidence(id INTEGER PRIMARY KEY,supi TEXT NOT NULL,at TEXT NOT NULL,layer TEXT NOT NULL,"
++           "kind TEXT NOT NULL,severity REAL NOT NULL,ref TEXT NOT NULL,trust REAL NOT NULL);"
++           "CREATE TABLE IF NOT EXISTS actions(id INTEGER PRIMARY KEY,supi TEXT NOT NULL,at TEXT NOT NULL,layer TEXT NOT NULL,"
++           "action TEXT NOT NULL,detail TEXT NOT NULL,status INTEGER NOT NULL,verified INTEGER NOT NULL);"
++           "CREATE TABLE IF NOT EXISTS e2_trust(e2_node TEXT PRIMARY KEY,kpm_trust REAL NOT NULL DEFAULT 1.0,"
++           "ctrl_trust REAL NOT NULL DEFAULT 1.0,last_mismatch TEXT,alarm INTEGER NOT NULL DEFAULT 0);"
++           "CREATE TABLE IF NOT EXISTS policy(supi TEXT PRIMARY KEY,class TEXT NOT NULL,updated_at TEXT NOT NULL);");
++}
++
++/* KPM trust of an E2 node (design 5.5; updated by the consistency check in
++   Phase L2, 1.0 until then) */
++static double kpm_trust(const char *node) {
++  double t = 1.0;
++  if (!db) return t;
++  sqlite3_stmt *q = NULL;
++  if (sqlite3_prepare_v2(db, "INSERT OR IGNORE INTO e2_trust(e2_node) VALUES(?)", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
++    sqlite3_step(q);
++  }
++  sqlite3_finalize(q);
++  if (sqlite3_prepare_v2(db, "SELECT kpm_trust FROM e2_trust WHERE e2_node=?", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, node, -1, SQLITE_TRANSIENT);
++    if (sqlite3_step(q) == SQLITE_ROW) t = sqlite3_column_double(q, 0);
++  }
++  sqlite3_finalize(q);
++  return t;
++}
++
++/* fair-use class of a SUPI: DB policy row, else config supiClass, else default */
++static int resolve_class(const char *supi) {
++  int cls = -1;
++  if (db) {
++    sqlite3_stmt *q = NULL;
++    if (sqlite3_prepare_v2(db, "SELECT class FROM policy WHERE supi=?", -1, &q, NULL) == SQLITE_OK) {
++      sqlite3_bind_text(q, 1, supi, -1, SQLITE_TRANSIENT);
++      if (sqlite3_step(q) == SQLITE_ROW) cls = class_index((const char *)sqlite3_column_text(q, 0));
++    }
++    sqlite3_finalize(q);
++  }
++  for (int i = 0; cls < 0 && i < cfg.n_assign; i++)
++    if (strcmp(cfg.assign[i].supi, supi) == 0) cls = cfg.assign[i].cls;
++  return cls < 0 ? 0 : cls;
++}
++
++ue_t *ue_for(const char *supi, bool create) {
++  ue_t *free_slot = NULL;
++  for (int i = 0; i < MAX_UES; i++) {
++    if (ues[i].used && strcmp(ues[i].supi, supi) == 0) return &ues[i];
++    if (!ues[i].used && !free_slot) free_slot = &ues[i];
++  }
++  if (!create || !free_slot) return NULL;
++  memset(free_slot, 0, sizeof(*free_slot));
++  free_slot->used = true;
++  snprintf(free_slot->supi, sizeof(free_slot->supi), "%s", supi);
++  free_slot->cls = resolve_class(supi);
++  return free_slot;
++}
++
++static void add_score(ue_t *u, int64_t now, double v) {
++  if (u->score_us && cfg.half_life_s > 0) u->score *= pow(0.5, (now - u->score_us) / 1e6 / cfg.half_life_s);
++  u->score += v;
++  u->score_us = now;
++}
++
++void policy_set_level(ue_t *u, int level, int64_t now, const char *why) {
++  int old = u->level;
++  u->level = level;
++  u->expires_us = level > 0 ? now + (int64_t)cfg.expiry_s[level > 2 ? 1 : level - 1] * 1000000 : 0;
++  save_reputation(u, now);
++  if (old != level) {
++    json_object *o = event_base("level", u, now);
++    json_object_object_add(o, "from", json_object_new_int(old));
++    json_object_object_add(o, "why", json_object_new_string(why));
++    event(o);
++    printf("[defense] %s level %d -> %d (%s)\n", u->supi, old, level, why);
++    fflush(stdout);
++  }
++}
++
++/* One classifier result: an attack label is evidence and moves the level
++   (a repeat within the probation -> 2; RAN evidence alone stops at 2,
++   design 6). Returns the decision ID, 0 when nothing was decided. */
++uint64_t policy_apply(ue_t *u, const features_t *f, const cls_result_t *r, int64_t now) {
++  if (r->uncongested) uncongested++; /* heavy use of an idle cell: not a violation */
++  if (r->label != LABEL_ATTACK) return 0;
++  double trust = kpm_trust(f->node);
++  bool repeat = u->level == 0 && now < u->probation_us;
++  double sev = cfg.sev_rate + (repeat ? cfg.sev_repeat : 0);
++  add_score(u, now, sev * trust);
++  u->decision_id = ++next_decision;
++  save_evidence(u, now, sev, trust, f, r);
++  u->since_seq = f->seq; /* later decisions use later samples only */
++  if (repeat) policy_set_level(u, 2, now, "repeat_offense");
++  else policy_set_level(u, u->level > 1 ? u->level : 1, now, r->kind);
++  return u->decision_id;
++}
++
++void policy_expire(int64_t now) {
++  for (int i = 0; i < MAX_UES; i++) {
++    ue_t *u = &ues[i];
++    if (!u->used || u->level == 0 || now < u->expires_us) continue;
++    if (u->level == 1) u->probation_us = now + (int64_t)cfg.probation_s * 1000000; /* quota lifted on probation */
++    policy_set_level(u, u->level - 1, now, "expired");
++  }
++}
++
++/* reputation survives an xApp restart: levels still in force come back and
++   their quotas are applied again when the SUPI is next seen */
++void policy_restore(void) {
++  if (!db) return;
++  sqlite3_stmt *q = NULL;
++  char now_iso[40];
++  iso(time_now_us(), now_iso, sizeof(now_iso));
++  if (sqlite3_prepare_v2(db, "SELECT supi,level,score,expires_at FROM reputation WHERE level>0 AND expires_at>?", -1, &q, NULL) == SQLITE_OK) {
++    sqlite3_bind_text(q, 1, now_iso, -1, SQLITE_TRANSIENT);
++    while (sqlite3_step(q) == SQLITE_ROW) {
++      ue_t *u = ue_for((const char *)sqlite3_column_text(q, 0), true);
++      if (!u) break;
++      u->level = sqlite3_column_int(q, 1);
++      u->score = sqlite3_column_double(q, 2);
++      u->score_us = time_now_us();
++      struct tm tm = {0};
++      if (strptime((const char *)sqlite3_column_text(q, 3), "%Y-%m-%dT%H:%M:%S", &tm))
++        u->expires_us = (int64_t)timegm(&tm) * 1000000;
++      printf("[defense] restored %s at level %d\n", u->supi, u->level);
++    }
++  }
++  sqlite3_finalize(q);
++}
+--- a/examples/xApp/c/monitor/actuators.c
++++ b/examples/xApp/c/monitor/actuators.c
+@@ -0,0 +1,123 @@
++/* actuators layer of the defense (see defense_internal.h): RAN actions that
++   bring the gNB in line with the levels, and the verifier of their effect */
++#include "defense_internal.h"
++#include "ran_control.h"
++#include <inttypes.h>
++#include <string.h>
++
++#define RETRY_US 2000000LL
++#define UE_GONE_US 10000000LL
++
++static sqlite3_int64 save_action(const ue_t *u, int64_t now, int ratio, uint64_t amf, int code, json_object *res) {
++  sqlite3_int64 id = 0;
++  char at[40], detail[64];
++  iso(now, at, sizeof(at));
++  snprintf(detail, sizeof(detail), "max_prb_ratio=%d ue=%" PRIu64, ratio, amf);
++  if (db) {
++    sqlite3_stmt *q = NULL;
++    if (sqlite3_prepare_v2(db, "INSERT INTO actions(supi,at,layer,action,detail,status,verified) VALUES(?,?,'ran',?,?,?,0)", -1, &q, NULL) == SQLITE_OK) {
++      sqlite3_bind_text(q, 1, u->supi, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 2, at, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 3, cfg.slice_mode ? "slice_handover" : "prb_quota", -1, SQLITE_TRANSIENT);
++      sqlite3_bind_text(q, 4, detail, -1, SQLITE_TRANSIENT);
++      sqlite3_bind_int(q, 5, code);
++      if (sqlite3_step(q) == SQLITE_DONE) id = sqlite3_last_insert_rowid(db);
++    }
++    sqlite3_finalize(q);
++  }
++  json_object *o = event_base("action", u, now);
++  json_object_object_add(o, "action", json_object_new_string(cfg.slice_mode ? "slice_handover" : "prb_quota"));
++  if (cfg.slice_mode) {
++    char sl[32];
++    snprintf(sl, sizeof(sl), "%d/%06" PRIx64, ratio < 100 ? cfg.q_sst : cfg.d_sst, ratio < 100 ? cfg.q_sd : cfg.d_sd);
++    json_object_object_add(o, "slice", json_object_new_string(sl));
++  }
++  json_object_object_add(o, "max_prb_ratio", json_object_new_int(ratio));
++  json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(amf));
++  json_object_object_add(o, "http", json_object_new_int(code));
++  if (res) json_object_object_add(o, "result", json_object_get(res));
++  event(o);
++  return id;
++}
++
++/* verifier: the limit in force for this UE ID holds when its PRB share obeys it */
++void actuators_verify(ue_t *u, const features_t *f, int64_t now) {
++  if (u->applied_ratio <= 0 || u->synced_amf != f->amf || u->verified) return;
++  if (f->prb_ul > u->applied_ratio + 3 || f->prb_dl > u->applied_ratio + 3) return;
++  u->verified = true;
++  if (db && u->last_action) {
++    char sql[96];
++    snprintf(sql, sizeof(sql), "UPDATE actions SET verified=1 WHERE id=%lld", (long long)u->last_action);
++    exec_sql(sql);
++  }
++  json_object *o = event_base("verified", u, now);
++  json_object_object_add(o, "collect_ms", json_object_new_int64(f->collect_us / 1000));
++  json_object_object_add(o, "prb_ul_pct", json_object_new_double(f->prb_ul));
++  json_object_object_add(o, "prb_dl_pct", json_object_new_double(f->prb_dl));
++  event(o);
++}
++
++/* Bring the gNB in line with the levels: limited while level >= 1, on the
++   UE ID the SUPI currently has (a re-attach gets it again) */
++void actuators_reconcile(int64_t now) {
++  for (int i = 0; i < MAX_UES; i++) {
++    pthread_mutex_lock(&st_lock);
++    ue_t *u = &ues[i];
++    if (!u->used || now < u->next_try_us) {
++      pthread_mutex_unlock(&st_lock);
++      continue;
++    }
++    bool present = u->amf && now - u->last_seen_us <= UE_GONE_US;
++    int want = u->level >= 1 && cfg.enabled ? cfg.max_prb_ratio : 0;
++    /* set the limit explicitly once per UE ID: one left by an earlier xApp
++       instance is unknown to this one */
++    bool needed = present && (u->synced_amf != u->amf || u->applied_ratio != want);
++    if (!needed) {
++      pthread_mutex_unlock(&st_lock);
++      continue;
++    }
++    char supi[96];
++    snprintf(supi, sizeof(supi), "%s", u->supi);
++    uint64_t amf = u->amf;
++    const bool slice = cfg.slice_mode;
++    pthread_mutex_unlock(&st_lock);
++
++    json_object *res = NULL;
++    int code;
++    if (!slice && want) {
++      code = ran_control_apply(supi, amf, true, "prb_quota", want, "defense", &res);
++    } else if (want) {
++      /* (re)define the quarantine slice first: a restarted gNB has none */
++      code = ran_control_slice(supi, amf, true, "prb_quota", cfg.q_sst, cfg.q_sd, want, "defense", &res);
++      if (code == 200) {
++        json_object_put(res);
++        res = NULL;
++        code = ran_control_slice(supi, amf, true, "slice_handover", cfg.q_sst, cfg.q_sd, -1, "defense", &res);
++      }
++    } else {
++      /* back to the default slice, and no UE quota left by an earlier
++         instance or the other mode */
++      code = ran_control_slice(supi, amf, true, "slice_handover", cfg.d_sst, cfg.d_sd, -1, "defense", &res);
++      if (code == 200) {
++        json_object_put(res);
++        res = NULL;
++        code = ran_control_apply(supi, amf, true, "prb_quota", 100, "defense", &res);
++      }
++    }
++
++    pthread_mutex_lock(&st_lock);
++    if (u->used && strcmp(u->supi, supi) == 0) {
++      if (code == 200) {
++        u->applied_ratio = want;
++        u->synced_amf = amf;
++        u->verified = false;
++      } else {
++        u->next_try_us = now + RETRY_US;
++      }
++      sqlite3_int64 id = save_action(u, now, want ? want : 100, amf, code, res);
++      if (want) u->last_action = id;
++    }
++    pthread_mutex_unlock(&st_lock);
++    json_object_put(res);
++  }
++}

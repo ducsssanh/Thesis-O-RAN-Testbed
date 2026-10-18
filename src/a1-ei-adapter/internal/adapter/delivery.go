@@ -47,7 +47,7 @@ func (s *Server) appendDeliveryLog(key []byte, rec deliveryRecord) {
 	if err != nil {
 		return
 	}
-	entry, _ := json.Marshal(map[string]any{"event_id": s.cfg.JobID + ":" + string(key), "attempts": rec.Attempts, "last_attempt": rec.LastAttempt, "last_status": rec.LastStatus})
+	entry, _ := json.Marshal(map[string]any{"event_id": s.eventID(key), "attempts": rec.Attempts, "last_attempt": rec.LastAttempt, "last_status": rec.LastStatus})
 	_, _ = file.Write(append(entry, '\n'))
 	_ = file.Close()
 }
@@ -65,7 +65,7 @@ func (s *Server) exportDeliveryLog() {
 			if json.Unmarshal(v, &rec) != nil {
 				continue
 			}
-			entry, _ := json.Marshal(map[string]any{"event_id": s.cfg.JobID + ":" + string(k), "attempts": rec.Attempts, "last_attempt": rec.LastAttempt, "last_status": rec.LastStatus})
+			entry, _ := json.Marshal(map[string]any{"event_id": s.eventID(k), "attempts": rec.Attempts, "last_attempt": rec.LastAttempt, "last_status": rec.LastStatus})
 			_, _ = file.Write(append(entry, '\n'))
 		}
 		return nil
@@ -88,7 +88,7 @@ func (s *Server) exportDeadletter() {
 	_ = s.db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket(deadletter).Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			entry, _ := json.Marshal(map[string]any{"event_id": s.cfg.JobID + ":" + string(k), "report": json.RawMessage(v)})
+			entry, _ := json.Marshal(map[string]any{"event_id": s.eventID(k), "report": json.RawMessage(v)})
 			_, _ = file.Write(append(entry, '\n'))
 		}
 		return nil
@@ -114,14 +114,41 @@ func (s *Server) deliveryStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var queued, delivered, dead int
+	perKind := map[string]map[string]int{}
+	count := func(b *bolt.Bucket, what string) {
+		_ = b.ForEach(func(k, _ []byte) error {
+			st, _ := s.splitKey(k)
+			if perKind[st.Kind] == nil {
+				perKind[st.Kind] = map[string]int{}
+			}
+			perKind[st.Kind][what]++
+			return nil
+		})
+	}
 	_ = s.db.View(func(tx *bolt.Tx) error {
 		queued = tx.Bucket(pending).Stats().KeyN
 		dead = tx.Bucket(deadletter).Stats().KeyN
 		delivered = tx.Bucket(deliveredBucket).Stats().KeyN
+		if len(s.cfg.Extra) > 0 {
+			count(tx.Bucket(pending), "queued")
+			count(tx.Bucket(deadletter), "dead_letter")
+			count(tx.Bucket(deliveredBucket), "delivered")
+		}
 		return nil
 	})
+	out := map[string]any{"queued": queued, "delivered": delivered, "dead_letter": dead}
+	if len(s.cfg.Extra) > 0 {
+		s.mu.RLock()
+		jobs := map[string]string{}
+		for k, v := range s.jobStatus {
+			jobs[k] = v
+		}
+		s.mu.RUnlock()
+		out["streams"] = perKind
+		out["jobs"] = jobs
+	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]int{"queued": queued, "delivered": delivered, "dead_letter": dead})
+	_ = json.NewEncoder(w).Encode(out)
 }
 
 // DeliveryLoop is independent of the A1-EI callback: only an xApp ACK removes
@@ -154,9 +181,10 @@ func (s *Server) DeliveryLoop(ctx context.Context) {
 			}
 			continue
 		}
-		body, _ := json.Marshal(envelope{EventID: s.cfg.JobID + ":" + string(key), JobID: s.cfg.JobID, Report: report})
+		st, _ := s.splitKey(key)
+		body, _ := json.Marshal(envelope{EventID: s.eventID(key), JobID: st.JobID, Report: report})
 		recorded := false
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.cfg.XAppURL+"/v1/urr/events", bytes.NewReader(body))
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.cfg.XAppURL+"/v1/"+st.Kind+"/events", bytes.NewReader(body))
 		if err == nil {
 			req.Header.Set("Content-Type", "application/json")
 			var resp *http.Response

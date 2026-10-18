@@ -35,11 +35,14 @@ type Server struct {
 	mu         sync.RWMutex
 	ready      bool
 	identities map[string]RANIdentity // SUPI -> RAN identity (AMF UE table)
+	sessions   map[string]sessionRef  // SUPI -> latest PDU session (usage reports)
+	seqs       map[string]uint64      // record sequence per source (envelopes)
+	started    string                 // source_epoch of the producer's own records
 }
 type pendingDelivery struct {
-	Report   Normalized `json:"report"`
-	Attempts int        `json:"attempts"`
-	NextAt   time.Time  `json:"next_at"`
+	Report   json.RawMessage `json:"report"`
+	Attempts int             `json:"attempts"`
+	NextAt   time.Time       `json:"next_at"`
 }
 
 func New(c Config) (*Server, error) {
@@ -85,7 +88,7 @@ func New(c Config) (*Server, error) {
 		kubePool.AppendCertsFromPEM(kubeCA)
 	}
 	kubeTransport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: kubePool}}
-	return &Server{cfg: c, db: db, client: &http.Client{Timeout: 10 * time.Second, Transport: tr}, kubeClient: &http.Client{Timeout: 5 * time.Second, Transport: kubeTransport}}, nil
+	return &Server{started: time.Now().UTC().Format("20060102T150405Z"), cfg: c, db: db, client: &http.Client{Timeout: 10 * time.Second, Transport: tr}, kubeClient: &http.Client{Timeout: 5 * time.Second, Transport: kubeTransport}}, nil
 }
 func (s *Server) Close() error { return s.db.Close() }
 func (s *Server) Handler() http.Handler {
@@ -131,7 +134,7 @@ func (s *Server) jobs(w http.ResponseWriter, r *http.Request) {
 	if !decode(w, r, &j) {
 		return
 	}
-	if j.ID == "" || j.InformationType != s.cfg.InfoTypeID {
+	if j.ID == "" || !s.hasType(j.InformationType) {
 		http.Error(w, "invalid job", 400)
 		return
 	}
@@ -225,6 +228,14 @@ func (s *Server) smf(w http.ResponseWriter, r *http.Request) {
 	accepted := 0
 	valid := 0
 	for _, e := range n.Events {
+		if isSessionEvent(e.Event) && s.sessionType() != "" {
+			if er := s.sessionEvent(e); er != nil {
+				_ = appendJSON(filepath.Join(s.cfg.StateDir, "errors.jsonl"), map[string]any{"at": time.Now().UTC(), "error": er.Error()})
+				continue
+			}
+			valid++
+			continue
+		}
 		v, er := Normalize(e, s.cfg, time.Now())
 		if er != nil {
 			_ = appendJSON(filepath.Join(s.cfg.StateDir, "errors.jsonl"), map[string]any{"at": time.Now().UTC(), "error": er.Error()})
@@ -267,7 +278,11 @@ func (s *Server) smf(w http.ResponseWriter, r *http.Request) {
 			if tx.Bucket(pendingBucket).Stats().KeyN >= 1000 {
 				return fmt.Errorf("delivery queue full")
 			}
-			payload, err := json.Marshal(pendingDelivery{Report: v})
+			report, err := json.Marshal(v)
+			if err != nil {
+				return err
+			}
+			payload, err := json.Marshal(pendingDelivery{Report: report})
 			if err != nil {
 				return err
 			}
@@ -276,7 +291,7 @@ func (s *Server) smf(w http.ResponseWriter, r *http.Request) {
 				if err := json.Unmarshal(jobData, &job); err != nil {
 					return err
 				}
-				if !matches(job, v) {
+				if job.InformationType != s.cfg.InfoTypeID || !matches(job, v) {
 					return nil
 				}
 				return tx.Bucket(pendingBucket).Put([]byte(string(jobID)+":"+key), payload)
@@ -294,6 +309,9 @@ func (s *Server) smf(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		accepted++
+		if s.rememberSession(v.SUPI, v.SEID, v.SessionEpoch) {
+			s.sessionBound(v, e.PduSeID.String())
+		}
 		_ = appendJSON(filepath.Join(s.cfg.StateDir, "normalized.jsonl"), v)
 		s.appendCSV(v)
 	}
@@ -326,6 +344,66 @@ func (s *Server) appendCSV(v Normalized) {
 	}
 	_ = c.Write([]string{v.RunID, v.ObservedAt, v.SUPI, strconv.FormatUint(v.SEID, 10), v.SessionEpoch, urr, strconv.FormatUint(v.URSequence, 10), strings.Join(v.Triggers, "|"), strconv.FormatUint(v.ULBytes, 10), strconv.FormatUint(v.DLBytes, 10), strconv.FormatUint(v.TotalBytes, 10), strconv.FormatUint(v.ULPackets, 10), strconv.FormatUint(v.DLPackets, 10), strconv.FormatUint(v.TotalPackets, 10), strconv.FormatUint(v.DurationSeconds, 10), v.DNN, strconv.Itoa(v.SNSSAI.SST), v.SNSSAI.SD})
 }
+
+// matchesSUPI applies the SUPI filter of a job (empty: every UE).
+func matchesSUPI(j Job, supi string) bool {
+	var d map[string]any
+	if json.Unmarshal(j.Data, &d) != nil {
+		return false
+	}
+	wanted, ok := d["supi"].(string)
+	return !ok || wanted == "" || wanted == supi
+}
+
+// epochOf is the current session epoch of (SUPI, SEID), "" if unknown.
+func (s *Server) epochOf(supi string, seid uint64) string {
+	var st epochState
+	_ = s.db.View(func(tx *bolt.Tx) error {
+		if raw := tx.Bucket(epochsBucket).Get([]byte(fmt.Sprintf("%s|%d", supi, seid))); raw != nil {
+			_ = json.Unmarshal(raw, &st)
+		}
+		return nil
+	})
+	return st.Epoch
+}
+
+// infoTypes are the information types this producer registers: URR first,
+// then the closed-loop types (docs/CLOSED-LOOP-FRAMEWORK.md 3.1).
+func (s *Server) infoTypes() []string {
+	return append([]string{s.cfg.InfoTypeID}, s.cfg.ExtraTypes...)
+}
+func (s *Server) hasType(t string) bool {
+	for _, x := range s.infoTypes() {
+		if x == t {
+			return true
+		}
+	}
+	return false
+}
+
+var typeDescriptions = map[string]string{
+	"oai-test":        "Synthetic records of the producer, to test the multi-type A1-EI path",
+	"oai-session":     "PDU session events of the SMF (Nsmf_EventExposure)",
+	"oai-upf-profile": "Per-session traffic profile of the eBPF UPF",
+	"oai-upf-event":   "Rule trips and reflexes of the eBPF UPF",
+}
+
+func typeBody(id string, urr bool) map[string]any {
+	description := "OAI PFCP usage report exposed as A1-EI"
+	version := "1.0.0"
+	if !urr {
+		name, v, _ := strings.Cut(id, "_")
+		description = typeDescriptions[name]
+		if description == "" {
+			description = "Closed-loop record " + name
+		}
+		if v != "" {
+			version = v
+		}
+	}
+	return map[string]any{"info_type_information": map[string]any{"schema_version": version, "delivery": "HTTPS JSON", "description": description}, "info_job_data_schema": map[string]any{"type": "object", "required": []string{"delivery_uri"}, "properties": map[string]any{"delivery_uri": map[string]string{"type": "string", "format": "uri"}, "supi": map[string]string{"type": "string"}, "dnn": map[string]string{"type": "string"}, "sst": map[string]string{"type": "integer"}, "sd": map[string]string{"type": "string"}}}}
+}
+
 func matches(j Job, v Normalized) bool {
 	var d map[string]any
 	if json.Unmarshal(j.Data, &d) != nil {
@@ -418,11 +496,17 @@ func putJSON(ctx context.Context, c *http.Client, method, url string, v any) (*h
 	return c.Do(req)
 }
 func (s *Server) Reconcile(ctx context.Context) error {
-	typeBody := map[string]any{"info_type_information": map[string]any{"schema_version": "1.0.0", "delivery": "HTTPS JSON", "description": "OAI PFCP usage report exposed as A1-EI"}, "info_job_data_schema": map[string]any{"type": "object", "required": []string{"delivery_uri"}, "properties": map[string]any{"delivery_uri": map[string]string{"type": "string", "format": "uri"}, "supi": map[string]string{"type": "string"}, "dnn": map[string]string{"type": "string"}, "sst": map[string]string{"type": "integer"}, "sd": map[string]string{"type": "string"}}}}
-	for _, x := range []struct {
+	type put struct {
 		url  string
 		body any
-	}{{strings.TrimRight(s.cfg.ICSURL, "/") + "/data-producer/v1/info-types/" + s.cfg.InfoTypeID, typeBody}, {strings.TrimRight(s.cfg.ICSURL, "/") + "/data-producer/v1/info-producers/" + s.cfg.ProducerID, map[string]any{"info_producer_supervision_callback_url": s.cfg.PublicURL + "/callbacks/ics/supervision", "supported_info_types": []string{s.cfg.InfoTypeID}, "info_job_callback_url": s.cfg.PublicURL + "/callbacks/ics/jobs"}}} {
+	}
+	ics := strings.TrimRight(s.cfg.ICSURL, "/")
+	puts := []put{}
+	for i, t := range s.infoTypes() {
+		puts = append(puts, put{ics + "/data-producer/v1/info-types/" + t, typeBody(t, i == 0)})
+	}
+	puts = append(puts, put{ics + "/data-producer/v1/info-producers/" + s.cfg.ProducerID, map[string]any{"info_producer_supervision_callback_url": s.cfg.PublicURL + "/callbacks/ics/supervision", "supported_info_types": s.infoTypes(), "info_job_callback_url": s.cfg.PublicURL + "/callbacks/ics/jobs"}})
+	for _, x := range puts {
 		resp, err := putJSON(ctx, s.client, http.MethodPut, x.url, x.body)
 		if err != nil {
 			return err
@@ -433,23 +517,42 @@ func (s *Server) Reconcile(ctx context.Context) error {
 			return fmt.Errorf("ICS %s: %s", x.url, resp.Status)
 		}
 	}
-	callback := s.cfg.PublicURL + "/callbacks/smf"
 	podUID, err := s.smfPodUID(ctx)
 	if err != nil {
 		return err
 	}
-	var subscribedUID string
+	if err := s.subscribe(ctx, "smf-pod-uid", podUID, s.cfg.ProducerID, []string{"QOS_MON"}); err != nil {
+		return err
+	}
+	// session events in their own subscription: the usage-report one stays
+	// exactly as before (CL-2)
+	if s.sessionType() != "" {
+		if err := s.subscribe(ctx, "smf-session-sub", podUID, s.cfg.ProducerID+"-session", smfSessionEvents); err != nil {
+			return err
+		}
+	}
+	s.mu.Lock()
+	s.ready = true
+	s.mu.Unlock()
+	return nil
+}
+
+// subscribe creates an SMF event subscription once per SMF pod (an SMF
+// restart loses them); the stored state is the pod UID.
+func (s *Server) subscribe(ctx context.Context, stateKey, podUID, notifID string, events []string) error {
+	var done string
 	_ = s.db.View(func(tx *bolt.Tx) error {
-		subscribedUID = string(tx.Bucket(stateBucket).Get([]byte("smf-pod-uid")))
+		done = string(tx.Bucket(stateBucket).Get([]byte(stateKey)))
 		return nil
 	})
-	if podUID == subscribedUID {
-		s.mu.Lock()
-		s.ready = true
-		s.mu.Unlock()
+	if done == podUID {
 		return nil
 	}
-	body := map[string]any{"notifId": s.cfg.ProducerID, "notifUri": callback, "eventSubs": []any{map[string]any{"event": "QOS_MON"}}}
+	subs := []any{}
+	for _, e := range events {
+		subs = append(subs, map[string]any{"event": e})
+	}
+	body := map[string]any{"notifId": notifID, "notifUri": s.cfg.PublicURL + "/callbacks/smf", "eventSubs": subs}
 	resp, err := putJSON(ctx, s.client, http.MethodPost, strings.TrimRight(s.cfg.SMFURL, "/")+"/nsmf_event-exposure/v1/subscriptions", body)
 	if err != nil {
 		return err
@@ -457,16 +560,11 @@ func (s *Server) Reconcile(ctx context.Context) error {
 	io.Copy(io.Discard, resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusConflict {
-		return fmt.Errorf("SMF subscription: %s", resp.Status)
+		return fmt.Errorf("SMF subscription %s: %s", notifID, resp.Status)
 	}
-	if err := s.db.Update(func(tx *bolt.Tx) error { return tx.Bucket(stateBucket).Put([]byte("smf-pod-uid"), []byte(podUID)) }); err != nil {
-		return err
-	}
-	s.mu.Lock()
-	s.ready = true
-	s.mu.Unlock()
-	return nil
+	return s.db.Update(func(tx *bolt.Tx) error { return tx.Bucket(stateBucket).Put([]byte(stateKey), []byte(podUID)) })
 }
+
 func (s *Server) smfPodUID(ctx context.Context) (string, error) {
 	host := os.Getenv("KUBERNETES_SERVICE_HOST")
 	if host == "" {

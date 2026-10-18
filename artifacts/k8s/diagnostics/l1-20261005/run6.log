@@ -1,0 +1,58 @@
+22:06:58 UE IPs {'oai-nr-ue': '10.1.0.3', 'oai-nr-ue2': '10.1.0.2'} run 20261003T164156Z-m35
+22:07:09 drain {'oai-nr-ue': 4.6, 'oai-nr-ue2': 4.7}
+22:07:09 flood 150 s: UE1 10M + UE2 1M
+22:07:09 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:07:20 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:07:31 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:07:42 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:07:53 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:08:05 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:08:16 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:08:27 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:08:38 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:08:49 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:09:00 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:09:11 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:09:22 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:09:31 level 3 after 142.4 s
+22:09:33 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:09:44 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:09:55 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:10:07 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:10:18 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:10:29 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:10:40 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:11:02 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:11:13 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:11:24 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:11:35 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:11:46 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:11:58 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:12:09 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:12:20 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:12:31 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:12:38 reconnect {"ue1_ip": "10.1.0.3", "dn_pkts_from_ue1": 0, "iperf_mbps": null, "new_session_stats": {"drop_dl_bytes": 0, "drop_dl_pkts": 0, "drop_ul_bytes": 1667416, "drop_ul_pkts": 1304, "last_drop_ns": 149451761180765, "seen_dl_bytes": 0, "seen_dl_pkts": 0, "seen_ul_bytes": 1667416, "seen_ul_pkts": 1304}, "res
+22:12:42 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:12:53 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:13:04 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:13:15 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:13:26 timeline {"oai-nr-ue": [3, "block", 10], "oai-nr-ue2": [0, "none", 0]}
+22:13:37 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:13:48 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:13:59 timeline {"oai-nr-ue": [2, "ratelimit", 10], "oai-nr-ue2": [0, "none", 0]}
+22:14:10 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:14:21 timeline {"oai-nr-ue": [1, "monitor", 10], "oai-nr-ue2": [0, "none", 0]}
+22:14:32 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:14:44 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:14:55 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:15:06 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:15:17 timeline {"oai-nr-ue": [0, "none", 0], "oai-nr-ue2": [0, "none", 0]}
+22:15:19 PASS l1_ran_slice_and_upf_monitor {"level_event": {"at_ms": 1791212835519, "type": "level", "supi": "imsi-001010123456780", "level": 1, "decision_id": 1, "from": 0, "why": "kpm_rate_ul", "peak": 1, "pending": 0}, "ran": 200, "core": 200}
+22:15:19 PASS ran_limit_confirmed_by_urr {"verdicts": [["verified", 973.728], ["verified", 1003.536], ["verified", 1063.152], ["verified", 0.0]]}
+22:15:19 PASS l2_repeat_offense_upf_ratelimit {"level_event": {"at_ms": 1791212859519, "type": "level", "supi": "imsi-001010123456780", "level": 2, "decision_id": 2, "from": 0, "why": "repeat_offense", "peak": 2, "pending": 0}, "core": {"http": 200, "rate_ul_kbps": 2000.0, "ttl_s": 61}}
+22:15:19 PASS l3_both_layers_block_and_release {"level_event": {"at_ms": 1791212971518, "type": "level", "supi": "imsi-001010123456780", "level": 3, "decision_id": 5, "from": 2, "why": "both_layers", "peak": 3, "pending": 0}, "evidence": {"kind": "second_layer", "layer": "both", "ran_hit_age_s": 2.000126, "core_hit_age_s": 0.0, "urr_ul_kbps": null}, "core": 200, "release": 200, "upf": {"action": "block", "enforced": true, "level": 3}}
+22:15:19 PASS block_confirmed_by_urr {"verdicts": [["unverified", 3527.28, 1.150204], ["verified", 0.0, 2.050774]]}
+22:15:19 PASS reconnect_blocked_level_restored {"ue1_ip": "10.1.0.3", "dn_pkts_from_ue1": 0, "iperf_mbps": null, "new_session_stats": {"drop_dl_bytes": 0, "drop_dl_pkts": 0, "drop_ul_bytes": 1667416, "drop_ul_pkts": 1304, "last_drop_ns": 149451761180765, "seen_dl_bytes": 0, "seen_dl_pkts": 0, "seen_ul_bytes": 1667416, "seen_ul_pkts": 1304}, "restored": ["[defense] restored imsi-001010123456780 at level 3 (peak 3, on probation)"], "level_after"
+22:15:19 PASS expiry_clears_both_layers {"reached_s": 104.2, "upf_policy": null, "ue1_mbps": 1.058, "session_released_by_t2": true, "sessions": [{"policy_in_map": false, "seid": 9, "supi": "imsi-001010123456780"}]}
+22:15:19 PASS benign_ue2_not_above_1 {"max_level": 0, "core": ["none"]}
+22:15:19 Gate L1 PASS -> artifacts/k8s/diagnostics/l1-20261005/run6/result.json

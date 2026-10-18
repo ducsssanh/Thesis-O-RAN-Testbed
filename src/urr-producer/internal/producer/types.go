@@ -13,8 +13,16 @@ type Config struct {
 	Listen, TLSCert, TLSKey, CAFile, StateDir string
 	ICSURL, SMFURL, PublicURL                 string
 	InfoTypeID, ProducerID, RunID             string
-	DNN, SD, SUPI                             string
-	SST                                       int
+	// ExtraTypes are the closed-loop information types registered next to
+	// URR (EXTRA_INFO_TYPES); TestType enables the synthetic source of one
+	ExtraTypes []string
+	TestType   string
+	// TelemetryURL is the UPF profile ring (GET <url>?since=); oai-upf-profile
+	TelemetryURL string
+	// EventsURL is the UPF event ring (GET <url>?since=); oai-upf-event
+	EventsURL     string
+	DNN, SD, SUPI string
+	SST           int
 	// SUPIAllow limits the accepted UEs (empty: every UE of the slice);
 	// SUPI is only the fallback for events without one
 	SUPIAllow []string
@@ -43,6 +51,10 @@ type Event struct {
 	DNN        string          `json:"dnn"`
 	SNSSAI     json.RawMessage `json:"snssai"`
 	Customized json.RawMessage `json:"customized_data"`
+	// session events (PDU_SES_EST, UE_IP_CH, PDU_SES_REL; QOS_MON has pduSeId too)
+	PduSeID     json.Number `json:"pduSeId"`
+	AdIPv4      string      `json:"adIpv4Addr"`
+	PduSessType string      `json:"pduSessType"`
 }
 
 type Normalized struct {

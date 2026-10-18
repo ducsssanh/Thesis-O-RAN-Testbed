@@ -1,0 +1,52 @@
+{
+  "gate": "upf-reflex",
+  "checks": {
+    "ratelimit": {
+      "pass": true,
+      "reflex_events": 26,
+      "ul_mbps_at_dn": 1.029,
+      "limit_mbps": 1.0,
+      "first": {
+        "action": "ratelimit_ul",
+        "event": "reflex",
+        "quota_ul_bytes": 125000,
+        "rate_ul_kbps": 1000,
+        "rule": "ul_volume_quota",
+        "seid": 4,
+        "seq": 208,
+        "supi": "imsi-001010123456780",
+        "time_unix": 1792306080,
+        "ttl_s": 8,
+        "ul_bytes": 167180
+      }
+    },
+    "expiry": {
+      "pass": true,
+      "expired_events": 1
+    },
+    "report": {
+      "pass": true,
+      "trip_events": 26,
+      "reflex_events": 0,
+      "ul_mbps_at_dn": 4.195
+    },
+    "benign": {
+      "pass": true,
+      "events": 0,
+      "ul_mbps_at_dn": 0.617
+    }
+  },
+  "config": {
+    "status": 200,
+    "body": {
+      "active_reflexes": 0,
+      "max_share": 1.0,
+      "mode": "ratelimit",
+      "quota_ul_bytes": 125000,
+      "rate_ul_kbps": 1000,
+      "ttl_max_s": 8,
+      "ttl_s": 8
+    }
+  },
+  "verdict": "PASS"
+}

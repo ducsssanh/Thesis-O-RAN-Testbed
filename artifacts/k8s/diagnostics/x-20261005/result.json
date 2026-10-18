@@ -1,0 +1,415 @@
+{
+  "run": "20261003T164156Z-m35",
+  "started_unix": 1791200069.424,
+  "phases": {
+    "external": {
+      "window_unix": [
+        1791200082.525,
+        1791200115.075
+      ],
+      "mode": "answer",
+      "classifier_before": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 4,
+        "fallbacks": 0,
+        "failures": 0,
+        "last_error": ""
+      },
+      "classifier_after": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 70,
+        "fallbacks": 0,
+        "failures": 0,
+        "last_error": ""
+      },
+      "dropped": [
+        0,
+        0
+      ],
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 1
+      }
+    },
+    "unknown": {
+      "window_unix": [
+        1791200120.986,
+        1791200153.739
+      ],
+      "mode": "unknown",
+      "classifier_before": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 82,
+        "fallbacks": 6,
+        "failures": 2,
+        "last_error": "connect: Connection refused"
+      },
+      "classifier_after": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 146,
+        "fallbacks": 70,
+        "failures": 2,
+        "last_error": "connect: Connection refused"
+      },
+      "dropped": [
+        0,
+        0
+      ],
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 1
+      }
+    },
+    "sleep": {
+      "window_unix": [
+        1791200156.233,
+        1791200188.755
+      ],
+      "mode": "sleep",
+      "classifier_before": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 152,
+        "fallbacks": 76,
+        "failures": 6,
+        "last_error": "recv: timeout"
+      },
+      "classifier_after": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 216,
+        "fallbacks": 140,
+        "failures": 70,
+        "last_error": "connect: Operation now in progress"
+      },
+      "dropped": [
+        0,
+        0
+      ],
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    },
+    "down": {
+      "window_unix": [
+        1791200189.1,
+        1791200221.66
+      ],
+      "mode": "down",
+      "classifier_before": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 218,
+        "fallbacks": 142,
+        "failures": 72,
+        "last_error": "connect: Connection refused"
+      },
+      "classifier_after": {
+        "kind": "external",
+        "endpoint": "http://127.0.0.1:8091/classify",
+        "window": 10,
+        "timeout_ms": 200,
+        "external_calls": 282,
+        "fallbacks": 206,
+        "failures": 136,
+        "last_error": "connect: Connection refused"
+      },
+      "dropped": [
+        0,
+        0
+      ],
+      "levels": {
+        "imsi-001010123456780": 0,
+        "imsi-001010123456781": 0
+      }
+    }
+  },
+  "ended_unix": 1791200222.435,
+  "checks": {
+    "external_drives_policy": {
+      "ok": true,
+      "evidence": [
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 3
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 4
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 5
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 6
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 7
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 8
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 9
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 10
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 11
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 12
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 13
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 14
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 15
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 16
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 17
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 18
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 19
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 20
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 21
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 22
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 23
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 24
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 25
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 26
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 27
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 28
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 29
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 30
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 31
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 32
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 33
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 34
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 35
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 36
+        },
+        {
+          "supi": "imsi-001010123456781",
+          "kind": "stub_attack",
+          "classifier": "external",
+          "decision_id": 37
+        }
+      ],
+      "ue2_action": "1/badbad"
+    },
+    "fallback_unknown": {
+      "ok": true,
+      "fallbacks": 64,
+      "failures": 0,
+      "sources": [
+        "fallback"
+      ],
+      "vectors_per_ue_s": 0.97,
+      "evidence": 0,
+      "last_error": "connect: Connection refused"
+    },
+    "fallback_sleep": {
+      "ok": true,
+      "fallbacks": 64,
+      "failures": 64,
+      "sources": [
+        "fallback"
+      ],
+      "vectors_per_ue_s": 0.98,
+      "evidence": 0,
+      "last_error": "connect: Operation now in progress"
+    },
+    "fallback_down": {
+      "ok": true,
+      "fallbacks": 64,
+      "failures": 64,
+      "sources": [
+        "fallback"
+      ],
+      "vectors_per_ue_s": 0.98,
+      "evidence": 0,
+      "last_error": "connect: Connection refused"
+    },
+    "dataset": {
+      "ok": true,
+      "missing_fields": [],
+      "counts": {
+        "imsi-001010123456780": {
+          "kpm_rows": 153,
+          "vectors": 153,
+          "with_urr": 153
+        },
+        "imsi-001010123456781": {
+          "kpm_rows": 153,
+          "vectors": 153,
+          "with_urr": 153
+        }
+      }
+    }
+  },
+  "status": "PASS"
+}

@@ -954,6 +954,8 @@ def rollout(component, image):
         kub("oai-core","exec","deployment/oai-smf","-c","capture","--","ip","neigh","flush","to",values()["networks"]["n4"]["addresses"]["upf"],"dev","n4")
     upgrade=["upgrade",ns,DEPLOY/"charts"/(role if role in ("core", "ran") else ns),"--reuse-values","--set",key+"="+image]
     if component=="adapter": upgrade.extend(["--set","adapter.xappPushEnabled=true"])
+    # --reuse-values keeps the old release values: pass the UPF security block (Phase U) explicitly
+    if component=="upf": upgrade.extend(["--set-json","global.lab.defense.upfSecurity="+json.dumps(values()["defense"].get("upfSecurity",{"enabled":False}))])
     helm(ns,*upgrade,"--timeout","5m",timeout=360)
     if component=="upf":
         kub("oai-core","scale","deployment/oai-upf","--replicas=1")

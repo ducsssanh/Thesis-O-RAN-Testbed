@@ -1,0 +1,123 @@
+{
+ "scenario": "ingest-two-sources",
+ "variant": "detection-off",
+ "rep": 1,
+ "status": "ok",
+ "defense": {
+  "enabled": false,
+  "core": false
+ },
+ "drain_s": 5.0,
+ "preflight": {
+  "run_id": "20261003T164156Z-m35",
+  "disk_free_gib": 45.1,
+  "defense": {
+   "enabled": true,
+   "profile": "lab",
+   "action_mode": "slice",
+   "timing": {
+    "expiry_s": [
+     60,
+     180,
+     600,
+     0
+    ],
+    "probation_s": 180,
+    "fusion_s": 10
+   },
+   "unlabelled_samples": 2,
+   "core": true
+  },
+  "ues": {
+   "ue1": {
+    "deployment": "oai-nr-ue",
+    "supi": "imsi-001010123456780",
+    "ip": "10.1.0.2",
+    "amf_ue_ngap_id": 1
+   },
+   "ue2": {
+    "deployment": "oai-nr-ue2",
+    "supi": "imsi-001010123456781",
+    "ip": "10.1.0.3",
+    "amf_ue_ngap_id": 2
+   }
+  },
+  "upf": {
+   "boot_id": "2e4c04c1-fd86-4bb5-9117-e52a7831d5c8",
+   "policies": 0,
+   "limits": {
+    "maxBlockedRatio": 0.5,
+    "maxCmdsPerS": 10,
+    "maxPolicies": 16384,
+    "maxTtlS": 86400,
+    "ratelimitBurstMs": 100
+   }
+  }
+ },
+ "healed": [],
+ "ues": {
+  "ue1": {
+   "supi": "imsi-001010123456780",
+   "role": "benign",
+   "deployment": "oai-nr-ue",
+   "ip_history": [
+    [
+     0,
+     "10.1.0.2"
+    ]
+   ]
+  },
+  "ue2": {
+   "supi": "imsi-001010123456781",
+   "role": "benign",
+   "deployment": "oai-nr-ue2",
+   "ip_history": [
+    [
+     0,
+     "10.1.0.3"
+    ],
+    [
+     1791622740.078,
+     "10.1.0.3"
+    ]
+   ]
+  }
+ },
+ "phases": [
+  {
+   "name": "idle",
+   "t_start": 1791622467.331,
+   "t_end": 1791622497.343
+  },
+  {
+   "name": "ul-4x",
+   "baseline": true,
+   "t_start": 1791622499.728,
+   "t_end": 1791622559.764
+  },
+  {
+   "name": "dl-4x",
+   "t_start": 1791622576.67,
+   "t_end": 1791622636.722
+  },
+  {
+   "name": "ul-swapped",
+   "t_start": 1791622653.599,
+   "t_end": 1791622693.631
+  },
+  {
+   "name": "reconnect",
+   "action": {
+    "restart_ue": "ue2",
+    "restart_xapp": true,
+    "seconds": 44.1,
+    "new_ip": "10.1.0.3"
+   },
+   "t_start": 1791622754.611,
+   "t_end": 1791622814.682
+  }
+ ],
+ "t_start": 1791622464.5348086,
+ "t_end": 1791622841.1518342,
+ "recorder_errors": 6
+}

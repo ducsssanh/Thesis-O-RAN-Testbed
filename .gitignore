@@ -17,3 +17,6 @@ build/
 
 # Working documents (design, plan, handoff): kept local, not published
 /docs/
+
+# Datasets (large; not tracked): KDD99, NCSRD-DS-5GDDoS, GTP logs
+/data/

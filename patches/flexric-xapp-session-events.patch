@@ -1,0 +1,187 @@
+diff -ruN a/examples/xApp/c/monitor/defense_internal.h b/examples/xApp/c/monitor/defense_internal.h
+--- a/examples/xApp/c/monitor/defense_internal.h	2026-10-18 11:54:50.323116515 +0700
++++ b/examples/xApp/c/monitor/defense_internal.h	2026-10-18 11:56:25.042263210 +0700
+@@ -112,6 +112,8 @@
+   bool has_urr;               /* URR report of the same second (PFCP End Time ~ collect time) */
+   int urr_offset_s;           /* 0, or -1/+1 while a report one second off stands in */
+   double urr_age_s, urr_ul_kbps, urr_dl_kbps, urr_ul_pps, urr_dl_pps;
++  uint64_t seid;              /* PDU session: from the URR of the second, else the session table */
++  char session_epoch[33], session_source[8];
+   int level;
+   bool limited;               /* in the quarantine slice / under a quota */
+   char core_action[12];       /* UPF policy in force: none|monitor|ratelimit|block */
+diff -ruN a/examples/xApp/c/monitor/features.c b/examples/xApp/c/monitor/features.c
+--- a/examples/xApp/c/monitor/features.c	2026-10-18 11:54:50.323116515 +0700
++++ b/examples/xApp/c/monitor/features.c	2026-10-18 11:56:25.042263210 +0700
+@@ -84,6 +84,11 @@
+   f->urr_dl_kbps = r.dl_bytes * 8 / 1000.0 / d;
+   f->urr_ul_pps = r.ul_packets / d;
+   f->urr_dl_pps = r.dl_packets / d;
++  if (r.session_epoch[0]) {
++    f->seid = r.seid;
++    snprintf(f->session_epoch, sizeof(f->session_epoch), "%s", r.session_epoch);
++    snprintf(f->session_source, sizeof(f->session_source), "urr");
++  }
+ }
+ 
+ /* Feature vector of a sample, appended to the window of its SUPI; NULL when
+@@ -113,6 +118,7 @@
+   snprintf(f->node, sizeof(f->node), "%s", s->node);
+   snprintf(f->core_action, sizeof(f->core_action), "%s", u->core_applied[0] ? u->core_applied : "none");
+   cell_load(f);
++  urr_receiver_session_of(supi, &f->seid, f->session_epoch, sizeof(f->session_epoch), f->session_source, sizeof(f->session_source));
+   core_usage(f, supi);
+   *out = f;
+   return u;
+@@ -172,6 +178,11 @@
+     json_object_object_add(o, "urr_ul_pps", json_object_new_double(f->urr_ul_pps));
+     json_object_object_add(o, "urr_dl_pps", json_object_new_double(f->urr_dl_pps));
+   }
++  if (f->session_epoch[0]) {
++    json_object_object_add(o, "seid", json_object_new_uint64(f->seid));
++    json_object_object_add(o, "session_epoch", json_object_new_string(f->session_epoch));
++    json_object_object_add(o, "session_source", json_object_new_string(f->session_source));
++  }
+   json_object_object_add(o, "level", json_object_new_int(f->level));
+   json_object_object_add(o, "limited", json_object_new_boolean(f->limited));
+   json_object_object_add(o, "core_action", json_object_new_string(f->core_action));
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.c b/examples/xApp/c/monitor/urr_receiver.c
+--- a/examples/xApp/c/monitor/urr_receiver.c	2026-10-18 11:54:50.323116515 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.c	2026-10-18 11:56:25.042263210 +0700
+@@ -1,3 +1,4 @@
++#define _GNU_SOURCE /* strptime, timegm */
+ /* Lab-internal URR delivery endpoint in the KPM xApp process. */
+ #include "urr_receiver.h"
+ #include <microhttpd.h>
+@@ -60,18 +61,53 @@
+   per_supi[slot].ring_head=(per_supi[slot].ring_head+1)%URR_RING;
+ }
+ 
+-static void remember_identity(const urr_record_t *r){
+-  if(!r->has_ran_identity || !r->supi[0])return;
++static void remember_identity_of(uint64_t amf_ue_ngap_id,const char *supi){
++  if(!supi[0])return;
+   size_t slot=identity_count;
+   for(size_t i=0;i<identity_count;i++){
+-    if(strcmp(identities[i].supi,r->supi)==0)slot=i;
+-    else if(identities[i].amf_ue_ngap_id==r->amf_ue_ngap_id)identities[i].supi[0]='\0'; /* ID reused by AMF */
++    if(strcmp(identities[i].supi,supi)==0)slot=i;
++    else if(identities[i].amf_ue_ngap_id==amf_ue_ngap_id)identities[i].supi[0]='\0'; /* ID reused by AMF */
+   }
+   if(slot==identity_count){if(identity_count==MAX_UE_IDENTITIES)return;identity_count++;}
+-  identities[slot].amf_ue_ngap_id=r->amf_ue_ngap_id;
+-  snprintf(identities[slot].supi,sizeof(identities[slot].supi),"%s",r->supi);
++  identities[slot].amf_ue_ngap_id=amf_ue_ngap_id;
++  snprintf(identities[slot].supi,sizeof(identities[slot].supi),"%s",supi);
++}
++
++static void remember_identity(const urr_record_t *r){
++  if(r->has_ran_identity)remember_identity_of(r->amf_ue_ngap_id,r->supi);
+ }
+ 
++/* current PDU session of each SUPI (gate CL-2): from usage reports and
++   oai-session records. PDU_SES_EST gives a provisional epoch (SEID unknown)
++   until SESSION_BOUND or the first URR of the session gives the exact one;
++   a late report of an older session does not move it back. */
++static struct { char supi[96]; uint64_t seid; char epoch[33]; int64_t start; char source[8]; bool released; } sessions[MAX_UE_IDENTITIES];
++static size_t session_count;
++#define SESSION_TOLERANCE_S 3 /* producer epochTolerance */
++
++static int64_t epoch_seconds(const char *e){
++  struct tm t={0};
++  if(!e || strlen(e)!=16 || !strptime(e,"%Y%m%dT%H%M%SZ",&t))return 0;
++  return (int64_t)timegm(&t);
++}
++
++static void remember_session(const char *supi,uint64_t seid,const char *epoch,const char *source,bool released){
++  int64_t start=epoch_seconds(epoch);
++  if(!supi[0] || !start)return;
++  size_t slot=session_count;
++  for(size_t i=0;i<session_count;i++)if(strcmp(sessions[i].supi,supi)==0){slot=i;break;}
++  if(slot==session_count){if(session_count==MAX_UE_IDENTITIES)return;session_count++;snprintf(sessions[slot].supi,sizeof(sessions[slot].supi),"%s",supi);}
++  else if(start<sessions[slot].start-SESSION_TOLERANCE_S)return; /* older session */
++  bool same=sessions[slot].start && llabs(start-sessions[slot].start)<=SESSION_TOLERANCE_S;
++  if(released){if(same || !seid)sessions[slot].released=true;return;}
++  if(same && !seid && sessions[slot].seid)return; /* EST after the session is already bound */
++  sessions[slot].start=start;sessions[slot].released=false;
++  if(seid || !same)sessions[slot].seid=seid;
++  snprintf(sessions[slot].epoch,sizeof(sessions[slot].epoch),"%s",epoch);
++  snprintf(sessions[slot].source,sizeof(sessions[slot].source),"%s",source);
++}
++
++
+ static char *read_file(const char *path) {
+   FILE *f=fopen(path,"rb"); if(!f)return NULL;
+   if(fseek(f,0,SEEK_END)!=0){fclose(f);return NULL;}
+@@ -243,7 +279,9 @@
+       if(sqlite3_step(q)!=SQLITE_DONE)status=500;
+     }else status=500;
+     sqlite3_finalize(q);
+-    if(status==201){last_report=record;has_last_report=1;remember_identity(&record);remember_usage(&record);(void)append_jsonl(id,job,raw,when,run);}
++    if(status==201){last_report=record;has_last_report=1;remember_identity(&record);remember_usage(&record);
++      if(record.session_epoch[0])remember_session(record.supi,record.seid,record.session_epoch,"urr",false);
++      (void)append_jsonl(id,job,raw,when,run);}
+     else error_count++;
+   }
+   pthread_mutex_unlock(&lock);json_object_put(o);
+@@ -253,6 +291,22 @@
+   return reply(c,500,"{\"error\":\"storage failure\"}");
+ }
+ 
++/* oai-session record: RAN identity of the SUPI (re-attach labelled before
++   the next usage report) and the session table */
++static void apply_session(json_object *o){
++  char supi[96]="",epoch[33]="",event[24]="";
++  uint64_t seid=0,amf=0;
++  copy_field(o,"supi",supi,sizeof(supi));copy_field(o,"session_epoch",epoch,sizeof(epoch));
++  uint_field(o,"seid",&seid);
++  json_object *ran=NULL,*body=NULL;
++  if(json_object_object_get_ex(o,"ran_identity",&ran) && json_object_is_type(ran,json_type_object) && uint_field(ran,"amf_ue_ngap_id",&amf))
++    remember_identity_of(amf,supi);
++  if(json_object_object_get_ex(o,"body",&body))copy_field(body,"event",event,sizeof(event));
++  if(strcmp(event,"PDU_SES_EST")==0)remember_session(supi,0,epoch,"est",false);
++  else if(strcmp(event,"SESSION_BOUND")==0)remember_session(supi,seid,epoch,"bound",false);
++  else if(strcmp(event,"PDU_SES_REL")==0)remember_session(supi,seid,epoch,"rel",true);
++}
++
+ /* One envelope record: type, source, source_epoch, seq, supi, time_unix and
+    a body; its event ID must be <job>:<source>:<source_epoch>:<seq>. Stored in
+    core_events (deduplicated like URR) and appended to core-received.jsonl
+@@ -323,6 +377,7 @@
+         json_object_put(v);fclose(f);
+       }
+       core_received[kind]++;
++      if(strcmp(core_kinds[kind],"session")==0)apply_session(report);
+     }
+   }
+   if(status==200)core_duplicates[kind]++;
+@@ -468,6 +523,17 @@
+   pthread_mutex_unlock(&lock);
+   return found;
+ }
++
++int urr_receiver_session_of(const char *supi,uint64_t *seid,char *epoch,size_t capacity,char *source,size_t source_capacity){
++  int found=0;
++  pthread_mutex_lock(&lock);
++  for(size_t i=0;i<session_count && !found;i++)
++    if(strcmp(sessions[i].supi,supi)==0 && !sessions[i].released){
++      *seid=sessions[i].seid;snprintf(epoch,capacity,"%s",sessions[i].epoch);
++      if(source)snprintf(source,source_capacity,"%s",sessions[i].source);found=1;}
++  pthread_mutex_unlock(&lock);
++  return found;
++}
+ 
+ int urr_receiver_latest_for_supi(const char *supi,urr_record_t *out,int64_t *received_us){
+   int found=0;
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.h b/examples/xApp/c/monitor/urr_receiver.h
+--- a/examples/xApp/c/monitor/urr_receiver.h	2026-10-18 11:54:50.323116515 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.h	2026-10-18 11:56:25.042263210 +0700
+@@ -31,4 +31,8 @@
+ int urr_receiver_latest_for_supi(const char *supi,urr_record_t *out,int64_t *received_us);
+ /* the SUPI's report whose PFCP End Time is end_unix (one of the last 16); 1 if any */
+ int urr_receiver_supi_at(const char *supi,uint64_t end_unix,urr_record_t *out,int64_t *received_us);
++/* current (not released) PDU session of a SUPI: SEID (0 while only
++   PDU_SES_EST is known), session epoch and where it came from (urr, est,
++   bound); 1 if known */
++int urr_receiver_session_of(const char *supi,uint64_t *seid,char *epoch,size_t capacity,char *source,size_t source_capacity);
+ #endif
