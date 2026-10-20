@@ -41,8 +41,10 @@ PROF = ["prof_ul_kbps", "prof_dl_kbps", "prof_ul_pps", "prof_dl_pps",
        ["prof_dl_" + c for c in PROF_COUNTS if c not in ("dns", "gtp_in_gtp")] + \
        ["prof_ul_dst_estimate"]
 FEATURES = KPM + URR + PROF
-META = ["run_id", "supi", "ue", "phase", "attack_family", "t_unix", "t_since_phase_start",
-        "guard", "attack_active", "kpm_age_s", "urr_age_s", "prof_age_s", "urr_arrival_exact"]
+META = ["run_id", "supi", "ue", "phase", "attack_family", "benign_class", "backend",
+        "victim_mode", "load_mbps", "dl_feedback", "native_unit", "achieved_ok",
+        "t_unix", "t_since_phase_start", "guard", "attack_active",
+        "kpm_age_s", "urr_age_s", "prof_age_s", "urr_arrival_exact"]
 
 
 def iso(s):
@@ -126,7 +128,13 @@ def load_schedule(run):
             fl = [f for f in flows if f.get("phase") == p["name"] and f.get("ue") == ue]
             fams = sorted({f["attack"] for f in fl if f.get("attack")})
             label = "MALICIOUS" if fams else ("BENIGN" if fl else "IDLE")
-            per_ue[ue] = {"label": label, "family": "+".join(fams)}
+            v4 = next((f for f in fl if f.get("backend")), {})     # the v4 UL flow, if any
+            per_ue[ue] = {"label": label, "family": "+".join(fams),
+                          "backend": v4.get("backend", ""),
+                          "benign_class": v4.get("model", "") if label == "BENIGN" else "",
+                          "victim_mode": v4.get("victim_mode"), "load_mbps": v4.get("load_mbps"),
+                          "dl_feedback": v4.get("dl_feedback"), "native_unit": v4.get("native_unit", "bytes"),
+                          "target_bytes": v4.get("target_ul_bytes_s"), "target_pps": v4.get("target_ul_pps")}
         phases.append({"name": p["name"], "start": p["t_start"], "end": p["t_end"], "ues": per_ue})
     return ue_supi, phases
 
@@ -204,11 +212,52 @@ def build_run(run, age_cap=3.0, guard_s=3, run_id=None, core_age_cap=4.0):
             row["phase"] = ph["name"] if ph else ""
             row["label"] = lab["label"] if lab else "IDLE"
             row["attack_family"] = lab["family"] if lab else ""
+            row["benign_class"] = lab["benign_class"] if lab else ""
+            row["backend"] = lab["backend"] if lab else ""
+            row["victim_mode"] = (lab["victim_mode"] if lab else None)
+            row["load_mbps"] = (lab["load_mbps"] if lab else np.nan)
+            row["dl_feedback"] = (lab["dl_feedback"] if lab else np.nan)
+            row["native_unit"] = (lab["native_unit"] if lab else "")
             row["attack_active"] = int(row["label"] == "MALICIOUS")
             row["t_since_phase_start"] = t - ph["start"] if ph else np.nan
             row["guard"] = int(bool(ph) and (t - ph["start"] < guard_s or ph["end"] - t <= guard_s))
             rows.append(row)
+    _attach_achieved_ok(rows, phases, supi_ue, tol=0.10)
     return rows
+
+
+def _attach_achieved_ok(rows, phases, supi_ue, tol=0.10):
+    """meta_achieved_ok per (phase, UE): median of the non-guard URR over the phase
+    vs the flow target (bytes for rate backends, pps for count-driven), within ±tol.
+    URR is the UPF ground truth; count-driven backends are checked in packets."""
+    ph_by = {p["name"]: p for p in phases}
+    by = {}
+    for r in rows:
+        if r["label"] in ("MALICIOUS", "BENIGN") and not r["guard"]:
+            by.setdefault((r["phase"], r["ue"]), []).append(r)
+    ok_map = {}
+    for (phase, ue), rs in by.items():
+        info = ph_by.get(phase, {}).get("ues", {}).get(ue, {})
+        unit = info.get("native_unit", "bytes")
+        if unit == "pps":
+            tgt, col, scale = info.get("target_pps"), "urr_ul_pps", 1.0
+        elif unit == "conn":
+            tgt, col, scale = None, None, None          # conn completion is a self-report (not URR) — leave unknown
+        else:
+            tgt, col, scale = info.get("target_bytes"), "urr_ul_kbps", 1000.0 / 8.0  # kbps -> bytes/s
+        ok = np.nan
+        if tgt and col:
+            vals = [r[col] for r in rs if not (isinstance(r[col], float) and np.isnan(r[col]))]
+            if vals:
+                # MEAN rate (= total volume / duration) vs the target MEAN. The target is a
+                # mean constraint; for bursty schedules (fGn/pulsing/on-off) the per-second
+                # median sits well below the mean, so median would wrongly fail a phase that
+                # delivered the full volume. Mean is the faithful achieved-load check.
+                ach = float(np.mean(vals)) * scale
+                ok = int(abs(ach / tgt - 1.0) <= tol)
+        ok_map[(phase, ue)] = ok
+    for r in rows:
+        r["achieved_ok"] = ok_map.get((r["phase"], r["ue"]), np.nan)
 
 
 def to_frame(rows):

@@ -262,14 +262,142 @@ class HpingFlow:
         return s
 
 
+import os
+import sys
+
+_V4DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "v4traffic")
+
+
+class V4Flow:
+    """One UE-originated v4 flow from the `keepalive` sidecar, driven by the v4
+    traffic library (v4 plan §5): a schedule model (schedules.py) at a load level,
+    a shared size prior (sizes.py) and, for attackers, the load-matching mixer
+    (mixer.py), realised by one of the cross-backend generators (pacer / hping /
+    iperf / tcp_shortconn / dns_client) that log achieved per second. The SAME
+    launch point + plan path is used for BOTH classes (the C4/C1 fix); the ground
+    truth is `role` (benign|attack), set by the design, not by the tool/protocol.
+    Same interface as Flow/HpingFlow so run.py's phase loop is unchanged."""
+
+    def __init__(self, ue, direction, spec, length, duration, port, ip):
+        if direction != "ul":
+            raise ValueError("v4 flows are ul only (UE-originated); got %r" % direction)
+        if _V4DIR not in sys.path:
+            sys.path.insert(0, _V4DIR)
+        import planbuilder
+        import runner as v4runner
+        self._pb, self._runner = planbuilder, v4runner
+        self.ue, self.dir, self.duration, self.port, self.ip = ue, direction, duration, port, ip
+        self.spec = {k: v for k, v in spec.items() if k != "v4"}
+        if "level_mbps" in self.spec and "level" not in self.spec:
+            self.spec["level"] = float(self.spec.pop("level_mbps")) * 1e6 / 8.0
+        self.spec.setdefault("seed", 1)
+        self.role = self.spec.get("role", "benign")
+        self.malicious = self.role == "attack"
+        self.backend = self.spec.get("backend", "pacer")
+        self.model = self.spec.get("model", "cbr")
+        self.mode = self.spec.get("mode")
+        self.level = float(self.spec.get("level", 0.0))
+        self.plan, self.meta = planbuilder.build_plan(self.spec, int(duration), DN_IP, ip, port)
+        # L4 protocol on the wire (for the victim-mode DROP + the DL-feedback port)
+        self.proto = ("tcp" if self.backend == "tcp_shortconn" or (self.backend == "hping" and self.mode == "syn")
+                      else "icmp" if self.backend == "hping" and self.mode == "icmp" else "udp")
+        # native achieved unit + per-second targets (bytes for rate backends, pps/conn for count-driven)
+        self.native_unit = ("conn" if self.backend == "tcp_shortconn"
+                            else "pps" if self.backend == "dns_client" or (self.backend == "hping" and self.mode in ("syn", "icmp"))
+                            else "bytes")
+        msz = float(self.meta.get("mean_size") or (60 if self.mode == "syn" else 84 if self.mode == "icmp" else 256))
+        pps = [s["pps"] if s.get("pps") else (float(s.get("bytes") or 0.0) / msz if msz else 0.0) for s in self.plan["seconds"]]
+        self.target_ul_pps = (sum(pps) / len(pps)) if pps else 0.0
+        self.target_ul_bytes_s = float(self.meta.get("target_mean_bytes_s", 0.0))
+        # victim mode: a per-phase environment property recorded on every flow (so it
+        # does not track the label); the DROP is installed only for the malicious flow.
+        self.victim_mode = self.spec.get("victim_mode")
+        self.dl_feedback = 0.0
+        if not self.malicious and self.proto == "udp" and self.spec.get("dl_feedback", "auto") != 0:
+            fb = self.spec.get("dl_feedback", "auto")
+            rng = __import__("random").Random(int(self.spec["seed"]) ^ 0x5DF)
+            self.dl_feedback = float(fb) if fb != "auto" else round(rng.uniform(0.01, 0.10), 4)
+        self.rows, self.client_out, self.started = [], "", None
+        self._srv = None
+        self._thread = None
+        self._dl_threads = []
+        self._achieved = []
+
+    def start_server(self):
+        self._srv = self._runner._start_dn_server(self.backend, self.port, self.duration + 6)
+        if self.malicious and self.victim_mode == "silent":
+            self._runner.set_victim_silent(self.ip, self.proto, self.port)
+        if self.dl_feedback > 0:
+            rate = self.dl_feedback * self.level
+            self._dl_threads = self._runner.start_dl_feedback(
+                UES[self.ue][0], self.ip, self.port + 1000, rate, int(self.duration), seed=int(self.spec["seed"]) ^ 0xD1)
+
+    def start_client(self):
+        self.started = time.time()
+
+        def _go():
+            self._achieved = self._runner.run_backend(UES[self.ue][0], self.plan,
+                                                       timeout=self.duration + 30)
+        self._thread = threading.Thread(target=_go, daemon=True)
+        self._thread.start()
+
+    def stop(self):
+        # stop_when early-stop: kill whatever backend script is running in the sidecar
+        for pat in ("pacer.py", "hping.py", "iperf.py", "tcp_shortconn.py", "dns_client.py", "hping3"):
+            ex("oai-ran", UES[self.ue][0], "keepalive", "pkill", "-INT", "-f", pat, check=False)
+
+    def finish(self, timeout=30):
+        if self._thread:
+            self._thread.join(timeout=self.duration + 35)
+        if self._srv:
+            self._srv.join(timeout=timeout)
+        for t in self._dl_threads:
+            t.join(timeout=timeout)
+        if self.malicious and self.victim_mode == "silent":
+            self._runner.clear_victim_silent(self.ip, self.proto, self.port)
+        for r in self._achieved:
+            if r.get("final") or "sent_bytes" not in r:
+                continue
+            self.rows.append({"t": r["t"], "interval": [0.0, 1.0], "bytes": r["sent_bytes"],
+                              "bps": r["sent_bytes"] * 8.0, "jitter_ms": 0.0, "lost": 0, "total": 0,
+                              "final": False})
+        self.client_out = json.dumps(self._achieved)[-4000:]
+
+    def summary(self):
+        per_s = [r for r in self._achieved if not r.get("final")]
+        fin = next((r for r in self._achieved if r.get("final")), None)
+        tx_pkts = fin["run_tx_pkts"] if fin and "run_tx_pkts" in fin else sum(r.get("sent_pkts", 0) for r in per_s)
+        tx_bytes = sum(r.get("sent_bytes", 0) for r in per_s)
+        span = max(len(per_s), 1)
+        target_mean = self.meta.get("target_mean_bytes_s", 0.0)
+        s = {"ue": self.ue, "dir": self.dir, "offered_bps": target_mean * 8.0,
+             "payload_bytes": int(self.meta.get("mean_size") or 0), "port": self.port,
+             "started": self.started, "tx_packets": tx_pkts, "rx_bytes": tx_bytes,
+             "rx_mbps_mean": round(tx_bytes * 8 / span / 1e6, 4), "seconds_with_data": span,
+             "loss_pct": None, "backend": self.backend, "model": self.model, "role": self.role,
+             "mode": self.mode, "native_unit": self.native_unit, "proto": self.proto,
+             "target_ul_bytes_s": self.target_ul_bytes_s, "target_ul_pps": self.target_ul_pps,
+             "load_mbps": round(self.level * 8 / 1e6, 4), "victim_mode": self.victim_mode,
+             "dl_feedback": self.dl_feedback, "v4_meta": self.meta}
+        if self.backend == "dns_client":
+            s["answers"] = sum(r.get("answers", 0) for r in self._achieved)
+        if self.backend == "tcp_shortconn":
+            s["conn_failed"] = sum(r.get("conn_failed", 0) for r in self._achieved)
+        s["attack" if self.malicious else "gen"] = "%s/%s" % (self.backend, self.model)
+        return s
+
+
 def make_flow(ue, direction, spec, length, duration, port, ip):
     """Dispatch a flow spec from a scenario phase:
       "4M" | {rate,pkt,proto}        -> benign iperf Flow (udp default, or tcp)
       {attack: <family>, rate|pps, pkt, ...}  -> malicious HpingFlow
       {gen: udp|tcp, rate, pkt}      -> benign iperf Flow (explicit)
-      {gen: icmp_ping|dns_query, rate|pps} -> benign protocol control (HpingFlow)"""
+      {gen: icmp_ping|dns_query, rate|pps} -> benign protocol control (HpingFlow)
+      {v4: true, backend, model, level, role, seed, mode, ...} -> V4Flow (v4 lib)"""
     if not isinstance(spec, dict):
         return Flow(ue, direction, spec, length, duration, port, ip)  # bare rate string
+    if spec.get("v4"):
+        return V4Flow(ue, direction, spec, length, duration, port, ip)
     if "attack" in spec:
         return HpingFlow(ue, direction, spec["attack"], spec, length, duration, port, ip)
     if "gen" in spec and spec["gen"] in KINDS:  # benign protocol control via hping

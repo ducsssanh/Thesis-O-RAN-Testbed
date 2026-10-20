@@ -116,6 +116,18 @@ P0 for a 48h run. See memory `testbed-userplane-fragility` for the full procedur
   exclusion).
 - URR/profiler arrival-lag already measured earlier from v3 rows (causal join cap 3–4 s).
 
+### §3.2 pps ceiling + pacer validation — MEASURED 2026-10-20, `research/testbed/calib_pps_v4.json`
+Live run of the v4 pacer (ue1, defense off); delivery counted on the DN with a silent
+`iptables … -j DROP` rule on udp/5401 (IP-level pkts+bytes, no ICMP back), 3 s drain
+before the read. Confirms the pacer follows byte/pps targets AND fixes the §3.2 ceiling:
+- **64 B small packets:** sent == delivered, **0% loss up to 8000 pps** (4.1 Mbit/s);
+  12000 pps → 0.3% loss, 16000 → 1.3%. **Usable small-packet pps ceiling ≈ 8000 pps/UE.**
+- **1228 B packets:** 0% loss through **10 Mbit/s**; 12 Mbit/s → 3.3% loss. Large-packet
+  linear region ≈ 10 Mbit/s (consistent with the earlier ~8.4 plateau, slightly higher
+  with the settle). → keep attack/benign byte-rates within these regions so loss is not
+  itself a label signal.
+- Pacer validated live: realised sent rate matched target within ~2% across the sweep.
+
 ### Proposed load levels (CONFIRMED in-region)
 L1 ≈ 0.4, L2 ≈ 0.8, L3 ≈ 1.2 Mbit/s offered UL (payload ≤1200 B) — all inside the
 linear region with headroom; could extend to 2–4 Mbit/s if higher separation wanted.

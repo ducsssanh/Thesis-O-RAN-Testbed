@@ -157,6 +157,8 @@ def run_once(scn, variant, rep, camp_dir):
             for ue, dirs in (p.get("flows") or {}).items():
                 for d, spec in dirs.items():
                     port += 1
+                    if isinstance(spec, dict) and "victim_mode" in p and "victim_mode" not in spec:
+                        spec = {**spec, "victim_mode": p["victim_mode"]}  # phase-level env property
                     flows.append(traffic.make_flow(ue, d, spec, payload, p["duration"], port, ips[ue]))
             for f in flows:
                 f.start_server()

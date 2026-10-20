@@ -60,26 +60,62 @@ def c5_leak(runs):
     return tot, urr_f, prof_f
 
 
-def achieved(runs, tol=0.10):
-    out = []
-    for rd in runs:
-        m = json.loads((pathlib.Path(rd) / "metrics.json").read_text())
-        for ph, ues in (m.get("phases") or {}).items():
-            for ue, v in ues.items():
-                if not isinstance(v, dict):
-                    continue                          # e.g. duration_s
-                off = v.get("offered_ul_mbps") or 0
-                if off <= 0:
-                    continue
-                dn = v.get("dn_ul_mbps")
-                urr = v.get("urr_ul_kbps")
-                # IP-level achieved rate (URR counts IP packets at the UPF); the DN counter is
-                # UDP payload only, which under-reads small packets by the header share.
-                ratio = (urr / 1000.0 / off) if urr is not None else None
-                out.append({"phase": ph, "ue": ue, "offered": off, "at_dn": dn, "urr_mbps": None if urr is None else round(urr / 1000, 3),
-                            "ratio": None if ratio is None else round(ratio, 3),
-                            "achieved_ok": ratio is not None and abs(ratio - 1) <= tol})
-    return out
+def _ovl(a, b, bins):
+    """Overlap coefficient of two samples over shared histogram bins: Σ min(p_a, p_b)."""
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    a, b = a[~np.isnan(a)], b[~np.isnan(b)]
+    if len(a) < 5 or len(b) < 5:
+        return None
+    edges = np.histogram_bin_edges(np.concatenate([a, b]), bins=bins)
+    pa = np.histogram(a, edges)[0] / len(a)
+    pb = np.histogram(b, edges)[0] / len(b)
+    return float(np.minimum(pa, pb).sum())
+
+
+def load_overlap(df, feats, bins=12):
+    """Overlap coefficient per feature between BENIGN and MALICIOUS, by load level
+    (and pooled) — high overlap ⇒ volume/rate alone does not separate the classes."""
+    nb = df[df.label.isin(["BENIGN", "MALICIOUS"])]
+    rows = []
+    groups = [("all", nb)] + [(f"{lv:g} Mbit/s", g) for lv, g in nb.groupby("meta_load_mbps")]
+    for name, g in groups:
+        ben, mal = g[g.label == "BENIGN"], g[g.label == "MALICIOUS"]
+        rec = {"stratum": name, "n_ben": len(ben), "n_mal": len(mal)}
+        for f in feats:
+            rec[f] = _ovl(ben[f], mal[f], bins)
+        rows.append(rec)
+    return rows
+
+
+def cem_support(df, feats, k=5):
+    """Coarsened exact matching on `feats`: coarsen each to k quantile bins, form the
+    joint cell, and report the share of MALICIOUS (and BENIGN) rows that fall in a cell
+    containing BOTH classes (common support), plus the L1 imbalance before/after."""
+    nb = df[df.label.isin(["BENIGN", "MALICIOUS"])].copy()
+    use = [f for f in feats if nb[f].notna().sum() > 10]
+    if not use:
+        return None
+    codes = []
+    for f in use:
+        q = pd.qcut(nb[f].rank(method="first"), k, labels=False, duplicates="drop")
+        codes.append(q.astype("Int64").astype(str))
+    nb["_cell"] = codes[0].str.cat(codes[1:], sep="|") if len(codes) > 1 else codes[0]
+    cell_lab = nb.groupby("_cell")["label"].nunique()
+    common = set(cell_lab[cell_lab == 2].index)
+    mal, ben = nb[nb.label == "MALICIOUS"], nb[nb.label == "BENIGN"]
+    share_mal = float(mal["_cell"].isin(common).mean()) if len(mal) else 0.0
+    share_ben = float(ben["_cell"].isin(common).mean()) if len(ben) else 0.0
+    # L1 imbalance of the cell distributions (before vs restricted to common support)
+    def l1(a, b):
+        cells = set(a.index) | set(b.index)
+        pa = a.reindex(cells, fill_value=0) / a.sum()
+        pb = b.reindex(cells, fill_value=0) / b.sum()
+        return float((pa - pb).abs().sum())
+    m_all, b_all = mal["_cell"].value_counts(), ben["_cell"].value_counts()
+    m_c = mal[mal["_cell"].isin(common)]["_cell"].value_counts()
+    b_c = ben[ben["_cell"].isin(common)]["_cell"].value_counts()
+    return {"feats": use, "k": k, "share_mal": share_mal, "share_ben": share_ben,
+            "l1_before": l1(m_all, b_all), "l1_after": l1(m_c, b_c) if len(common) else None}
 
 
 def main():
@@ -123,16 +159,54 @@ def main():
     pm = (nb.label == "MALICIOUS").groupby(nb["meta_ue"]).mean()
     flag = [ue for ue, p in pm.items() if not 0.45 <= p <= 0.55]
     L.append(f"\nP(malicious | UE): " + ", ".join(f"{u} {p:.2f}" for u, p in pm.items()) +
-             (f"\n\n**C1 confound present** — {flag} outside [0.45, 0.55]: label ≈ UE identity. "
-              "Expected for a v3 scenario; v4 role-swapping campaign design (Phase 3) must fix it." if flag else "\n\nBalanced."))
+             (f"\n\n**UE-balance not yet met** — {flag} outside [0.45, 0.55]: label still tracks UE. "
+              "Full per-phase role-swap balance is the Phase-3 campaign-design job." if flag else "\n\nBalanced on UE."))
+    # balance on the other nuisances the design must decorrelate from the label
+    for col, lo, hi, nm in (("meta_backend", 0.4, 0.6, "backend"),
+                            ("meta_victim_mode", 0.4, 0.6, "victim mode"),
+                            ("meta_load_mbps", 0.0, 1.0, "load level")):
+        if col in nb and nb[col].notna().any():
+            pmc = (nb.label == "MALICIOUS").groupby(nb[col]).mean()
+            # only dual-use categories are expected ~0.5; benign-only hard-negatives
+            # (dns_client, tcp_shortconn) are 0 by design and not a confound.
+            dual = {k for k, g in nb.groupby(col) if g["label"].nunique() == 2} if col == "meta_backend" else set(pmc.index)
+            fl = [str(k) for k, p in pmc.items() if k in dual and not lo <= p <= hi] if hi < 1.0 else []
+            note = {"meta_backend": " (benign-only backends excluded)"}.get(col, "")
+            L.append(f"\nP(malicious | {nm}): " + ", ".join(f"{k} {p:.2f}" for k, p in pmc.items()) +
+                     (f"  — **dual-use outside [{lo}, {hi}]: {fl}**{note}" if fl else
+                      (f"  — dual-use in band{note}" if hi < 1.0 else "  (load distribution should match across classes)")))
 
-    L.append("\n## 4. Achieved vs offered (DN, ±10%)\n")
-    ach = achieved(a.runs)
-    L.append("| phase | ue | offered Mbit/s | URR (IP) Mbit/s | DN payload Mbit/s | URR/offered | achieved_ok |\n|---|---|---:|---:|---:|---:|---|")
-    for r in ach:
-        L.append(f"| {r['phase']} | {r['ue']} | {r['offered']} | {r['urr_mbps']} | {r['at_dn']} | {r['ratio']} | {'yes' if r['achieved_ok'] else '**no**'} |")
-    ok = sum(r["achieved_ok"] for r in ach)
-    L.append(f"\nachieved_ok: {ok}/{len(ach)} phase-UE pairs (target ≥ 90%).")
+    L.append("\n## 4. Achieved vs target (URR ground truth, ±10%, per native unit)\n")
+    av = nb[~nb["meta_guard"].astype(bool)].dropna(subset=["meta_achieved_ok"]) if "meta_achieved_ok" in nb else nb.iloc[0:0]
+    pair = av.groupby(["meta_phase", "meta_ue"]).agg(
+        backend=("meta_backend", "first"), unit=("meta_native_unit", "first"),
+        ok=("meta_achieved_ok", "first")).reset_index()
+    L.append("| phase | ue | backend | unit | achieved_ok |\n|---|---|---|---|---|")
+    for _, r in pair.iterrows():
+        L.append(f"| {r['meta_phase']} | {r['meta_ue']} | {r['backend']} | {r['unit']} | {'yes' if r['ok'] == 1 else '**no**'} |")
+    nconn = int((nb["meta_native_unit"] == "conn").any()) if "meta_native_unit" in nb else 0
+    ok = int(pair["ok"].sum()); tot = len(pair)
+    L.append(f"\nachieved_ok: {ok}/{tot} phase-UE pairs (target ≥ 90%)."
+             + (" conn-rate backends (tcp_shortconn) are checked by connection completion, not URR." if nconn else ""))
+
+    L.append("\n## 5. Load overlap between classes (volume cannot separate them)\n")
+    ovf = [("thp_ul_kbps", "RAN UL thp"), ("urr_ul_pps", "URR UL pps"),
+           ("prof_ul_mean_bytes", "pkt mean B"), ("urr_dl_kbps", "URR DL")]
+    have = [(f, nm) for f, nm in ovf if f in df]
+    rows = load_overlap(df, [f for f, _ in have])
+    L.append("Overlap coefficient (Σ min of the two normalised histograms; 1 = identical, 0 = disjoint):\n")
+    L.append("| stratum | n ben | n mal | " + " | ".join(nm for _, nm in have) + " |")
+    L.append("|---|---:|---:|" + "|".join("---:" for _ in have) + "|")
+    for r in rows:
+        L.append(f"| {r['stratum']} | {r['n_ben']} | {r['n_mal']} | "
+                 + " | ".join("—" if r[f] is None else f"{r[f]:.2f}" for f, _ in have) + " |")
+    cem = cem_support(df, ["urr_ul_kbps", "urr_ul_pps", "urr_dl_kbps"])
+    if cem:
+        L.append(f"\nCoarsened exact matching on UL bytes/UL pps/DL bytes ({cem['k']} bins each): "
+                 f"**{100*cem['share_mal']:.0f}% of MALICIOUS** and **{100*cem['share_ben']:.0f}% of BENIGN** rows fall in a "
+                 f"cell containing BOTH classes (common support). Cell-distribution L1 imbalance "
+                 f"{cem['l1_before']:.2f} → {('%.2f' % cem['l1_after']) if cem['l1_after'] is not None else 'n/a'} after "
+                 f"restricting to common support. High common support ⇒ a volume-matched control exists for the thesis.")
 
     (root / "qa_report.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
