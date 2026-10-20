@@ -112,6 +112,7 @@ apply "$F" "$P/flexric-xapp-deferred-dataset.patch"
 apply "$F" "$P/flexric-xapp-core-info-types.patch"   # CL-1: closed-loop info types (docs/CLOSED-LOOP-FRAMEWORK.md)
 apply "$F" "$P/flexric-xapp-session-events.patch"     # CL-2: session table, seid/session_epoch in the vector
 apply "$F" "$P/flexric-xapp-upf-profile.patch"        # CL-3: UPF packet mix in the vector
+apply "$F" "$P/flexric-xapp-rawkpm.patch"             # v4: raw KPM tap (source+arrival ts) for the causal build
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722
