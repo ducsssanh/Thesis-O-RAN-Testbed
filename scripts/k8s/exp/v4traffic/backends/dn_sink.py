@@ -11,9 +11,13 @@ which is the behavioural signal the thesis is after):
          reply, closes) — counterpart target for tcp_shortconn vs a SYN flood.
   dns  : minimal UDP DNS responder (answers A queries with a fixed address) —
          counterpart target for dns_client vs a UDP small-packet flood.
+  udpecho : UDP responder bound to 0.0.0.0 (so it serves every DN n6 IP alias),
+         replies a short payload to each datagram's sender — the application-layer
+         feedback for fan-out destinations (per-destination bidirectionality,
+         NOT ICMP-unreachable).
 
 Usage (one subcommand, foreground, bounded by --seconds so nothing is left
-orphaned): dn_sink.py tcp|dns --port P --seconds N
+orphaned): dn_sink.py tcp|dns|udpecho --port P --seconds N
 """
 import socket, struct, sys, threading, time
 
@@ -61,6 +65,23 @@ def serve_dns(port, deadline):
     s.close()
 
 
+def serve_udpecho(port, deadline, reply=b"ok"):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(("0.0.0.0", port))
+    s.settimeout(0.5)
+    while time.monotonic() < deadline:
+        try:
+            data, addr = s.recvfrom(4096)
+        except socket.timeout:
+            continue
+        try:
+            s.sendto(reply, addr)
+        except OSError:
+            pass
+    s.close()
+
+
 def _dns_reply(q):
     """Echo the question, flags=0x8180 (response, no error), one A answer 172.30.26.10."""
     if len(q) < 12:
@@ -83,7 +104,7 @@ def main():
     port = int(sys.argv[sys.argv.index("--port") + 1])
     secs = int(sys.argv[sys.argv.index("--seconds") + 1])
     deadline = time.monotonic() + secs
-    (serve_tcp if kind == "tcp" else serve_dns)(port, deadline)
+    {"tcp": serve_tcp, "dns": serve_dns, "udpecho": serve_udpecho}[kind](port, deadline)
 
 
 if __name__ == "__main__":

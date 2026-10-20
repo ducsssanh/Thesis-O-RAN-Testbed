@@ -145,6 +145,19 @@ def clear_congestion(iface="n6"):
 FANOUT_BASE = 201                                  # alias hosts 172.30.26.201 ..
 
 
+def start_udpecho_sink(port, seconds):
+    """UDP echo responder on the DN (0.0.0.0:port serves every alias) for fan-out
+    application-layer replies. Returns the server thread (join at the end)."""
+    _dn_push_sink()
+    t = threading.Thread(target=lambda: _k(
+        ["-n", "oai-core", "exec", "deploy/oai-lab-dn", "-c", "dn", "--",
+         "python3", "/tmp/dn_sink.py", "udpecho", "--port", str(port), "--seconds", str(seconds)],
+        timeout=seconds + 10), daemon=True)
+    t.start()
+    time.sleep(1.0)
+    return t
+
+
 def add_dn_aliases(n, base=FANOUT_BASE, iface="n6", net="172.30.26"):
     """Add n IP aliases on the DN N6 so fan-out destinations EXIST and reply (closed
     port -> ICMP-unreachable per dst = per-destination bidirectionality). Idempotent."""

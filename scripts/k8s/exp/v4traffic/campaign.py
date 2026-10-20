@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+"""v4 Phase 3/4 campaign runner (gated, resumable). Reads the design manifest and runs
+each manifest "run" through the existing harness (run.run_once) so all collectors and the
+causal raw logging are reused. After each run it records the live SUPI<->IP mapping and a
+runtime assert (the attacker UE's profiler UL pps must rise during each attack phase; else
+meta_run_ok=0 and the batch STOPS). At each checkpoint it builds + QA-audits the data so
+far and STOPS on a stop-gate breach.
+
+  python3 scripts/k8s/exp/v4traffic/campaign.py run --manifest <design.json> --lo 0 --hi 12 --tag batch1
+Run via the repo's system python3 (needs numpy+yaml+pandas), not .venv-ml.
+"""
+import json, math, pathlib, sys, time
+
+HERE = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))                   # scripts/k8s/exp (run, lab, ...)
+sys.path.insert(0, str(HERE))                          # v4traffic
+ROOT = HERE.parents[3]
+
+import run as harness
+import lab
+import build_dataset_v4 as B
+
+STOP_GATES = {"nuisance_auc_max": 0.6, "pmal_lo": 0.45, "pmal_hi": 0.55,
+              "achieved_ok_min": 0.85, "size_overlap_min": 0.6}
+
+
+def scn_for_run(run_phases):
+    """Turn one manifest run (list of phases) into a harness scenario (warmup + gaps)."""
+    phases = [{"name": "idle", "duration": 15}]
+    for j, ph in enumerate(run_phases):
+        p = {"name": "p%02d_%s" % (j, ph["family"]), "duration": ph["duration"],
+             "attack": ph.get("attacker_ue") is not None, "flows": ph["flows"]}
+        if ph.get("victim_mode"):
+            p["victim_mode"] = ph["victim_mode"]
+        if ph.get("congestion"):
+            p["congestion"] = ph.get("congestion_cfg", {"rate": "4mbit"})
+        phases.append(p)
+        phases.append({"name": "gap%02d" % j, "duration": ph.get("gap", 10)})
+    return {"name": "v4campaign", "ues": {"ue1": "attacker", "ue2": "benign"},
+            "payload_bytes": 1200, "drain": {"quiet_kbps": 300, "timeout_s": 300},
+            "tail_s": 12, "phases": phases}
+
+
+def record_mapping(run_dir):
+    """Live SUPI<->IP from the UPF sessions, written beside the run (not hard-coded)."""
+    s, body = lab.upf("GET", "/v1/sessions")
+    mp = {}
+    if s == 200:
+        for x in body.get("sessions", []):
+            mp[x.get("supi")] = x.get("ue_ip") or x.get("ip")
+    (run_dir / "meta" / "supi_ip_mapping.json").write_text(json.dumps(mp, indent=1) + "\n")
+    return mp
+
+
+def prof_assert(run_dir):
+    """Runtime check: in every attack phase, the ATTACKER UE's profiler UL pps must exceed
+    an idle floor. Returns (ok, reasons). Reads the run's raw profiler + schedule."""
+    ue_supi, phases = B.load_schedule(run_dir)
+    prof = {r["supi"]: [] for r in B.load_prof(run_dir)}
+    for r in B.load_prof(run_dir):
+        prof[r["supi"]].append((r["source_ts"], r.get("prof_ul_pps", 0.0)))
+    reasons = []
+    for ph in phases:
+        atks = [(ue, info) for ue, info in ph["ues"].items() if info["label"] == "MALICIOUS"]
+        for ue, info in atks:
+            supi = ue_supi.get(ue)
+            vals = [p for (t, p) in prof.get(supi, []) if ph["start"] + 3 <= t <= ph["end"]]
+            peak = max(vals) if vals else 0.0
+            if peak < 20:                              # flood/benign both well above 20 pps live
+                reasons.append(f"{ph['name']}/{ue}: attacker prof_ul_pps peak {peak:.0f} < 20")
+    return (len(reasons) == 0), reasons
+
+
+def checkpoint_qa(data_dir, run_dirs):
+    """Build + audit the data collected so far; return (pass, metrics, breaches)."""
+    import subprocess
+    py = str(ROOT / ".venv-ml/bin/python")
+    subprocess.run([py, "-I", str(ROOT / "scripts/ml/build_dataset_v4.py"), "--out", str(data_dir),
+                    *[str(r) for r in run_dirs]], check=True)
+    import pandas as pd
+    sys.path.insert(0, str(ROOT / "scripts/ml"))
+    import qa_v4
+    df = pd.read_parquet(data_dir / "rows.parquet")
+    nb = df[df.label.isin(["BENIGN", "MALICIOUS"])]
+    m = {}
+    m["pmal_ue"] = {u: round(float((g.label == "MALICIOUS").mean()), 3) for u, g in nb.groupby("meta_ue")}
+    du = nb[nb.meta_backend.isin(("pacer", "hping", "iperf"))]
+    m["pmal_backend"] = {b: round(float((g.label == "MALICIOUS").mean()), 3) for b, g in du.groupby("meta_backend")}
+    if "meta_achieved_ok" in nb:
+        ok = nb.dropna(subset=["meta_achieved_ok"]).groupby(["meta_phase", "meta_ue", "meta_run_id"])["meta_achieved_ok"].first()
+        m["achieved_ok_rate"] = round(float(ok.mean()), 3) if len(ok) else None
+    nb_sk = qa_v4.nuisance_baseline(df) if qa_v4._SK else {"innocent": None}
+    m["nuisance_auc"] = nb_sk.get("innocent")
+    # per-cell size overlap for the size-matched pairs
+    ov = {}
+    for pair, g in nb.groupby("meta_pair"):
+        if "~" not in str(pair):
+            continue
+        per = [qa_v4._ovl(gg[gg.label == "BENIGN"]["prof_ul_mean_bytes"], gg[gg.label == "MALICIOUS"]["prof_ul_mean_bytes"], 12)
+               for _, gg in g.groupby("meta_phase") if gg.label.nunique() == 2]
+        per = [x for x in per if x is not None]
+        if per:
+            ov[str(pair)] = round(float(pd.Series(per).median()), 3)
+    m["size_overlap_per_pair"] = ov
+    breaches = []
+    for u, p in m["pmal_ue"].items():
+        if not STOP_GATES["pmal_lo"] <= p <= STOP_GATES["pmal_hi"]:
+            breaches.append(f"P(mal|ue={u})={p} ∉ [0.45,0.55]")
+    for b, p in m["pmal_backend"].items():
+        if not STOP_GATES["pmal_lo"] <= p <= STOP_GATES["pmal_hi"]:
+            breaches.append(f"P(mal|backend={b})={p} ∉ [0.45,0.55]")
+    if m.get("achieved_ok_rate") is not None and m["achieved_ok_rate"] < STOP_GATES["achieved_ok_min"]:
+        breaches.append(f"achieved_ok_rate={m['achieved_ok_rate']} < 0.85")
+    if m.get("nuisance_auc") is not None and m["nuisance_auc"] > STOP_GATES["nuisance_auc_max"]:
+        breaches.append(f"nuisance_auc={m['nuisance_auc']} > 0.6")
+    # size-matched pairs only (udp/pulsing/mimicry/fanout/dns small share the prior)
+    SIZE_MATCHED = ("udp_flood~udp_bidir", "pulsing_udp~onoff_pareto",
+                    "mimicry_udp~udp_nofeedback", "fanout_udp~fanout_benign")
+    for pair in SIZE_MATCHED:
+        if pair in ov and ov[pair] < STOP_GATES["size_overlap_min"]:
+            breaches.append(f"size overlap {pair}={ov[pair]} < 0.6")
+    return (len(breaches) == 0), m, breaches
+
+
+def run_campaign(manifest_path, lo, hi, tag):
+    man = json.loads(pathlib.Path(manifest_path).read_text())
+    runs = man["runs"]
+    hi = min(hi, len(runs))
+    camp = harness.OUT_DIR / (time.strftime("%Y%m%d-%H%M%S") + "_v4campaign_" + tag)
+    camp.mkdir(parents=True, exist_ok=True)
+    (camp / "campaign.json").write_text(json.dumps({"manifest": str(manifest_path), "range": [lo, hi]}, indent=1) + "\n")
+    harness.log("campaign %s: runs [%d,%d) of %d" % (camp.name, lo, hi, len(runs)))
+    run_dirs, checkpoints = [], set(man.get("checkpoints") or [])
+    variant = {"name": "detection-off", "defense": {"enabled": False, "core": False}}
+    for i in range(lo, hi):
+        scn = scn_for_run(runs[i])
+        ok = harness.run_once(scn, variant, i + 1, camp)
+        rd = camp / "runs" / "detection-off" / ("rep-%02d" % (i + 1))
+        run_dirs.append(rd)
+        mp = record_mapping(rd)
+        pok, reasons = prof_assert(rd)
+        meta = json.loads((rd / "run.json").read_text())
+        meta["meta_run_ok"] = int(bool(ok) and pok)
+        meta["prof_assert"] = {"ok": pok, "reasons": reasons[:8]}
+        meta["supi_ip_mapping"] = mp
+        (rd / "run.json").write_text(json.dumps(meta, indent=1) + "\n")
+        harness.log("   run %d meta_run_ok=%d%s" % (i + 1, meta["meta_run_ok"], "" if pok else " PROF-ASSERT FAIL: " + "; ".join(reasons[:3])))
+        if not meta["meta_run_ok"]:
+            harness.log("STOP: run %d failed (ok=%s prof=%s)" % (i + 1, ok, pok))
+            return {"stopped": i + 1, "reason": "run_not_ok", "reasons": reasons}
+        if (i + 1) in checkpoints or (i + 1) == hi:
+            passed, m, breaches = checkpoint_qa(camp / "dataset_sofar", run_dirs)
+            harness.log("CHECKPOINT @%d: %s" % (i + 1, json.dumps(m)))
+            if not passed:
+                harness.log("STOP: stop-gate breach: " + "; ".join(breaches))
+                return {"stopped": i + 1, "reason": "stop_gate", "breaches": breaches, "metrics": m}
+    return {"done": hi, "run_dirs": [str(r) for r in run_dirs]}
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser(description="v4 campaign runner (gated)")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    r = sub.add_parser("run")
+    r.add_argument("--manifest", default="research/datasets/oran_flooding_v4/manifest/design.json")
+    r.add_argument("--lo", type=int, default=0)
+    r.add_argument("--hi", type=int, default=12)
+    r.add_argument("--tag", default="batch")
+    a = ap.parse_args()
+    res = run_campaign(a.manifest, a.lo, a.hi, a.tag)
+    print(json.dumps(res, indent=1))
+
+
+if __name__ == "__main__":
+    main()

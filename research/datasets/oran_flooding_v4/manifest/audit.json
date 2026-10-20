@@ -1,27 +1,62 @@
 {
- "n_rows": 372,
+ "n_rows": 996,
+ "mal_fraction": 0.4398,
  "by": {
   "ue": {
-   "ue1": 0.5,
-   "ue2": 0.5
+   "ue1": 0.4398,
+   "ue2": 0.4398
   },
   "victim_mode": {
-   "responsive": 0.5,
-   "silent": 0.5
+   "responsive": 0.4444,
+   "silent": 0.4342
   },
   "load": {
-   "0.4": 0.5,
-   "0.8": 0.5,
-   "1.2": 0.5
+   "0.4": 0.4314,
+   "0.8": 0.4394,
+   "1.2": 0.449
   },
   "congestion": {
-   "0": 0.5,
-   "1": 0.5
+   "0": 0.44,
+   "1": 0.4375
   },
   "backend(dual-use)": {
    "hping": 0.5,
    "iperf": 0.5,
    "pacer": 0.5
+  }
+ },
+ "by_pair": {
+  "benign_benign": {
+   "MALICIOUS": 0,
+   "BENIGN": 120
+  },
+  "dns_flood~dns_heavy": {
+   "MALICIOUS": 78,
+   "BENIGN": 78
+  },
+  "fanout_udp~fanout_benign": {
+   "MALICIOUS": 42,
+   "BENIGN": 42
+  },
+  "icmp_flood~icmp_ping": {
+   "MALICIOUS": 42,
+   "BENIGN": 42
+  },
+  "mimicry_udp~udp_nofeedback": {
+   "MALICIOUS": 42,
+   "BENIGN": 42
+  },
+  "pulsing_udp~onoff_pareto": {
+   "MALICIOUS": 42,
+   "BENIGN": 42
+  },
+  "syn_flood~tcp_shortconn": {
+   "MALICIOUS": 78,
+   "BENIGN": 78
+  },
+  "udp_flood~udp_bidir": {
+   "MALICIOUS": 114,
+   "BENIGN": 114
   }
  },
  "backend_all": {
@@ -33,37 +68,33 @@
   "tcp_shortconn": 0.0
  },
  "cells_per_fam_ue": {
-  "comp": {
-   "ue1": 20,
-   "ue2": 20
-  },
   "dns": {
-   "ue1": 13,
-   "ue2": 13
+   "ue1": 39,
+   "ue2": 39
   },
   "fanout": {
-   "ue1": 7,
-   "ue2": 7
+   "ue1": 21,
+   "ue2": 21
   },
   "icmp": {
-   "ue1": 7,
-   "ue2": 7
+   "ue1": 21,
+   "ue2": 21
   },
   "mimicry": {
-   "ue1": 7,
-   "ue2": 7
+   "ue1": 21,
+   "ue2": 21
   },
   "pulsing": {
-   "ue1": 7,
-   "ue2": 7
+   "ue1": 21,
+   "ue2": 21
   },
   "syn": {
-   "ue1": 13,
-   "ue2": 13
+   "ue1": 39,
+   "ue2": 39
   },
   "udp": {
-   "ue1": 19,
-   "ue2": 19
+   "ue1": 57,
+   "ue2": 57
   }
  }
 }

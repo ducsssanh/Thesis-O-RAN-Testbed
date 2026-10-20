@@ -43,7 +43,7 @@ PROF = ["prof_ul_kbps", "prof_dl_kbps", "prof_ul_pps", "prof_dl_pps",
 FEATURES = KPM + URR + PROF
 META = ["run_id", "supi", "ue", "phase", "attack_family", "benign_class", "backend",
         "victim_mode", "load_mbps", "dl_feedback", "native_unit", "achieved_ok",
-        "fanout", "stress_cell", "congestion",
+        "fanout", "stress_cell", "congestion", "pair",
         "t_unix", "t_since_phase_start", "guard", "attack_active",
         "kpm_age_s", "urr_age_s", "prof_age_s", "urr_arrival_exact"]
 
@@ -136,7 +136,7 @@ def load_schedule(run):
                           "victim_mode": v4.get("victim_mode"), "load_mbps": v4.get("load_mbps"),
                           "dl_feedback": v4.get("dl_feedback"), "native_unit": v4.get("native_unit", "bytes"),
                           "fanout": v4.get("fanout"), "stress_cell": v4.get("stress_cell"),
-                          "congestion": v4.get("congestion"),
+                          "congestion": v4.get("congestion"), "pair": v4.get("pair", ""),
                           "target_bytes": v4.get("target_ul_bytes_s"), "target_pps": v4.get("target_ul_pps")}
         phases.append({"name": p["name"], "start": p["t_start"], "end": p["t_end"], "ues": per_ue})
     return ue_supi, phases
@@ -224,6 +224,7 @@ def build_run(run, age_cap=3.0, guard_s=3, run_id=None, core_age_cap=4.0):
             row["fanout"] = (lab["fanout"] if lab else np.nan)
             row["stress_cell"] = (lab["stress_cell"] if lab else np.nan)
             row["congestion"] = (lab["congestion"] if lab else np.nan)
+            row["pair"] = (lab["pair"] if lab else "")
             row["attack_active"] = int(row["label"] == "MALICIOUS")
             row["t_since_phase_start"] = t - ph["start"] if ph else np.nan
             row["guard"] = int(bool(ph) and (t - ph["start"] < guard_s or ph["end"] - t <= guard_s))

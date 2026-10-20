@@ -324,14 +324,17 @@ class V4Flow:
             self.dl_feedback = float(fb) if fb != "auto" else round(rng.uniform(0.01, 0.10), 4)
         self.rows, self.client_out, self.started = [], "", None
         self._srv = None
+        self._fanout_srv = None
         self._thread = None
         self._dl_threads = []
         self._achieved = []
+        self.pair = self.spec.get("pair")
 
     def start_server(self):
         self._srv = self._runner._start_dn_server(self.backend, self.port, self.duration + 6)
         if self.fanout > 1:
             self._runner.add_dn_aliases(self.fanout)       # responsive fan-out destinations on the DN
+            self._fanout_srv = self._runner.start_udpecho_sink(self.port, self.duration + 6)
         if self.malicious and self.victim_mode == "silent":
             self._runner.set_victim_silent(self.ip, self.proto, self.port)
         if self.dl_feedback > 0:
@@ -364,6 +367,8 @@ class V4Flow:
             self._runner.clear_victim_silent(self.ip, self.proto, self.port)
         if self.fanout > 1:
             self._runner.del_dn_aliases(self.fanout)
+            if self._fanout_srv:
+                self._fanout_srv.join(timeout=timeout)
         for r in self._achieved:
             if r.get("final") or "sent_bytes" not in r:
                 continue
@@ -388,7 +393,7 @@ class V4Flow:
              "target_ul_bytes_s": self.target_ul_bytes_s, "target_ul_pps": self.target_ul_pps,
              "load_mbps": round(self.level * 8 / 1e6, 4), "victim_mode": self.victim_mode,
              "dl_feedback": self.dl_feedback, "fanout": self.fanout, "stress_cell": int(self.stress_cell),
-             "congestion": int(bool(self.spec.get("congestion"))), "v4_meta": self.meta}
+             "congestion": int(bool(self.spec.get("congestion"))), "pair": self.pair, "v4_meta": self.meta}
         if self.backend == "dns_client":
             s["answers"] = sum(r.get("answers", 0) for r in self._achieved)
         if self.backend == "tcp_shortconn":

@@ -150,8 +150,9 @@ def _emit_pair(fam, tool, load_mbps, victim, cong, ue_attacks, seeder, cellid, r
     be, mode, model = tool
     scale = fam.get("load_scale", 1.0)
     lvl = load_mbps * scale
+    pair = fam["atk_family"] + "~" + fam["benign_class"]
     size_seed = cellid if fam["size_matched"] else None
-    atk_extra, ben_extra = {}, {}
+    atk_extra, ben_extra = {"pair": pair}, {"pair": pair}
     if fam.get("fanout"):
         atk_extra["fanout"] = ben_extra["fanout"] = fam["fanout"]
     if fam.get("stress"):
@@ -169,7 +170,7 @@ def _emit_pair(fam, tool, load_mbps, victim, cong, ue_attacks, seeder, cellid, r
         ben_extra.setdefault("size_alpha", fam.get("size_alpha", 1.0))
     ben = _flow(bb, bm, bmd, "benign", lvl, seeder.next(), size_seed, **ben_extra)
     a_ue, b_ue = ("ue1", "ue2") if ue_attacks == "ue1" else ("ue2", "ue1")
-    ph = {"family": fam["key"], "atk_family": fam["atk_family"], "benign_class": fam["benign_class"],
+    ph = {"family": fam["key"], "pair": pair, "atk_family": fam["atk_family"], "benign_class": fam["benign_class"],
           "attacker_ue": ue_attacks, "atk_backend": be, "benign_backend": bb,
           "load": load_mbps, "victim_mode": victim, "congestion": cong,
           "duration": int(rng.integers(30, 91)), "gap": int(rng.integers(8, 16)),
@@ -179,16 +180,24 @@ def _emit_pair(fam, tool, load_mbps, victim, cong, ue_attacks, seeder, cellid, r
     return ph
 
 
-def _comp_phase(d_backend, load_mbps, seeder, rng):
-    """Compensation phase: role-pure synflood attacker vs a dual-use benign (d_backend),
-    UE-mirrored by the caller. Adds a BENIGN use of d_backend without adding any audited
-    attacker (synflood is role-pure) -> cancels the SYN/DNS attacker surplus of d_backend."""
-    atk = _flow("synflood", None, "hawkes", "attack", load_mbps * 0.5, seeder.next())
-    ben = _flow(d_backend, None if d_backend != "hping" else "udp", "cbr", "benign", load_mbps, seeder.next())
-    return atk, ben
+def _benign_benign(d_backend, load_mbps, victim, cong, seeder, rng):
+    """A both-benign phase: both UEs legit high-load on dual-use backend d (a concurrent
+    heavy-load scenario). Adds BENIGN uses of d to offset its SYN/DNS attacker surplus,
+    without any attacker. meta_pair = benign_benign. UE-symmetric by construction."""
+    mode = "udp" if d_backend == "hping" else None
+    f1 = _flow(d_backend, mode, "fgn", "benign", load_mbps, seeder.next(), pair="benign_benign")
+    f2 = _flow(d_backend, mode, "cbr", "benign", load_mbps, seeder.next(), pair="benign_benign")
+    ph = {"family": "benign_benign", "pair": "benign_benign", "atk_family": "", "benign_class": d_backend,
+          "attacker_ue": None, "atk_backend": None, "benign_backend": d_backend,
+          "load": load_mbps, "victim_mode": victim, "congestion": cong,
+          "duration": int(rng.integers(30, 91)), "gap": int(rng.integers(8, 16)),
+          "flows": {"ue1": {"ul": f1}, "ue2": {"ul": f2}}}
+    if cong:
+        ph["congestion_cfg"] = {"rate": "4mbit"}
+    return ph
 
 
-def build_manifest(reps=1, seed=20261020, phases_per_run=5):
+def build_manifest(reps=3, seed=20261020, phases_per_run=5):
     rng = np.random.default_rng(seed)
     seeder = _Seeder(seed * 10)
     phases = []
@@ -199,41 +208,39 @@ def build_manifest(reps=1, seed=20261020, phases_per_run=5):
                 for victim in VICTIMS:
                     for tool in fam["atk_tools"]:
                         cell += 1
-                        for ue in ("ue1", "ue2"):          # UE mirror -> P(mal|ue)=0.5
+                        for ue in ("ue1", "ue2"):          # UE mirror -> label independent of UE
                             phases.append(_emit_pair(fam, tool, lmb, victim, 0, ue, seeder, cell, rng))
             # ~1 congestion cell per family per rep (phase-level factor -> label-balanced)
             cell += 1
             for ue in ("ue1", "ue2"):
                 phases.append(_emit_pair(fam, fam["atk_tools"][0], 0.8, "responsive", 1, ue, seeder, cell, rng))
-    # balance the dual-use backends: cancel each one's attacker surplus with mirrored comp phases
-    surplus = _dualuse_surplus(phases)
+    # offset each dual-use backend's attacker ROW surplus (from SYN/DNS floods) with
+    # both-benign phases on that backend. Factors are SAMPLED from the existing phases'
+    # (load, victim, congestion) distribution so adding them lowers each factor level's
+    # mal-fraction equally -> per-level balance (independence) is preserved.
+    factors = [(ph["load"], ph["victim_mode"], ph["congestion"]) for ph in phases]
+    surplus = _dualuse_row_surplus(phases)                 # attacker_rows - benign_rows per backend
     for d, s in surplus.items():
-        for _ in range(max(s, 0) // 2):
-            cell += 1
-            for ue in ("ue1", "ue2"):
-                atk, ben = _comp_phase(d, 0.8, seeder, rng)
-                a_ue, b_ue = ("ue1", "ue2") if ue == "ue1" else ("ue2", "ue1")
-                phases.append({"family": "comp", "atk_family": "syn_flood", "benign_class": "udp_bidir",
-                               "attacker_ue": ue, "atk_backend": "synflood", "benign_backend": d,
-                               "load": 0.8, "victim_mode": "responsive", "congestion": 0,
-                               "duration": int(rng.integers(30, 61)), "gap": int(rng.integers(8, 16)),
-                               "flows": {a_ue: {"ul": atk}, b_ue: {"ul": ben}}})
+        for _ in range(max(s, 0) // 2):                    # each both-benign phase adds 2 benign rows of d
+            load, victim, cong = factors[int(rng.integers(len(factors)))]
+            phases.append(_benign_benign(d, load, victim, cong, seeder, rng))
     rng2 = random.Random(seed)
     rng2.shuffle(phases)
     runs = [phases[i:i + phases_per_run] for i in range(0, len(phases), phases_per_run)]
     return {"seed": seed, "reps": reps, "phases_per_run": phases_per_run,
-            "n_runs": len(runs), "n_phases": len(phases), "runs": runs}
+            "n_runs": len(runs), "n_phases": len(phases),
+            "checkpoints": sorted({max(1, round(len(runs) * f)) for f in (0.10, 0.50)}), "runs": runs}
 
 
-def _dualuse_surplus(phases):
-    """attacker - benign count per dual-use backend (to be cancelled to 0)."""
+def _dualuse_row_surplus(phases):
+    """attacker ROWS - benign ROWS per dual-use backend (each phase has 1-2 UE flows)."""
     a = {d: 0 for d in DUAL_USE}
     b = {d: 0 for d in DUAL_USE}
     for ph in phases:
-        if ph["atk_backend"] in a:
-            a[ph["atk_backend"]] += 1
-        if ph["benign_backend"] in b:
-            b[ph["benign_backend"]] += 1
+        for fl in ph["flows"].values():
+            be, role = fl["ul"]["backend"], fl["ul"]["role"]
+            if be in a:
+                (a if role == "attack" else b)[be] += 1
     return {d: a[d] - b[d] for d in DUAL_USE}
 
 
@@ -247,10 +254,14 @@ def audit_manifest(man):
                 spec = fl["ul"]
                 rows.append({"ue": ue, "label": "MALICIOUS" if spec["role"] == "attack" else "BENIGN",
                              "backend": spec["backend"], "victim_mode": ph["victim_mode"],
-                             "load": ph["load"], "congestion": ph["congestion"], "family": ph["family"]})
+                             "load": ph["load"], "congestion": ph["congestion"], "family": ph["family"],
+                             "pair": spec.get("pair", ph.get("pair", ""))})
     import pandas as pd
     df = pd.DataFrame(rows)
-    out = {"n_rows": len(df), "by": {}}
+    out = {"n_rows": len(df), "mal_fraction": round(float((df.label == "MALICIOUS").mean()), 4), "by": {}}
+    out["by_pair"] = {str(k): {"MALICIOUS": int((g.label == "MALICIOUS").sum()),
+                               "BENIGN": int((g.label == "BENIGN").sum())}
+                      for k, g in df.groupby("pair")}
     for col in ("ue", "victim_mode", "load", "congestion"):
         pm = (df.label == "MALICIOUS").groupby(df[col]).mean()
         out["by"][col] = {str(k): round(float(v), 4) for k, v in pm.items()}
@@ -292,11 +303,13 @@ def cmd_plan(args):
     print("## Balance audit — P(malicious | factor), target 0.50\n")
     for col, d in aud["by"].items():
         print(f"- {col}: " + ", ".join(f"{k} {v:.2f}" for k, v in d.items()))
-    print(f"\n(dual-use backend surplus after compensation: {_dualuse_surplus([ph for r in man['runs'] for ph in r])})")
+    print(f"\n(dual-use backend surplus after compensation: {_dualuse_row_surplus([ph for r in man['runs'] for ph in r])})")
     print("\n## Phases per section-6.3 family, per UE (attacker side; target ≥3)\n")
     print("| family | ue1 | ue2 |\n|---|---:|---:|")
     for fam, d in aud["cells_per_fam_ue"].items():
         print(f"| {fam} | {d['ue1']} | {d['ue2']} |")
+    print(f"\nmeta_pair row counts (MAL / BEN): " +
+          ", ".join(f"{k} {v['MALICIOUS']}/{v['BENIGN']}" for k, v in aud["by_pair"].items()))
     print(f"\nManifest: {out}/design.json  ·  audit: {out}/audit.json")
     print("Batch plan: batch 1 = first ceil(12%) runs -> auto qa_v4; STOP if nuisance-only AUC>0.6, "
           "P(mal|ue/backend)∉[0.45,0.55], achieved_ok<85%, or size-matched per-cell overlap<0.6; "
@@ -313,7 +326,7 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("sizes").set_defaults(fn=lambda a: cmd_sizes([]))
     pp = sub.add_parser("plan")
-    pp.add_argument("--reps", type=int, default=1)
+    pp.add_argument("--reps", type=int, default=3)
     pp.add_argument("--seed", type=int, default=20261020)
     pp.set_defaults(fn=cmd_plan)
     pa = sub.add_parser("audit")

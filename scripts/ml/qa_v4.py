@@ -345,6 +345,23 @@ def main():
         L.append("\nThe innocent-nuisance AUC is the headline confound metric; the Phase-3 campaign "
                  "balance targets drive it to ≈0.5 (the pilot's residual comes from the 0.60/0.40 UE imbalance).")
 
+    if "meta_pair" in df.columns:
+        L.append("\n## 9. Per meta_pair (section-6.3 cell)\n")
+        L.append("| meta_pair | rows | MAL/BEN | achieved_ok | per-cell size overlap |\n|---|---:|---:|---:|---:|")
+        nbp2 = df[df.label.isin(["BENIGN", "MALICIOUS"])]
+        for pair, g in nbp2.groupby("meta_pair"):
+            mal, ben = int((g.label == "MALICIOUS").sum()), int((g.label == "BENIGN").sum())
+            if "meta_achieved_ok" in g:
+                ok = g.dropna(subset=["meta_achieved_ok"]).groupby(["meta_phase", "meta_ue"])["meta_achieved_ok"].first()
+                okr = f"{ok.mean():.2f}" if len(ok) else "—"
+            else:
+                okr = "—"
+            per = [_ovl(gg[gg.label == "BENIGN"]["prof_ul_mean_bytes"], gg[gg.label == "MALICIOUS"]["prof_ul_mean_bytes"], 12)
+                   for _, gg in g.groupby("meta_phase") if gg.label.nunique() == 2]
+            per = [x for x in per if x is not None]
+            ov = f"{np.median(per):.2f}" if per else "—"
+            L.append(f"| {pair} | {len(g)} | {mal}/{ben} | {okr} | {ov} |")
+
     (root / "qa_report.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
 
