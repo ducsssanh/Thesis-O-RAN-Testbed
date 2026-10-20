@@ -48,8 +48,9 @@ def main():
     # fan-out: rotate the destination host over <dst_base>.1 .. .N (dst_estimate signal)
     fanout = int(p.get("fanout", 0) or 0)
     if fanout > 1:
-        base = ".".join(dst.split(".")[:3])
-        dsts = [f"{base}.{(k % fanout) + 1}" for k in range(fanout)]
+        net = ".".join(dst.split(".")[:3])
+        first = int(p.get("fanout_base", 1))          # first host octet (DN aliases start here)
+        dsts = [f"{net}.{first + k}" for k in range(fanout)]
     else:
         dsts = [dst]
 

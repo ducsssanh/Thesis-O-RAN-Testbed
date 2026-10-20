@@ -301,13 +301,14 @@ class V4Flow:
         self.fanout = int(self.spec.get("fanout", 0) or 0)
         if self.fanout > 1:
             self.plan["fanout"] = self.fanout
+            self.plan["fanout_base"] = self._runner.FANOUT_BASE  # sweep the DN aliases (responsive dsts)
         self.stress_cell = bool(self.spec.get("stress_cell"))
         # L4 protocol on the wire (for the victim-mode DROP + the DL-feedback port)
-        self.proto = ("tcp" if self.backend == "tcp_shortconn" or (self.backend == "hping" and self.mode == "syn")
+        self.proto = ("tcp" if self.backend in ("tcp_shortconn", "synflood") or (self.backend == "hping" and self.mode == "syn")
                       else "icmp" if self.backend == "hping" and self.mode == "icmp" else "udp")
         # native achieved unit + per-second targets (bytes for rate backends, pps/conn for count-driven)
         self.native_unit = ("conn" if self.backend == "tcp_shortconn"
-                            else "pps" if self.backend == "dns_client" or (self.backend == "hping" and self.mode in ("syn", "icmp"))
+                            else "pps" if self.backend in ("dns_client", "synflood") or (self.backend == "hping" and self.mode in ("syn", "icmp"))
                             else "bytes")
         msz = float(self.meta.get("mean_size") or (60 if self.mode == "syn" else 84 if self.mode == "icmp" else 256))
         pps = [s["pps"] if s.get("pps") else (float(s.get("bytes") or 0.0) / msz if msz else 0.0) for s in self.plan["seconds"]]
@@ -329,6 +330,8 @@ class V4Flow:
 
     def start_server(self):
         self._srv = self._runner._start_dn_server(self.backend, self.port, self.duration + 6)
+        if self.fanout > 1:
+            self._runner.add_dn_aliases(self.fanout)       # responsive fan-out destinations on the DN
         if self.malicious and self.victim_mode == "silent":
             self._runner.set_victim_silent(self.ip, self.proto, self.port)
         if self.dl_feedback > 0:
@@ -347,7 +350,7 @@ class V4Flow:
 
     def stop(self):
         # stop_when early-stop: kill whatever backend script is running in the sidecar
-        for pat in ("pacer.py", "hping.py", "iperf.py", "tcp_shortconn.py", "dns_client.py", "hping3"):
+        for pat in ("pacer.py", "hping.py", "iperf.py", "tcp_shortconn.py", "dns_client.py", "synflood.py", "hping3"):
             ex("oai-ran", UES[self.ue][0], "keepalive", "pkill", "-INT", "-f", pat, check=False)
 
     def finish(self, timeout=30):
@@ -359,6 +362,8 @@ class V4Flow:
             t.join(timeout=timeout)
         if self.malicious and self.victim_mode == "silent":
             self._runner.clear_victim_silent(self.ip, self.proto, self.port)
+        if self.fanout > 1:
+            self._runner.del_dn_aliases(self.fanout)
         for r in self._achieved:
             if r.get("final") or "sent_bytes" not in r:
                 continue

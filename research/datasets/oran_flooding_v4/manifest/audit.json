@@ -1,0 +1,69 @@
+{
+ "n_rows": 372,
+ "by": {
+  "ue": {
+   "ue1": 0.5,
+   "ue2": 0.5
+  },
+  "victim_mode": {
+   "responsive": 0.5,
+   "silent": 0.5
+  },
+  "load": {
+   "0.4": 0.5,
+   "0.8": 0.5,
+   "1.2": 0.5
+  },
+  "congestion": {
+   "0": 0.5,
+   "1": 0.5
+  },
+  "backend(dual-use)": {
+   "hping": 0.5,
+   "iperf": 0.5,
+   "pacer": 0.5
+  }
+ },
+ "backend_all": {
+  "dns_client": 0.0,
+  "hping": 0.5,
+  "iperf": 0.5,
+  "pacer": 0.5,
+  "synflood": 1.0,
+  "tcp_shortconn": 0.0
+ },
+ "cells_per_fam_ue": {
+  "comp": {
+   "ue1": 20,
+   "ue2": 20
+  },
+  "dns": {
+   "ue1": 13,
+   "ue2": 13
+  },
+  "fanout": {
+   "ue1": 7,
+   "ue2": 7
+  },
+  "icmp": {
+   "ue1": 7,
+   "ue2": 7
+  },
+  "mimicry": {
+   "ue1": 7,
+   "ue2": 7
+  },
+  "pulsing": {
+   "ue1": 7,
+   "ue2": 7
+  },
+  "syn": {
+   "ue1": 13,
+   "ue2": 13
+  },
+  "udp": {
+   "ue1": 19,
+   "ue2": 19
+  }
+ }
+}

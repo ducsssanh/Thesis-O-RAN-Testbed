@@ -27,6 +27,8 @@ BACKEND_FIXED = {"syn": "syn", "icmp": "icmp"}        # hping modes with protoco
 def _mean_size_for(spec, rng):
     """Size prior mean + the bin list the pacer will sample from."""
     mode = spec.get("mode")
+    if spec["backend"] == "synflood":
+        return float(sizes.FIXED["syn"]), None       # raw 40/60 B SYN, no size prior
     if spec["backend"] == "hping" and mode in BACKEND_FIXED:
         s = sizes.FIXED[{"syn": "syn", "icmp": "icmp_echo"}[mode]]
         return float(s), [[s, 1.0]]

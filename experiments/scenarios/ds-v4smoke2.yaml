@@ -1,0 +1,25 @@
+name: ds-v4smoke2
+description: |
+  Smoke for the two NEW campaign generators: raw-socket synflood (2nd SYN tool) and
+  pacer fan-out against DN IP aliases (responsive destinations). Checks each runs,
+  labels/raw/achieved are sane. Detection OFF.
+ues: {ue1: attacker, ue2: benign}
+reps: 1
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle, duration: 12}
+  # raw-socket SYN flood vs benign short-connection counterpart
+  - {name: p-synraw, duration: 25, attack: true, victim_mode: responsive, flows: {
+        ue1: {ul: {v4: true, backend: synflood, model: hawkes, level_mbps: 0.2, role: attack, seed: 111}},
+        ue2: {ul: {v4: true, backend: tcp_shortconn, model: hawkes, level_mbps: 0.2, role: benign, seed: 112}}}}
+  - {name: gap1, duration: 8}
+  # fan-out to DN aliases: attacker silent (no return), benign responsive (ICMP per dst)
+  - {name: p-fanout2, duration: 25, attack: true, victim_mode: responsive, flows: {
+        ue1: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: attack, seed: 121, size_seed: 1200, fanout: 16, size_alpha: 0.2}},
+        ue2: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: benign, seed: 122, size_seed: 1200, fanout: 16, size_alpha: 0.2}}}}
+report: [benign_delivered_ratio_baseline]

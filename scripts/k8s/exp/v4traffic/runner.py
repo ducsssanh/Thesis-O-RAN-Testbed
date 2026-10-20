@@ -12,7 +12,7 @@ import json, pathlib, subprocess, sys, tempfile, threading, time
 CTX = "oai-lab"
 HERE = pathlib.Path(__file__).resolve().parent
 BACKENDS = {name: (HERE / f"backends/{name}.py").read_text()
-            for name in ("pacer", "hping", "iperf", "tcp_shortconn", "dns_client")}
+            for name in ("pacer", "hping", "iperf", "tcp_shortconn", "dns_client", "synflood")}
 DN_SINK = (HERE / "backends/dn_sink.py").read_text()
 UES = {"ue1": ("oai-nr-ue", "10.1.0.2"), "ue2": ("oai-nr-ue2", "10.1.0.3")}
 DN = "172.30.26.10"
@@ -139,6 +139,22 @@ def set_congestion(rate="6mbit", burst="32kb", latency="50ms", iface="n6"):
 
 def clear_congestion(iface="n6"):
     _upf(f"tc qdisc del dev {iface} root 2>/dev/null; true")
+
+
+# ---- fan-out responsive destinations (§6.3): DN n6 IP aliases ----------------
+FANOUT_BASE = 201                                  # alias hosts 172.30.26.201 ..
+
+
+def add_dn_aliases(n, base=FANOUT_BASE, iface="n6", net="172.30.26"):
+    """Add n IP aliases on the DN N6 so fan-out destinations EXIST and reply (closed
+    port -> ICMP-unreachable per dst = per-destination bidirectionality). Idempotent."""
+    cmd = "; ".join(f"ip addr add {net}.{base + k}/24 dev {iface} 2>/dev/null" for k in range(n)) + "; true"
+    _dn(cmd)
+
+
+def del_dn_aliases(n, base=FANOUT_BASE, iface="n6", net="172.30.26"):
+    cmd = "; ".join(f"ip addr del {net}.{base + k}/24 dev {iface} 2>/dev/null" for k in range(n)) + "; true"
+    _dn(cmd)
 
 
 def _start_dn_server(backend, port, seconds):
