@@ -43,7 +43,7 @@ PROF = ["prof_ul_kbps", "prof_dl_kbps", "prof_ul_pps", "prof_dl_pps",
 FEATURES = KPM + URR + PROF
 META = ["run_id", "supi", "ue", "phase", "attack_family", "benign_class", "backend",
         "victim_mode", "load_mbps", "dl_feedback", "native_unit", "achieved_ok",
-        "fanout", "stress_cell", "congestion", "pair",
+        "fanout", "stress_cell", "congestion", "pair", "achieved_ratio",
         "t_unix", "t_since_phase_start", "guard", "attack_active",
         "kpm_age_s", "urr_age_s", "prof_age_s", "urr_arrival_exact"]
 
@@ -242,7 +242,7 @@ def _attach_achieved_ok(rows, phases, supi_ue, tol=0.10):
     for r in rows:
         if r["label"] in ("MALICIOUS", "BENIGN") and not r["guard"]:
             by.setdefault((r["phase"], r["ue"]), []).append(r)
-    ok_map = {}
+    ok_map, ratio_map = {}, {}
     for (phase, ue), rs in by.items():
         info = ph_by.get(phase, {}).get("ues", {}).get(ue, {})
         unit = info.get("native_unit", "bytes")
@@ -252,19 +252,22 @@ def _attach_achieved_ok(rows, phases, supi_ue, tol=0.10):
             tgt, col, scale = None, None, None          # conn completion is a self-report (not URR) — leave unknown
         else:
             tgt, col, scale = info.get("target_bytes"), "urr_ul_kbps", 1000.0 / 8.0  # kbps -> bytes/s
-        ok = np.nan
+        ok, ratio = np.nan, np.nan
         if tgt and col:
             vals = [r[col] for r in rs if not (isinstance(r[col], float) and np.isnan(r[col]))]
             if vals:
-                # MEAN rate (= total volume / duration) vs the target MEAN. The target is a
-                # mean constraint; for bursty schedules (fGn/pulsing/on-off) the per-second
-                # median sits well below the mean, so median would wrongly fail a phase that
-                # delivered the full volume. Mean is the faithful achieved-load check.
+                # MEAN rate (= total volume / duration) vs the target MEAN — a mean constraint;
+                # for bursty schedules the per-second median sits below the mean, so median
+                # would wrongly fail a phase that delivered full volume.
                 ach = float(np.mean(vals)) * scale
-                ok = int(abs(ach / tgt - 1.0) <= tol)
+                ratio = ach / tgt                       # continuous achieved/target (stored per phase)
+                ok = int(abs(ratio - 1.0) <= tol)
         ok_map[(phase, ue)] = ok
+        ratio_map[(phase, ue)] = ratio
     for r in rows:
         r["achieved_ok"] = ok_map.get((r["phase"], r["ue"]), np.nan)
+        r["achieved_ratio"] = round(ratio_map.get((r["phase"], r["ue"]), np.nan), 4) \
+            if not np.isnan(ratio_map.get((r["phase"], r["ue"]), np.nan)) else np.nan
 
 
 def to_frame(rows):

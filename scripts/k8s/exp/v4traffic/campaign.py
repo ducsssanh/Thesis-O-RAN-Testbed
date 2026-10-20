@@ -21,7 +21,7 @@ import run as harness
 import lab
 import build_dataset_v4 as B
 
-STOP_GATES = {"nuisance_auc_max": 0.6, "balance_tol": 0.05,
+STOP_GATES = {"nuisance_auc_max": 0.6, "balance_tol": 0.05, "sym_tol": 0.05,
               "achieved_ok_min": 0.85, "size_overlap_min": 0.6}
 
 
@@ -156,9 +156,22 @@ def checkpoint_qa(data_dir, run_dirs):
     m["pmal_ue"] = {u: round(float((g.label == "MALICIOUS").mean()), 3) for u, g in nb.groupby("meta_ue")}
     du = nb[nb.meta_backend.isin(("pacer", "hping", "iperf"))]
     m["pmal_backend"] = {b: round(float((g.label == "MALICIOUS").mean()), 3) for b, g in du.groupby("meta_backend")}
-    if "meta_achieved_ok" in nb:
-        ok = nb.dropna(subset=["meta_achieved_ok"]).groupby(["meta_phase", "meta_ue", "meta_run_id"])["meta_achieved_ok"].first()
-        m["achieved_ok_rate"] = round(float(ok.mean()), 3) if len(ok) else None
+    # achieved at the CELL level (backend x role x load), ±10% on the median per-phase ratio
+    # — robust to single-phase variance of bursty schedules. Plus a load-MATCHING symmetry
+    # gate: per load level the malicious vs benign median achieved_ratio must track (±0.05).
+    m["cell_achieved_pass_rate"], m["cell_achieved_fail"], m["load_symmetry"] = None, [], {}
+    if "meta_achieved_ratio" in nb:
+        ph = nb.dropna(subset=["meta_achieved_ratio"]).groupby(["meta_run_id", "meta_phase", "meta_ue"]).agg(
+            backend=("meta_backend", "first"), label=("label", "first"),
+            load=("meta_load_mbps", "first"), ratio=("meta_achieved_ratio", "first")).reset_index()
+        cells = ph.groupby(["backend", "label", "load"])["ratio"].median()
+        passed = cells.sub(1.0).abs() <= 0.10
+        m["cell_achieved_pass_rate"] = round(float(passed.mean()), 3) if len(passed) else None
+        m["cell_achieved_fail"] = [f"{b}/{lab}/{ld:g}={r:.2f}" for (b, lab, ld), r in cells.items() if abs(r - 1) > 0.10]
+        for ld, g in ph.groupby("load"):
+            mm, bb = g[g.label == "MALICIOUS"]["ratio"].median(), g[g.label == "BENIGN"]["ratio"].median()
+            if pd.notna(mm) and pd.notna(bb):
+                m["load_symmetry"][f"{ld:g}"] = round(abs(mm - bb), 3)
     nb_sk = qa_v4.nuisance_baseline(df) if qa_v4._SK else {"innocent": None}
     m["nuisance_auc"] = nb_sk.get("innocent")
     # per-cell size overlap for the size-matched pairs
@@ -185,8 +198,11 @@ def checkpoint_qa(data_dir, run_dirs):
     for b, p in m["pmal_backend"].items():
         if abs(p - base_du) > tol:
             breaches.append(f"P(mal|backend={b})={p} vs dual-use base {base_du} (|Δ|>{tol})")
-    if m.get("achieved_ok_rate") is not None and m["achieved_ok_rate"] < STOP_GATES["achieved_ok_min"]:
-        breaches.append(f"achieved_ok_rate={m['achieved_ok_rate']} < 0.85")
+    if m.get("cell_achieved_pass_rate") is not None and m["cell_achieved_pass_rate"] < STOP_GATES["achieved_ok_min"]:
+        breaches.append(f"cell_achieved_pass_rate={m['cell_achieved_pass_rate']} < {STOP_GATES['achieved_ok_min']} (cells off: {m['cell_achieved_fail']})")
+    for ld, d in m["load_symmetry"].items():                # load-matching protection
+        if d > STOP_GATES["sym_tol"]:
+            breaches.append(f"load {ld}: |median(ratio|MAL)-median(ratio|BEN)|={d} > {STOP_GATES['sym_tol']}")
     if m.get("nuisance_auc") is not None and m["nuisance_auc"] > STOP_GATES["nuisance_auc_max"]:
         breaches.append(f"nuisance_auc={m['nuisance_auc']} > 0.6")
     # size-matched pairs only (udp/pulsing/mimicry/fanout/dns small share the prior)

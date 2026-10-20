@@ -220,24 +220,33 @@ def build_manifest(reps=3, seed=20261020, phases_per_run=6):
     # sampled from the real distribution so per-level balance holds. Each is its own group.
     flat = [ph for g in groups for ph in g]
     factors = [(ph["load"], ph["victim_mode"], ph["congestion"]) for ph in flat]
-    bb_groups = []
+    # per-backend offset benign_benign groups, tagged by backend
+    bb_by = {d: [] for d in DUAL_USE}
     for d, s in _dualuse_row_surplus(flat).items():
         for _ in range(max(s, 0) // 2):
             load, victim, cong = factors[int(rng.integers(len(factors)))]
-            bb_groups.append([_benign_benign(d, load, victim, cong, seeder, rng)])
+            bb_by[d].append([_benign_benign(d, load, victim, cong, seeder, rng)])
+
+    # STRUCTURAL BLOCK BALANCE (Q2): a group is dual-use-"surplus" for backend d when its
+    # attacker uses d but its benign counterpart is role-pure (SYN/DNS floods) -> +2 attacker
+    # rows of d. Pair each such group with one matching-backend benign_benign group (+2 benign
+    # rows of d) into a backend-NEUTRAL unit. Self-balanced groups (same backend both sides)
+    # are already neutral. Every unit is backend-neutral, so any prefix of runs is balanced.
+    def surplus_backend(g):
+        a, b = g[0]["atk_backend"], g[0]["benign_backend"]
+        return a if (a in DUAL_USE and b not in DUAL_USE) else None
+    units = []
+    for g in groups:
+        d = surplus_backend(g)
+        if d and bb_by[d]:
+            units.append(g + bb_by[d].pop())          # surplus group + its offset -> neutral unit
+        else:
+            units.append(g)
+    for d in DUAL_USE:                                 # any leftover offsets as their own units
+        units.extend(bb_by[d])
     rng2 = random.Random(seed)
-    rng2.shuffle(groups); rng2.shuffle(bb_groups)
-    # INTERLEAVE the offset groups evenly through the mirror-pair groups so every prefix of
-    # runs carries a proportional share of the dual-use offset (else the first checkpoint
-    # under-represents it and hping/pacer look attacker-heavy).
-    merged, step = [], (len(groups) / len(bb_groups)) if bb_groups else 0
-    bi = 0
-    for i, g in enumerate(groups):
-        merged.append(g)
-        while step and bi < len(bb_groups) and (i + 1) >= (bi + 1) * step:
-            merged.append(bb_groups[bi]); bi += 1
-    merged.extend(bb_groups[bi:])
-    phases = [ph for g in merged for ph in g]
+    rng2.shuffle(units)
+    phases = [ph for u in units for ph in u]
     runs = [phases[i:i + phases_per_run] for i in range(0, len(phases), phases_per_run)]
     return {"seed": seed, "reps": reps, "phases_per_run": phases_per_run,
             "n_runs": len(runs), "n_phases": len(phases),

@@ -38,6 +38,21 @@ leak). v4 is built by a controlled experiment that neutralises those confounds.
   the intended load was actually realised (URR ground truth, per native unit).
 
 ## Key measurement decisions (and why)
+- **Achieved is gated at the CELL level (backend×role×load), ±10%**, on the median of the
+  per-phase achieved ratio (`meta_achieved_ratio`, stored continuous per phase). A single
+  bursty phase (fGn/on-off/MMPP/Hawkes/pulsing) has high mean-rate sampling variance, so a
+  per-phase ±10% pass/fail tops out ~0.85; the faithful question is whether a *traffic type*
+  hits its target load on average, which the cell-level aggregate answers.
+- **Load-matching symmetry gate:** per load level,
+  |median(achieved_ratio|MALICIOUS) − median(achieved_ratio|BENIGN)| ≤ 0.05. This is the
+  real protection that the two classes are delivered at the same realised load (verified
+  ≤0.047 across loads on the pilot batch).
+- **iperf2 kept (CBR schedules only).** iperf2's `-b` is the payload bitrate; scaling it by
+  payload/(payload+28) puts the IP-level rate (what URR counts) on target. After that fix,
+  iperf CBR achieves within ±10% at all three loads (L1 1.045, L2 0.961, L3 0.985), so it
+  stays in the dual-use set (pacer/hping/iperf). Bursty schedules never use iperf/hping —
+  only the pacer carries them. (Decision point: if iperf had still missed at cell level it
+  would have been dropped, leaving pacer+hping as the two dual-use backends.)
 - **`meta_achieved_ok` uses the phase MEAN rate (total volume / duration) vs the target
   mean, not the per-second median.** The target is a *mean* constraint; for bursty
   schedules (fGn, on-off-Pareto, pulsing, MMPP) the per-second distribution is
