@@ -12,15 +12,16 @@ Run via the repo's system python3 (needs numpy+yaml+pandas), not .venv-ml.
 import json, math, pathlib, sys, time
 
 HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE.parent))                   # scripts/k8s/exp (run, lab, ...)
 sys.path.insert(0, str(HERE))                          # v4traffic
-ROOT = HERE.parents[3]
+sys.path.insert(0, str(ROOT / "scripts/ml"))           # build_dataset_v4, qa_v4
 
 import run as harness
 import lab
 import build_dataset_v4 as B
 
-STOP_GATES = {"nuisance_auc_max": 0.6, "pmal_lo": 0.45, "pmal_hi": 0.55,
+STOP_GATES = {"nuisance_auc_max": 0.6, "balance_tol": 0.05,
               "achieved_ok_min": 0.85, "size_overlap_min": 0.6}
 
 
@@ -39,6 +40,77 @@ def scn_for_run(run_phases):
     return {"name": "v4campaign", "ues": {"ue1": "attacker", "ue2": "benign"},
             "payload_bytes": 1200, "drain": {"quiet_kbps": 300, "timeout_s": 300},
             "tail_s": 12, "phases": phases}
+
+
+def _kexec(ns, deploy, container, *cmd, timeout=20):
+    import subprocess
+    p = subprocess.run(["kubectl", "--context", "oai-lab", "-n", ns, "exec", f"deploy/{deploy}",
+                        "-c", container, "--", *cmd], capture_output=True, text=True, timeout=timeout)
+    return p.returncode, p.stdout, p.stderr
+
+
+def pfcp_associated():
+    """True if the SMF holds a PFCP N4 association with the UPF. The association is logged
+    once at SMF startup and persists for the pod's life, so grep the WHOLE current-pod log
+    (not a time window) for the setup line and make sure no teardown followed it."""
+    import subprocess
+    p = subprocess.run(["kubectl", "--context", "oai-lab", "-n", "oai-core", "logs",
+                        "deploy/oai-smf", "-c", "smf"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=30)
+    if "Added PFCP association with UPF" not in p.stdout:
+        return False
+    after = p.stdout.split("Added PFCP association with UPF")[-1]
+    return "ASSOCIATION RELEASE" not in after.upper() and "association setup request" not in after.lower()
+
+
+def urr_fresh(ue_supi=None, max_age=3.0):
+    """URR pipeline liveness: the urr-ei-producer must be writing smf-raw.jsonl NOW and
+    the recent records must cover BOTH PDU sessions (SEID 1 and 2). URR is Periodic
+    Reporting (time-triggered 1 s), so this holds even when UEs are idle; a stale file or
+    a missing SEID means the SMF->producer Nsmf_EventExposure subscription broke (e.g.
+    after an SMF restart). Checked at the producer because the xApp exposes no raw URR age.
+    Returns (ok, detail)."""
+    import subprocess
+    pod = subprocess.run(["kubectl", "--context", "oai-lab", "-n", "non-rt-ric", "get", "pod",
+                          "-o", "name"], capture_output=True, text=True, timeout=20).stdout
+    pod = next((l for l in pod.splitlines() if "urr-ei-producer" in l), "")
+    if not pod:
+        return False, "no urr-ei-producer pod"
+    script = ("now=$(date +%s); f=/var/lib/urr-ei/smf-raw.jsonl; "
+              "age=$(( now - $(stat -c %Y $f) )); echo AGE $age; "
+              "tail -40 $f | grep -o '\"SEID\":[0-9]*' | sort -u")
+    r = subprocess.run(["kubectl", "--context", "oai-lab", "-n", "non-rt-ric", "exec", pod,
+                        "-c", "artifacts", "--", "sh", "-c", script], capture_output=True, text=True, timeout=25)
+    out = r.stdout
+    age = None
+    seids = set()
+    for line in out.splitlines():
+        if line.startswith("AGE"):
+            try:
+                age = int(line.split()[1])
+            except (ValueError, IndexError):
+                pass
+        elif '"SEID":' in line:
+            seids.add(line.split(":")[1])
+    if age is None:
+        return False, "cannot read producer smf-raw.jsonl"
+    if age > max_age:
+        return False, f"producer URR stale (age {age}s > {max_age}s)"
+    if len(seids) < 2:
+        return False, f"URR missing a session (SEIDs seen: {sorted(seids)})"
+    return True, f"fresh (age {age}s, SEIDs {sorted(seids)})"
+
+
+def extra_preflight(ue_supi):
+    """Campaign-level per-run asserts beyond run_once's tunnels+SUPIs: PFCP association
+    present and fresh URR for both SUPIs. Returns (ok, reasons)."""
+    reasons = []
+    if not pfcp_associated():
+        reasons.append("no PFCP association SMF<->UPF")
+    ok, detail = urr_fresh(ue_supi)
+    if not ok:
+        reasons.append("stale/absent URR: " + detail)
+    return (len(reasons) == 0), reasons
 
 
 def record_mapping(run_dir):
@@ -102,13 +174,19 @@ def checkpoint_qa(data_dir, run_dirs):
         if per:
             ov[str(pair)] = round(float(pd.Series(per).median()), 3)
     m["size_overlap_per_pair"] = ov
+    # balance is INDEPENDENCE from the set's base rate (not an absolute 0.5): the benign-benign
+    # offset makes the base rate ~0.44, so compare each level to the base rate it sits in.
+    base = round(float((nb.label == "MALICIOUS").mean()), 3)
+    base_du = round(float((du.label == "MALICIOUS").mean()), 3) if len(du) else base
+    m["base_rate"], m["base_rate_dual_use"] = base, base_du
+    tol = STOP_GATES["balance_tol"]
     breaches = []
     for u, p in m["pmal_ue"].items():
-        if not STOP_GATES["pmal_lo"] <= p <= STOP_GATES["pmal_hi"]:
-            breaches.append(f"P(mal|ue={u})={p} ∉ [0.45,0.55]")
+        if abs(p - base) > tol:
+            breaches.append(f"P(mal|ue={u})={p} vs base {base} (|Δ|>{tol})")
     for b, p in m["pmal_backend"].items():
-        if not STOP_GATES["pmal_lo"] <= p <= STOP_GATES["pmal_hi"]:
-            breaches.append(f"P(mal|backend={b})={p} ∉ [0.45,0.55]")
+        if abs(p - base_du) > tol:
+            breaches.append(f"P(mal|backend={b})={p} vs dual-use base {base_du} (|Δ|>{tol})")
     if m.get("achieved_ok_rate") is not None and m["achieved_ok_rate"] < STOP_GATES["achieved_ok_min"]:
         breaches.append(f"achieved_ok_rate={m['achieved_ok_rate']} < 0.85")
     if m.get("nuisance_auc") is not None and m["nuisance_auc"] > STOP_GATES["nuisance_auc_max"]:
@@ -132,7 +210,12 @@ def run_campaign(manifest_path, lo, hi, tag):
     harness.log("campaign %s: runs [%d,%d) of %d" % (camp.name, lo, hi, len(runs)))
     run_dirs, checkpoints = [], set(man.get("checkpoints") or [])
     variant = {"name": "detection-off", "defense": {"enabled": False, "core": False}}
+    ue_supi = {n: lab.UES[n][2] for n in ("ue1", "ue2")}
     for i in range(lo, hi):
+        pok, preasons = extra_preflight(ue_supi)       # PFCP assoc + fresh URR for both SUPIs
+        if not pok:
+            harness.log("STOP before run %d: preflight: %s" % (i + 1, "; ".join(preasons)))
+            return {"stopped": i + 1, "reason": "preflight", "reasons": preasons}
         scn = scn_for_run(runs[i])
         ok = harness.run_once(scn, variant, i + 1, camp)
         rd = camp / "runs" / "detection-off" / ("rep-%02d" % (i + 1))

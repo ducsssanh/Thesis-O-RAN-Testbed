@@ -67,6 +67,35 @@ leak). v4 is built by a controlled experiment that neutralises those confounds.
   noisy; the full campaign (many phases, shared size prior) must drive them, verified by
   adversarial validation + the nuisance-only baseline.
 
+## Testbed configuration & recovery (affects every run)
+- **SMF↔UPF association (FAILURE MODE 2).** The 5GC exhibited a startup race where the
+  SMF's one-shot NRF-based UPF discovery (`discover_upf: yes`) ran before the UPF
+  registered, and a stale-subscription-starved NRF timed the SMF out, so the PFCP N4
+  association never formed → no PDU session → no GTP tunnel (memory
+  `testbed-userplane-fragility` FAILURE MODE 2). **Mitigation applied:** the ordered
+  recovery `recover_core_ordered.sh` (NRF→UPF/AMF→SMF→verify association→UEs) and the
+  watchdog now calls only it (never a simultaneous rollout-restart) — this reliably
+  prevents recurrence (proven: `Added PFCP association with UPF 172.30.24.20`).
+  **Hardening evaluated but deferred — static UPF:** setting `discover_upf: no` would drop
+  the NRF-discovery dependency entirely, but the existing `smf.upfs[0].host: oai-upf` entry
+  is only for usage-reporting config (resolves to the UPF cluster/SBI IP, **not** the N4
+  IP), so a naive flip would send PFCP to the wrong address; the correct minimal change is
+  `discover_upf: no` **and** `host: 172.30.24.20` (N4), plus a configmap re-render + SMF
+  redeploy + association re-proof. Deferred to a separate maintenance step because the
+  ordered recovery already prevents recurrence and a redeploy mid-prep is riskier.
+- **Ordered core recovery.** Any core/SMF fault is recovered with
+  `scripts/k8s/phase0/recover_core_ordered.sh` (NRF → UPF/AMF → wait REGISTERED → SMF →
+  verify PFCP association → UEs → routes → defense off → verify 2 SUPIs), never a
+  simultaneous rollout-restart (which re-races). The watchdog calls only this script.
+- **Per-run preflight (campaign.py).** Each run asserts, before generating traffic: PFCP
+  association present, both UE tunnels up, the xApp knows both SUPIs, and fresh URR
+  (age < 3 s) for both SUPIs; any failure sets `meta_run_ok=0` and stops the batch.
+- **Power-cycle.** A host power-off leaves minikube Stopped; bring-up must be
+  `minikube start` → fix the Multus interface race (rollout-restart core) →
+  `recover_core_ordered.sh` → `recover_ran.sh` → re-add UE routes → defense off → relaunch
+  the host-side watchdog. A bare `minikube start` is not sufficient. PVC data (URR raw)
+  persists on the minikube hostpath.
+
 ## Distribution / maintenance
 Internal research dataset; not for external release. Regenerable from `manifest/` + seed.
 `rows.parquet`/`rows.csv` are build outputs (not committed); the datasheet and

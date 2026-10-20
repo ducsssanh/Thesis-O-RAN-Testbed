@@ -1,8 +1,9 @@
 name: ds-v4smoke2
 description: |
-  Smoke for the two NEW campaign generators: raw-socket synflood (2nd SYN tool) and
-  pacer fan-out against DN IP aliases (responsive destinations). Checks each runs,
-  labels/raw/achieved are sane. Detection OFF.
+  Smoke for the new campaign generators + fan-out victim modes (NOT a gate): raw-socket
+  synflood (2nd SYN tool), and pacer fan-out against DN IP aliases with an app-layer UDP
+  echo sink — silent (attacker DROPped, no DL) vs responsive (attacker reaches aliases,
+  gets UDP replies). Lets us report DL p50 of both sides per victim_mode. Detection OFF.
 ues: {ue1: attacker, ue2: benign}
 reps: 1
 payload_bytes: 1200
@@ -18,8 +19,13 @@ phases:
         ue1: {ul: {v4: true, backend: synflood, model: hawkes, level_mbps: 0.2, role: attack, seed: 111}},
         ue2: {ul: {v4: true, backend: tcp_shortconn, model: hawkes, level_mbps: 0.2, role: benign, seed: 112}}}}
   - {name: gap1, duration: 8}
-  # fan-out to DN aliases: attacker silent (no return), benign responsive (ICMP per dst)
-  - {name: p-fanout2, duration: 25, attack: true, victim_mode: responsive, flows: {
+  # fan-out, SILENT victim: attacker DROPped (no DL); benign still gets app-layer UDP echo
+  - {name: p-fanout-silent, duration: 25, attack: true, victim_mode: silent, flows: {
         ue1: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: attack, seed: 121, size_seed: 1200, fanout: 16, size_alpha: 0.2}},
         ue2: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: benign, seed: 122, size_seed: 1200, fanout: 16, size_alpha: 0.2}}}}
+  - {name: gap2, duration: 8}
+  # fan-out, RESPONSIVE victim: attacker reaches aliases and gets UDP echo replies too
+  - {name: p-fanout-resp, duration: 25, attack: true, victim_mode: responsive, flows: {
+        ue1: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: attack, seed: 131, size_seed: 1300, fanout: 16, size_alpha: 0.2}},
+        ue2: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: benign, seed: 132, size_seed: 1300, fanout: 16, size_alpha: 0.2}}}}
 report: [benign_delivered_ratio_baseline]

@@ -24,6 +24,7 @@ import argparse, json, subprocess, sys, time, pathlib
 CTX = "oai-lab"
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 RECOVER_RAN = ROOT / "scripts/k8s/phase0/recover_ran.sh"
+RECOVER_CORE = ROOT / "scripts/k8s/phase0/recover_core_ordered.sh"
 UES = {"oai-nr-ue": "10.1.0.2", "oai-nr-ue2": "10.1.0.3"}
 DN_IP = "172.30.26.10"
 
@@ -148,20 +149,21 @@ def recover(logf=None):
                     ("Running" in ln or "Completed" in ln) for ln in out.splitlines()):
                 break
             time.sleep(5)
-    # Multus-race fix: rollout restart the core data/control NFs so they re-attach ifaces
-    log("rollout_restart_core", logf)
-    k("-n oai-core rollout restart deploy/oai-amf deploy/oai-smf deploy/oai-upf deploy/oai-lab-dn", 60)
-    for d in ("oai-amf", "oai-smf", "oai-upf", "oai-lab-dn"):
-        k(f"-n oai-core rollout status deploy/{d} --timeout=180s", 200)
-    log("recover_ran", logf)
-    sh(f"bash {RECOVER_RAN}", 600)
-    # wait for UE tunnels
-    for _ in range(40):
-        if all(ue_oaitun(d) for d in UES):
-            break
-        time.sleep(3)
-    readd_routes()
-    disable_defense()
+    # Ordered core recovery (NEVER a simultaneous rollout restart — that re-races the
+    # SMF<->UPF PFCP association, see memory testbed-userplane-fragility FAILURE MODE 2).
+    # recover_core_ordered: NRF -> UPF/AMF -> SMF -> verify PFCP assoc -> UEs -> routes ->
+    # defense off -> verify 2 SUPIs. Falls back to recover_ran if the RIC/E2 side is down.
+    log("recover_core_ordered", logf)
+    rc = sh(f"bash {RECOVER_CORE}", 900)[0]
+    if rc != 0:
+        log("recover_core_failed_fallback_recover_ran", logf, rc=rc)
+        sh(f"bash {RECOVER_RAN}", 600)
+        for _ in range(40):
+            if all(ue_oaitun(d) for d in UES):
+                break
+            time.sleep(3)
+        readd_routes()
+        disable_defense()
     loss = probe()
     healthy, reasons = check(verbose=False)
     log("recover_done", logf, healthy=healthy, probe_loss_pct=loss, reasons=reasons)
