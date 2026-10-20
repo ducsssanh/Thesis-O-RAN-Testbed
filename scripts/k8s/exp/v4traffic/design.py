@@ -197,10 +197,13 @@ def _benign_benign(d_backend, load_mbps, victim, cong, seeder, rng):
     return ph
 
 
-def build_manifest(reps=3, seed=20261020, phases_per_run=5):
+def build_manifest(reps=3, seed=20261020, phases_per_run=6):
     rng = np.random.default_rng(seed)
     seeder = _Seeder(seed * 10)
-    phases = []
+    # GROUP each UE-mirror pair (the 2 phases of one cell) so they stay in the SAME run:
+    # then EVERY prefix of runs is UE-balanced (the design is exact only over whole mirror
+    # pairs; a flat shuffle splits them and makes an early checkpoint look imbalanced).
+    groups = []
     cell = 0
     for rep in range(reps):
         for fam in FAMILIES:
@@ -208,24 +211,33 @@ def build_manifest(reps=3, seed=20261020, phases_per_run=5):
                 for victim in VICTIMS:
                     for tool in fam["atk_tools"]:
                         cell += 1
-                        for ue in ("ue1", "ue2"):          # UE mirror -> label independent of UE
-                            phases.append(_emit_pair(fam, tool, lmb, victim, 0, ue, seeder, cell, rng))
-            # ~1 congestion cell per family per rep (phase-level factor -> label-balanced)
-            cell += 1
-            for ue in ("ue1", "ue2"):
-                phases.append(_emit_pair(fam, fam["atk_tools"][0], 0.8, "responsive", 1, ue, seeder, cell, rng))
-    # offset each dual-use backend's attacker ROW surplus (from SYN/DNS floods) with
-    # both-benign phases on that backend. Factors are SAMPLED from the existing phases'
-    # (load, victim, congestion) distribution so adding them lowers each factor level's
-    # mal-fraction equally -> per-level balance (independence) is preserved.
-    factors = [(ph["load"], ph["victim_mode"], ph["congestion"]) for ph in phases]
-    surplus = _dualuse_row_surplus(phases)                 # attacker_rows - benign_rows per backend
-    for d, s in surplus.items():
-        for _ in range(max(s, 0) // 2):                    # each both-benign phase adds 2 benign rows of d
+                        groups.append([_emit_pair(fam, tool, lmb, victim, 0, ue, seeder, cell, rng)
+                                       for ue in ("ue1", "ue2")])
+            cell += 1                                      # ~1 congestion cell per family per rep
+            groups.append([_emit_pair(fam, fam["atk_tools"][0], 0.8, "responsive", 1, ue, seeder, cell, rng)
+                           for ue in ("ue1", "ue2")])
+    # offset each dual-use backend's attacker ROW surplus with both-benign phases, factors
+    # sampled from the real distribution so per-level balance holds. Each is its own group.
+    flat = [ph for g in groups for ph in g]
+    factors = [(ph["load"], ph["victim_mode"], ph["congestion"]) for ph in flat]
+    bb_groups = []
+    for d, s in _dualuse_row_surplus(flat).items():
+        for _ in range(max(s, 0) // 2):
             load, victim, cong = factors[int(rng.integers(len(factors)))]
-            phases.append(_benign_benign(d, load, victim, cong, seeder, rng))
+            bb_groups.append([_benign_benign(d, load, victim, cong, seeder, rng)])
     rng2 = random.Random(seed)
-    rng2.shuffle(phases)
+    rng2.shuffle(groups); rng2.shuffle(bb_groups)
+    # INTERLEAVE the offset groups evenly through the mirror-pair groups so every prefix of
+    # runs carries a proportional share of the dual-use offset (else the first checkpoint
+    # under-represents it and hping/pacer look attacker-heavy).
+    merged, step = [], (len(groups) / len(bb_groups)) if bb_groups else 0
+    bi = 0
+    for i, g in enumerate(groups):
+        merged.append(g)
+        while step and bi < len(bb_groups) and (i + 1) >= (bi + 1) * step:
+            merged.append(bb_groups[bi]); bi += 1
+    merged.extend(bb_groups[bi:])
+    phases = [ph for g in merged for ph in g]
     runs = [phases[i:i + phases_per_run] for i in range(0, len(phases), phases_per_run)]
     return {"seed": seed, "reps": reps, "phases_per_run": phases_per_run,
             "n_runs": len(runs), "n_phases": len(phases),

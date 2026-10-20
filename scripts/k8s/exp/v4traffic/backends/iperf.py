@@ -34,7 +34,9 @@ def main():
     mono0 = time.monotonic()
     for i, sec in enumerate(p["seconds"]):
         tgt_b = float(sec.get("bytes") or 0.0)
-        bps = tgt_b * 8
+        # the target is IP-level bytes/s (what URR counts); iperf2 -b is the PAYLOAD
+        # bitrate, so scale by payload/(payload+28) to put the IP-level rate on target.
+        bps = tgt_b * 8 * payload / (payload + 28)
         tx = 0
         if bps > 0:
             argv = ["iperf", "-u", "-c", dst, "-p", str(port), "-b", str(int(bps)),
