@@ -42,7 +42,7 @@ import traffic
 
 SCEN_DIR = lab.ROOT / "experiments/scenarios"
 OUT_DIR = lab.ROOT / "artifacts/experiments"
-SUBDIRS = ("meta", "traffic", "dataplane", "ran", "core", "defense", "logs")
+SUBDIRS = ("meta", "traffic", "dataplane", "ran", "core", "defense", "raw", "logs")
 
 
 def log(*a):

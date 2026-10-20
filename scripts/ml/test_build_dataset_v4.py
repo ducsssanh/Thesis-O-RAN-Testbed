@@ -1,117 +1,129 @@
 #!/usr/bin/env python3
-"""Unit tests for build_dataset_v4.py (Phase 1 §4). Synthetic fixtures only —
-proves the causal-join logic without any cluster or captured data.
+"""Unit tests for build_dataset_v4.py (Phase 1 §4) on synthetic fixtures in the
+harness-native run layout. No cluster, no captured data.
 
   .venv-ml/bin/python -I scripts/ml/test_build_dataset_v4.py
 """
-import json, pathlib, tempfile, sys
+import datetime, json, math, pathlib, sys, tempfile
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import build_dataset_v4 as B
-import numpy as np
 
-T0 = 1_000_000
-
-
-def write(run, name, recs):
-    p = run / "raw"; p.mkdir(parents=True, exist_ok=True)
-    (p / name).write_text("".join(json.dumps(r) + "\n" for r in recs))
+T0 = 1_792_413_850
+A, Bs = "imsi-001010123456780", "imsi-001010123456781"
 
 
-def kpm_rec(t, supi, thp):
-    return {"source_ts": t, "arrival_ts": t, "supi": supi, "amf_ue_ngap_id": 1,
-            "rate_ul_kbps": thp, "rate_dl_kbps": 0, "thp_ul_kbps": thp, "thp_dl_kbps": 0,
-            "prb_ul_pct": 10, "prb_dl_pct": 0, "cell_prb_ul_pct": 10, "cell_prb_dl_pct": 0}
+def iso(t, frac=True):
+    d = datetime.datetime.fromtimestamp(t, datetime.timezone.utc)
+    return d.strftime("%Y-%m-%dT%H:%M:%S") + (".%09dZ" % round((t % 1) * 1e9) if frac else "Z")
+
+
+def kpm(t, supi, thp):
+    return {"source_ts": t + 0.1999, "arrival_ts": t + 0.2005, "supi": supi, "amf_ue_ngap_id": 3,
+            "rate_ul_kbps": thp, "rate_dl_kbps": 0.0, "thp_ul_kbps": thp, "thp_dl_kbps": 0.0,
+            "prb_ul_pct": 2.0, "prb_dl_pct": 0.0, "cell_prb_ul_pct": 4.0, "cell_prb_dl_pct": 0.0}
+
+
+def urr(supi, seq, dur, ul, observed, arrival=None, session="S1", legacy_second=None):
+    o = {"event_id": f"{supi}:{seq}", "report": {"observed_at": iso(observed), "supi": supi, "session_epoch": session,
+         "ur_seqn": seq, "duration_seconds": dur, "ul_bytes": ul, "dl_bytes": 0, "ul_packets": ul // 1000, "dl_packets": 0}}
+    if legacy_second is not None:
+        o["received_at"] = iso(legacy_second, frac=False)
+    else:
+        o["received_at"] = iso(int(arrival), frac=False)
+        o["received_unix_ms"] = int(arrival * 1000)
+    return o
+
+
+def prof(supi, observed, arrival, ul_bytes, ul_pkts, syn=0):
+    return {"kind": "profile", "report": {"observed_at": iso(observed), "supi": supi, "window_ms": 1000,
+            "body": {"ul_bytes": ul_bytes, "ul_pkts": ul_pkts, "dl_bytes": 0, "dl_pkts": 0, "ul_tcp_syn": syn,
+                     "ul_udp": ul_pkts, "ul_dst_estimate": 1.0}},
+            "received_unix_ms": int(arrival * 1000)}
+
+
+def wr(p, recs):
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text("".join(json.dumps(r) + "\n" for r in recs))
 
 
 def make_run(tmp):
-    run = pathlib.Path(tmp) / "20260101-000000_test"
-    run.mkdir(parents=True)
-    # KPM: ue 001 thp=100, ue 002 thp=200, every second T0..T0+9
-    kpm = [kpm_rec(T0 + i, "001", 100) for i in range(10)] + \
-          [kpm_rec(T0 + i, "002", 200) for i in range(10)]
-    # age-cap hole for 001: no KPM between T0+4..T0+8 (last causal at T0+3 -> age grows)
-    kpm = [r for r in kpm if not (r["supi"] == "001" and T0 + 4 <= r["source_ts"] <= T0 + 8)]
-    write(run, "kpm.jsonl", kpm)
-    # URR 001 cumulative with a RESET (counter goes down at T0+2 -> negative delta)
-    urr = [
-        {"source_ts": T0 + 0, "arrival_ts": T0 + 0, "supi": "001", "ul_bytes": 0, "dl_bytes": 0, "ul_packets": 0, "dl_packets": 0},
-        {"source_ts": T0 + 1, "arrival_ts": T0 + 1, "supi": "001", "ul_bytes": 100000, "dl_bytes": 0, "ul_packets": 100, "dl_packets": 0},
-        {"source_ts": T0 + 2, "arrival_ts": T0 + 2, "supi": "001", "ul_bytes": 500, "dl_bytes": 0, "ul_packets": 1, "dl_packets": 0},  # RESET
-        {"source_ts": T0 + 3, "arrival_ts": T0 + 3, "supi": "001", "ul_bytes": 50500, "dl_bytes": 0, "ul_packets": 51, "dl_packets": 0},
-    ]
-    write(run, "urr.jsonl", urr)
-    # profiler 001: a normal sample at T0+1, and a FUTURE-arriving sample (arrival T0+6) with a telltale value
-    prof = [
-        {"source_ts": T0 + 1, "arrival_ts": T0 + 1, "supi": "001", "prof_ul_kbps": 10, "prof_dl_kbps": 0,
-         "prof_ul_pps": 5, "prof_dl_pps": 0, "prof_ul_mean_bytes": 250, "prof_dl_mean_bytes": 0,
-         "prof_ul_tcp": 0, "prof_ul_tcp_syn": 0, "prof_ul_udp": 5, "prof_ul_icmp": 0, "prof_ul_frag": 0,
-         "prof_ul_dns": 0, "prof_ul_gtp_in_gtp": 0, "prof_dl_tcp": 0, "prof_dl_tcp_syn": 0, "prof_dl_udp": 0,
-         "prof_dl_icmp": 0, "prof_dl_frag": 0, "prof_ul_dst_estimate": 1},
-        {"source_ts": T0 + 6, "arrival_ts": T0 + 6, "supi": "001", "prof_ul_kbps": 99999, "prof_dl_kbps": 0,
-         "prof_ul_pps": 5, "prof_dl_pps": 0, "prof_ul_mean_bytes": 250, "prof_dl_mean_bytes": 0,
-         "prof_ul_tcp": 0, "prof_ul_tcp_syn": 0, "prof_ul_udp": 5, "prof_ul_icmp": 0, "prof_ul_frag": 0,
-         "prof_ul_dns": 0, "prof_ul_gtp_in_gtp": 0, "prof_dl_tcp": 0, "prof_dl_tcp_syn": 0, "prof_dl_udp": 0,
-         "prof_dl_icmp": 0, "prof_dl_frag": 0, "prof_ul_dst_estimate": 1},
-    ]
-    write(run, "prof.jsonl", prof)
-    flows = {"phases": [{"phase": "p1", "start": T0, "end": T0 + 10,
-                         "ues": {"ue1": {"supi": "001", "attack_family": "udp_flood"},
-                                 "ue2": {"supi": "002", "attack_family": None}}}]}
-    (run / "flows.json").write_text(json.dumps(flows))
+    run = pathlib.Path(tmp) / "c/runs/off/rep-01"
+    # KPM: A thp=100, B thp=200 for T0..T0+19; hole for A in T0+6..T0+10 (age-cap test)
+    k = [kpm(T0 + i, A, 100) for i in range(20) if not 6 <= i <= 10] + [kpm(T0 + i, Bs, 200) for i in range(20)]
+    wr(run / "raw/kpm.jsonl", k)
+    u = [urr(A, 1, 100, 0, T0 + 1.5, arrival=T0 + 1.6),
+         urr(A, 2, 101, 125000, T0 + 2.5, arrival=T0 + 2.6),            # 1000 kbps over 1 s
+         urr(A, 3, 103, 250000, T0 + 4.5, arrival=T0 + 4.6),            # 1000 kbps over 2 s (delta duration)
+         urr(A, 1, 5, 999999, T0 + 12.5, arrival=T0 + 12.6, session="S2"),   # new session, no predecessor
+         urr(Bs, 1, 50, 0, T0 + 1.5, legacy_second=T0 + 2),             # legacy second-precision stamp
+         urr(Bs, 2, 51, 62500, T0 + 2.5, legacy_second=T0 + 3)]         # usable only from T0+4 (padded +1 s)
+    wr(run / "core/urr_received.jsonl", u)
+    p = [prof(A, T0 + 1.3, T0 + 1.4, 1250, 10),
+         prof(A, T0 + 3.3, T0 + 15.4, 99_999_000, 5, syn=5)]            # arrives very late -> future for t<T0+16
+    wr(run / "core/core_received.jsonl", p)
+    meta = {"ues": {"ue1": {"supi": A}, "ue2": {"supi": Bs}},
+            "phases": [{"name": "idle", "t_start": T0, "t_end": T0 + 2},
+                       {"name": "atk", "t_start": T0 + 2, "t_end": T0 + 14},
+                       {"name": "gap", "t_start": T0 + 14, "t_end": T0 + 17}]}
+    (run / "run.json").write_text(json.dumps(meta))
+    wr(run / "traffic/flows.json", [])
+    (run / "traffic/flows.json").write_text(json.dumps([
+        {"phase": "atk", "ue": "ue1", "attack": "udp_flood"},
+        {"phase": "atk", "ue": "ue2", "attack": None}]))
     return run
+
+
+def nan(x):
+    return x is None or (isinstance(x, float) and math.isnan(x))
 
 
 def main():
     fails = []
+    def check(cond, msg):
+        if not cond:
+            fails.append(msg)
     with tempfile.TemporaryDirectory() as tmp:
-        run = make_run(tmp)
-        rows = B.build_run(run, age_cap=3.0)
+        rows = B.build_run(make_run(tmp), age_cap=3.0, core_age_cap=3.0)
         by = {}
         for r in rows:
             by.setdefault(r["supi"], {})[r["t_unix"]] = r
+        a, b = by[A], by[Bs]
 
-        # 1) CAUSALITY: the future-arriving prof (arrival T0+6, value 99999) must never
-        #    appear at any t < T0+6.
-        leak = [t for t, r in by["001"].items() if t < T0 + 6 and r.get("prof_ul_kbps") == 99999]
-        if leak:
-            fails.append(f"causality: future prof used at t={leak}")
-
-        # 2) URR non-negative despite a counter reset.
-        negs = [(s, t, r.get("urr_ul_kbps")) for s in by for t, r in by[s].items()
-                if r.get("urr_ul_kbps") is not None and not (isinstance(r["urr_ul_kbps"], float) and np.isnan(r["urr_ul_kbps"]))
-                and r["urr_ul_kbps"] < 0]
-        if negs:
-            fails.append(f"urr delta negative: {negs[:3]}")
-
-        # 3) UE JOIN: supi 001 rows carry thp 100, supi 002 carry 200, never swapped.
-        bad001 = [t for t, r in by["001"].items() if r.get("thp_ul_kbps") == 200]
-        bad002 = [t for t, r in by["002"].items() if r.get("thp_ul_kbps") == 100]
-        if bad001 or bad002:
-            fails.append(f"ue join mixed: 001@{bad001} 002@{bad002}")
-
-        # 4) AGE CAP: at t=T0+8 the latest causal KPM for 001 is T0+3 (age 5 > 3) -> NaN.
-        v = by["001"].get(T0 + 8, {}).get("thp_ul_kbps", None)
-        if not (v is None or (isinstance(v, float) and np.isnan(v))):
-            fails.append(f"age cap not applied: t=T0+8 thp={v}")
-
-        # 5) SEPARATION: FEATURES and META are disjoint; label not a feature.
-        if not set(B.FEATURES).isdisjoint(set(B.META)):
-            fails.append("FEATURES and META overlap")
-        if "label" in B.FEATURES:
-            fails.append("label is in FEATURES")
-
-        # 6) LABEL from schedule: 001 MALICIOUS (udp_flood), 002 BENIGN.
-        if any(r["label"] != "MALICIOUS" for t, r in by["001"].items() if T0 <= t < T0 + 10):
-            fails.append("001 not labelled MALICIOUS in phase")
-        if any(r["label"] != "BENIGN" for t, r in by["002"].items() if T0 <= t < T0 + 10):
-            fails.append("002 not labelled BENIGN in phase")
-
+        # 1 causality: the late profile (arrival T0+15.4) never appears before it arrived
+        check(all(r["prof_ul_kbps"] != 99_999_000 * 8 / 1000 for t, r in a.items() if t < T0 + 15.4),
+              "causality: future-arriving profile used early")
+        # 2 URR per-period semantics: before seq2 arrives -> NaN; after -> 1000 kbps
+        check(nan(a[T0 + 2]["urr_ul_kbps"]), "urr: rate before a causal predecessor should be NaN")
+        check(abs(a[T0 + 3]["urr_ul_kbps"] - 1000.0) < 1e-9, f"urr: expected 1000 kbps at T0+3, got {a[T0+3]['urr_ul_kbps']}")
+        # 3 period = delta of cumulative duration (2 s) -> still 1000 kbps
+        check(abs(a[T0 + 5]["urr_ul_kbps"] - 1000.0) < 1e-9, f"urr: delta-duration period wrong, got {a[T0+5]['urr_ul_kbps']}")
+        # 4 new session without predecessor -> NaN (no cross-session delta)
+        check(nan(a[T0 + 13]["urr_ul_kbps"]), "urr: cross-session delta used")
+        # 5 legacy second-precision arrival padded +1 s: seq2 (received_at T0+3) usable only at T0+4
+        check(nan(b[T0 + 3]["urr_ul_kbps"]), "urr: legacy stamp not padded (used at T0+3)")
+        check(abs(b[T0 + 4]["urr_ul_kbps"] - 500.0) < 1e-9, f"urr: legacy record not used at T0+4, got {b[T0+4]['urr_ul_kbps']}")
+        check(b[T0 + 4]["urr_arrival_exact"] == 0 and a[T0 + 3]["urr_arrival_exact"] == 1, "urr: arrival_exact flag")
+        # 6 non-negative URR everywhere
+        check(all(nan(r["urr_ul_kbps"]) or r["urr_ul_kbps"] >= 0 for s in by.values() for r in s.values()), "urr: negative rate")
+        # 7 UE join: A carries 100, B carries 200, never swapped
+        check(all(nan(r["thp_ul_kbps"]) or r["thp_ul_kbps"] == 100 for r in a.values()), "join: A got B's KPM")
+        check(all(r["thp_ul_kbps"] == 200 for r in b.values()), "join: B got A's KPM")
+        # 8 age cap: A's last causal KPM before the hole is T0+5 -> at T0+9 age ~3.8 s > 3 -> NaN
+        check(nan(a[T0 + 9]["thp_ul_kbps"]), "age cap not applied to KPM")
+        # 9 labels from schedule; IDLE kept apart from BENIGN
+        check(a[T0 + 5]["label"] == "MALICIOUS" and a[T0 + 5]["attack_family"] == "udp_flood", "label: ue1 in atk")
+        check(b[T0 + 5]["label"] == "BENIGN", "label: ue2 benign flow in atk")
+        check(a[T0 + 1]["label"] == "IDLE" and a[T0 + 15]["label"] == "IDLE", "label: idle/gap must be IDLE")
+        check(a[T0 + 2]["guard"] == 1 and a[T0 + 8]["guard"] == 0, "guard band")
+        # 10 separation
+        df = B.to_frame(rows)
+        feat = set(B.FEATURES)
+        check(not any(c.startswith("meta_") for c in feat) and "label" not in feat, "FEATURES contain meta/label")
+        check(all(c in feat or c.startswith("meta_") or c == "label" for c in df.columns), "unexpected column in frame")
     if fails:
-        print("FAIL:")
-        for f in fails:
-            print("  -", f)
-        sys.exit(1)
-    print("ALL TESTS PASSED (causality, urr-delta>=0, ue-join, age-cap, separation, labels)")
+        print("FAIL:"); [print("  -", f) for f in fails]; sys.exit(1)
+    print("ALL TESTS PASSED (causality, urr per-period, delta-duration, session reset, legacy +1s pad, "
+          "non-negative, ue-join, age-cap, labels+IDLE, guard, separation)")
 
 
 if __name__ == "__main__":

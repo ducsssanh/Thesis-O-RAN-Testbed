@@ -169,13 +169,18 @@ def recover(logf=None):
 
 
 # ---------------------------------------------------------------- loops
-def watch(interval, logf, auto_recover):
-    log("watch_start", logf, interval=interval, auto_recover=auto_recover)
+def watch(interval, logf, auto_recover, fail_ticks=3):
+    """Recover only after `fail_ticks` consecutive unhealthy ticks, so a harness
+    preflight that briefly restarts a UE does not trigger a core restart mid-run."""
+    log("watch_start", logf, interval=interval, auto_recover=auto_recover, fail_ticks=fail_ticks)
+    bad = 0
     while True:
         healthy, reasons = check(verbose=False)
-        log("tick", logf, healthy=healthy, reasons=reasons)
-        if not healthy and auto_recover:
+        bad = 0 if healthy else bad + 1
+        log("tick", logf, healthy=healthy, reasons=reasons, consecutive_bad=bad)
+        if bad >= fail_ticks and auto_recover:
             recover(logf)
+            bad = 0
         time.sleep(interval)
 
 
@@ -202,6 +207,7 @@ def main():
     w.add_argument("--interval", type=int, default=60)
     w.add_argument("--log", default=None)
     w.add_argument("--recover", action="store_true")
+    w.add_argument("--fail-ticks", type=int, default=3, help="consecutive unhealthy ticks before recovering")
     g = sub.add_parser("guard")
     g.add_argument("rest", nargs=argparse.REMAINDER)
     a = ap.parse_args()
@@ -215,7 +221,7 @@ def main():
         log("probe", loss_pct=loss)
         sys.exit(0 if (loss is not None and loss < 50) else 1)
     elif a.cmd == "watch":
-        watch(a.interval, a.log, a.recover)
+        watch(a.interval, a.log, a.recover, a.fail_ticks)
     elif a.cmd == "guard":
         rest = a.rest[1:] if a.rest and a.rest[0] == "--" else a.rest
         sys.exit(guard(" ".join(rest), None))
