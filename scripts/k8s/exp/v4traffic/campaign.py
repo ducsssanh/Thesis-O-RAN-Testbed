@@ -50,17 +50,15 @@ def _kexec(ns, deploy, container, *cmd, timeout=20):
 
 
 def pfcp_associated():
-    """True if the SMF holds a PFCP N4 association with the UPF. The association is logged
-    once at SMF startup and persists for the pod's life, so grep the WHOLE current-pod log
-    (not a time window) for the setup line and make sure no teardown followed it."""
-    import subprocess
-    p = subprocess.run(["kubectl", "--context", "oai-lab", "-n", "oai-core", "logs",
-                        "deploy/oai-smf", "-c", "smf"], capture_output=True, text=True,
-                       encoding="utf-8", errors="replace", timeout=30)
-    if "Added PFCP association with UPF" not in p.stdout:
+    """True if the SMF<->UPF PFCP N4 association is LIVE right now. Authoritative and
+    rotation-proof: the UPF security API lists the PFCP sessions it currently holds, which
+    can only exist over a live N4 association (the startup 'Added PFCP association' log line
+    rotates out of a long-lived SMF log, so grepping for it gives false negatives)."""
+    try:
+        s, body = lab.upf("GET", "/v1/sessions")
+    except Exception:
         return False
-    after = p.stdout.split("Added PFCP association with UPF")[-1]
-    return "ASSOCIATION RELEASE" not in after.upper() and "association setup request" not in after.lower()
+    return s == 200 and len((body or {}).get("sessions", [])) >= 1
 
 
 def urr_fresh(ue_supi=None, max_age=3.0):
