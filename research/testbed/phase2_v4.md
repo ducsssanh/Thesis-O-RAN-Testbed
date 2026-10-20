@@ -131,3 +131,69 @@ the evidence that the two classes occupy the same feature space.
 
 **Per the plan, STOP here for user approval before the Phase 3 campaign design + Phase 4
 full capture.**
+
+---
+
+## Pre-Phase-3 analysis (2026-10-20, on the existing pilot — no new capture)
+
+**Balance (2a):** P(malicious|UE) = ue1 0.60 / ue2 0.40 (pilot role-split; Phase 3
+balances per cell). P(malicious|backend): pacer 0.67, hping 0.67, iperf 0.50 (dual-use,
+pilot-noisy); dns_client / tcp_shortconn = 0 by design (benign-only hard-negatives,
+excluded from the [0.4,0.6] check).
+
+**Adversarial validation + nuisance baseline (2b)** — wired into `qa_v4.py`
+(GroupKFold by run_id, falling back to phase for a 1-run pilot; HGB; chance AUC 0.5):
+within-class nuisance AUCs are inflated in the pilot because each backend/victim_mode
+occupies a single phase (backend≈phase≈ue), so the diagnostic only becomes meaningful
+with the many-phase campaign grouped by run_id. Nuisance-only baseline (label from meta_
+only): **AUC 0.62** (innocent: ue+timing+load+victim), driven by the 0.60/0.40 UE
+imbalance; Phase-3 balance targets drive it toward 0.5. Plumbing verified; it is the
+headline confound metric for the campaign.
+
+**Per-pair packet-size overlap (2c):** all UDP attack↔benign pairs showed only **0.13**
+size overlap — attacker and counterpart drew *independent* Dirichlet weights, so their
+mean packet sizes differ per phase.
+
+**Size-prior dry-run (2d, `design.py sizes`, no testbed):** simulating the shared prior
+over a campaign shows the problem is **by design, not fixable by reps**:
+
+| policy | pooled overlap | per-cell overlap (median) |
+|---|---:|---:|
+| independent draws | 0.94 | **0.00** |
+| shared-per-cell draw | 0.99 | **0.68** |
+
+Pooled overlap is high either way (averaging over reps *hides* it), but the per-cell
+overlap — what a per-phase detector sees — stays 0 unless the two flows of a cell share
+one size draw. **Fix applied:** `planbuilder.build_plan` now takes a separate `size_seed`
+(default = `seed`); a Phase-3 size-matched cell gives both flows the same `size_seed` so
+their packet-size mix is identical per phase while behaviour seeds stay distinct.
+Protocol-fixed pairs (SYN vs tcp_shortconn, ICMP) keep distinct sizes by design (a valid
+signal, not a confound).
+
+## New generators + intervention smoke (ds-v4smoke, no full gate)
+icmp_flood↔icmp_ping, fanout_udp↔fanout_benign, mimicry_udp↔udp_nofeedback (stress,
+train-excluded), and a tc-tbf congestion phase. All ran; labels + raw KPM + meta captured:
+- **fan-out works:** `prof_ul_dst_estimate` ~96 under fan-out vs ~0.85 otherwise (the
+  destination-spread signal). pacer gained a `fanout` dst-sweep over the DN /24.
+- **mimicry** flagged `meta_stress_cell=1`; **congestion** `meta_congestion=1` (tc tbf on
+  UPF N6 applied per phase and cleared after; also cleared on the error path).
+- ICMP/congest/bursty phases show the same ~10% pacing / single-phase-variance achieved
+  noise already noted (not a delivery or pipeline fault).
+- `meta_fanout, meta_stress_cell, meta_congestion` added to the builder/dataset.
+
+Limitation noted: with a single DN host, fanout_benign's "many responsive destinations"
+is approximated (benign fan-out has aggregate DL feedback, attacker fan-out is silent);
+per-destination bidirectionality is not measured. DN IP aliases are a P2 improvement.
+
+## Phase-3 design constraints (locked from Phase 0 + the above)
+1. Peak of every schedule ≤ the measured linear region (≈10 Mbit/s/UE, 8000 pps 64 B) —
+   the iperf+on-off miss came from burst peaks exceeding it.
+2. Bursty schedules (fGn, on-off-Pareto, MMPP, Hawkes, pulsing) run through the **pacer**;
+   iperf/hping only carry piecewise-constant (CBR-ish) schedules.
+3. `achieved_ok ≥ 90%` is evaluated **campaign-wide**; the report lists failing phases by
+   backend/family (single bursty phases miss on sampling variance alone).
+4. Size-matched pairs share `size_seed` per cell (2d); protocol-fixed pairs do not.
+
+**Still STOP for approval before the full campaign.** Next: `design.py` campaign plan
+(fractional-factorial / LHS over the section-6.2 factors with the balance constraints) +
+ETA, for review.

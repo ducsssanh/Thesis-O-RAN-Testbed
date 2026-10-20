@@ -18,6 +18,98 @@ import numpy as np, pandas as pd
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import build_dataset_v4 as B
 
+try:
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.model_selection import GroupKFold, StratifiedKFold
+    from sklearn.metrics import roc_auc_score
+    from sklearn.preprocessing import LabelEncoder
+    _SK = True
+except ImportError:
+    _SK = False
+
+FGROUPS = {"RAN": B.KPM, "URR": B.URR, "prof": B.PROF}
+
+
+def _cv_auc(X, y, groups, n_splits=4):
+    """Grouped-CV macro-AUC of predicting y from X. Groups keep a run (or, for a
+    1-run pilot, a phase) whole, so the score is not inflated by within-group leakage.
+    Chance = 0.5. HGB tolerates NaN features natively."""
+    X = X.reset_index(drop=True)
+    y = LabelEncoder().fit_transform(np.asarray(y).astype(str))
+    groups = np.asarray(groups)
+    if len(np.unique(y)) < 2 or len(X) < 20:
+        return None
+    ng = len(np.unique(groups))
+    if ng >= 2:
+        k = min(n_splits, ng)
+        splits = list(GroupKFold(n_splits=k).split(X, y, groups))
+    else:
+        splits = list(StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=0).split(X, y))
+    aucs = []
+    for tr, te in splits:
+        if len(np.unique(y[tr])) < 2 or len(np.unique(y[te])) < 2 or len(tr) < 10:
+            continue
+        try:
+            clf = HistGradientBoostingClassifier(max_depth=3, max_iter=60,
+                                                 min_samples_leaf=max(5, len(tr) // 50), random_state=0)
+            clf.fit(X.iloc[tr], y[tr])
+            p = clf.predict_proba(X.iloc[te])
+            if p.shape[1] == 2:
+                aucs.append(roc_auc_score(y[te], p[:, 1]))
+            else:
+                aucs.append(roc_auc_score(y[te], p, multi_class="ovr", average="macro", labels=clf.classes_))
+        except Exception:                             # tiny/degenerate pilot folds: skip, don't crash the report
+            continue
+    return float(np.mean(aucs)) if aucs else None
+
+
+def _group_col(df):
+    """run_id if ≥2 runs, else phase (so a 1-run pilot still groups sanely)."""
+    return ("meta_run_id", False) if df["meta_run_id"].nunique() >= 2 else ("meta_phase", True)
+
+
+def adversarial_validation(df):
+    """Within EACH class, try to predict each nuisance (ue/backend/victim_mode) from
+    each telemetry domain. High AUC ⇒ that domain fingerprints that nuisance — a risk
+    the detector could exploit as a shortcut. Reported as a finding, not hidden."""
+    gcol, fell_back = _group_col(df)
+    nb = df[df.label.isin(["BENIGN", "MALICIOUS"])]
+    rows = []
+    for cls in ("BENIGN", "MALICIOUS"):
+        g = nb[nb.label == cls]
+        for tgt, nm in (("meta_ue", "ue"), ("meta_backend", "backend"), ("meta_victim_mode", "victim_mode")):
+            if tgt not in g or g[tgt].nunique() < 2:
+                continue
+            rec = {"class": cls, "target": nm, "n_tgt": int(g[tgt].nunique())}
+            for dom, feats in FGROUPS.items():
+                cols = [f for f in feats if f in g]
+                rec[dom] = _cv_auc(g[cols], g[tgt].astype(str), g[gcol])
+            rows.append(rec)
+    return rows, gcol, fell_back
+
+
+def nuisance_baseline(df):
+    """Predict the LABEL from meta_ only (no telemetry). Two feature sets: 'innocent'
+    (ue + timing + load + victim_mode — must-not-leak; target AUC ≈ 0.5) and '+backend'
+    (adds backend; benign-only hard-negatives legitimately carry signal)."""
+    gcol, _ = _group_col(df)
+    nb = df[df.label.isin(["BENIGN", "MALICIOUS"])].copy()
+    y = (nb.label == "MALICIOUS").astype(int)
+    def enc(cols):
+        X = pd.DataFrame(index=nb.index)
+        for c in cols:
+            if c not in nb:
+                continue
+            if pd.api.types.is_numeric_dtype(nb[c]):
+                X[c] = pd.to_numeric(nb[c], errors="coerce")
+            else:
+                X[c] = LabelEncoder().fit_transform(nb[c].astype(str))
+        return X
+    innocent = ["meta_ue", "meta_t_since_phase_start", "meta_load_mbps", "meta_victim_mode"]
+    out = {"innocent": _cv_auc(enc(innocent), y, nb[gcol]),
+           "with_backend": _cv_auc(enc(innocent + ["meta_backend"]), y, nb[gcol])}
+    return out
+
 
 def causality_audit(df, runs):
     srcs = {}
@@ -207,6 +299,51 @@ def main():
                  f"cell containing BOTH classes (common support). Cell-distribution L1 imbalance "
                  f"{cem['l1_before']:.2f} → {('%.2f' % cem['l1_after']) if cem['l1_after'] is not None else 'n/a'} after "
                  f"restricting to common support. High common support ⇒ a volume-matched control exists for the thesis.")
+
+    L.append("\n## 6. Packet-size overlap per attack ↔ counterpart pair\n")
+    L.append("Each attack phase pairs the attacker with its load-matched benign counterpart "
+             "in the same cell. Overlap of `prof_ul_mean_bytes` (mean packet size) between the two — "
+             "a shared size prior should keep UDP pairs high; protocol-fixed pairs (SYN vs short-conn) "
+             "differ by design (a *valid* distinguishing signal, not a confound).\n")
+    L.append("| phase | attacker (backend/family) | counterpart (backend/class) | size overlap |\n|---|---|---|---:|")
+    nbp = df[df.label.isin(["BENIGN", "MALICIOUS"])]
+    for ph, g in nbp.groupby("meta_phase"):
+        mal, ben = g[g.label == "MALICIOUS"], g[g.label == "BENIGN"]
+        if not len(mal) or not len(ben):
+            continue
+        ov = _ovl(ben["prof_ul_mean_bytes"], mal["prof_ul_mean_bytes"], 12)
+        al = f"{mal['meta_backend'].iloc[0]}/{mal['meta_attack_family'].iloc[0]}"
+        bl = f"{ben['meta_backend'].iloc[0]}/{ben['meta_benign_class'].iloc[0]}"
+        L.append(f"| {ph} | {al} | {bl} | {'—' if ov is None else f'{ov:.2f}'} |")
+
+    L.append("\n## 7. Adversarial validation (nuisance fingerprinting; chance AUC = 0.5)\n")
+    if not _SK:
+        L.append("_scikit-learn not available — skipped._")
+    else:
+        rows, gcol, fb = adversarial_validation(df)
+        L.append(f"Grouped by `{gcol}`" + (" (1 run → phase groups; campaign will group by run_id)" if fb else "") +
+                 ". AUC predicting each nuisance *within* a class, per telemetry domain:\n")
+        L.append("| class | nuisance | #vals | RAN | URR | prof |\n|---|---|---:|---:|---:|---:|")
+        for r in rows:
+            L.append(f"| {r['class']} | {r['target']} | {r['n_tgt']} | "
+                     + " | ".join("—" if r.get(d) is None else f"{r[d]:.2f}" for d in ("RAN", "URR", "prof")) + " |")
+        L.append("\nHigh AUC ⇒ the domain fingerprints that nuisance. In this 1-run pilot each "
+                 "backend occupies a single phase, so `backend` ≈ phase and its AUC is inflated by that "
+                 "confound; the campaign (many phases per backend, grouped by run_id) is what makes this "
+                 "diagnostic meaningful. `ue | RAN` high would mean RFsim fingerprints the UE.")
+
+    L.append("\n## 8. Nuisance-only baseline (predict label from meta_ only; target AUC ≈ 0.5)\n")
+    if not _SK:
+        L.append("_scikit-learn not available — skipped._")
+    else:
+        nbl = nuisance_baseline(df)
+        L.append(f"- innocent nuisances (ue + timing + load + victim_mode): **AUC {nbl['innocent']:.2f}**"
+                 if nbl["innocent"] is not None else "- innocent: —")
+        L.append(f"- + backend: **AUC {nbl['with_backend']:.2f}** (benign-only hard-negative backends "
+                 "legitimately carry label signal — expected > 0.5)"
+                 if nbl["with_backend"] is not None else "- + backend: —")
+        L.append("\nThe innocent-nuisance AUC is the headline confound metric; the Phase-3 campaign "
+                 "balance targets drive it to ≈0.5 (the pilot's residual comes from the 0.60/0.40 UE imbalance).")
 
     (root / "qa_report.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))

@@ -1,0 +1,38 @@
+name: ds-v4smoke
+description: |
+  v4 Phase-2 SMOKE for the newly added generators/intervention (NOT a full gate):
+  icmp_flood vs icmp_ping, fanout_udp vs fanout_benign, mimicry_udp vs udp_nofeedback
+  (stress cell, train-excluded), and a tc-tbf congestion phase. Checks each runs,
+  labels/raw are captured and achieved is sane. Matched UDP pairs share size_seed
+  (the Phase-2 per-cell size-match fix). Detection OFF.
+ues: {ue1: attacker, ue2: benign}
+reps: 1
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle, duration: 12}
+  # ICMP flood vs benign low-rate ping (same protocol, matched level); victim responds (echo reply)
+  - {name: p-icmp, duration: 25, attack: true, victim_mode: responsive, flows: {
+        ue1: {ul: {v4: true, backend: hping, mode: icmp, model: cbr, level_mbps: 0.2, role: attack, seed: 61}},
+        ue2: {ul: {v4: true, backend: hping, mode: icmp, model: cbr, level_mbps: 0.2, role: benign, seed: 62}}}}
+  - {name: gap1, duration: 8}
+  # fan-out: both sweep the DN /24; attacker silent (no return), benign has DL feedback (two-way). shared size
+  - {name: p-fanout, duration: 25, attack: true, victim_mode: silent, flows: {
+        ue1: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: attack, seed: 71, size_seed: 700, fanout: 64, size_alpha: 0.2}},
+        ue2: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.4, role: benign, seed: 72, size_seed: 700, fanout: 64, size_alpha: 0.2}}}}
+  - {name: gap2, duration: 8}
+  # mimicry: attack indistinguishable from a no-feedback benign (match ALL axes). stress cell -> train-excluded
+  - {name: p-mimicry, duration: 25, attack: true, victim_mode: silent, flows: {
+        ue1: {ul: {v4: true, backend: pacer, model: onoff_pareto, level_mbps: 0.4, role: attack, seed: 81, size_seed: 800, dl_feedback: 0, stress_cell: true}},
+        ue2: {ul: {v4: true, backend: pacer, model: onoff_pareto, level_mbps: 0.4, role: benign, seed: 82, size_seed: 800, dl_feedback: 0}}}}
+  - {name: gap3, duration: 8}
+  # congestion: tc tbf on the UPF N6 egress during the phase; attacker + benign both present
+  - {name: p-congest, duration: 25, attack: true, victim_mode: responsive, congestion: {rate: 4mbit},
+     flows: {
+        ue1: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.8, role: attack, seed: 91, size_seed: 900}},
+        ue2: {ul: {v4: true, backend: pacer, model: cbr, level_mbps: 0.8, role: benign, seed: 92, size_seed: 900}}}}
+report: [benign_delivered_ratio_baseline]

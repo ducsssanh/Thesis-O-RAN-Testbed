@@ -127,6 +127,20 @@ def clear_victim_silent(attacker_ip, proto, dport):
     _dn(f"while iptables -D {' '.join(_victim_rule(attacker_ip, proto, dport))} 2>/dev/null; do :; done")
 
 
+# ---- congestion intervention (§6.1): tc tbf on the UPF N6 egress -------------
+def _upf(cmd):
+    return _k(["-n", "oai-core", "exec", "deploy/oai-upf", "-c", "upf", "--", "sh", "-c", cmd])
+
+
+def set_congestion(rate="6mbit", burst="32kb", latency="50ms", iface="n6"):
+    """Shape the UPF N6 egress (DL toward the DN side is n6 tx) to `rate` for a window."""
+    _upf(f"tc qdisc replace dev {iface} root tbf rate {rate} burst {burst} latency {latency}")
+
+
+def clear_congestion(iface="n6"):
+    _upf(f"tc qdisc del dev {iface} root 2>/dev/null; true")
+
+
 def _start_dn_server(backend, port, seconds):
     """Launch the DN server in a background thread; returns the thread (join at the end)."""
     cmd = _dn_server_cmd(backend, port, seconds)

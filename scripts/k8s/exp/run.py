@@ -154,11 +154,18 @@ def run_once(scn, variant, rep, camp_dir):
                 ph["action"] = {**act, "seconds": round(time.time() - t_a, 1), "new_ip": ip}
             ips = {n: lab.ue_ip(n, wait=30) for n in ue_names}
             flows = []
+            cong = p.get("congestion")                 # phase-level env: {rate, burst?, latency?}
             for ue, dirs in (p.get("flows") or {}).items():
                 for d, spec in dirs.items():
                     port += 1
-                    if isinstance(spec, dict) and "victim_mode" in p and "victim_mode" not in spec:
-                        spec = {**spec, "victim_mode": p["victim_mode"]}  # phase-level env property
+                    if isinstance(spec, dict):
+                        env = {}
+                        if "victim_mode" in p and "victim_mode" not in spec:
+                            env["victim_mode"] = p["victim_mode"]
+                        if cong and "congestion" not in spec:
+                            env["congestion"] = cong
+                        if env:
+                            spec = {**spec, **env}     # phase-level env properties
                     flows.append(traffic.make_flow(ue, d, spec, payload, p["duration"], port, ips[ue]))
             for f in flows:
                 f.start_server()
@@ -167,6 +174,9 @@ def run_once(scn, variant, rep, camp_dir):
             ph["t_start"] = round(time.time(), 3)
             for f in flows:
                 f.start_client()
+            if cong:
+                traffic.v4_set_congestion(cong)
+                ph["congestion"] = cong
             stop = p.get("stop_when")
             t_end = time.time() + p["duration"]
             while time.time() < t_end:
@@ -178,6 +188,8 @@ def run_once(scn, variant, rep, camp_dir):
                     break
                 time.sleep(0.5)
             ph["t_end"] = round(time.time(), 3)
+            if cong:
+                traffic.v4_clear_congestion()
             for f in flows:
                 f.stop()
             for f in flows:
@@ -242,6 +254,10 @@ def run_once(scn, variant, rep, camp_dir):
         (run_dir / "error.txt").write_text(traceback.format_exc())
         for d in (["oai-core", "oai-lab-dn", "dn"],) + tuple(["oai-ran", lab.UES[n][0], "nr-ue"] for n in ue_names):
             lab.ex(*d, "pkill", "iperf", check=False)
+        try:
+            traffic.v4_clear_congestion()             # never leave tc shaping on the UPF
+        except Exception:
+            pass
         log("   FAILED: %s" % e)
         return False
 

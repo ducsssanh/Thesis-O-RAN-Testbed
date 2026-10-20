@@ -42,12 +42,19 @@ def _series(model, rbar, T, rng, mean_size, **kw):
 
 
 def build_plan(spec, T, dst, bind, port):
-    """Return (plan, meta). plan -> runner.run_backend; meta -> flows.json label."""
+    """Return (plan, meta). plan -> runner.run_backend; meta -> flows.json label.
+
+    `seed` drives the behaviour (schedule/mixer). The size prior is drawn from a
+    SEPARATE `size_seed` (default = seed): the Phase-3 design gives both flows of one
+    size-matched cell the same `size_seed` so their packet-size mix is identical
+    per-phase (the dry-run in design.py shows independent draws leave per-cell size
+    overlap ≈ 0 even across many reps), while keeping distinct behaviour seeds."""
     rng = np.random.default_rng(spec["seed"])
+    size_rng = np.random.default_rng(spec.get("size_seed", spec["seed"]))
     backend = spec["backend"]
     model = spec.get("model", "cbr")
     level = float(spec["level"])
-    mean_size, size_mix = _mean_size_for(spec, rng)
+    mean_size, size_mix = _mean_size_for(spec, size_rng)
 
     if spec["role"] == "attack":
         from mixer import background_share, mix

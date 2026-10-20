@@ -298,6 +298,10 @@ class V4Flow:
         self.mode = self.spec.get("mode")
         self.level = float(self.spec.get("level", 0.0))
         self.plan, self.meta = planbuilder.build_plan(self.spec, int(duration), DN_IP, ip, port)
+        self.fanout = int(self.spec.get("fanout", 0) or 0)
+        if self.fanout > 1:
+            self.plan["fanout"] = self.fanout
+        self.stress_cell = bool(self.spec.get("stress_cell"))
         # L4 protocol on the wire (for the victim-mode DROP + the DL-feedback port)
         self.proto = ("tcp" if self.backend == "tcp_shortconn" or (self.backend == "hping" and self.mode == "syn")
                       else "icmp" if self.backend == "hping" and self.mode == "icmp" else "udp")
@@ -378,13 +382,30 @@ class V4Flow:
              "mode": self.mode, "native_unit": self.native_unit, "proto": self.proto,
              "target_ul_bytes_s": self.target_ul_bytes_s, "target_ul_pps": self.target_ul_pps,
              "load_mbps": round(self.level * 8 / 1e6, 4), "victim_mode": self.victim_mode,
-             "dl_feedback": self.dl_feedback, "v4_meta": self.meta}
+             "dl_feedback": self.dl_feedback, "fanout": self.fanout, "stress_cell": int(self.stress_cell),
+             "congestion": int(bool(self.spec.get("congestion"))), "v4_meta": self.meta}
         if self.backend == "dns_client":
             s["answers"] = sum(r.get("answers", 0) for r in self._achieved)
         if self.backend == "tcp_shortconn":
             s["conn_failed"] = sum(r.get("conn_failed", 0) for r in self._achieved)
         s["attack" if self.malicious else "gen"] = "%s/%s" % (self.backend, self.model)
         return s
+
+
+def _v4runner():
+    if _V4DIR not in sys.path:
+        sys.path.insert(0, _V4DIR)
+    import runner as v4runner
+    return v4runner
+
+
+def v4_set_congestion(cfg):
+    """Apply the phase congestion shaping (tc tbf on UPF N6). cfg: {rate, burst?, latency?}."""
+    _v4runner().set_congestion(**{k: v for k, v in cfg.items() if k in ("rate", "burst", "latency", "iface")})
+
+
+def v4_clear_congestion():
+    _v4runner().clear_congestion()
 
 
 def make_flow(ue, direction, spec, length, duration, port, ip):

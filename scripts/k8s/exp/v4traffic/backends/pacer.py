@@ -45,6 +45,13 @@ def main():
         s.bind((p["bind"], 0))
     s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1 << 20)
     payloads = {l: bytes(max(l - 28, 1)) for l in lens}   # IP len -> UDP payload bytes
+    # fan-out: rotate the destination host over <dst_base>.1 .. .N (dst_estimate signal)
+    fanout = int(p.get("fanout", 0) or 0)
+    if fanout > 1:
+        base = ".".join(dst.split(".")[:3])
+        dsts = [f"{base}.{(k % fanout) + 1}" for k in range(fanout)]
+    else:
+        dsts = [dst]
 
     start = time.clock_gettime(time.CLOCK_REALTIME)
     mono0 = time.monotonic()
@@ -74,7 +81,7 @@ def main():
                 break                                    # out of budget for this second; record shortfall
             L = szs[k]
             try:
-                s.sendto(payloads[L], (dst, ports[k % len(ports)]))
+                s.sendto(payloads[L], (dsts[k % len(dsts)], ports[k % len(ports)]))
                 sent_pkts += 1
                 sent_bytes += L
             except OSError:
