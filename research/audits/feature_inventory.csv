@@ -1,0 +1,17 @@
+feature_name,definition,source,measurement_level,unit,time_granularity,transformation,availability,leakage_risk,research_relevance
+ran_ul_kbps,ul_bitrate/1000 (RAN-reported UE uplink bit-rate),amari_ue.ul_bitrate,UE,kbit/s,~5.14s,log1p then zscore(train-fit),dataset + testbed(KPM),low,behavioral/volume
+ran_dl_kbps,dl_bitrate/1000,amari_ue.dl_bitrate,UE,kbit/s,~5.14s,log1p then zscore,dataset + testbed(KPM),low,behavioral/volume
+core_ul_kbps,diff(bearer_*_ul_total_bytes)/dt*8/1000 (counter differenced over sample period; resets clamped to 0),amari_ue.bearer_*_ul_total_bytes,UE,kbit/s,~5.14s,log1p then zscore,dataset + testbed(URR/UPF),low,behavioral/volume (core view)
+core_dl_kbps,diff(bearer_*_dl_total_bytes)/dt*8/1000,amari_ue.bearer_*_dl_total_bytes,UE,kbit/s,~5.14s,log1p then zscore,dataset + testbed(URR/UPF),low,behavioral/volume (core view)
+cell_ul_kbps,sum over (cell_id,5s-bucket) of ran_ul_kbps,derived from amari_ue.ul_bitrate,cell,kbit/s,5s bucket,log1p then zscore,dataset + testbed,low,contextual (cell load)
+resid_ul,(ran_ul_kbps-core_ul_kbps)/(core_ul_kbps+1),derived,UE,ratio,~5.14s,zscore,dataset + testbed(KPM vs URR),low,behavioral (RAN-core consistency; MITM signal)
+resid_dl,(ran_dl_kbps-core_dl_kbps)/(core_dl_kbps+1),derived,UE,ratio,~5.14s,zscore,dataset + testbed,low,behavioral (RAN-core consistency)
+ue_cell_ul_share,ran_ul_kbps / sum(cell ran_ul_kbps in 5s bucket) -- TRAFFIC share NOT PRB,derived from amari_ue.ul_bitrate,UE/cell,fraction[0-1],5s bucket,zscore (and used raw in rank),dataset + testbed,medium (prioritisation signal; intensity-correlated),resource-proxy (traffic share; NOT PRB allocation)
+ul_mcs,uplink modulation-coding scheme index,amari_ue.ul_mcs,UE,index,~5.14s,zscore,dataset + testbed(KPM),low,resource/radio condition
+dl_mcs,downlink MCS index,amari_ue.dl_mcs,UE,index,~5.14s,zscore,dataset + testbed(KPM),low,resource/radio condition
+ul_retx,uplink retransmissions,amari_ue.ul_retx,UE,count,~5.14s,zscore,dataset + testbed(KPM),low,behavioral (congestion/err)
+dl_retx,downlink retransmissions,amari_ue.dl_retx,UE,count,~5.14s,zscore,dataset + testbed(KPM),low,behavioral (congestion/err)
+ul_err,uplink errors,amari_ue.ul_err,UE,count,~5.14s,zscore,dataset + testbed(KPM),low,behavioral (err)
+dl_err,downlink errors,amari_ue.dl_err,UE,count,~5.14s,zscore,dataset + testbed(KPM),low,behavioral (err)
+cqi,channel quality indicator,amari_ue.cqi,UE,index,~5.14s,zscore,dataset + testbed(KPM),low,contextual (radio condition)
+pusch_snr,PUSCH signal-to-noise ratio,amari_ue.pusch_snr,UE,dB,~5.14s,zscore,dataset + testbed(KPM),low,contextual (radio condition)

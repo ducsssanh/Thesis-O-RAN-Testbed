@@ -20,3 +20,11 @@ build/
 
 # Datasets (large; not tracked): KDD99, NCSRD-DS-5GDDoS, GTP logs
 /data/
+
+# ML virtualenv (large; recreate from scripts/ml/requirements.txt)
+/.venv-ml/
+
+# Preprocessed ML tensors (regenerate from scripts/ml/prep_ncsrd.py; the dataset is in data/)
+artifacts/ml/*/windows.npz
+/artifacts/experiments/
+/artifacts/ml/

@@ -1,0 +1,26 @@
+name: ds-flood-udp
+description: |
+  Dataset v1 MALICIOUS session: UDP flooding, load-matched to the benign uploads
+  (same 500k/1200k byte-rate band) in BOTH small-packet (64 B, high pps) and
+  LARGE-packet (1400 B) variants. The large-packet flood overlaps benign bulk
+  mean_bytes, and the small-packet flood overlaps benign light -- so neither
+  volume nor packet size alone can label it. Detection OFF. ue1 attacker, ue2
+  benign background.
+ues: {ue1: attacker, ue2: benign}
+reps: 6
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle,       duration: 15}
+  - {name: udp-sm-lo,  duration: 30, attack: true, flows: {ue1: {ul: {attack: udp_flood, rate: 500k,  pkt: 64}},   ue2: {ul: 400k}}}
+  - {name: gap1,       duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: udp-sm-hi,  duration: 30, attack: true, flows: {ue1: {ul: {attack: udp_flood, rate: 1200k, pkt: 64}},   ue2: {ul: 400k}}}
+  - {name: gap2,       duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: udp-lg-lo,  duration: 30, attack: true, flows: {ue1: {ul: {attack: udp_flood, rate: 500k,  pkt: 1400}}, ue2: {ul: 400k}}}
+  - {name: gap3,       duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: udp-lg-hi,  duration: 30, attack: true, flows: {ue1: {ul: {attack: udp_flood, rate: 1200k, pkt: 1400}}, ue2: {ul: 400k}}}
+report: [benign_delivered_ratio_baseline]

@@ -1,0 +1,23 @@
+name: ds-mixed
+description: |
+  Dataset v1 MIXED session: a malicious UE (ue1) and a legitimate heavy uploader
+  (ue2) active CONCURRENTLY at matched load in the same cell -- the strongest
+  controlled comparison (identical radio/cell conditions, same instant). ue1
+  floods (small + large UDP, then fan-out); ue2 does a legitimate bulk upload at
+  the same byte-rate. Per-UE, per-interval ground truth. Detection OFF.
+ues: {ue1: attacker, ue2: benign}
+reps: 6
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle,       duration: 15}
+  - {name: mix-sm,     duration: 40, attack: true, flows: {ue1: {ul: {attack: udp_flood, rate: 1000k, pkt: 64}},   ue2: {ul: {rate: 1000k, pkt: 1400}}}}
+  - {name: gap1,       duration: 12, flows: {ue2: {ul: 300k}}}
+  - {name: mix-lg,     duration: 40, attack: true, flows: {ue1: {ul: {attack: udp_flood, rate: 1000k, pkt: 1400}}, ue2: {ul: {rate: 1000k, pkt: 1400}}}}
+  - {name: gap2,       duration: 12, flows: {ue2: {ul: 300k}}}
+  - {name: mix-fanout, duration: 40, attack: true, flows: {ue1: {ul: {attack: fanout_udp, rate: 1000k, pkt: 64, dst_spread: 254}}, ue2: {ul: {rate: 1000k, pkt: 1400}}}}
+report: [benign_delivered_ratio_baseline]

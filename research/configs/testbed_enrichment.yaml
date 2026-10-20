@@ -1,0 +1,72 @@
+# Testbed Scenario-Replay Data Generation (Phase IV)
+# Reproducible design for building a testbed-native dataset with the COMPLETE
+# feature schema, reproducing NCSRD-DS-5GDDoS scenarios on the OAI testbed.
+# Status: DESIGN ONLY. No measurements exist until the campaign is run on the
+# live cluster (kubectl --context oai-lab). Do not present any field below as a
+# measured value until collected.
+
+meta:
+  name: testbed-enrichment-v1
+  purpose: >
+    Generate a parallel, domain-matched dataset whose schema is the UNION of the
+    16 shared NCSRD features and the testbed-only features (packet-mix, URR,
+    cell-PRB proxy, per-UE PRB iff DU exposes it). Enables unified-schema
+    pretraining on NCSRD + fine-tuning/validation on the testbed.
+  isolation: minikube oai-lab, no egress to external networks (attack traffic stays in-cluster)
+  sampling_interval_s: 5.0            # align to NCSRD ~5.14s so windows are comparable
+  window_steps: 6
+  safety:
+    - after any UPF rollout run scripts/.../recover_ran.sh (config-checksum restarts core NFs)
+    - never lab.sh up without --stage
+    - attack generators bound to the testbed data network only
+
+feature_schema:
+  shared_16:   # measured on both NCSRD and testbed
+    [ran_ul_kbps, ran_dl_kbps, core_ul_kbps, core_dl_kbps, cell_ul_kbps,
+     resid_ul, resid_dl, ue_cell_ul_share, ul_mcs, dl_mcs,
+     ul_retx, dl_retx, ul_err, dl_err, cqi, pusch_snr]
+  testbed_only:              # masked (absent) in NCSRD, present on testbed
+    packet_mix:  [syn_share, icmp_share, udpfrag_share, dns_share, gtpu_share, other_share]  # eBPF UPF sec_profile_count
+    core_urr:    [urr_ul_vol, urr_dl_vol, urr_ul_pkts, urr_dl_pkts]                           # UPF URR
+    prb_cell:    [cell_ul_prb_util, cell_dl_prb_util, cell_sched_users_ul]                    # from E2SM-KPM if DU exposes
+    prb_ue:      [ue_ul_prb_share]            # ONLY if DU exposes per-UE PRB; else leave uncollected
+
+# Scenarios mirror NCSRD attack set + the benign classes NCSRD lacks.
+scenarios:
+  benign:
+    - {id: b_idle,        desc: idle/low-load,                      duration_s: 300, tool: none}
+    - {id: b_interactive, desc: normal interactive browsing,        duration_s: 300, tool: curl-loop}
+    - {id: b_heavy_ul,    desc: LEGIT sustained high UL (file up),   duration_s: 300, tool: iperf3 -u/-b, note: "the high-load-benign challenge"}
+    - {id: b_stream,      desc: video streaming DL,                  duration_s: 300, tool: iperf3 dl}
+    - {id: b_burst,       desc: short legit bursts,                  duration_s: 300, tool: iperf3 bursts}
+    - {id: b_congest,     desc: two benign UEs competing,            duration_s: 300, tool: iperf3 x2}
+  malicious:              # same families as NCSRD attack_number 1..5
+    - {id: a_syn,      attack_number: 1, tool: "hping3 -S",      intensities: [low, mid, high], durations_s: [60,120,240]}
+    - {id: a_icmp,     attack_number: 2, tool: "hping3 -1",      intensities: [low, mid, high], durations_s: [60,120,240]}
+    - {id: a_udpfrag,  attack_number: 3, tool: "hping3 -2 -f",   intensities: [low, mid, high], durations_s: [60,120,240]}
+    - {id: a_dns,      attack_number: 4, tool: "dns flood",      intensities: [low, mid, high], durations_s: [60,120,240]}
+    - {id: a_gtpu,     attack_number: 5, tool: "gtp-u malformed",intensities: [low, mid, high], durations_s: [60,120,240]}
+    - {id: a_mixed,    attack_number: 6, tool: "attack + benign on same UE", note: "malicious mixed with legit"}
+
+# Each run writes one record set with: ground-truth label from the schedule
+# (like prep_ncsrd relabel), run_id, UE imsi, scenario id, intensity, seed.
+collection:
+  from_xapp:   features.c feature vector (already carries seid/session_epoch/prof_*)
+  from_upf:    URR + sec_profile_count telemetry (closed-loop producer)
+  from_e2_kpm: cell + per-UE radio metrics (verify DU exposes per-UE PRB first)
+  output: data/testbed_v1/<run_id>.parquet   # NEVER overwrite; versioned per run
+  manifest: research/datasets/manifests/testbed_v1.csv
+
+split_policy:
+  group_unit: run_id            # whole runs are atomic (no window crosses runs)
+  rules:
+    - leave-one-attack-out across attack_number
+    - leave-one-UE-out for benign generalisation
+    - hold b_heavy_ul runs entirely in TEST (the high-load-benign challenge)
+  guard_gap_steps: 6            # between any train/val slice on the same timeline
+
+pretrain_finetune:
+  schema: unified-superset + missing-mask   # see feature_schema_unification.md
+  pretrain: NCSRD (testbed_only columns masked)
+  finetune: testbed_v1 (mask off)
+  eval_on: testbed_v1 TEST, incl. the high-load-benign challenge set

@@ -155,9 +155,9 @@ def run_once(scn, variant, rep, camp_dir):
             ips = {n: lab.ue_ip(n, wait=30) for n in ue_names}
             flows = []
             for ue, dirs in (p.get("flows") or {}).items():
-                for d, rate in dirs.items():
+                for d, spec in dirs.items():
                     port += 1
-                    flows.append(traffic.Flow(ue, d, rate, payload, p["duration"], port, ips[ue]))
+                    flows.append(traffic.make_flow(ue, d, spec, payload, p["duration"], port, ips[ue]))
             for f in flows:
                 f.start_server()
             if flows:

@@ -1,0 +1,23 @@
+name: ds-flood-special
+description: |
+  MALICIOUS session: destination fan-out (DDoS-style sweep of the DN /24 -> high
+  dst_estimate), load-matched to the benign band (500k/1200k). Detection OFF.
+  ue1 attacker, ue2 benign background.
+  NOTE: the fragmented-flood phases were REMOVED after v2 — hping3 -f / nping --mtu
+  emit no real IP fragments over the RFsim/GTP tunnel (verified: 0 fragments leave
+  oaitun_ue1), so frag_flood never became a real attack condition. A proper IP-
+  fragmentation class needs scapy-crafted fragments (v3+ work); left out for now.
+ues: {ue1: attacker, ue2: benign}
+reps: 6
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle,       duration: 15}
+  - {name: fanout-lo,  duration: 30, attack: true, flows: {ue1: {ul: {attack: fanout_udp,  rate: 500k,  pkt: 64, dst_spread: 254}}, ue2: {ul: 400k}}}
+  - {name: gap1,       duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: fanout-hi,  duration: 30, attack: true, flows: {ue1: {ul: {attack: fanout_udp,  rate: 1200k, pkt: 64, dst_spread: 254}}, ue2: {ul: 400k}}}
+report: [benign_delivered_ratio_baseline]

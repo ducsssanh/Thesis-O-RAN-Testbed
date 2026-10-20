@@ -1,0 +1,54 @@
+{
+  "tag": "A-dns",
+  "n_features": 16,
+  "threshold@1%trainFPR": 0.1949,
+  "AP": 0.8826,
+  "ROC_AUC": 0.9973,
+  "recall_attackers": 0.9074,
+  "FPR_all_benign": 0.0088,
+  "FPR_highload_benign": 0.0,
+  "FPR_normal_benign": 0.0098,
+  "mean_score_attacker": 0.7809,
+  "mean_score_highload_benign": 0.0004,
+  "mean_score_normal_benign": 0.0068,
+  "load_matched_top20pct": {
+    "recall_attackers": 1.0,
+    "FPR_benign": 0.0,
+    "n_attackers": 24,
+    "n_benign": 36523
+  },
+  "top_features": [
+    [
+      "resid_dl",
+      0.3432
+    ],
+    [
+      "core_ul_kbps",
+      0.1562
+    ],
+    [
+      "resid_ul",
+      0.0936
+    ],
+    [
+      "ue_cell_ul_share",
+      0.07
+    ],
+    [
+      "ran_ul_kbps",
+      0.0651
+    ],
+    [
+      "core_dl_kbps",
+      0.0641
+    ],
+    [
+      "ran_dl_kbps",
+      0.0565
+    ],
+    [
+      "ul_retx",
+      0.0398
+    ]
+  ]
+}

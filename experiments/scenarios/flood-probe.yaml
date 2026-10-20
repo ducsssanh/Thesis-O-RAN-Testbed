@@ -1,0 +1,35 @@
+name: flood-probe
+description: |
+  Phase E validation (~7 min): does each hping3 flood style traverse the
+  testbed and leave its distinct signature in the UPF profiler (prof_* packet
+  mix, mean_bytes, pps, dst_estimate) vs a legitimate heavy iperf upload?
+  Detection OFF so nothing shapes the traffic; the xApp still builds features.
+  ue1 is the subject (benign upload, then one flood style per phase); ue2 is a
+  steady benign background for cell context. Floods use explicit, modest pps
+  that RFsim sustains (small-packet floods are pps-bound, not byte-bound), with
+  idle gaps so a phase cannot bleed buffered UL into the next. Grade by reading
+  runs/*/rep-01/defense/features.jsonl and the per-phase report.
+ues: {ue1: attacker, ue2: benign}
+reps: 1
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle,         duration: 20}
+  - {name: benign-heavy, duration: 40, baseline: true, flows: {ue1: {ul: 2M}, ue2: {ul: 500k}}}
+  - {name: gap1,         duration: 15, flows: {ue2: {ul: 500k}}}
+  - {name: udp-flood,    duration: 40, attack: true, flows: {ue1: {ul: {attack: udp_flood,  pps: 400, pkt: 64}},  ue2: {ul: 500k}}}
+  - {name: gap2,         duration: 15, flows: {ue2: {ul: 500k}}}
+  - {name: syn-flood,    duration: 40, attack: true, flows: {ue1: {ul: {attack: syn_flood,  pps: 400, pkt: 0}},   ue2: {ul: 500k}}}
+  - {name: gap3,         duration: 15, flows: {ue2: {ul: 500k}}}
+  - {name: icmp-flood,   duration: 40, attack: true, flows: {ue1: {ul: {attack: icmp_flood, pps: 400, pkt: 64}},  ue2: {ul: 500k}}}
+  - {name: gap4,         duration: 15, flows: {ue2: {ul: 500k}}}
+  - {name: frag-flood,   duration: 40, attack: true, flows: {ue1: {ul: {attack: frag_flood, pps: 150, pkt: 1400}}, ue2: {ul: 500k}}}
+  - {name: gap5,         duration: 15, flows: {ue2: {ul: 500k}}}
+  - {name: dns-flood,    duration: 40, attack: true, flows: {ue1: {ul: {attack: dns_flood,  pps: 400, pkt: 64}},  ue2: {ul: 500k}}}
+  - {name: gap6,         duration: 15, flows: {ue2: {ul: 500k}}}
+  - {name: fanout,       duration: 40, attack: true, flows: {ue1: {ul: {attack: fanout_udp, pps: 400, pkt: 64, dst_spread: 254}}, ue2: {ul: 500k}}}
+report: [benign_delivered_ratio_baseline]

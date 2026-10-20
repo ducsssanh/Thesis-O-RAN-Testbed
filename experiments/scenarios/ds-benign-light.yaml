@@ -1,0 +1,25 @@
+name: ds-benign-light
+description: |
+  Dataset v1 BENIGN session: legitimate SMALL-packet traffic -- interactive/VoIP-
+  like UDP, plus low-rate ICMP ping and DNS queries. These are the protocol
+  controls: "small packets / ICMP / DNS present" must NOT be a malicious shortcut,
+  so the benign class contains them at normal rates. Small-packet UDP overlaps the
+  floods' mean_bytes. Detection OFF. ue1 subject, ue2 benign background.
+ues: {ue1: benign, ue2: benign}
+reps: 6
+payload_bytes: 1200
+drain: {quiet_kbps: 300, timeout_s: 300}
+tail_s: 12
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle,         duration: 15}
+  - {name: udp-sm-lo,    duration: 30, flows: {ue1: {ul: {rate: 500k,  pkt: 120}}, ue2: {ul: 400k}}}
+  - {name: gap1,         duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: udp-sm-hi,    duration: 30, flows: {ue1: {ul: {rate: 1200k, pkt: 120}}, ue2: {ul: 400k}}}
+  - {name: gap2,         duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: icmp-ping,    duration: 30, flows: {ue1: {ul: {gen: icmp_ping, pps: 5}},  ue2: {ul: 400k}}}
+  - {name: gap3,         duration: 12, flows: {ue2: {ul: 400k}}}
+  - {name: dns-query,    duration: 30, flows: {ue1: {ul: {gen: dns_query, pps: 20}}, ue2: {ul: 400k}}}
+report: [benign_delivered_ratio_baseline]

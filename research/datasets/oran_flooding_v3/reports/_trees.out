@@ -1,0 +1,99 @@
+# Phase L — baseline detection + ablations (dataset v3)
+
+Records: 16812 (BENIGN 12484 / MALICIOUS 4328) · independent sessions: 100
+
+Validation: StratifiedGroupKFold(n_splits=5) grouped by (campaign, run, supi) — no session spans train/test. Positive class = MALICIOUS. Metrics = mean±std over folds.
+
+Load-matched challenge set = test rows with thp_ul_kbps in [300, 1000) kbps (BENIGN 7047 / MALICIOUS 3731) — the band where both classes are dense.
+
+
+## Full test set (all throughput bands)
+
+_High scores here can still come from volume; the challenge set below is the real test._
+
+| ablation | model | F1 | AUC | recall | precision | bal_acc |
+|---|---|---|---|---|---|---|
+| bytes-only | logreg | 0.916±0.052 | 0.970±0.016 | 0.961±0.009 | 0.880±0.095 | 0.956±0.020 |
+| bytes-only | random-forest | 0.983±0.012 | 0.998±0.001 | 0.976±0.024 | 0.991±0.007 | 0.987±0.012 |
+| bytes-only | hist-gbm | 0.985±0.010 | 0.998±0.001 | 0.977±0.021 | 0.993±0.006 | 0.987±0.010 |
+| pps-only | logreg | 0.820±0.056 | 0.958±0.017 | 0.776±0.044 | 0.879±0.115 | 0.867±0.028 |
+| pps-only | random-forest | 0.952±0.005 | 0.994±0.001 | 0.962±0.011 | 0.943±0.003 | 0.971±0.005 |
+| pps-only | hist-gbm | 0.952±0.008 | 0.996±0.002 | 0.968±0.016 | 0.937±0.007 | 0.973±0.008 |
+| size-only | logreg | 0.887±0.063 | 0.964±0.025 | 0.928±0.044 | 0.854±0.098 | 0.935±0.034 |
+| size-only | random-forest | 0.961±0.025 | 0.994±0.002 | 0.978±0.007 | 0.947±0.053 | 0.979±0.007 |
+| size-only | hist-gbm | 0.961±0.025 | 0.994±0.002 | 0.978±0.007 | 0.946±0.053 | 0.979±0.007 |
+| protocol-only | logreg | 0.815±0.054 | 0.955±0.015 | 0.768±0.036 | 0.878±0.114 | 0.863±0.025 |
+| protocol-only | random-forest | 0.937±0.012 | 0.992±0.002 | 0.962±0.021 | 0.914±0.007 | 0.965±0.011 |
+| protocol-only | hist-gbm | 0.938±0.010 | 0.993±0.002 | 0.966±0.017 | 0.911±0.009 | 0.967±0.009 |
+| ran-only | logreg | 0.905±0.055 | 0.964±0.016 | 0.962±0.007 | 0.860±0.095 | 0.952±0.023 |
+| ran-only | random-forest | 0.964±0.016 | 0.994±0.003 | 0.952±0.033 | 0.977±0.017 | 0.972±0.015 |
+| ran-only | hist-gbm | 0.972±0.014 | 0.993±0.004 | 0.959±0.027 | 0.986±0.012 | 0.977±0.013 |
+| ran+upf | logreg | 0.923±0.061 | 0.972±0.017 | 0.959±0.018 | 0.894±0.099 | 0.958±0.029 |
+| ran+upf | random-forest | 0.989±0.004 | 0.999±0.001 | 0.985±0.010 | 0.993±0.005 | 0.992±0.004 |
+| ran+upf | hist-gbm | 0.991±0.003 | 0.999±0.001 | 0.987±0.007 | 0.995±0.005 | 0.993±0.003 |
+| behaviour-only | logreg | 0.940±0.056 | 0.991±0.004 | 0.967±0.006 | 0.921±0.098 | 0.967±0.023 |
+| behaviour-only | random-forest | 0.987±0.003 | 0.996±0.001 | 0.979±0.007 | 0.996±0.004 | 0.989±0.003 |
+| behaviour-only | hist-gbm | 0.986±0.004 | 0.997±0.001 | 0.978±0.007 | 0.994±0.005 | 0.988±0.003 |
+| full | logreg | 0.972±0.020 | 0.991±0.010 | 0.968±0.017 | 0.976±0.038 | 0.980±0.010 |
+| full | random-forest | 0.992±0.004 | 0.999±0.001 | 0.987±0.009 | 0.997±0.002 | 0.993±0.004 |
+| full | hist-gbm | 0.990±0.007 | 0.999±0.001 | 0.984±0.016 | 0.997±0.002 | 0.991±0.008 |
+
+## Load-matched challenge set (overlap band only)
+
+_THE decisive table: a volume-riding model collapses toward chance here; a behavioural model holds. This is the answer to 'does it just learn volume?'_
+
+| ablation | model | F1 | AUC | recall | precision | bal_acc |
+|---|---|---|---|---|---|---|
+| bytes-only | logreg | 0.950±0.033 | 0.990±0.007 | 0.978±0.007 | 0.926±0.061 | 0.963±0.026 |
+| bytes-only | random-forest | 0.987±0.014 | 1.000±0.000 | 0.982±0.028 | 0.994±0.006 | 0.989±0.014 |
+| bytes-only | hist-gbm | 0.989±0.012 | 0.999±0.001 | 0.983±0.024 | 0.995±0.006 | 0.990±0.012 |
+| pps-only | logreg | 0.896±0.039 | 0.986±0.009 | 0.869±0.030 | 0.928±0.071 | 0.911±0.030 |
+| pps-only | random-forest | 0.962±0.006 | 0.996±0.001 | 0.976±0.013 | 0.948±0.002 | 0.973±0.007 |
+| pps-only | hist-gbm | 0.960±0.009 | 0.998±0.001 | 0.983±0.020 | 0.939±0.004 | 0.974±0.010 |
+| size-only | logreg | 0.966±0.027 | 0.999±0.001 | 0.943±0.048 | 0.991±0.004 | 0.969±0.025 |
+| size-only | random-forest | 0.999±0.001 | 1.000±0.000 | 0.999±0.001 | 1.000±0.000 | 0.999±0.001 |
+| size-only | hist-gbm | 0.999±0.001 | 1.000±0.000 | 0.999±0.001 | 1.000±0.000 | 0.999±0.001 |
+| protocol-only | logreg | 0.892±0.038 | 0.981±0.015 | 0.861±0.025 | 0.929±0.070 | 0.908±0.028 |
+| protocol-only | random-forest | 0.948±0.011 | 0.997±0.002 | 0.980±0.024 | 0.918±0.009 | 0.967±0.012 |
+| protocol-only | hist-gbm | 0.950±0.008 | 0.997±0.002 | 0.986±0.019 | 0.917±0.011 | 0.969±0.010 |
+| ran-only | logreg | 0.946±0.029 | 0.989±0.003 | 0.976±0.008 | 0.920±0.053 | 0.961±0.024 |
+| ran-only | random-forest | 0.971±0.018 | 0.997±0.003 | 0.963±0.037 | 0.980±0.017 | 0.976±0.017 |
+| ran-only | hist-gbm | 0.978±0.016 | 0.997±0.003 | 0.971±0.032 | 0.985±0.013 | 0.981±0.016 |
+| ran+upf | logreg | 0.951±0.045 | 0.993±0.007 | 0.969±0.021 | 0.935±0.067 | 0.962±0.036 |
+| ran+upf | random-forest | 0.995±0.006 | 1.000±0.000 | 0.992±0.012 | 0.997±0.003 | 0.995±0.006 |
+| ran+upf | hist-gbm | 0.996±0.004 | 1.000±0.000 | 0.994±0.008 | 0.998±0.003 | 0.996±0.004 |
+| behaviour-only | logreg | 0.992±0.007 | 0.999±0.001 | 0.986±0.011 | 0.997±0.003 | 0.992±0.006 |
+| behaviour-only | random-forest | 0.999±0.001 | 1.000±0.000 | 0.999±0.001 | 0.998±0.002 | 0.999±0.001 |
+| behaviour-only | hist-gbm | 0.999±0.002 | 1.000±0.000 | 0.999±0.001 | 0.998±0.002 | 0.999±0.001 |
+| full | logreg | 0.990±0.010 | 0.997±0.006 | 0.983±0.020 | 0.998±0.002 | 0.991±0.010 |
+| full | random-forest | 0.997±0.006 | 1.000±0.000 | 0.994±0.011 | 1.000±0.000 | 0.997±0.006 |
+| full | hist-gbm | 0.995±0.010 | 1.000±0.000 | 0.990±0.019 | 1.000±0.001 | 0.995±0.009 |
+
+## Headline: F1 drop from full test -> load-matched challenge
+
+_If volume-only drops hard while behaviour/full stay up, the model is not just reading volume._
+
+| ablation | best model | F1 (full) | F1 (challenge) | AUC (challenge) |
+|---|---|---|---|---|
+| bytes-only | hist-gbm | 0.985 | 0.989 | 0.999 |
+| pps-only | random-forest | 0.952 | 0.962 | 0.996 |
+| size-only | random-forest | 0.961 | 0.999 | 1.000 |
+| protocol-only | hist-gbm | 0.938 | 0.950 | 0.997 |
+| ran-only | hist-gbm | 0.972 | 0.978 | 0.997 |
+| ran+upf | hist-gbm | 0.991 | 0.996 | 1.000 |
+| behaviour-only | random-forest | 0.987 | 0.999 | 1.000 |
+| full | random-forest | 0.992 | 0.997 | 1.000 |
+
+## Per-family recall (full feature set, hist-gbm, full test)
+
+_Which attack types the detector catches._
+
+| family | recall |
+|---|---|
+| dns_flood | 0.945 |
+| fanout_udp | 0.992 |
+| icmp_flood | 0.974 |
+| syn_flood | 0.995 |
+| udp_flood | 0.992 |
+
+wrote research/datasets/oran_flooding_v3/reports/model_eval.md

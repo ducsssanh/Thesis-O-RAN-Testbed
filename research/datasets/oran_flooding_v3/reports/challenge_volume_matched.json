@@ -1,0 +1,37 @@
+{
+  "caliper": 2.0,
+  "matched_pairs_total": 982,
+  "residual_volume_imbalance_std_mean": 0.0424,
+  "volume_only": {
+    "full_test": {
+      "n": 16812,
+      "pos": 4328,
+      "AUC": 0.9992,
+      "F1@0.5": 0.9925,
+      "bal_acc@0.5": 0.9934
+    },
+    "volume_matched": {
+      "n": 1964,
+      "pos": 982,
+      "AUC": 0.9969,
+      "F1@0.5": 0.9756,
+      "bal_acc@0.5": 0.9761
+    }
+  },
+  "behaviour_norm": {
+    "full_test": {
+      "n": 16812,
+      "pos": 4328,
+      "AUC": 0.9931,
+      "F1@0.5": 0.9572,
+      "bal_acc@0.5": 0.9757
+    },
+    "volume_matched": {
+      "n": 1964,
+      "pos": 982,
+      "AUC": 0.9891,
+      "F1@0.5": 0.9581,
+      "bal_acc@0.5": 0.9598
+    }
+  }
+}

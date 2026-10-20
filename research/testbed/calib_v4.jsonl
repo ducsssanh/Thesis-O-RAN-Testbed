@@ -1,0 +1,13 @@
+{"ue":"oai-nr-ue","offered":"1m","len":1200,"achieved":"1.00 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue","offered":"2m","len":1200,"achieved":"2.02 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue","offered":"4m","len":1200,"achieved":"4.04 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue","offered":"8m","len":1200,"achieved":"8.02 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue","offered":"16m","len":1200,"achieved":"8.39 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue","offered":"32m","len":1200,"achieved":"8.45 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue2","offered":"4m","len":1200,"achieved":"4.02 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue2","offered":"8m","len":1200,"achieved":"8.08 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue2","offered":"16m","len":1200,"achieved":"7.98 Mbits/sec","loss":"(0%)"}
+{"ue":"oai-nr-ue","offered":"8m","len":1472,"achieved":"NONE","loss":"NONE"}
+{"ue":"oai-nr-ue","offered":"8m","len":1500,"achieved":"NONE","loss":"NONE"}
+{"ue":"oai-nr-ue","offered":"8m","len":2000,"achieved":"NONE","loss":"NONE"}
+{"ue":"oai-nr-ue","offered":"8m","len":4000,"achieved":"NONE","loss":"NONE"}
