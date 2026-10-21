@@ -164,10 +164,14 @@ def checkpoint_qa(data_dir, run_dirs):
         ph = nb.dropna(subset=["meta_achieved_ratio"]).groupby(["meta_run_id", "meta_phase", "meta_ue"]).agg(
             backend=("meta_backend", "first"), label=("label", "first"),
             load=("meta_load_mbps", "first"), ratio=("meta_achieved_ratio", "first")).reset_index()
-        cells = ph.groupby(["backend", "label", "load"])["ratio"].median()
-        passed = cells.sub(1.0).abs() <= 0.10
+        cg = ph.groupby(["backend", "label", "load"])["ratio"]
+        cells, counts = cg.median(), cg.size()
+        eval_cells = cells[counts >= 3]                 # small-sample guard: a 2-phase cell
+        m["cells_evaluable"] = int(len(eval_cells))     # median is too noisy to gate on
+        passed = eval_cells.sub(1.0).abs() <= 0.10
         m["cell_achieved_pass_rate"] = round(float(passed.mean()), 3) if len(passed) else None
-        m["cell_achieved_fail"] = [f"{b}/{lab}/{ld:g}={r:.2f}" for (b, lab, ld), r in cells.items() if abs(r - 1) > 0.10]
+        m["cell_achieved_fail"] = [f"{b}/{lab}/{ld:g}={r:.2f}(n{counts[(b,lab,ld)]})"
+                                   for (b, lab, ld), r in eval_cells.items() if abs(r - 1) > 0.10]
         for ld, g in ph.groupby("load"):
             mm, bb = g[g.label == "MALICIOUS"]["ratio"].median(), g[g.label == "BENIGN"]["ratio"].median()
             if pd.notna(mm) and pd.notna(bb):
@@ -198,7 +202,10 @@ def checkpoint_qa(data_dir, run_dirs):
     for b, p in m["pmal_backend"].items():
         if abs(p - base_du) > tol:
             breaches.append(f"P(mal|backend={b})={p} vs dual-use base {base_du} (|Δ|>{tol})")
-    if m.get("cell_achieved_pass_rate") is not None and m["cell_achieved_pass_rate"] < STOP_GATES["achieved_ok_min"]:
+    # only enforce cell-achieved once enough cells have >=3 phases to judge (at the first
+    # 8-run checkpoint most cells have 2 phases -> informational; it bites at the 42-run one).
+    if m.get("cells_evaluable", 0) >= 8 and m.get("cell_achieved_pass_rate") is not None \
+            and m["cell_achieved_pass_rate"] < STOP_GATES["achieved_ok_min"]:
         breaches.append(f"cell_achieved_pass_rate={m['cell_achieved_pass_rate']} < {STOP_GATES['achieved_ok_min']} (cells off: {m['cell_achieved_fail']})")
     for ld, d in m["load_symmetry"].items():                # load-matching protection
         if d > STOP_GATES["sym_tol"]:
