@@ -240,6 +240,57 @@ def extend_both_attack(man, n_phases=24, congested=4):
     return man
 
 
+def _min_seed(ph):
+    return min(fl["ul"]["seed"] for fl in ph["flows"].values())
+
+
+def find_units(man):
+    """Recover build_manifest's backend-neutral units from the flat phase list: a UE-mirror
+    pair = 2 consecutive phases of the same cell (same pair/load/victim/congestion/tool,
+    opposite attacker, flow seeds s and s+2), plus -- for a dual-use-surplus pair -- the
+    benign_benign offset that follows it on the same backend. Returns [[(run, idx), ...]]."""
+    flat = [(r, j, ph) for r, run in enumerate(man["runs"]) for j, ph in enumerate(run)]
+    key = lambda p: (p["pair"], p["load"], p["victim_mode"], p["congestion"], p["atk_backend"], p["benign_backend"])
+    units, i = [], 0
+    while i < len(flat):
+        r, j, ph = flat[i]
+        nxt = flat[i + 1][2] if i + 1 < len(flat) else None
+        if ph["attacker_ue"] in ("ue1", "ue2") and nxt is not None and nxt["attacker_ue"] in ("ue1", "ue2") \
+                and nxt["attacker_ue"] != ph["attacker_ue"] and key(nxt) == key(ph) \
+                and _min_seed(nxt) == _min_seed(ph) + 2:
+            u = [(r, j), flat[i + 1][:2]]
+            i += 2
+            d = ph["atk_backend"]
+            if d in DUAL_USE and ph["benign_backend"] not in DUAL_USE and i < len(flat) \
+                    and flat[i][2]["family"] == "benign_benign" and flat[i][2]["benign_backend"] == d:
+                u.append(flat[i][:2])
+                i += 1
+            units.append(u)
+        else:
+            units.append([(r, j)])
+            i += 1
+    return units
+
+
+def share_durations(man, from_run):
+    """For runs index >= from_run (0-based, not yet captured), every phase of a mirror unit
+    takes the unit's FIRST phase duration (its seeded draw) so the unit is row-exact: equal
+    MAL/BEN seconds per UE and, with the benign_benign offset, per dual-use backend. Gaps and
+    flow seeds are untouched; captured runs stay byte-identical. Returns #phases changed."""
+    n = 0
+    for u in find_units(man):
+        if len(u) < 2:
+            continue
+        r0, j0 = u[0]
+        dur = man["runs"][r0][j0]["duration"]
+        for r, j in u[1:]:
+            if r >= from_run and man["runs"][r][j]["duration"] != dur:
+                man["runs"][r][j]["duration"] = dur
+                n += 1
+    man.setdefault("extensions", []).append({"kind": "share_durations", "from_run": from_run, "n_changed": n})
+    return n
+
+
 def build_manifest(reps=3, seed=20261020, phases_per_run=6):
     rng = np.random.default_rng(seed)
     seeder = _Seeder(seed * 10)
@@ -394,6 +445,19 @@ def cmd_extend(args):
                       "p_mal_ue_seconds": audit_seconds(man)}, indent=1))
 
 
+def cmd_share_dur(args):
+    path = pathlib.Path(args.manifest)
+    man = json.loads(path.read_text())
+    if any(e["kind"] == "share_durations" for e in man.get("extensions", [])):
+        sys.exit("manifest already has a share_durations extension")
+    n = share_durations(man, args.from_run)
+    path.write_text(json.dumps(man, indent=1) + "\n")
+    aud = audit_manifest(man)
+    (path.parent / "audit.json").write_text(json.dumps(aud, indent=1) + "\n")
+    print(json.dumps({"n_changed": n, "eta": eta(man), "extensions": man["extensions"],
+                      "p_mal_ue_seconds": audit_seconds(man)}, indent=1))
+
+
 def audit_seconds(man):
     """P(malicious | UE) weighted by phase duration -- what the per-second rows will show."""
     m = {}
@@ -427,6 +491,10 @@ def main():
     pe.add_argument("--n", type=int, default=24)
     pe.add_argument("--congested", type=int, default=4)
     pe.set_defaults(fn=cmd_extend)
+    ps = sub.add_parser("share-dur", help="mirror units share one phase duration in not-yet-captured runs")
+    ps.add_argument("manifest")
+    ps.add_argument("--from-run", type=int, required=True, help="0-based index of the first uncaptured run")
+    ps.set_defaults(fn=cmd_share_dur)
     a = ap.parse_args()
     a.fn(a)
 

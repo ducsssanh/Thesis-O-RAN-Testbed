@@ -10447,7 +10447,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 89,
+    "duration": 90,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -10527,7 +10527,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 45,
+    "duration": 30,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -10566,7 +10566,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 81,
+    "duration": 30,
     "gap": 12,
     "flows": {
      "ue1": {
@@ -10650,7 +10650,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 43,
+    "duration": 79,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -10735,7 +10735,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 42,
+    "duration": 81,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -10774,7 +10774,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 64,
+    "duration": 81,
     "gap": 14,
     "flows": {
      "ue1": {
@@ -10854,7 +10854,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 53,
+    "duration": 65,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -10896,7 +10896,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 69,
+    "duration": 65,
     "gap": 9,
     "flows": {
      "ue1": {
@@ -10977,7 +10977,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 71,
+    "duration": 32,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -11016,7 +11016,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 39,
+    "duration": 32,
     "gap": 14,
     "flows": {
      "ue1": {
@@ -11094,7 +11094,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 60,
+    "duration": 74,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -11174,7 +11174,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 48,
+    "duration": 37,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -11214,7 +11214,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 53,
+    "duration": 37,
     "gap": 11,
     "flows": {
      "ue1": {
@@ -11297,7 +11297,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 62,
+    "duration": 49,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -11383,7 +11383,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 63,
+    "duration": 31,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -11472,7 +11472,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 80,
+    "duration": 60,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -11557,7 +11557,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 32,
+    "duration": 72,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -11639,7 +11639,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 56,
+    "duration": 83,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -11723,7 +11723,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 75,
+    "duration": 41,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -11804,7 +11804,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 49,
+    "duration": 41,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -11887,7 +11887,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 63,
+    "duration": 77,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -11974,7 +11974,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 45,
+    "duration": 30,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -12016,7 +12016,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 31,
+    "duration": 30,
     "gap": 8,
     "flows": {
      "ue1": {
@@ -12094,7 +12094,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 89,
+    "duration": 39,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -12172,7 +12172,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 74,
+    "duration": 65,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -12248,7 +12248,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 39,
+    "duration": 52,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -12329,7 +12329,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 79,
+    "duration": 87,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -12415,7 +12415,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 64,
+    "duration": 32,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -12496,7 +12496,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 78,
+    "duration": 70,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -12536,7 +12536,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 80,
+    "duration": 70,
     "gap": 11,
     "flows": {
      "ue1": {
@@ -12619,7 +12619,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 64,
+    "duration": 85,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -12705,7 +12705,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 58,
+    "duration": 62,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -12789,7 +12789,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 60,
+    "duration": 36,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -12872,7 +12872,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 38,
+    "duration": 52,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -12958,7 +12958,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 44,
+    "duration": 89,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -13041,7 +13041,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 41,
+    "duration": 30,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -13080,7 +13080,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 68,
+    "duration": 30,
     "gap": 11,
     "flows": {
      "ue1": {
@@ -13167,7 +13167,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 31,
+    "duration": 60,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -13209,7 +13209,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 78,
+    "duration": 60,
     "gap": 15,
     "flows": {
      "ue1": {
@@ -13290,7 +13290,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 53,
+    "duration": 76,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -13372,7 +13372,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 34,
+    "duration": 65,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -13413,7 +13413,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 56,
+    "duration": 65,
     "gap": 15,
     "flows": {
      "ue1": {
@@ -13584,7 +13584,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 89,
+    "duration": 72,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -13669,7 +13669,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 65,
+    "duration": 79,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -13752,7 +13752,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 66,
+    "duration": 30,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -13838,7 +13838,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 56,
+    "duration": 70,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -13922,7 +13922,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 65,
+    "duration": 32,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -13961,7 +13961,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 39,
+    "duration": 32,
     "gap": 9,
     "flows": {
      "ue1": {
@@ -14041,7 +14041,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 46,
+    "duration": 65,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -14081,7 +14081,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 58,
+    "duration": 65,
     "gap": 13,
     "flows": {
      "ue1": {
@@ -14167,7 +14167,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 50,
+    "duration": 83,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -14250,7 +14250,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 53,
+    "duration": 41,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -14289,7 +14289,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 55,
+    "duration": 41,
     "gap": 11,
     "flows": {
      "ue1": {
@@ -14370,7 +14370,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 74,
+    "duration": 57,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -14453,7 +14453,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 53,
+    "duration": 48,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -14535,7 +14535,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 35,
+    "duration": 54,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -14620,7 +14620,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 90,
+    "duration": 31,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -14702,7 +14702,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 79,
+    "duration": 88,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -14741,7 +14741,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 80,
+    "duration": 88,
     "gap": 13,
     "flows": {
      "ue1": {
@@ -14822,7 +14822,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 85,
+    "duration": 36,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -14906,7 +14906,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 56,
+    "duration": 54,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -14988,7 +14988,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 89,
+    "duration": 45,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -15072,7 +15072,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 64,
+    "duration": 30,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -15160,7 +15160,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 43,
+    "duration": 61,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -15244,7 +15244,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 39,
+    "duration": 50,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -15327,7 +15327,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 64,
+    "duration": 76,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -15369,7 +15369,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 43,
+    "duration": 76,
     "gap": 14,
     "flows": {
      "ue1": {
@@ -15450,7 +15450,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 57,
+    "duration": 71,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -15531,7 +15531,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 64,
+    "duration": 62,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -15610,7 +15610,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 37,
+    "duration": 34,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -15651,7 +15651,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 88,
+    "duration": 34,
     "gap": 10,
     "flows": {
      "ue1": {
@@ -15732,7 +15732,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 82,
+    "duration": 68,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -15814,7 +15814,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 55,
+    "duration": 59,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -15853,7 +15853,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 39,
+    "duration": 59,
     "gap": 15,
     "flows": {
      "ue1": {
@@ -15935,7 +15935,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 86,
+    "duration": 37,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -15975,7 +15975,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 83,
+    "duration": 37,
     "gap": 10,
     "flows": {
      "ue1": {
@@ -16059,7 +16059,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 90,
+    "duration": 39,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -16143,7 +16143,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 34,
+    "duration": 62,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -16221,7 +16221,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 83,
+    "duration": 67,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -16302,7 +16302,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 39,
+    "duration": 46,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -16386,7 +16386,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 31,
+    "duration": 47,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -16474,7 +16474,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 82,
+    "duration": 59,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -16564,7 +16564,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 67,
+    "duration": 74,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -16650,7 +16650,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 56,
+    "duration": 50,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -16730,7 +16730,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 81,
+    "duration": 71,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -16769,7 +16769,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 36,
+    "duration": 71,
     "gap": 10,
     "flows": {
      "ue1": {
@@ -16849,7 +16849,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 79,
+    "duration": 52,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -16935,7 +16935,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 60,
+    "duration": 46,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -17018,7 +17018,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 53,
+    "duration": 41,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -17057,7 +17057,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 78,
+    "duration": 41,
     "gap": 9,
     "flows": {
      "ue1": {
@@ -17138,7 +17138,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 85,
+    "duration": 30,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -17177,7 +17177,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 69,
+    "duration": 30,
     "gap": 8,
     "flows": {
      "ue1": {
@@ -17259,7 +17259,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 80,
+    "duration": 70,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -17346,7 +17346,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 64,
+    "duration": 75,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -17430,7 +17430,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 39,
+    "duration": 83,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -17469,7 +17469,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 74,
+    "duration": 83,
     "gap": 9,
     "flows": {
      "ue1": {
@@ -17551,7 +17551,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 56,
+    "duration": 32,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -17637,7 +17637,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 51,
+    "duration": 89,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -17718,7 +17718,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 81,
+    "duration": 67,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -17800,7 +17800,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 61,
+    "duration": 57,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -17889,7 +17889,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 67,
+    "duration": 76,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -17974,7 +17974,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 69,
+    "duration": 59,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -18013,7 +18013,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 57,
+    "duration": 59,
     "gap": 11,
     "flows": {
      "ue1": {
@@ -18090,7 +18090,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 42,
+    "duration": 59,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -18131,7 +18131,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 32,
+    "duration": 59,
     "gap": 11,
     "flows": {
      "ue1": {
@@ -18213,7 +18213,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 32,
+    "duration": 90,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -18298,7 +18298,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 70,
+    "duration": 74,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -18379,7 +18379,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 44,
+    "duration": 69,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -18457,7 +18457,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 67,
+    "duration": 46,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -18497,7 +18497,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 85,
+    "duration": 46,
     "gap": 12,
     "flows": {
      "ue1": {
@@ -18578,7 +18578,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 85,
+    "duration": 43,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -18664,7 +18664,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 41,
+    "duration": 72,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -18747,7 +18747,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 71,
+    "duration": 62,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -18787,7 +18787,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 83,
+    "duration": 62,
     "gap": 8,
     "flows": {
      "ue1": {
@@ -18872,7 +18872,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 75,
+    "duration": 57,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -18953,7 +18953,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 52,
+    "duration": 36,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -19030,7 +19030,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 44,
+    "duration": 30,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -19069,7 +19069,7 @@
     "load": 0.4,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 35,
+    "duration": 30,
     "gap": 10,
     "flows": {
      "ue1": {
@@ -19152,7 +19152,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 30,
+    "duration": 68,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -19234,7 +19234,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 52,
+    "duration": 32,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -19318,7 +19318,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 59,
+    "duration": 74,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -19404,7 +19404,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 51,
+    "duration": 61,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -19484,7 +19484,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 78,
+    "duration": 44,
     "gap": 10,
     "flows": {
      "ue2": {
@@ -19523,7 +19523,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 73,
+    "duration": 44,
     "gap": 9,
     "flows": {
      "ue1": {
@@ -19604,7 +19604,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 60,
+    "duration": 90,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -19643,7 +19643,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 83,
+    "duration": 90,
     "gap": 12,
     "flows": {
      "ue1": {
@@ -19726,7 +19726,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 70,
+    "duration": 38,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -19766,7 +19766,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 1,
-    "duration": 82,
+    "duration": 38,
     "gap": 8,
     "flows": {
      "ue1": {
@@ -19852,7 +19852,7 @@
     "load": 1.2,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 65,
+    "duration": 58,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -19931,7 +19931,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 64,
+    "duration": 72,
     "gap": 13,
     "flows": {
      "ue2": {
@@ -20007,7 +20007,7 @@
     "load": 0.8,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 62,
+    "duration": 81,
     "gap": 15,
     "flows": {
      "ue2": {
@@ -20090,7 +20090,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 76,
+    "duration": 67,
     "gap": 12,
     "flows": {
      "ue2": {
@@ -20173,7 +20173,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 42,
+    "duration": 45,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -20213,7 +20213,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 36,
+    "duration": 45,
     "gap": 8,
     "flows": {
      "ue1": {
@@ -20294,7 +20294,7 @@
     "load": 0.4,
     "victim_mode": "responsive",
     "congestion": 0,
-    "duration": 78,
+    "duration": 34,
     "gap": 11,
     "flows": {
      "ue2": {
@@ -20377,7 +20377,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 75,
+    "duration": 68,
     "gap": 9,
     "flows": {
      "ue2": {
@@ -20457,7 +20457,7 @@
     "load": 1.2,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 64,
+    "duration": 67,
     "gap": 8,
     "flows": {
      "ue2": {
@@ -20535,7 +20535,7 @@
     "load": 0.8,
     "victim_mode": "silent",
     "congestion": 0,
-    "duration": 80,
+    "duration": 85,
     "gap": 14,
     "flows": {
      "ue2": {
@@ -21878,6 +21878,11 @@
    ],
    "n_phases": 30,
    "seed": 20261027
+  },
+  {
+   "kind": "share_durations",
+   "from_run": 42,
+   "n_changed": 138
   }
  ]
 }
