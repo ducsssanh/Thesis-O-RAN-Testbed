@@ -1,106 +1,148 @@
-# HANDOFF — dataset v4 (flooding vs legitimate high-load), 2026-10-21
+# HANDOFF — dataset v4 (flooding vs legitimate high-load), cập nhật 2026-10-22 ~01:00
+
+> Session mới: đọc file này TRƯỚC, rồi mới mở `SPEC`/code khi cần cho việc cụ thể. `DATASHEET.md` CHƯA tồn tại.
+
+## 0. Quy tắc làm việc của user (bắt buộc)
+- Tiết kiệm token: không đọc lại toàn repo/log; `tail`/`grep` có giới hạn; không dán log dài.
+- Báo cáo = bảng số + kết luận, không kể lại quá trình. Báo sau mỗi bước.
+- **Không restart/redeploy testbed nếu chưa có root cause + proof** (mục 5). Không đụng core khi lỗi chỉ ở RAN/E2.
+- **Không tự nới tiêu chí gate**; hỏi user khi cần quyết định.
+- **Không xóa dữ liệu đã thu**; attempt hỏng giữ lại với `meta_run_ok=0` + lý do. **Không xóa gì khi campaign đang chạy.**
+- Commit: tác giả ducsssanh, không push.
+- Lệnh cần sudo: đưa lệnh chính xác, user tự chạy.
 
 ## 1. Mục tiêu & phạm vi
 - Sinh dữ liệu có nhãn từ testbed OAI 5G (gNB + 2 NR-UE RFsim, OAI 5GC, FlexRIC, URR, eBPF UPF profiler),
-  tách flooding khỏi tải cao hợp lệ; detection/mitigation TẮT khi thu.
-- Spec gốc: "PROMPT: Xây dựng pipeline sinh dữ liệu v4" (§0–10). **File `prompt_v4_datagen.md` KHÔNG có trong repo**
-  (đã tìm); spec chỉ nằm trong hội thoại. Nên commit bản spec vào repo.
+  tách flooding khỏi tải cao hợp lệ; detection/mitigation TẮT khi thu. Một hàng = 1 giây × 1 UE (KPM + URR + prof,
+  as-of join nhân quả theo `arrival_ts`).
+- Spec gốc: "PROMPT: Xây dựng pipeline sinh dữ liệu v4" (§0–10) — chỉ có trong hội thoại cũ, không có file trong repo.
 - Chi tiết kỹ thuật: `docs/SESSION-HANDOFF-V4.md` (gitignored), `research/testbed/phase0_v4.md`.
+- Code chính: `scripts/k8s/exp/v4traffic/{design,campaign,integrity,runner}.py`, `backends/*.py`;
+  `scripts/ml/{build_dataset_v4,qa_v4,package_v4}.py`.
 
-## 2. Trạng thái hiện tại
-- Code/manifest commit: `2889d05` (trên `8760c4d`). Tác giả ducsssanh, không co-author.
-- Manifest: 88 run / 528 phase (`manifest/design.json`, seed 20261020, checkpoint [8, 42]). Run 84–88 là both-attack.
-- **Đã thu 42/88 run, 42 run có `meta_run_ok=1`, 0 run lỗi trong batch 2c.** Camp dirs (gitignored, `artifacts/experiments/`):
-  `20261020-232552_v4campaign_batch1c` (rep 1–8), `20261021-093244_v4campaign_batch2` (rep 9),
-  `20261021-102436_v4campaign_batch2b` (rep 10 FAILED, giữ lại, `error.txt`), `20261021-102738_v4campaign_batch2c` (rep 10–42).
-  Còn `20261020-213040_v4campaign_batch1` và `…214714_v4campaign_batch1b` (chưa kiểm vai trò; `package_v4` sẽ liệt kê trong `runs_index`).
-- Chưa có `research/datasets/oran_flooding_v4/{raw,rows.parquet,qa_report.md,calibration.md,DATASHEET.md}`;
-  chỉ có `manifest/`. Dữ liệu tạm tới run 42: `…batch2c/dataset_sofar/rows.parquet`.
-- **Checkpoint 42 PASS (2026-10-21 20:05) sau khi chạy lại rep 37.** Rep 37 hợp lệ = attempt
-  `20261021-195218_v4campaign_rerun37b_rep-37@1792587146`; attempt cũ (batch2c, suspend) và attempt
-  `20261021-194320_v4campaign_rerun37` (preflight HTTP 0, E2 mất) giữ lại với `meta_run_ok=0`.
-- Lệnh batch 3 (CHỜ user duyệt):
-  `nohup systemd-inhibit --what=sleep:idle:handle-lid-switch --who=v4campaign --why=v4 .venv-ml/bin/python scripts/k8s/exp/v4traffic/campaign.py run --lo 42 --hi 88 --tag batch3 --prior artifacts/experiments/{20261020-232552_v4campaign_batch1c,20261021-093244_v4campaign_batch2,20261021-102738_v4campaign_batch2c,20261021-195218_v4campaign_rerun37b} > artifacts/experiments/campaign_batch3.log 2>&1 &`
-  (attempt mới nhất hợp lệ theo `t_start` thắng ⇒ không cần loại batch2c khỏi `--prior`).
-- Đóng gói cuối: `.venv-ml/bin/python scripts/ml/package_v4.py --out research/datasets/oran_flooding_v4 <mọi camp dir>`
-  (tự chọn attempt ok, ghi mọi attempt kể cả lỗi vào `manifest/runs_index.json`).
+## 2. Trạng thái hiện tại (2026-10-22 ~00:50)
+- Commit gần nhất: `b0a12a9` (share-dur + checkpoint 42 PASS), `b0e68f7` (integrity + attempt_id).
+  **Chưa commit:** `manifest/design.json` (thêm checkpoint 64) + file HANDOFF này.
+- Manifest: 88 run / 528 phase, seed 20261020, checkpoints `[8, 42, 64]` (+ gate cuối tại `hi`=88).
+  Extensions: `both_attack` (run 84–88), `share_durations` (from_run=42, 138 phase), `checkpoint` 64.
+- **BATCH 3 ĐANG CHẠY** (run 43–88), bắt đầu 20:10:43 ngày 21/10, ~8.5 phút/run, dự kiến xong ~02:45 ngày 22/10.
+  - Camp dir: `artifacts/experiments/20261021-201043_v4campaign_batch3`; log `artifacts/experiments/campaign_batch3.log`.
+  - Tiến trình độc lập với session: `setsid nohup systemd-inhibit … campaign.py run --lo 42 --hi 88 --tag batch3 …`
+    (PID inhibit 2561913, python 2561916; cha = `systemd --user`, session riêng, không TTY) ⇒ **clear/đóng session
+    KHÔNG dừng batch 3**. Chỉ dừng nếu logout phiên desktop / reboot / tắt máy.
+  - Kiểm: `pgrep -f "campaign.py run --lo 42"`; `grep -E "meta_run_ok|STOP|CHECKPOINT|Traceback" artifacts/experiments/campaign_batch3.log | tail`.
+  - Tại 00:49: 33/46 run xong, tất cả `meta_run_ok=1`; **checkpoint 64 PASS** (mục 6).
+- Attempt/camp dirs (gitignored, `artifacts/experiments/`):
+  | camp | rep | ghi chú |
+  |---|---|---|
+  | `20261020-213040_v4campaign_batch1`, `…214714_v4campaign_batch1b` | 1–8 (thử sớm) | không được chọn; giữ |
+  | `20261020-232552_v4campaign_batch1c` | 1–8 | hợp lệ |
+  | `20261021-093244_v4campaign_batch2` | 9 | hợp lệ |
+  | `20261021-102436_v4campaign_batch2b` | 10 | FAILED (`error.txt`), giữ |
+  | `20261021-102738_v4campaign_batch2c` | 10–42 | hợp lệ trừ rep 37 (suspend ⇒ `meta_run_ok=0`, `meta_run_ok_prev=1`) |
+  | `20261021-194045_…rerun37`, `20261021-194320_…rerun37` | 37 | preflight `defense state HTTP 0` (E2 mất), `meta_run_ok=0` |
+  | `20261021-195218_v4campaign_rerun37b` | 37 | hợp lệ (attempt `…rerun37b_rep-37@1792587146`) |
+  | `20261021-201043_v4campaign_batch3` | 43–88 | đang chạy |
+- Chọn attempt: **attempt hợp lệ mới nhất theo `t_start`** (`package_v4.attempts`, `campaign.prior_run_dirs`). `runs_index.json`
+  ghi mọi attempt + `invalid_reason`.
+- Backup: `/home/ducsssanh/DATN-backup/20261021/artifacts+manifest-20261021.tar.zst` (444 MB, 7686 file, `SHA256SUMS` OK) —
+  **cùng ổ với repo**; user sẽ tự chép ra ổ ngoài/cloud. Cần tạo lại sau khi xong mọi rerun (mục 8).
+- `research/datasets/oran_flooding_v4/` mới chỉ có `manifest/` + HANDOFF; chưa có `raw/`, `rows.parquet`, `qa_report.md`,
+  `calibration.md`, `DATASHEET.md`.
 
 ## 3. Quyết định thiết kế đã chốt
-- UE-mirror packing: mỗi cặp (ue1 tấn công / ue2 tấn công) nằm cùng 1 run ⇒ mọi prefix cân bằng UE (`design.py`, `deb1309`).
-- `benign_benign` (cả 2 UE hợp lệ, backend dual-use): bù bề mặt tấn công SYN/DNS để P(mal|backend) ≈ 0.5, không dùng comp phase.
-- `size_seed` chung cho cặp size-matched ⇒ phân bố kích thước gói trùng (overlap 0.83–0.97); SYN/ICMP/DNS khác nhau do giao thức (hợp lệ).
-- `victim_mode` (silent/responsive) ghi trên mỗi flow, độc lập nhãn ⇒ DL không lộ nhãn (C2).
-- Fan-out: alias IP trên DN + `udpecho` sink làm đích có phản hồi.
-- ≥2 tool cho SYN (hping, synflood) và DNS (pacer, hping); iperf chỉ UDP CBR (`-b` hiệu chỉnh theo header).
-- achieved = mean; gate ở mức cell (backend×role×load, median ±10%, cell cần ≥3 phase) + gate đối xứng tải MAL vs BEN (±0.05).
-- Gate cân bằng là TƯƠNG ĐỐI theo base rate thực tế (không phải 0.5 tuyệt đối), vì benign_benign đẩy base ≈ 0.44.
-- Block/structural block balance (`0b64d4b`). IDLE giữ riêng, không gộp BENIGN. Chia QA theo `run_id`.
-- Both-attack (runs 84–88): thêm vì P(mal|UE) theo giây chỉ 0.445/0.431 ở 83 run (user chọn). Runs 1–83 giữ nguyên.
+- UE-mirror packing: mỗi cặp (ue1 tấn công / ue2 tấn công) cùng run ⇒ prefix cân bằng UE (`deb1309`).
+- `benign_benign` bù bề mặt tấn công SYN/DNS cho backend dual-use (pacer/hping/iperf); gắn với cặp "surplus" thành unit trung tính.
+- **Từ run 43 mọi phase trong một unit dùng CHUNG duration** (`design.py share-dur`) ⇒ cân bằng chính xác theo hàng.
+  Run 1–42 không đổi (đã thu) ⇒ lệch P(mal|ue) theo hàng ở 1–42 không sửa được.
+- `size_seed` chung cho cặp size-matched; `victim_mode` (silent=DROP trên DN / responsive) độc lập nhãn (C2).
+- ≥2 tool cho SYN, DNS; iperf chỉ UDP CBR.
+- Gate cân bằng TƯƠNG ĐỐI theo base rate (benign_benign đẩy base ≈ 0.44). IDLE giữ riêng. QA chia theo `run_id`.
+- Both-attack (run 84–88) để kéo P(mal|ue) lên.
+- Checkpoint trung gian đặt ở 64 (không phải 65) vì 64 là ranh giới prefix gần nhất không cắt đôi unit.
 
-## 4. Stop-gate hiện hành (`campaign.py` `STOP_GATES`, `checkpoint_qa`)
-- |P(mal|ue) − base| ≤ 0.05; |P(mal|backend dual-use) − base_dual_use| ≤ 0.05 (tính theo HÀNG).
-- cell_achieved_pass_rate ≥ 0.85 (chỉ áp khi cell có ≥3 phase); |median ratio MAL − BEN| ≤ 0.05 mỗi mức tải.
-- nuisance AUC ≤ 0.6; size overlap mỗi cặp size-matched ≥ 0.6; run lỗi / preflight lỗi ⇒ STOP.
+## 4. Gate & guard hiện hành
+- Stop-gate (`campaign.py` `STOP_GATES`, `checkpoint_qa`, tính theo HÀNG): |P(mal|ue) − base| ≤ 0.05;
+  |P(mal|backend dual-use) − base_du| ≤ 0.05; cell_achieved_pass_rate ≥ 0.85 (cell ≥3 phase, median ±10%);
+  load symmetry |median MAL − BEN| ≤ 0.05 mỗi mức tải; nuisance AUC ≤ 0.6; size overlap cặp size-matched ≥ 0.6.
+- Integrity mỗi run (`integrity.py`, gọi trong `campaign.py` + mục 10b `qa_v4`): duration mỗi phase lệch kế hoạch ≤ 20%;
+  không có gap KPM/URR/prof > 3 s trong phase (theo SUPI, kể cả biên); không có kernel `PM: suspend entry/exit` chồng
+  thời gian run; run lỗi trước phase đầu ⇒ hỏng. Vi phạm ⇒ `meta_run_ok=0` + STOP.
+- `prof_assert`: mỗi phase tấn công, peak `prof_ul_pps` của attacker ≥ 20 (khớp theo SUPI ⇒ không phụ thuộc mapping IP).
+  Hồi tố 42 run: 223 (phase, UE) đều qua, min peak 24 pps (sát ngưỡng).
+- `supi_ip_mapping`: UPF API không trả IP ⇒ `record_mapping` đọc log SMF (PAA → PDU_SES_EST SUPI). 42 run cũ đã backfill từ
+  `preflight.ues` (`supi_ip_mapping_source`), khớp `ip_history`.
 
 ## 5. Failure mode testbed & phục hồi
-- SMF↔UPF PFCP không hình thành (SMF discover NRF chạy trước UPF + NRF giữ subscription cũ ⇒ HTTP 0).
-  Phục hồi THEO THỨ TỰ: `scripts/k8s/phase0/recover_core_ordered.sh`. **Cấm restart SMF đơn lẻ / restart core đồng thời.**
-- Sau host suspend/power-cycle: `scripts/k8s/phase0/recover_ran.sh` → `ip route replace 172.30.26.0/24 dev oaitun_ue1` trên cả 2 UE
-  → tắt defense → kiểm 2 SUPI.
-- **Host suspend → E2 SCTP mất → `recover_ran.sh`** (gặp 2026-10-21, suspend 15:48→16:08): FlexRIC log
-  `SCTP_SEND_FAILED` / `Communication with E2 Node lost?` / `xApp N disconnected!` ngay lúc resume; xApp restart rồi lặp
-  `[E2AP]: Resending Setup Request after timeout` ⇒ API `:8090` không lên ⇒ preflight `defense state HTTP 0`. Core/URR/PFCP
-  vẫn khỏe (không đụng core). Phục hồi: `recover_ran.sh` → route `172.30.26.0/24 dev oaitun_ue1` trên 2 UE → POST
-  `/v1/defense/{core,enabled}` false → preflight. Kiểm sau phục hồi: `defense_state.ues` đủ 2 SUPI, log xApp có KPM
-  cho cả 2 `amf_ue_ngap_id`, 0 dòng "Resending Setup", URR age < 3 s, IP↔SUPI từ log SMF (PAA → PDU_SES_EST SUPI).
-  Phòng ngừa: sleep/suspend/hibernate/hybrid-sleep/suspend-then-hibernate targets đã `mask`, logind drop-in
-  `/etc/systemd/logind.conf.d/99-nosleep.conf` (lid/keys/idle = ignore), GNOME `sleep-inactive-{ac,battery}-type=nothing`.
-  Nguyên nhân 3 lần suspend ban ngày (02:04, 09:47, 14:33, 15:48): idle action của gsd-power (không có sự kiện lid);
-  17:47 là lid close. `systemd-inhibit` không chặn được vì gsd-power chỉ giữ inhibitor kiểu delay.
-- Multus race khi `minikube start`: rollout-restart core sau khi Multus sẵn sàng.
-- SMF segfault ~5.5 h (watchdog tự hồi phục). Preflight mỗi run kiểm PFCP association.
-- Luôn `kubectl --context oai-lab`; luôn tắt defense trước khi flood.
+- SMF↔UPF PFCP không hình thành ⇒ `scripts/k8s/phase0/recover_core_ordered.sh`. **Cấm restart SMF đơn lẻ / core đồng thời.**
+- **Host suspend → E2 SCTP mất → `recover_ran.sh`** (2026-10-21, suspend 15:48→16:08): FlexRIC `SCTP_SEND_FAILED` /
+  `Communication with E2 Node lost?`; xApp lặp `[E2AP]: Resending Setup Request after timeout` ⇒ `:8090` không lên ⇒
+  preflight `defense state HTTP 0`. Core/URR/PFCP vẫn khỏe. Phục hồi: `recover_ran.sh` → `ip route replace 172.30.26.0/24
+  dev oaitun_ue1` trên 2 UE → POST `/v1/defense/core` và `/v1/defense/enabled` `{"enabled": false}` → preflight.
+  Kiểm: `defense_state.ues` đủ 2 SUPI, KPM cho cả 2 `amf_ue_ngap_id`, 0 dòng "Resending Setup", URR age < 3 s, IP↔SUPI từ SMF.
+- Chống suspend (đã làm, verify `systemctl is-enabled sleep.target` = `masked`): mask sleep/suspend/hibernate/hybrid-sleep/
+  suspend-then-hibernate; `/etc/systemd/logind.conf.d/99-nosleep.conf`; GNOME `sleep-inactive-{ac,battery}-type 'nothing'`.
+  Nguyên nhân suspend ban ngày: idle action gsd-power (inhibitor chỉ kiểu delay ⇒ `systemd-inhibit` không đủ); 17:47 = lid.
+- Multus race sau `minikube start`; SMF segfault ~5.5 h (watchdog). Luôn `kubectl --context oai-lab`; luôn tắt defense trước flood.
+- Python: dùng `.venv-ml/bin/python` (system python3 không có pandas).
 
-## 6. QA checkpoint 42 SAU rerun 37 (gate PASS) — trước đó: xem git `404960a`
-| chỉ số | row-weighted (gate) | phase-weighted |
-|---|---|---|
-| P(mal\|ue) ue1 / ue2 (base) | 0.467 / 0.416 (0.441) | 0.444 / 0.440 (0.442) |
-| P(mal\|backend) hping / iperf / pacer (base dual-use) | 0.496 / 0.500 / 0.497 (0.497) | 0.500 / 0.500 / 0.500 (0.500) |
-- cell-achieved pass 1.0 (28 cell); load_symmetry max 0.025; nuisance AUC 0.513.
-- size overlap: udp 0.97, icmp 1.0, fanout 0.87, mimicry 0.84, pulsing 0.83 (dns 0.035 / syn 0.052: khác giao thức, không gate).
-- 42 run qua integrity (lệch duration max 0.6%, stream gap max 2.73 s — sát ngưỡng 3 s, theo dõi).
-- Lệch P(mal|ue) theo hàng ở 1–42 (ue2 thấp) do thời lượng mirror pair khác nhau — không sửa được cho run đã thu.
-  Từ run 43: `design.py share-dur --from-run 42` (extension `share_durations`, 138 phase đổi duration; run 1–42
-  byte-identical). Kế hoạch 1–88 row-weighted: ue1 0.484 / ue2 0.461, backend hping 0.527 / pacer 0.541 /
-  iperf 0.5 (base dual-use 0.532); 43–88: ue1 0.499 / ue2 0.505. ETA batch 3 ≈ 6.5 h.
+## 6. QA đã có
+| chỉ số | ckpt 42 row-w | ckpt 42 phase-w | ckpt 64 row-w |
+|---|---|---|---|
+| P(mal\|ue) ue1 / ue2 (base) | 0.467 / 0.416 (0.441) | 0.444 / 0.440 (0.442) | 0.456 / 0.426 (0.441) |
+| P(mal\|backend) hping / iperf / pacer (base du) | 0.496 / 0.500 / 0.497 (0.497) | 0.500 ×3 | 0.497 / 0.500 / 0.498 (0.498) |
+| cell-achieved pass | 1.0 (28) | | 0.964 (28) — fail `iperf/MAL/1.2 = 0.77` |
+| load symmetry max / nuisance AUC | 0.025 / 0.513 | | 0.014 / 0.513 |
+- Size overlap @64: udp 0.973, icmp 1.0, fanout 0.87, mimicry 0.834, pulsing 0.833 (dns 0.041 / syn 0.062: khác giao thức).
+- Kế hoạch (manifest) 1–88 row-w: ue1 0.484 / ue2 0.461; backend hping 0.527 / pacer 0.541 / iperf 0.5 (base du 0.532).
+- Integrity 42 run: lệch duration max 0.6%, gap max 2.73 s (sát 3 s).
 
 ## 7. VẤN ĐỀ MỞ
-a. **[ĐÃ XỬ LÝ: guard integrity + rerun 37b]** Phase `benign_benign` 1415.7 s (kế hoạch 38 s) — NGUYÊN NHÂN ĐÃ XÁC ĐỊNH: host suspend, không phải thiết kế.**
-   - Chỉ MỘT phase: rep 37, `p05_benign_benign` (hping, load 1.2). Manifest: mọi `benign_benign` dài 31–89 s.
-   - `journalctl`: `14:33:14 systemd-logind: The system will suspend now!`; máy dậy ~14:56:16. `phases.csv` rep 37: 1792567960→1792569375.
-   - Hệ quả: ~2830 hàng BENIGN hping (cả 2 UE) thay cho ~76 ⇒ lệch cân bằng và confound `t_since_phase_start`.
-   - Đã chạy `systemd-inhibit` mà logind vẫn suspend (chưa rõ nguyên nhân: lid/phím/GNOME; `systemd-inhibit --list` có GNOME block
-     chỉ cho phím nguồn). Run vẫn ghi `meta_run_ok=1` ⇒ **harness không phát hiện phase dài bất thường.**
-   - Kiểm chứng: loại phase này khỏi `dataset_sofar`: hping 0.500, iperf 0.500, pacer 0.497, base dual-use 0.499 ⇒ gate sẽ PASS.
-   - ĐỀ XUẤT (chưa làm): chạy lại rep 37 (`--lo 36 --hi 37 --tag rerun37`), đánh dấu attempt cũ không hợp lệ kèm lý do trong
-     `runs_index` (cần thêm cơ chế loại attempt vào `package_v4.py`; KHÔNG sửa `run.json` gốc, KHÔNG xóa). Thêm check
-     "độ dài phase thực > 1.5× kế hoạch ⇒ `meta_run_ok=0`" vào `campaign.py`; ngăn suspend ở logind (`HandleLidSwitch=ignore`
-     hoặc `systemctl mask sleep.target`) trước khi chạy tiếp.
-   - Đề xuất "tách thành nhiều phase 30–90 s" KHÔNG cần: thiết kế đã đúng 31–89 s.
-b. [ĐÃ XÁC NHẬN] Gate backend fail ở prefix 42 là do (a); sau rerun: PASS.
-h. `supi_ip_mapping` của 42 run cũ toàn `None` (UPF API không trả IP). Đã sửa từ rerun37b (đọc log SMF);
-   mapping run cũ lấy từ `run.json.preflight.ues` (IP từ `oaitun_ue1`, ue1 10.1.0.2 / ue2 10.1.0.3).
-c. P(mal|ue) theo hàng sau khi loại phase hỏng vẫn thấp: ue1 0.468, ue2 0.417 (phase-count 0.4716). Run 84–88 both-attack
-   được kỳ vọng kéo lên; **chưa đo**, tiêu chí §7.3 [0.45, 0.55] chưa chứng minh được.
-d. Nuisance baseline chỉ dùng feature "innocent" (xem mục 6); thêm `meta_backend` là biến thể `with_backend`. Balance của stop-gate
-   tính theo HÀNG; QA §3 và §11 tính theo PHASE (và theo giây khi nêu rõ). Cần ghi rõ trong DATASHEET.
-e. Adversarial validation (9 run): `victim_mode|MAL` AUC 0.74–0.86 (kỳ vọng, C2), `backend` trong lớp 0.69–0.95 — cần ghi vào DATASHEET.
-f. Run 84 có 4 phase hping ở tải 1.2 (theo dõi achieved_ok).
-g. Chưa viết `DATASHEET.md`; `docs/`, `data/`, `artifacts/` bị gitignore ⇒ camp dirs chỉ ở máy này, nên sao lưu.
+a. **[MỚI, NGHIÊM TRỌNG — user đã duyệt hướng sửa] iperf + victim silent ⇒ tấn công bị xung ON/OFF, lộ nhãn.**
+   - Triệu chứng (dataset_sofar @64, median sau giây 5): iperf MAL silent prof_ul 561 kbps @0.8 (BEN 874), 576 kbps @1.2
+     (BEN 1298); responsive bình thường (853/1269). achieved MAL silent: 0.68 @0.8, 0.56 @1.2, 1.38 @0.4 (giả).
+   - Root cause: `backends/iperf.py` chạy mỗi giây một lệnh `iperf -u -c … -t 1` với `subprocess.run(timeout=3)`. Victim
+     silent DROP gói attacker ⇒ iperf2 client chờ ack/stats cuối của server ⇒ mỗi block treo tới timeout 3 s ⇒ ~1 s ON / 2 s OFF
+     (rep 59 `p04_udp`: phase 31 s chỉ có 10 dòng). Khi timeout, `tx` bị gán = target ⇒ achieved giả.
+     Benign iperf và attack iperf responsive không bị (server ack).
+   - Gate không bắt được vì load symmetry lấy median gộp mọi backend.
+   - Phạm vi: 18 phase (~894 s kế hoạch), **10 run: 7, 16, 17, 47, 59, 62, 66, 67, 68, 78** (78 chạy trong batch 3).
+   - Sửa: iperf 2.1.9 trên UE có `--no-udp-fin` ("No final server to client stats at end of UDP test").
+b. P(mal|ue) row-w ue2 0.416–0.426 < 0.45 (§7.3 tuyệt đối) do run 1–42; kỳ vọng ~0.461 ở 88 (theo manifest) — cần đo.
+c. Nuisance baseline chỉ dùng feature "innocent"; balance stop-gate theo HÀNG, QA §3/§11 theo PHASE ⇒ ghi rõ trong DATASHEET.
+d. Adversarial validation (9 run): `victim_mode|MAL` AUC 0.74–0.86 (kỳ vọng, C2), `backend` trong lớp 0.69–0.95 ⇒ DATASHEET.
+e. Run 84 có 4 phase hping tải 1.2 (theo dõi achieved).
+f. Stream gap max 2.73 s và prof peak min 24 pps sát ngưỡng — theo dõi, KHÔNG nới.
 
-## 8. Bước tiếp theo
-1. User duyệt ⇒ chạy batch 3 (lệnh mục 2); checkpoint ở 88 (build + QA, gồm integrity).
-2. `package_v4.py --out research/datasets/oran_flooding_v4 <mọi camp dir, gồm rerun37/rerun37b>` ⇒ rows.parquet, qa_report.md, calibration.md; kiểm §7.3.
-3. Viết `DATASHEET.md` (chưa có): p2pilot + campaign + both-attack + sự cố suspend/E2 + adversarial validation + 2 kiểu trọng số.
-4. Backup `artifacts/experiments/` (gitignored) — chờ user duyệt đích.
-5. Commit (tác giả ducsssanh), không push.
+## 8. BƯỚC TIẾP THEO (thứ tự, đã được user duyệt) — ETA tổng ~3 h 50 từ 00:50
+1. **Chờ batch 3 xong** (~02:45). KHÔNG sửa `backends/iperf.py` khi batch 3 còn chạy (file được đọc mỗi phase).
+   Nếu STOP ở giữa: báo user, không tự chạy tiếp.
+2. **Sửa iperf** (`scripts/k8s/exp/v4traffic/backends/iperf.py`):
+   - thêm `--no-udp-fin` vào `argv` (mọi lời gọi, cả 2 nhãn ⇒ đối xứng);
+   - khi `TimeoutExpired` hoặc không parse được: `tx = NaN`/None (KHÔNG gán = target), achieved để trống;
+   - cập nhật `test_backends.py` nếu có assert liên quan.
+3. **Guard mới trong `integrity.py`**: mỗi flow trong `traffic/*.csv` phải có số dòng ≥ 90% duration phase
+   (bắt kiểu treo như trên). Chạy hồi tố trên mọi run; báo run nào bị bắt (kỳ vọng đúng 10 run ở mục 7a).
+4. **Đánh hỏng 10 run** (7, 16, 17, 47, 59, 62, 66, 67, 68, 78): `meta_run_ok=0`, `meta_run_ok_prev=1`, lý do
+   "iperf silent-victim FIN stall (pre-fix backend)" trong `integrity.reasons`. Không xóa.
+5. **Thử 1 phase iperf + silent** sau khi sửa (vd. rep 59 chạy riêng, hoặc script 1 phase): achieved MAL silent phải trong ±10%
+   và số dòng = duration. Không đạt ⇒ DỪNG, báo user.
+6. **Thêm `--reps` vào `campaign.py run`** (danh sách rep không liên tiếp, 1 checkpoint ở cuối trên prefix đầy đủ 1–88
+   gồm attempt mới nhất hợp lệ), rồi chạy lại:
+   `setsid nohup systemd-inhibit --what=sleep:idle:handle-lid-switch --who=v4campaign --why=v4rerun-iperf .venv-ml/bin/python scripts/k8s/exp/v4traffic/campaign.py run --reps 7 16 17 47 59 62 66 67 68 78 --tag rerun_iperf --prior <mọi camp dir hợp lệ + batch3> > artifacts/experiments/campaign_rerun_iperf.log 2>&1 < /dev/null & disown`
+   (~1 h 27). Trước khi chạy: kiểm testbed (preflight, E2, URR, defense off).
+7. **QA cuối toàn campaign** (`package_v4.py --out research/datasets/oran_flooding_v4 <mọi camp dir kể cả attempt hỏng>`),
+   gửi user: P(mal|ue), P(mal|backend) **cả row- và phase-weighted**; danh sách mọi attempt `meta_run_ok=0` + lý do;
+   size overlap theo cặp; nuisance AUC; cell-achieved (tách theo victim_mode cho iperf); acceptance §7.3.
+8. **Backup lại**: `tar.zst` gồm `artifacts/` (campaign 1–88 + mọi attempt) + `research/datasets/oran_flooding_v4/manifest`,
+   kèm `SHA256SUMS` + đếm file, vào `/home/ducsssanh/DATN-backup/<ngày>/`. User tự chép ra ngoài.
+9. **Dọn log** (chỉ khi KHÔNG có campaign chạy, sau khi đã gửi QA cuối):
+   - Danh sách đề xuất (43 mục, ~78 MB; bản mới nhất mỗi loại được giữ): `*-m35` cũ (24), `*-k8s` cũ (8), `ingest-two-sources` (2),
+     `flood-probe` (1), `ds-v4smoke*` cũ (2), `k8s/diagnostics` teardown-verify cũ (3) + xapp-build cũ (1), `k8s/build`
+     upf-teardown-build cũ (2). Danh sách chính xác (43 path): `artifacts/DELETE_CANDIDATES_20261021.txt` (gitignored).
+   - **GIỮ**: mọi `ds-*_v1/_v2/_v3` (cần raw để dựng lại v3 bằng join nhân quả cho so sánh v3↔v4), mọi `v4campaign*`,
+     `v4pilot/p2gate`, `ipcal`, `userplane_watchdog*`, `campaign_*.log`, `artifacts/ml`, `artifacts/k8s/state`, `src/`, `data/`.
+   - Trước khi xóa: grep từng path trên manifest/builder/DATASHEET/README của dataset v1–v4 và `scripts/`; mục còn được tham
+     chiếu ⇒ bỏ khỏi danh sách, báo user. Xóa phần còn lại; ghi danh sách đã xóa vào `artifacts/CLEANUP_<ngày>.txt`.
+10. Viết `DATASHEET.md` (p2pilot + campaign + both-attack + sự cố suspend/E2 + lỗi iperf FIN + adversarial validation +
+    2 kiểu trọng số). Cập nhật HANDOFF + commit (ducsssanh, không co-author, không push).

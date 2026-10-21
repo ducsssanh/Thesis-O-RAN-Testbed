@@ -6,7 +6,8 @@
  "n_phases": 528,
  "checkpoints": [
   8,
-  42
+  42,
+  64
  ],
  "runs": [
   [
@@ -21883,6 +21884,11 @@
    "kind": "share_durations",
    "from_run": 42,
    "n_changed": 138
+  },
+  {
+   "kind": "checkpoint",
+   "run": 64,
+   "why": "interim gate ~65; 64 = nearest unit-clean prefix boundary"
   }
  ]
 }
