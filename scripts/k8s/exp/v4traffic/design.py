@@ -197,6 +197,49 @@ def _benign_benign(d_backend, load_mbps, victim, cong, seeder, rng):
     return ph
 
 
+def _both_attack(tool, load_mbps, victim, cong, seeder, rng, size_seed):
+    """attacker_ue=both (plan §6.2): both UEs flood on the same dual-use tool, no benign
+    counterpart. Raises the row base rate toward 0.5 (the benign_benign backend offsets
+    pull it down) without touching the section-6.3 cells. UE-symmetric by construction."""
+    be, mode, model = tool
+    fl = {ue: {"ul": _flow(be, mode, model, "attack", load_mbps, seeder.next(), size_seed,
+                           pair="both_attack", size_alpha=1.0)} for ue in ("ue1", "ue2")}
+    ph = {"family": "both", "pair": "both_attack", "atk_family": "udp_flood", "benign_class": "",
+          "attacker_ue": "both", "atk_backend": be, "benign_backend": None,
+          "load": load_mbps, "victim_mode": victim, "congestion": cong,
+          "duration": int(rng.integers(30, 91)), "gap": int(rng.integers(8, 16)), "flows": fl}
+    if cong:
+        ph["congestion_cfg"] = {"rate": "4mbit"}
+    return ph
+
+
+def extend_both_attack(man, n_phases=24, congested=4):
+    """Append runs of both-attack phases AFTER the existing runs (which stay byte-identical,
+    so captured runs still reproduce from the manifest). Tools pacer:hping = 2:1 (iperf is a
+    small CBR-only backend; adding attacker use there would skew it); loads cycle L1/L2/L3,
+    victim modes alternate, `congested` phases get the N6 tbf. Deterministic from man seed."""
+    seed = man["seed"] + 7
+    rng = np.random.default_rng(seed)
+    seeder = _Seeder(man["seed"] * 10 + 500_000)
+    tools = [("pacer", None, "fgn"), ("pacer", None, "cbr"), ("hping", "udp", "mmpp2")]
+    cong_idx = set(rng.choice(n_phases, size=congested, replace=False).tolist())
+    phases = []
+    for i in range(n_phases):
+        lname, lmb = LOADS[i % len(LOADS)]
+        phases.append(_both_attack(tools[i % len(tools)], lmb, VICTIMS[(i // len(LOADS)) % 2],
+                                   int(i in cong_idx), seeder, rng, 900_000 + i))
+    random.Random(seed).shuffle(phases)
+    k = man["phases_per_run"]
+    new = [phases[i:i + k] for i in range(0, len(phases), k)]
+    lo = man["n_runs"]
+    man["runs"] += new
+    man["n_runs"] = len(man["runs"])
+    man["n_phases"] += len(phases)
+    man.setdefault("extensions", []).append({"kind": "both_attack", "runs": [lo, man["n_runs"]],
+                                             "n_phases": len(phases), "seed": seed})
+    return man
+
+
 def build_manifest(reps=3, seed=20261020, phases_per_run=6):
     rng = np.random.default_rng(seed)
     seeder = _Seeder(seed * 10)
@@ -337,6 +380,32 @@ def cmd_plan(args):
           "else batch 2 to ~50% checkpoint, then the rest.")
 
 
+def cmd_extend(args):
+    path = pathlib.Path(args.manifest)
+    man = json.loads(path.read_text())
+    if any(e["kind"] == "both_attack" for e in man.get("extensions", [])):
+        sys.exit("manifest already has a both_attack extension")
+    man = extend_both_attack(man, args.n, args.congested)
+    path.write_text(json.dumps(man, indent=1) + "\n")
+    aud = audit_manifest(man)
+    (path.parent / "audit.json").write_text(json.dumps(aud, indent=1) + "\n")
+    print(json.dumps({"n_runs": man["n_runs"], "n_phases": man["n_phases"], "eta": eta(man),
+                      "extensions": man["extensions"], "by": aud["by"],
+                      "p_mal_ue_seconds": audit_seconds(man)}, indent=1))
+
+
+def audit_seconds(man):
+    """P(malicious | UE) weighted by phase duration -- what the per-second rows will show."""
+    m = {}
+    for run in man["runs"]:
+        for ph in run:
+            for ue, fl in ph["flows"].items():
+                a = m.setdefault(ue, [0, 0])
+                a[0] += ph["duration"] * (fl["ul"]["role"] == "attack")
+                a[1] += ph["duration"]
+    return {ue: round(x / y, 4) for ue, (x, y) in sorted(m.items())}
+
+
 def cmd_audit(args):
     man = json.loads(pathlib.Path(args.manifest).read_text())
     print(json.dumps(audit_manifest(man), indent=1))
@@ -353,6 +422,11 @@ def main():
     pa = sub.add_parser("audit")
     pa.add_argument("manifest")
     pa.set_defaults(fn=cmd_audit)
+    pe = sub.add_parser("extend", help="append both-attack runs (attacker_ue=both) to a manifest")
+    pe.add_argument("manifest")
+    pe.add_argument("--n", type=int, default=24)
+    pe.add_argument("--congested", type=int, default=4)
+    pe.set_defaults(fn=cmd_extend)
     a = ap.parse_args()
     a.fn(a)
 

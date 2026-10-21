@@ -45,6 +45,7 @@ META = ["run_id", "supi", "ue", "phase", "attack_family", "benign_class", "backe
         "victim_mode", "load_mbps", "dl_feedback", "native_unit", "achieved_ok",
         "fanout", "stress_cell", "congestion", "pair", "achieved_ratio",
         "t_unix", "t_since_phase_start", "guard", "attack_active",
+        "run_ok", "seed", "attacker_ue",
         "kpm_age_s", "urr_age_s", "prof_age_s", "urr_arrival_exact"]
 
 
@@ -122,6 +123,7 @@ def load_schedule(run):
     meta = json.loads((run / "run.json").read_text())
     flows = json.loads((run / "traffic/flows.json").read_text()) if (run / "traffic/flows.json").exists() else []
     ue_supi = {ue: m["supi"] for ue, m in (meta.get("ues") or {}).items()}
+    run_ok = meta.get("meta_run_ok", np.nan)           # set by campaign.py after each run
     phases = []
     for p in meta.get("phases") or []:
         per_ue = {}
@@ -137,9 +139,35 @@ def load_schedule(run):
                           "dl_feedback": v4.get("dl_feedback"), "native_unit": v4.get("native_unit", "bytes"),
                           "fanout": v4.get("fanout"), "stress_cell": v4.get("stress_cell"),
                           "congestion": v4.get("congestion"), "pair": v4.get("pair", ""),
-                          "target_bytes": v4.get("target_ul_bytes_s"), "target_pps": v4.get("target_ul_pps")}
+                          "target_bytes": v4.get("target_ul_bytes_s"), "target_pps": v4.get("target_ul_pps"),
+                          "seed": (v4.get("v4_meta") or {}).get("seed"), "started": v4.get("started"),
+                          "gate": _gate_params(v4) if label == "MALICIOUS" else None}
+        atk = sorted(u for u, i in per_ue.items() if i["label"] == "MALICIOUS")
+        attacker = "both" if len(atk) > 1 else (atk[0] if atk else "none")
+        for i in per_ue.values():
+            i["attacker_ue"], i["run_ok"] = attacker, run_ok
         phases.append({"name": p["name"], "start": p["t_start"], "end": p["t_end"], "ues": per_ue})
     return ue_supi, phases
+
+
+def _gate_params(flow):
+    """Attack gate m_t of planbuilder: the pulsing square wave, else always on."""
+    pr = (flow.get("v4_meta") or {}).get("params") or {}
+    if pr.get("attack_model") == "pulsing" and flow.get("started"):
+        return {"started": float(flow["started"]), "period": int(pr["period"]),
+                "on": int(pr["on"]), "offset": int(pr["offset"])}
+    return None
+
+
+def attack_active_at(lab, t):
+    """Per-second m_t (schedule ground truth): 1 while the attack component is on."""
+    if not lab or lab["label"] != "MALICIOUS":
+        return 0
+    g = lab.get("gate")
+    if not g:
+        return 1
+    s = int(np.floor(t - g["started"]))
+    return int(s >= 0 and ((s + g["offset"]) % g["period"]) < g["on"])
 
 
 # ------------------------------------------------------------------ causal join
@@ -225,7 +253,10 @@ def build_run(run, age_cap=3.0, guard_s=3, run_id=None, core_age_cap=4.0):
             row["stress_cell"] = (lab["stress_cell"] if lab else np.nan)
             row["congestion"] = (lab["congestion"] if lab else np.nan)
             row["pair"] = (lab["pair"] if lab else "")
-            row["attack_active"] = int(row["label"] == "MALICIOUS")
+            row["attack_active"] = attack_active_at(lab, t)
+            row["run_ok"] = lab["run_ok"] if lab else (phases[0]["ues"][ue]["run_ok"] if phases and ue in phases[0]["ues"] else np.nan)
+            row["seed"] = (lab["seed"] if lab else np.nan)
+            row["attacker_ue"] = (lab["attacker_ue"] if lab else "")
             row["t_since_phase_start"] = t - ph["start"] if ph else np.nan
             row["guard"] = int(bool(ph) and (t - ph["start"] < guard_s or ph["end"] - t <= guard_s))
             rows.append(row)

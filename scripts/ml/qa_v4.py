@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""QA for a v4 dataset build (subset of v4 plan §7.2 that applies from Phase 1 on).
+"""QA for a v4 dataset build (v4 plan §7.2; §7.3 acceptance table at the end).
 
   .venv-ml/bin/python -I scripts/ml/qa_v4.py --data research/datasets/oran_flooding_v4_pilot RUN_DIR [RUN_DIR ...]
 
@@ -57,7 +57,12 @@ def _cv_auc(X, y, groups, n_splits=4):
             if p.shape[1] == 2:
                 aucs.append(roc_auc_score(y[te], p[:, 1]))
             else:
-                aucs.append(roc_auc_score(y[te], p, multi_class="ovr", average="macro", labels=clf.classes_))
+                # one-vs-rest macro over the classes present in this test fold (a run-grouped
+                # fold rarely holds every backend; sklearn's multi-class AUC is then undefined)
+                per = [roc_auc_score(y[te] == c, p[:, j]) for j, c in enumerate(clf.classes_)
+                       if 0 < (y[te] == c).sum() < len(te)]
+                if per:
+                    aucs.append(float(np.mean(per)))
         except Exception:                             # tiny/degenerate pilot folds: skip, don't crash the report
             continue
     return float(np.mean(aucs)) if aucs else None
@@ -105,7 +110,7 @@ def nuisance_baseline(df):
             else:
                 X[c] = LabelEncoder().fit_transform(nb[c].astype(str))
         return X
-    innocent = ["meta_ue", "meta_t_since_phase_start", "meta_load_mbps", "meta_victim_mode"]
+    innocent = ["meta_ue", "meta_t_since_phase_start", "meta_load_mbps", "meta_victim_mode", "meta_congestion"]
     out = {"innocent": _cv_auc(enc(innocent), y, nb[gcol]),
            "with_backend": _cv_auc(enc(innocent + ["meta_backend"]), y, nb[gcol])}
     return out
@@ -210,9 +215,56 @@ def cem_support(df, feats, k=5):
             "l1_before": l1(m_all, b_all), "l1_after": l1(m_c, b_c) if len(common) else None}
 
 
+PHASE_KEY = ["meta_run_id", "meta_phase"]             # phase names repeat across runs
+DUAL_USE = ("pacer", "hping", "iperf")
+
+
+def phase_table(nb):
+    """One row per (run, phase, UE) of non-IDLE data, with the phase-level meta."""
+    agg = {"label": ("label", "first"), "backend": ("meta_backend", "first"),
+           "pair": ("meta_pair", "first"), "load": ("meta_load_mbps", "first")}
+    for k, c in (("ok", "meta_achieved_ok"), ("ratio", "meta_achieved_ratio"), ("run_ok", "meta_run_ok"),
+                 ("unit", "meta_native_unit"), ("family", "meta_attack_family")):
+        if c in nb:
+            agg[k] = (c, "first")
+    return nb.groupby(PHASE_KEY + ["meta_ue"]).agg(**agg).reset_index()
+
+
+def chi2_independence(nb, col):
+    """χ² test label ⟂ col on PHASE-level counts (rows within a phase are not independent)."""
+    from scipy.stats import chi2_contingency
+    pt = nb.groupby(PHASE_KEY + ["meta_ue"]).agg(label=("label", "first"), v=(col, "first")).reset_index()
+    pt = pt.dropna(subset=["v"])
+    if col == "meta_backend":
+        pt = pt[pt["v"].isin(DUAL_USE)]
+    ct = pd.crosstab(pt["v"].astype(str), pt["label"])
+    if ct.shape[0] < 2 or ct.shape[1] < 2:
+        return None
+    chi2, pval, dof, _ = chi2_contingency(ct)
+    return {"chi2": float(chi2), "p": float(pval), "dof": int(dof), "n": int(ct.values.sum())}
+
+
+def coverage(pt, min_phases=3):
+    """Valid attack phases per (section-6.3 pair, attacker UE) and benign-counterpart
+    phases per (pair, UE). Valid = run_ok and not achieved-failed."""
+    v = pt.copy()
+    if "run_ok" in v:
+        v = v[v["run_ok"].fillna(1) == 1]
+    if "ok" in v:
+        v = v[v["ok"].fillna(1) == 1]                  # unknown (conn-rate) is not a failure
+    v = v[v["pair"].astype(str).str.contains("~")]
+    tab = v.groupby(["pair", "meta_ue", "label"]).size().unstack("label", fill_value=0)
+    missing = [(pr, ue, lab, int(tab.loc[(pr, ue), lab]) if (pr, ue) in tab.index and lab in tab else 0)
+               for pr in sorted(v["pair"].unique()) for ue in sorted(v["meta_ue"].unique())
+               for lab in ("MALICIOUS", "BENIGN")
+               if ((pr, ue) not in tab.index) or (lab not in tab) or tab.loc[(pr, ue), lab] < min_phases]
+    return tab, missing
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", required=True)
+    ap.add_argument("--repro", default=None, help="output of check_reproducible.py (optional)")
     ap.add_argument("runs", nargs="+")
     a = ap.parse_args()
     root = pathlib.Path(a.data)
@@ -251,12 +303,12 @@ def main():
     pm = (nb.label == "MALICIOUS").groupby(nb["meta_ue"]).mean()
     flag = [ue for ue, p in pm.items() if not 0.45 <= p <= 0.55]
     L.append(f"\nP(malicious | UE): " + ", ".join(f"{u} {p:.2f}" for u, p in pm.items()) +
-             (f"\n\n**UE-balance not yet met** — {flag} outside [0.45, 0.55]: label still tracks UE. "
-              "Full per-phase role-swap balance is the Phase-3 campaign-design job." if flag else "\n\nBalanced on UE."))
+             (f"\n\n**UE-balance not met** — {flag} outside [0.45, 0.55]." if flag else "\n\nBalanced on UE."))
     # balance on the other nuisances the design must decorrelate from the label
     for col, lo, hi, nm in (("meta_backend", 0.4, 0.6, "backend"),
                             ("meta_victim_mode", 0.4, 0.6, "victim mode"),
-                            ("meta_load_mbps", 0.0, 1.0, "load level")):
+                            ("meta_load_mbps", 0.0, 1.0, "load level"),
+                            ("meta_congestion", 0.0, 1.0, "congestion")):
         if col in nb and nb[col].notna().any():
             pmc = (nb.label == "MALICIOUS").groupby(nb[col]).mean()
             # only dual-use categories are expected ~0.5; benign-only hard-negatives
@@ -268,18 +320,39 @@ def main():
                      (f"  — **dual-use outside [{lo}, {hi}]: {fl}**{note}" if fl else
                       (f"  — dual-use in band{note}" if hi < 1.0 else "  (load distribution should match across classes)")))
 
+    L.append("\nχ² independence of label vs each nuisance (phase-UE units; dual-use backends only; "
+             "p > 0.05 ⇒ no evidence of dependence):\n")
+    L.append("| nuisance | χ² | dof | n | p |\n|---|---:|---:|---:|---:|")
+    chi = {}
+    for col, nm in (("meta_ue", "ue"), ("meta_backend", "backend"), ("meta_victim_mode", "victim_mode"),
+                    ("meta_load_mbps", "load_level"), ("meta_congestion", "congestion")):
+        if col in nb:
+            r = chi2_independence(nb, col)
+            chi[nm] = r
+            L.append(f"| {nm} | " + ("— | — | — | —" if r is None else
+                     f"{r['chi2']:.2f} | {r['dof']} | {r['n']} | {r['p']:.3f}") + " |")
+
+    pt = phase_table(nb)
     L.append("\n## 4. Achieved vs target (URR ground truth, ±10%, per native unit)\n")
-    av = nb[~nb["meta_guard"].astype(bool)].dropna(subset=["meta_achieved_ok"]) if "meta_achieved_ok" in nb else nb.iloc[0:0]
-    pair = av.groupby(["meta_phase", "meta_ue"]).agg(
-        backend=("meta_backend", "first"), unit=("meta_native_unit", "first"),
-        ok=("meta_achieved_ok", "first")).reset_index()
-    L.append("| phase | ue | backend | unit | achieved_ok |\n|---|---|---|---|---|")
-    for _, r in pair.iterrows():
-        L.append(f"| {r['meta_phase']} | {r['meta_ue']} | {r['backend']} | {r['unit']} | {'yes' if r['ok'] == 1 else '**no**'} |")
-    nconn = int((nb["meta_native_unit"] == "conn").any()) if "meta_native_unit" in nb else 0
-    ok = int(pair["ok"].sum()); tot = len(pair)
-    L.append(f"\nachieved_ok: {ok}/{tot} phase-UE pairs (target ≥ 90%)."
-             + (" conn-rate backends (tcp_shortconn) are checked by connection completion, not URR." if nconn else ""))
+    av = pt.dropna(subset=["ratio"]) if "ratio" in pt else pt.iloc[0:0]
+    L.append("Per-phase achieved/target ratio (mean rate over the phase), by backend × class:\n")
+    L.append("| backend | class | phases | median ratio | p10 | p90 | achieved_ok |\n|---|---|---:|---:|---:|---:|---:|")
+    for (be, lab), g in av.groupby(["backend", "label"]):
+        L.append(f"| {be} | {lab} | {len(g)} | {g['ratio'].median():.3f} | {g['ratio'].quantile(.1):.3f} | "
+                 f"{g['ratio'].quantile(.9):.3f} | {g['ok'].mean():.2f} |")
+    L.append("\nBy attack family / benign class (`backend/model`):\n")
+    L.append("| family | class | phases | median ratio | achieved_ok |\n|---|---|---:|---:|---:|")
+    for (fam, lab), g in av.groupby([av["family"].where(av["label"] == "MALICIOUS", av["pair"].str.split("~").str[-1]), "label"]):
+        L.append(f"| {fam} | {lab} | {len(g)} | {g['ratio'].median():.3f} | {g['ok'].mean():.2f} |")
+    cell = av.groupby(["backend", "label", "load"])["ratio"].agg(["median", "size"])
+    ev = cell[cell["size"] >= 3]
+    cell_rate = float(((ev["median"] - 1).abs() <= 0.10).mean()) if len(ev) else None
+    nconn = int((pt["unit"] == "conn").sum()) if "unit" in pt else 0
+    ok_rate = float(av["ok"].mean()) if len(av) else None
+    L.append(f"\nPhase-level achieved_ok: {int(av['ok'].sum())}/{len(av)} = "
+             f"**{(ok_rate or 0):.2f}** (target ≥ 0.90). Cell-level (backend×class×load, n≥3, median within ±10%): "
+             f"**{'—' if cell_rate is None else f'{cell_rate:.2f}'}** over {len(ev)} cells."
+             + (f" {nconn} conn-rate phase-UEs (tcp_shortconn) are checked by connection completion, not URR." if nconn else ""))
 
     L.append("\n## 5. Load overlap between classes (volume cannot separate them)\n")
     ovf = [("thp_ul_kbps", "RAN UL thp"), ("urr_ul_pps", "URR UL pps"),
@@ -305,16 +378,19 @@ def main():
              "in the same cell. Overlap of `prof_ul_mean_bytes` (mean packet size) between the two — "
              "a shared size prior should keep UDP pairs high; protocol-fixed pairs (SYN vs short-conn) "
              "differ by design (a *valid* distinguishing signal, not a confound).\n")
-    L.append("| phase | attacker (backend/family) | counterpart (backend/class) | size overlap |\n|---|---|---|---:|")
+    L.append("| meta_pair | mixed phases | median overlap | p10 | p90 |\n|---|---:|---:|---:|---:|")
     nbp = df[df.label.isin(["BENIGN", "MALICIOUS"])]
-    for ph, g in nbp.groupby("meta_phase"):
+    per_pair = {}
+    for (rid, ph), g in nbp.groupby(PHASE_KEY):
         mal, ben = g[g.label == "MALICIOUS"], g[g.label == "BENIGN"]
         if not len(mal) or not len(ben):
             continue
         ov = _ovl(ben["prof_ul_mean_bytes"], mal["prof_ul_mean_bytes"], 12)
-        al = f"{mal['meta_backend'].iloc[0]}/{mal['meta_attack_family'].iloc[0]}"
-        bl = f"{ben['meta_backend'].iloc[0]}/{ben['meta_benign_class'].iloc[0]}"
-        L.append(f"| {ph} | {al} | {bl} | {'—' if ov is None else f'{ov:.2f}'} |")
+        if ov is not None:
+            per_pair.setdefault(str(g["meta_pair"].iloc[0]), []).append(ov)
+    for pr, v in sorted(per_pair.items()):
+        v = pd.Series(v)
+        L.append(f"| {pr} | {len(v)} | {v.median():.2f} | {v.quantile(.1):.2f} | {v.quantile(.9):.2f} |")
 
     L.append("\n## 7. Adversarial validation (nuisance fingerprinting; chance AUC = 0.5)\n")
     if not _SK:
@@ -327,23 +403,24 @@ def main():
         for r in rows:
             L.append(f"| {r['class']} | {r['target']} | {r['n_tgt']} | "
                      + " | ".join("—" if r.get(d) is None else f"{r[d]:.2f}" for d in ("RAN", "URR", "prof")) + " |")
-        L.append("\nHigh AUC ⇒ the domain fingerprints that nuisance. In this 1-run pilot each "
-                 "backend occupies a single phase, so `backend` ≈ phase and its AUC is inflated by that "
-                 "confound; the campaign (many phases per backend, grouped by run_id) is what makes this "
-                 "diagnostic meaningful. `ue | RAN` high would mean RFsim fingerprints the UE.")
+        L.append("\nHigh AUC ⇒ the domain fingerprints that nuisance *within a class*. This is a "
+                 "finding to report, not a leak by itself: a nuisance only becomes a shortcut if it is also "
+                 "correlated with the label (§3 χ² / §8). `ue | RAN` high would mean RFsim fingerprints the "
+                 "UE. `victim_mode | MALICIOUS` is expected to be high: the responsive victim's ICMP/RST "
+                 "replies are DL the attacker receives (C2 is solved by making victim_mode ⟂ label, not by "
+                 "removing the reply). `backend` within a class reflects real per-tool traffic shape.")
 
     L.append("\n## 8. Nuisance-only baseline (predict label from meta_ only; target AUC ≈ 0.5)\n")
     if not _SK:
         L.append("_scikit-learn not available — skipped._")
     else:
         nbl = nuisance_baseline(df)
-        L.append(f"- innocent nuisances (ue + timing + load + victim_mode): **AUC {nbl['innocent']:.2f}**"
+        L.append(f"- innocent nuisances (ue + timing + load + victim_mode + congestion): **AUC {nbl['innocent']:.2f}**"
                  if nbl["innocent"] is not None else "- innocent: —")
         L.append(f"- + backend: **AUC {nbl['with_backend']:.2f}** (benign-only hard-negative backends "
                  "legitimately carry label signal — expected > 0.5)"
                  if nbl["with_backend"] is not None else "- + backend: —")
-        L.append("\nThe innocent-nuisance AUC is the headline confound metric; the Phase-3 campaign "
-                 "balance targets drive it to ≈0.5 (the pilot's residual comes from the 0.60/0.40 UE imbalance).")
+        L.append("\nThe innocent-nuisance AUC is the headline confound metric (§7.3 target ≤ 0.6).")
 
     if "meta_pair" in df.columns:
         L.append("\n## 9. Per meta_pair (section-6.3 cell)\n")
@@ -352,15 +429,55 @@ def main():
         for pair, g in nbp2.groupby("meta_pair"):
             mal, ben = int((g.label == "MALICIOUS").sum()), int((g.label == "BENIGN").sum())
             if "meta_achieved_ok" in g:
-                ok = g.dropna(subset=["meta_achieved_ok"]).groupby(["meta_phase", "meta_ue"])["meta_achieved_ok"].first()
+                ok = g.dropna(subset=["meta_achieved_ok"]).groupby(PHASE_KEY + ["meta_ue"])["meta_achieved_ok"].first()
                 okr = f"{ok.mean():.2f}" if len(ok) else "—"
             else:
                 okr = "—"
             per = [_ovl(gg[gg.label == "BENIGN"]["prof_ul_mean_bytes"], gg[gg.label == "MALICIOUS"]["prof_ul_mean_bytes"], 12)
-                   for _, gg in g.groupby("meta_phase") if gg.label.nunique() == 2]
+                   for _, gg in g.groupby(PHASE_KEY) if gg.label.nunique() == 2]
             per = [x for x in per if x is not None]
             ov = f"{np.median(per):.2f}" if per else "—"
             L.append(f"| {pair} | {len(g)} | {mal}/{ben} | {okr} | {ov} |")
+
+    L.append("\n## 10. Design-cell coverage (valid phases per section-6.3 pair × UE)\n")
+    tab, missing = coverage(pt)
+    L.append("Valid = `meta_run_ok=1` and not achieved-failed. Target ≥ 3 per cell for BOTH the attack "
+             "and its counterpart on EACH UE.\n")
+    L.append("| meta_pair | ue | MALICIOUS | BENIGN |\n|---|---|---:|---:|")
+    for (pr, ue), r in tab.iterrows():
+        L.append(f"| {pr} | {ue} | {int(r.get('MALICIOUS', 0))} | {int(r.get('BENIGN', 0))} |")
+    L.append("\nCells below 3: " + (", ".join(f"{pr}/{ue}/{lab}={n}" for pr, ue, lab, n in missing) if missing else "**none**"))
+
+    # §7.3 acceptance checklist
+    pmu = (nb.label == "MALICIOUS").groupby(nb["meta_ue"]).mean()
+    du = nb[nb["meta_backend"].isin(DUAL_USE)]
+    pmb = (du.label == "MALICIOUS").groupby(du["meta_backend"]).mean()
+    nbl2 = nbl if _SK else {"innocent": None}            # computed in §8
+    ut_file = root / "unit_tests.txt"                      # written by package_v4.py
+    ut = ut_file.read_text() if ut_file.exists() else None
+    ut_ok = None if ut is None else (ut.count("(exit 0)") == ut.count("(exit "))
+    repro = None
+    if a.repro and pathlib.Path(a.repro).exists():
+        txt = pathlib.Path(a.repro).read_text()
+        repro = "REPRODUCIBLE: PASS" in txt
+    checks = [
+        ("P(malicious | UE) ∈ [0.45, 0.55] (excl. IDLE)", all(0.45 <= p <= 0.55 for p in pmu),
+         ", ".join(f"{u} {p:.3f}" for u, p in pmu.items())),
+        ("P(malicious | dual-use backend) ∈ [0.4, 0.6]", all(0.4 <= p <= 0.6 for p in pmb),
+         ", ".join(f"{b} {p:.3f}" for b, p in pmb.items())),
+        ("≥ 90% phases achieved_ok", ok_rate is not None and ok_rate >= 0.90,
+         f"phase {ok_rate:.3f}; cell-level {cell_rate if cell_rate is None else round(cell_rate, 3)}" if ok_rate is not None else "—"),
+        ("0 causality violations", sum(viol.values()) == 0, f"{sum(viol.values())} violations"),
+        ("all unit tests pass", ut_ok, "unit_tests.txt" if ut is not None else "not run"),
+        ("nuisance-only baseline AUC ≤ 0.6", nbl2["innocent"] is not None and nbl2["innocent"] <= 0.6,
+         "—" if nbl2["innocent"] is None else f"AUC {nbl2['innocent']:.3f}"),
+        ("each section-6.3 cell ≥ 3 valid phases per UE", not missing, f"{len(missing)} cells short"),
+        ("re-run from manifest + seed reproduces target schedule", repro, "check_reproducible.py" if repro is not None else "not run"),
+    ]
+    L.append("\n## 11. Acceptance (plan §7.3)\n")
+    L.append("| criterion | result | value |\n|---|---|---|")
+    for nm, okc, val in checks:
+        L.append(f"| {nm} | {'—' if okc is None else ('PASS' if okc else '**FAIL**')} | {val} |")
 
     (root / "qa_report.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))

@@ -184,7 +184,7 @@ def checkpoint_qa(data_dir, run_dirs):
         if "~" not in str(pair):
             continue
         per = [qa_v4._ovl(gg[gg.label == "BENIGN"]["prof_ul_mean_bytes"], gg[gg.label == "MALICIOUS"]["prof_ul_mean_bytes"], 12)
-               for _, gg in g.groupby("meta_phase") if gg.label.nunique() == 2]
+               for _, gg in g.groupby(["meta_run_id", "meta_phase"]) if gg.label.nunique() == 2]
         per = [x for x in per if x is not None]
         if per:
             ov[str(pair)] = round(float(pd.Series(per).median()), 3)
@@ -221,7 +221,26 @@ def checkpoint_qa(data_dir, run_dirs):
     return (len(breaches) == 0), m, breaches
 
 
-def run_campaign(manifest_path, lo, hi, tag):
+def prior_run_dirs(prior_camps, lo):
+    """meta_run_ok=1 run dirs of earlier batches for manifest runs [0, lo), so a checkpoint
+    audits the whole PREFIX (the design balances prefixes, not slices). Later camp dirs win."""
+    best = {}
+    for c in prior_camps:
+        for rd in sorted((pathlib.Path(c) / "runs" / "detection-off").glob("rep-*")):
+            rep = int(rd.name.split("-")[1])
+            try:
+                ok = json.loads((rd / "run.json").read_text()).get("meta_run_ok") == 1
+            except (OSError, ValueError):
+                ok = False
+            if ok and rep <= lo:
+                best[rep] = rd
+    missing = [r for r in range(1, lo + 1) if r not in best]
+    if missing:
+        raise SystemExit("prior batches lack ok runs for reps %s" % missing)
+    return [best[r] for r in sorted(best)]
+
+
+def run_campaign(manifest_path, lo, hi, tag, prior=()):
     man = json.loads(pathlib.Path(manifest_path).read_text())
     runs = man["runs"]
     hi = min(hi, len(runs))
@@ -229,6 +248,9 @@ def run_campaign(manifest_path, lo, hi, tag):
     camp.mkdir(parents=True, exist_ok=True)
     (camp / "campaign.json").write_text(json.dumps({"manifest": str(manifest_path), "range": [lo, hi]}, indent=1) + "\n")
     harness.log("campaign %s: runs [%d,%d) of %d" % (camp.name, lo, hi, len(runs)))
+    prior_dirs = prior_run_dirs(prior, lo) if prior else []
+    if prior_dirs:
+        harness.log("checkpoints include %d prior runs from %s" % (len(prior_dirs), ", ".join(map(str, prior))))
     run_dirs, checkpoints = [], set(man.get("checkpoints") or [])
     variant = {"name": "detection-off", "defense": {"enabled": False, "core": False}}
     ue_supi = {n: lab.UES[n][2] for n in ("ue1", "ue2")}
@@ -253,7 +275,7 @@ def run_campaign(manifest_path, lo, hi, tag):
             harness.log("STOP: run %d failed (ok=%s prof=%s)" % (i + 1, ok, pok))
             return {"stopped": i + 1, "reason": "run_not_ok", "reasons": reasons}
         if (i + 1) in checkpoints or (i + 1) == hi:
-            passed, m, breaches = checkpoint_qa(camp / "dataset_sofar", run_dirs)
+            passed, m, breaches = checkpoint_qa(camp / "dataset_sofar", prior_dirs + run_dirs)
             harness.log("CHECKPOINT @%d: %s" % (i + 1, json.dumps(m)))
             if not passed:
                 harness.log("STOP: stop-gate breach: " + "; ".join(breaches))
@@ -270,8 +292,9 @@ def main():
     r.add_argument("--lo", type=int, default=0)
     r.add_argument("--hi", type=int, default=12)
     r.add_argument("--tag", default="batch")
+    r.add_argument("--prior", nargs="*", default=[], help="earlier batch camp dirs (runs [0,lo)) for prefix checkpoints")
     a = ap.parse_args()
-    res = run_campaign(a.manifest, a.lo, a.hi, a.tag)
+    res = run_campaign(a.manifest, a.lo, a.hi, a.tag, a.prior)
     print(json.dumps(res, indent=1))
 
 

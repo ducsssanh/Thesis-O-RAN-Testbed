@@ -120,10 +120,17 @@ def main():
         feat = set(B.FEATURES)
         check(not any(c.startswith("meta_") for c in feat) and "label" not in feat, "FEATURES contain meta/label")
         check(all(c in feat or c.startswith("meta_") or c == "label" for c in df.columns), "unexpected column in frame")
+        # 11 per-second attack gate m_t (pulsing square wave) matches schedules.pulsing
+        lab = {"label": "MALICIOUS", "gate": {"started": 100.0, "period": 10, "on": 2, "offset": 9}}
+        got = [B.attack_active_at(lab, 100.0 + s) for s in range(20)]
+        want = [int(((s + 9) % 10) < 2) for s in range(20)]
+        check(got == want, "pulsing gate m_t != schedule")
+        check(B.attack_active_at({"label": "MALICIOUS", "gate": None}, 5) == 1, "non-pulsing attack gate must be 1")
+        check(B.attack_active_at({"label": "BENIGN"}, 5) == 0, "benign gate must be 0")
     if fails:
         print("FAIL:"); [print("  -", f) for f in fails]; sys.exit(1)
     print("ALL TESTS PASSED (causality, urr per-period, delta-duration, session reset, legacy +1s pad, "
-          "non-negative, ue-join, age-cap, labels+IDLE, guard, separation)")
+          "non-negative, ue-join, age-cap, labels+IDLE, guard, separation, attack gate)")
 
 
 if __name__ == "__main__":
