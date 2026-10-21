@@ -1,5 +1,6 @@
 """Offline tests for the v4 backends that are pure-Python (pacer, tcp_shortconn,
-dns_client) against the DN sink over loopback. hping/iperf need their binaries +
+dns_client) against the DN sink over loopback, plus iperf.py against a stub iperf binary
+(timing + unknown-count handling). hping and real iperf2 need their binaries +
 the live testbed and are covered by runner.py smoke. Run:
 
     .venv-ml/bin/python -I scripts/k8s/exp/v4traffic/test_backends.py
@@ -97,7 +98,63 @@ def test_row_schema():
     print(f"  row schema + attack_active gate  OK")
 
 
+_IPERF_STUB = """#!%s
+import os, sys, time
+a = sys.argv[1:]
+assert "--no-udp-fin" in a, a
+t = float(a[a.index("-t") + 1])
+assert 0.1 <= t <= 1.0, t
+if os.environ.get("STUB_HANG"):
+    time.sleep(30)
+time.sleep(t + 0.08)                         # iperf2 process overhead (measured 0.02-0.08 s)
+print("[  1] 0.00-%%.2f sec  100 KBytes  800 Kbits/sec  %%d datagrams" %% (t, int(83 * t)))
+"""
+
+
+def _iperf_run(plan, hang=False, timeout=30):
+    import os, tempfile
+    d = tempfile.mkdtemp()
+    stub = pathlib.Path(d) / "iperf"
+    stub.write_text(_IPERF_STUB % PY)
+    stub.chmod(0o755)
+    env = dict(os.environ, PATH=d + os.pathsep + os.environ.get("PATH", ""))
+    if hang:
+        env["STUB_HANG"] = "1"
+    t0 = time.monotonic()
+    r = subprocess.run([PY, "-I", str(HERE / "backends" / "iperf.py")], input=json.dumps(plan),
+                       text=True, capture_output=True, timeout=timeout, env=env)
+    rows = [json.loads(l) for l in r.stdout.splitlines() if l.strip().startswith("{")]
+    if not rows:
+        sys.stderr.write(r.stderr)
+    return rows, time.monotonic() - t0
+
+
+def test_iperf_deadline():
+    """iperf blocks stay on the 1 s grid despite process overhead (no drift), pass
+    --no-udp-fin, and report the parsed datagram count."""
+    plan = {"dst": "127.0.0.1", "ports": [5401], "sizes": [[1228, 1.0]],
+            "seconds": [{"bytes": 1e5}] * 8}
+    rows, el = _iperf_run(plan)
+    assert len(rows) == 8, rows
+    assert all(r["sent_pkts"] is not None and r["sent_pkts"] > 0 for r in rows), rows
+    assert abs(el - 8) < 0.6, el                       # a fixed -t 1 would take ~8.6 s+
+    print(f"  iperf: 8 rows in {el:.2f} s, pkts {[r['sent_pkts'] for r in rows]}  OK")
+
+
+def test_iperf_unknown_is_none():
+    """a hung block (silent victim) logs sent_* = None, never the target; later seconds
+    the block overran are skipped (stalled), so the row-coverage guard can see them."""
+    plan = {"dst": "127.0.0.1", "ports": [5401], "sizes": [[1228, 1.0]],
+            "seconds": [{"bytes": 1e5}] * 4}
+    rows, el = _iperf_run(plan, hang=True)
+    assert len(rows) == 4, rows
+    assert all(r["sent_bytes"] is None and r["achieved_mbps"] is None for r in rows), rows
+    assert any(r.get("stalled") for r in rows), rows
+    print(f"  iperf hang: 4 rows all sent=None, stalled={sum(r.get('stalled', 0) for r in rows)}  OK")
+
+
 if __name__ == "__main__":
-    for fn in (test_pacer_rate, test_row_schema, test_dns_roundtrip, test_tcp_shortconn):
+    for fn in (test_pacer_rate, test_row_schema, test_dns_roundtrip, test_tcp_shortconn,
+               test_iperf_deadline, test_iperf_unknown_is_none):
         fn()
     print("all offline backend tests passed")

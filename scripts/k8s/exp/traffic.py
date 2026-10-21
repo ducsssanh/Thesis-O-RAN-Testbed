@@ -372,16 +372,17 @@ class V4Flow:
         for r in self._achieved:
             if r.get("final") or "sent_bytes" not in r:
                 continue
-            self.rows.append({"t": r["t"], "interval": [0.0, 1.0], "bytes": r["sent_bytes"],
-                              "bps": r["sent_bytes"] * 8.0, "jitter_ms": 0.0, "lost": 0, "total": 0,
+            sb = r["sent_bytes"]                           # None = sent volume unknown (iperf timeout/stall)
+            self.rows.append({"t": r["t"], "interval": [0.0, 1.0], "bytes": sb,
+                              "bps": None if sb is None else sb * 8.0, "jitter_ms": 0.0, "lost": 0, "total": 0,
                               "final": False})
         self.client_out = json.dumps(self._achieved)[-4000:]
 
     def summary(self):
         per_s = [r for r in self._achieved if not r.get("final")]
         fin = next((r for r in self._achieved if r.get("final")), None)
-        tx_pkts = fin["run_tx_pkts"] if fin and "run_tx_pkts" in fin else sum(r.get("sent_pkts", 0) for r in per_s)
-        tx_bytes = sum(r.get("sent_bytes", 0) for r in per_s)
+        tx_pkts = fin["run_tx_pkts"] if fin and "run_tx_pkts" in fin else sum(r.get("sent_pkts") or 0 for r in per_s)
+        tx_bytes = sum(r.get("sent_bytes") or 0 for r in per_s)
         span = max(len(per_s), 1)
         target_mean = self.meta.get("target_mean_bytes_s", 0.0)
         s = {"ue": self.ue, "dir": self.dir, "offered_bps": target_mean * 8.0,

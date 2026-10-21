@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 """Run-integrity guards for v4 runs (shared by campaign.py, qa_v4.py and the retro audit).
 
-A run is INTEGRAL only if all three hold:
+A run is INTEGRAL only if all four hold:
   1. every phase lasted within +-DUR_TOL of its plan (idle=15 s, pNN=duration, gapNN=gap),
   2. no KPM / URR / profiler gap > GAP_S inside any phase (per SUPI, edges included),
-  3. the host did not suspend/resume (kernel `PM: suspend entry/exit`) during the run window.
+  3. the host did not suspend/resume (kernel `PM: suspend entry/exit`) during the run window,
+  4. every generator flow logged >= ROWS_MIN x planned-duration per-second rows
+     (traffic/<phase>_<ue>_<dir>.csv) — catches a backend that stalls mid-phase
+     (e.g. pre-fix iperf2 waiting ~3 s per block for a silent victim's FIN ack).
 
   .venv-ml/bin/python -I scripts/k8s/exp/v4traffic/integrity.py RUN_DIR [RUN_DIR ...]
 """
-import json, pathlib, subprocess, sys, datetime
+import csv, json, pathlib, re, subprocess, sys, datetime
 
 ROOT = pathlib.Path(__file__).resolve().parents[4]
 MANIFEST = ROOT / "research/datasets/oran_flooding_v4/manifest/design.json"
 DUR_TOL = 0.20
 GAP_S = 3.0
+ROWS_MIN = 0.90
+_FLOW_CSV = re.compile(r"^(p\d\d_.+)_(ue\d+)_(ul|dl)\.csv$")
 
 
 def planned(rep, manifest=MANIFEST):
@@ -61,6 +66,20 @@ def streams(rd):
         if o.get("kind") == "profile" and "supi" in r and "observed_at" in r:
             out["prof"].setdefault(r["supi"], []).append(_iso(r["observed_at"]))
     return {k: {s: sorted(v) for s, v in d.items()} for k, d in out.items()}
+
+
+def flow_rows(rd, plan):
+    """[(csv name, phase, rows, planned s)] for every generator flow CSV of the run. Only rows
+    with a known sent volume count (an iperf block that timed out logs an empty `bytes`)."""
+    out = []
+    for f in sorted((pathlib.Path(rd) / "traffic").glob("p*_ue*_*.csv")):
+        m = _FLOW_CSV.match(f.name)
+        if not m or m.group(1) not in plan:
+            continue
+        with open(f, newline="") as fh:
+            n = sum(1 for r in csv.DictReader(fh) if (r.get("bytes") or "").strip())
+        out.append((f.name, m.group(1), n, plan[m.group(1)]))
+    return out
 
 
 def suspend_intervals(t0, t1):
@@ -129,6 +148,16 @@ def check_run(rd, rep=None, manifest=MANIFEST):
                 if g > GAP_S:
                     reasons.append("%s gap %.1fs in %s (%s)" % (name, g, ph["name"], supi[-4:]))
     det["max_stream_gap_s"] = round(maxgap, 2)
+    # 4. per-flow row coverage (a stalled generator logs fewer 1 s rows than the phase lasted)
+    worst = (None, None)
+    for name, _, n, dur in flow_rows(rd, plan):
+        frac = n / dur
+        if worst[0] is None or frac < worst[0]:
+            worst = (frac, name)
+        if frac < ROWS_MIN:
+            reasons.append("flow %s logged %d rows vs %ds phase (%.0f%% < %.0f%%)" % (name, n, dur, 100 * frac, 100 * ROWS_MIN))
+    det["min_flow_rows_frac"] = None if worst[0] is None else round(worst[0], 3)
+    det["min_flow_rows_flow"] = worst[1]
     # 3. host suspend overlapping the run
     iv, err = suspend_intervals(meta["t_start"], meta["t_end"])
     det["suspend"] = iv

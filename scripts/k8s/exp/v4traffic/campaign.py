@@ -7,6 +7,7 @@ meta_run_ok=0 and the batch STOPS). At each checkpoint it builds + QA-audits the
 far and STOPS on a stop-gate breach.
 
   python3 scripts/k8s/exp/v4traffic/campaign.py run --manifest <design.json> --lo 0 --hi 12 --tag batch1
+  python3 scripts/k8s/exp/v4traffic/campaign.py run --reps 7 16 59 --tag rerun --prior <camp dirs>
 Run via the repo's system python3 (needs numpy+yaml+pandas), not .venv-ml.
 """
 import json, math, pathlib, sys, time
@@ -251,21 +252,46 @@ def prior_run_dirs(prior_camps, lo):
     return [best[r] for r in sorted(best)]
 
 
-def run_campaign(manifest_path, lo, hi, tag, prior=()):
+def newest_valid_dirs(camps, n_runs):
+    """--reps mode: newest meta_run_ok=1 attempt (by t_start) for EVERY manifest run 1..n_runs
+    across `camps` (prior batches + the current one) -> the full prefix for the final checkpoint."""
+    best = {}
+    for c in camps:
+        for rd in sorted((pathlib.Path(c) / "runs" / "detection-off").glob("rep-*")):
+            try:
+                m = json.loads((rd / "run.json").read_text())
+            except (OSError, ValueError):
+                continue
+            rep, t0 = int(rd.name.split("-")[1]), m.get("t_start") or 0
+            if m.get("meta_run_ok") == 1 and rep <= n_runs and t0 >= best.get(rep, (0, None))[0]:
+                best[rep] = (t0, rd)
+    missing = [r for r in range(1, n_runs + 1) if r not in best]
+    return [best[r][1] for r in sorted(best)], missing
+
+
+def run_campaign(manifest_path, lo, hi, tag, prior=(), reps=None):
     man = json.loads(pathlib.Path(manifest_path).read_text())
     runs = man["runs"]
     hi = min(hi, len(runs))
     camp = harness.OUT_DIR / (time.strftime("%Y%m%d-%H%M%S") + "_v4campaign_" + tag)
     camp.mkdir(parents=True, exist_ok=True)
-    (camp / "campaign.json").write_text(json.dumps({"manifest": str(manifest_path), "range": [lo, hi]}, indent=1) + "\n")
-    harness.log("campaign %s: runs [%d,%d) of %d" % (camp.name, lo, hi, len(runs)))
-    prior_dirs = prior_run_dirs(prior, lo) if prior else []
+    if reps:                                           # non-contiguous reruns: one checkpoint at the end
+        order = [r - 1 for r in reps]
+        (camp / "campaign.json").write_text(json.dumps({"manifest": str(manifest_path), "reps": list(reps),
+                                                        "prior": [str(p) for p in prior]}, indent=1) + "\n")
+        harness.log("campaign %s: reps %s of %d" % (camp.name, list(reps), len(runs)))
+        prior_dirs = []
+    else:
+        order = list(range(lo, hi))
+        (camp / "campaign.json").write_text(json.dumps({"manifest": str(manifest_path), "range": [lo, hi]}, indent=1) + "\n")
+        harness.log("campaign %s: runs [%d,%d) of %d" % (camp.name, lo, hi, len(runs)))
+        prior_dirs = prior_run_dirs(prior, lo) if prior else []
     if prior_dirs:
         harness.log("checkpoints include %d prior runs from %s" % (len(prior_dirs), ", ".join(map(str, prior))))
     run_dirs, checkpoints = [], set(man.get("checkpoints") or [])
     variant = {"name": "detection-off", "defense": {"enabled": False, "core": False}}
     ue_supi = {n: lab.UES[n][2] for n in ("ue1", "ue2")}
-    for i in range(lo, hi):
+    for k, i in enumerate(order):
         pok, preasons = extra_preflight(ue_supi)       # PFCP assoc + fresh URR for both SUPIs
         if not pok:
             harness.log("STOP before run %d: preflight: %s" % (i + 1, "; ".join(preasons)))
@@ -288,13 +314,25 @@ def run_campaign(manifest_path, lo, hi, tag, prior=()):
         if not meta["meta_run_ok"]:
             harness.log("STOP: run %d failed (ok=%s prof=%s integrity=%s)" % (i + 1, ok, pok, iok))
             return {"stopped": i + 1, "reason": "run_not_ok", "reasons": reasons + ireasons}
-        if (i + 1) in checkpoints or (i + 1) == hi:
+        if reps:
+            if k + 1 < len(order):
+                continue
+            sel, missing = newest_valid_dirs(list(prior) + [camp], len(runs))
+            if missing:
+                harness.log("STOP: final checkpoint lacks ok runs for reps %s" % missing)
+                return {"stopped": i + 1, "reason": "prefix_incomplete", "missing": missing}
+            harness.log("final checkpoint over the full prefix 1..%d (%d newest valid attempts)" % (len(runs), len(sel)))
+            passed, m, breaches = checkpoint_qa(camp / "dataset_sofar", sel)
+            harness.log("CHECKPOINT @%d(full): %s" % (len(runs), json.dumps(m)))
+        elif (i + 1) in checkpoints or (i + 1) == hi:
             passed, m, breaches = checkpoint_qa(camp / "dataset_sofar", prior_dirs + run_dirs)
             harness.log("CHECKPOINT @%d: %s" % (i + 1, json.dumps(m)))
-            if not passed:
-                harness.log("STOP: stop-gate breach: " + "; ".join(breaches))
-                return {"stopped": i + 1, "reason": "stop_gate", "breaches": breaches, "metrics": m}
-    return {"done": hi, "run_dirs": [str(r) for r in run_dirs]}
+        else:
+            continue
+        if not passed:
+            harness.log("STOP: stop-gate breach: " + "; ".join(breaches))
+            return {"stopped": i + 1, "reason": "stop_gate", "breaches": breaches, "metrics": m}
+    return {"done": reps or hi, "run_dirs": [str(r) for r in run_dirs]}
 
 
 def main():
@@ -307,8 +345,11 @@ def main():
     r.add_argument("--hi", type=int, default=12)
     r.add_argument("--tag", default="batch")
     r.add_argument("--prior", nargs="*", default=[], help="earlier batch camp dirs (runs [0,lo)) for prefix checkpoints")
+    r.add_argument("--reps", nargs="+", type=int, default=None,
+                   help="non-contiguous manifest runs (1-based) to (re)run instead of [lo,hi); one checkpoint at the "
+                        "end over the full prefix 1..N (newest valid attempt per run across --prior + this batch)")
     a = ap.parse_args()
-    res = run_campaign(a.manifest, a.lo, a.hi, a.tag, a.prior)
+    res = run_campaign(a.manifest, a.lo, a.hi, a.tag, a.prior, a.reps)
     print(json.dumps(res, indent=1))
 
 

@@ -256,8 +256,8 @@ def _measure(plan, dep="oai-nr-ue"):
     time.sleep(3)                                   # let queued packets drain before the read
     p1, b1 = dn_counter_read()
     dur = len(plan["seconds"])
-    sent_p = sum(r["sent_pkts"] for r in rows)
-    sent_b = sum(r["sent_bytes"] for r in rows)
+    sent_p = sum(r["sent_pkts"] or 0 for r in rows)
+    sent_b = sum(r["sent_bytes"] or 0 for r in rows)
     return {"secs_logged": len(rows),
             "sent_pps": round(sent_p / dur, 1), "sent_mbps": round(sent_b * 8 / 1e6 / dur, 4),
             "dlv_pps": round((p1 - p0) / dur, 1), "dlv_mbps": round((b1 - b0) * 8 / 1e6 / dur, 4),
@@ -307,8 +307,8 @@ def smoke(dur=5):
         rows = run_backend("oai-nr-ue", plan, timeout=dur + 30)
         time.sleep(2)
         rec = {"backend": name, "secs": len(rows),
-               "sent_pps": round(sum(r["sent_pkts"] for r in rows) / dur, 1) if rows else 0,
-               "sent_mbps": round(sum(r["sent_bytes"] for r in rows) * 8 / 1e6 / dur, 3) if rows else 0}
+               "sent_pps": round(sum(r["sent_pkts"] or 0 for r in rows) / dur, 1) if rows else 0,
+               "sent_mbps": round(sum(r["sent_bytes"] or 0 for r in rows) * 8 / 1e6 / dur, 3) if rows else 0}
         if udp_counted:
             p1, b1 = dn_counter_read()
             rec["dlv_pps"] = round((p1 - p0) / dur, 1)
@@ -316,7 +316,7 @@ def smoke(dur=5):
         if any("answers" in r for r in rows):
             rec["answers"] = sum(r.get("answers", 0) for r in rows)
         if any("conn_failed" in r for r in rows):
-            rec["conn_completed"] = sum(r["sent_pkts"] for r in rows)
+            rec["conn_completed"] = sum(r["sent_pkts"] or 0 for r in rows)
             rec["conn_failed"] = sum(r.get("conn_failed", 0) for r in rows)
         if srv is not None:
             srv.join(timeout=dur + 10)

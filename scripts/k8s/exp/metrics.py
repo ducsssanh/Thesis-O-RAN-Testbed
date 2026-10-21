@@ -87,7 +87,7 @@ def compute(run_dir):
                 fl = [f for f in flows if f["phase"] == p["name"] and f["ue"] == name and f["dir"] == d]
                 rows = [r for f in fl for r in f["rows"] if not r["final"] and t0 <= r["t"] <= t1 + 1.5]
                 e["offered_%s_mbps" % d] = round(sum(f["offered_bps"] for f in fl) / 1e6, 3) if fl else 0
-                e["delivered_%s_mbps" % d] = round(sum(r["bytes"] for r in rows) * 8 / span / 1e6, 4) if fl else None
+                e["delivered_%s_mbps" % d] = round(sum(r["bytes"] or 0 for r in rows) * 8 / span / 1e6, 4) if fl else None
                 lost, tot = sum(r["lost"] for r in rows), sum(r["total"] for r in rows)
                 e["loss_%s_pct" % d] = round(100.0 * lost / tot, 2) if tot else None
                 b = sum(int(r["ip_payload_bytes"]) for r in dn if r["dir"] == d and t0 <= int(r["t"]) < t1
