@@ -1,0 +1,274 @@
+{
+ "run_id": "20261022-030535_v4campaign_rerun_iperf_b_rep-78",
+ "rep": 78,
+ "manifest_index": 77,
+ "design_seed": 20261020,
+ "phases": [
+  {
+   "family": "udp",
+   "pair": "udp_flood~udp_bidir",
+   "atk_family": "udp_flood",
+   "benign_class": "udp_bidir",
+   "attacker_ue": "ue1",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 68,
+   "gap": 8,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "fgn",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 202610529,
+      "size_seed": 83,
+      "pair": "udp_flood~udp_bidir"
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.8,
+      "seed": 202610530,
+      "size_seed": 83,
+      "pair": "udp_flood~udp_bidir",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "udp",
+   "pair": "udp_flood~udp_bidir",
+   "atk_family": "udp_flood",
+   "benign_class": "udp_bidir",
+   "attacker_ue": "ue2",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 68,
+   "gap": 8,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "fgn",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 202610531,
+      "size_seed": 83,
+      "pair": "udp_flood~udp_bidir"
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.8,
+      "seed": 202610532,
+      "size_seed": 83,
+      "pair": "udp_flood~udp_bidir",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "udp",
+   "pair": "udp_flood~udp_bidir",
+   "atk_family": "udp_flood",
+   "benign_class": "udp_bidir",
+   "attacker_ue": "ue1",
+   "atk_backend": "iperf",
+   "benign_backend": "iperf",
+   "load": 0.8,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 32,
+   "gap": 14,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "iperf",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 202610233,
+      "size_seed": 9,
+      "pair": "udp_flood~udp_bidir"
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "iperf",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.8,
+      "seed": 202610234,
+      "size_seed": 9,
+      "pair": "udp_flood~udp_bidir",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "udp",
+   "pair": "udp_flood~udp_bidir",
+   "atk_family": "udp_flood",
+   "benign_class": "udp_bidir",
+   "attacker_ue": "ue2",
+   "atk_backend": "iperf",
+   "benign_backend": "iperf",
+   "load": 0.8,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 32,
+   "gap": 13,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "iperf",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 202610235,
+      "size_seed": 9,
+      "pair": "udp_flood~udp_bidir"
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "iperf",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.8,
+      "seed": 202610236,
+      "size_seed": 9,
+      "pair": "udp_flood~udp_bidir",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "fanout",
+   "pair": "fanout_udp~fanout_benign",
+   "atk_family": "fanout_udp",
+   "benign_class": "fanout_benign",
+   "attacker_ue": "ue1",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 1.2,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 74,
+   "gap": 11,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 202610349,
+      "size_seed": 38,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 1.2,
+      "seed": 202610350,
+      "size_seed": 38,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16,
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "fanout",
+   "pair": "fanout_udp~fanout_benign",
+   "atk_family": "fanout_udp",
+   "benign_class": "fanout_benign",
+   "attacker_ue": "ue2",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 1.2,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 74,
+   "gap": 10,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 202610351,
+      "size_seed": 38,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 1.2,
+      "seed": 202610352,
+      "size_seed": 38,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16,
+      "size_alpha": 1.0
+     }
+    }
+   }
+  }
+ ],
+ "attempt": {
+  "rep": 78,
+  "dir": "artifacts/experiments/20261022-030535_v4campaign_rerun_iperf_b/runs/detection-off/rep-78",
+  "attempt_id": "20261022-030535_v4campaign_rerun_iperf_b_rep-78@1792616631",
+  "t_start": 1792616631.2738519,
+  "camp": "20261022-030535_v4campaign_rerun_iperf_b",
+  "meta_run_ok": 1,
+  "invalid_reason": "",
+  "status": "ok",
+  "error": "",
+  "prof_assert": {
+   "ok": true,
+   "reasons": []
+  },
+  "selected": true
+ }
+}

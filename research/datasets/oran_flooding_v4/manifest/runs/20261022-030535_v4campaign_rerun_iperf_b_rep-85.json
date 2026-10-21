@@ -1,0 +1,282 @@
+{
+ "run_id": "20261022-030535_v4campaign_rerun_iperf_b_rep-85",
+ "rep": 85,
+ "manifest_index": 84,
+ "design_seed": 20261020,
+ "phases": [
+  {
+   "family": "both",
+   "pair": "both_attack",
+   "atk_family": "udp_flood",
+   "benign_class": "",
+   "attacker_ue": "both",
+   "atk_backend": "hping",
+   "benign_backend": null,
+   "load": 1.2,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 43,
+   "gap": 13,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 203110205,
+      "mode": "udp",
+      "size_seed": 900002,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 203110206,
+      "mode": "udp",
+      "size_seed": 900002,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "both",
+   "pair": "both_attack",
+   "atk_family": "udp_flood",
+   "benign_class": "",
+   "attacker_ue": "both",
+   "atk_backend": "pacer",
+   "benign_backend": null,
+   "load": 0.4,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 81,
+   "gap": 8,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "fgn",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 203110219,
+      "size_seed": 900009,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "fgn",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 203110220,
+      "size_seed": 900009,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "both",
+   "pair": "both_attack",
+   "atk_family": "udp_flood",
+   "benign_class": "",
+   "attacker_ue": "both",
+   "atk_backend": "hping",
+   "benign_backend": null,
+   "load": 1.2,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 51,
+   "gap": 10,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 203110241,
+      "mode": "udp",
+      "size_seed": 900020,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 203110242,
+      "mode": "udp",
+      "size_seed": 900020,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "both",
+   "pair": "both_attack",
+   "atk_family": "udp_flood",
+   "benign_class": "",
+   "attacker_ue": "both",
+   "atk_backend": "pacer",
+   "benign_backend": null,
+   "load": 0.4,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 32,
+   "gap": 12,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "fgn",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 203110243,
+      "size_seed": 900021,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "fgn",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 203110244,
+      "size_seed": 900021,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "both",
+   "pair": "both_attack",
+   "atk_family": "udp_flood",
+   "benign_class": "",
+   "attacker_ue": "both",
+   "atk_backend": "hping",
+   "benign_backend": null,
+   "load": 1.2,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 53,
+   "gap": 10,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 203110247,
+      "mode": "udp",
+      "size_seed": 900023,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 203110248,
+      "mode": "udp",
+      "size_seed": 900023,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "both",
+   "pair": "both_attack",
+   "atk_family": "udp_flood",
+   "benign_class": "",
+   "attacker_ue": "both",
+   "atk_backend": "pacer",
+   "benign_backend": null,
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 60,
+   "gap": 15,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 203110257,
+      "size_seed": 900028,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 203110258,
+      "size_seed": 900028,
+      "pair": "both_attack",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  }
+ ],
+ "attempt": {
+  "rep": 85,
+  "dir": "artifacts/experiments/20261022-030535_v4campaign_rerun_iperf_b/runs/detection-off/rep-85",
+  "attempt_id": "20261022-030535_v4campaign_rerun_iperf_b_rep-85@1792620315",
+  "t_start": 1792620315.8540988,
+  "camp": "20261022-030535_v4campaign_rerun_iperf_b",
+  "meta_run_ok": 1,
+  "invalid_reason": "",
+  "status": "ok",
+  "error": "",
+  "prof_assert": {
+   "ok": true,
+   "reasons": []
+  },
+  "selected": true
+ }
+}

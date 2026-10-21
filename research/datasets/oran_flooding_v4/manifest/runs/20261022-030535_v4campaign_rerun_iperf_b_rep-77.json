@@ -1,0 +1,261 @@
+{
+ "run_id": "20261022-030535_v4campaign_rerun_iperf_b_rep-77",
+ "rep": 77,
+ "manifest_index": 76,
+ "design_seed": 20261020,
+ "phases": [
+  {
+   "family": "udp",
+   "pair": "udp_flood~udp_bidir",
+   "atk_family": "udp_flood",
+   "benign_class": "udp_bidir",
+   "attacker_ue": "ue2",
+   "atk_backend": "hping",
+   "benign_backend": "hping",
+   "load": 1.2,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 57,
+   "gap": 13,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "mmpp2",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 202610267,
+      "mode": "udp",
+      "size_seed": 17,
+      "pair": "udp_flood~udp_bidir"
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 1.2,
+      "seed": 202610268,
+      "mode": "udp",
+      "size_seed": 17,
+      "pair": "udp_flood~udp_bidir",
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "syn",
+   "pair": "syn_flood~tcp_shortconn",
+   "atk_family": "syn_flood",
+   "benign_class": "tcp_shortconn",
+   "attacker_ue": "ue1",
+   "atk_backend": "synflood",
+   "benign_backend": "tcp_shortconn",
+   "load": 0.8,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 36,
+   "gap": 10,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "synflood",
+      "model": "hawkes",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 202610409,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "tcp_shortconn",
+      "model": "hawkes",
+      "role": "benign",
+      "level_mbps": 0.4,
+      "seed": 202610410,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    }
+   }
+  },
+  {
+   "family": "syn",
+   "pair": "syn_flood~tcp_shortconn",
+   "atk_family": "syn_flood",
+   "benign_class": "tcp_shortconn",
+   "attacker_ue": "ue2",
+   "atk_backend": "synflood",
+   "benign_backend": "tcp_shortconn",
+   "load": 0.8,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 36,
+   "gap": 9,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "synflood",
+      "model": "hawkes",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 202610411,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "tcp_shortconn",
+      "model": "hawkes",
+      "role": "benign",
+      "level_mbps": 0.4,
+      "seed": 202610412,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    }
+   }
+  },
+  {
+   "family": "syn",
+   "pair": "syn_flood~tcp_shortconn",
+   "atk_family": "syn_flood",
+   "benign_class": "tcp_shortconn",
+   "attacker_ue": "ue1",
+   "atk_backend": "hping",
+   "benign_backend": "tcp_shortconn",
+   "load": 1.2,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 30,
+   "gap": 9,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "hawkes",
+      "role": "attack",
+      "level_mbps": 0.6,
+      "seed": 202610721,
+      "mode": "syn",
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "tcp_shortconn",
+      "model": "hawkes",
+      "role": "benign",
+      "level_mbps": 0.6,
+      "seed": 202610722,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    }
+   }
+  },
+  {
+   "family": "syn",
+   "pair": "syn_flood~tcp_shortconn",
+   "atk_family": "syn_flood",
+   "benign_class": "tcp_shortconn",
+   "attacker_ue": "ue2",
+   "atk_backend": "hping",
+   "benign_backend": "tcp_shortconn",
+   "load": 1.2,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 30,
+   "gap": 10,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "hawkes",
+      "role": "attack",
+      "level_mbps": 0.6,
+      "seed": 202610723,
+      "mode": "syn",
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "tcp_shortconn",
+      "model": "hawkes",
+      "role": "benign",
+      "level_mbps": 0.6,
+      "seed": 202610724,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    }
+   }
+  },
+  {
+   "family": "benign_benign",
+   "pair": "benign_benign",
+   "atk_family": "",
+   "benign_class": "hping",
+   "attacker_ue": null,
+   "atk_backend": null,
+   "benign_backend": "hping",
+   "load": 0.4,
+   "victim_mode": "silent",
+   "congestion": 0,
+   "duration": 30,
+   "gap": 10,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "fgn",
+      "role": "benign",
+      "level_mbps": 0.4,
+      "seed": 202611159,
+      "mode": "udp",
+      "pair": "benign_benign"
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.4,
+      "seed": 202611160,
+      "mode": "udp",
+      "pair": "benign_benign"
+     }
+    }
+   }
+  }
+ ],
+ "attempt": {
+  "rep": 77,
+  "dir": "artifacts/experiments/20261022-030535_v4campaign_rerun_iperf_b/runs/detection-off/rep-77",
+  "attempt_id": "20261022-030535_v4campaign_rerun_iperf_b_rep-77@1792616253",
+  "t_start": 1792616253.5030189,
+  "camp": "20261022-030535_v4campaign_rerun_iperf_b",
+  "meta_run_ok": 1,
+  "invalid_reason": "",
+  "status": "ok",
+  "error": "",
+  "prof_assert": {
+   "ok": true,
+   "reasons": []
+  },
+  "selected": true
+ }
+}

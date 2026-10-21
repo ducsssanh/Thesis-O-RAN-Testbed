@@ -1,0 +1,286 @@
+{
+ "run_id": "20261021-102738_v4campaign_batch2c_rep-27",
+ "rep": 27,
+ "manifest_index": 26,
+ "design_seed": 20261020,
+ "phases": [
+  {
+   "family": "fanout",
+   "pair": "fanout_udp~fanout_benign",
+   "atk_family": "fanout_udp",
+   "benign_class": "fanout_benign",
+   "attacker_ue": "ue1",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 1,
+   "duration": 39,
+   "gap": 12,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 202610649,
+      "size_seed": 113,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.8,
+      "seed": 202610650,
+      "size_seed": 113,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16,
+      "size_alpha": 1.0
+     }
+    }
+   },
+   "congestion_cfg": {
+    "rate": "4mbit"
+   }
+  },
+  {
+   "family": "fanout",
+   "pair": "fanout_udp~fanout_benign",
+   "atk_family": "fanout_udp",
+   "benign_class": "fanout_benign",
+   "attacker_ue": "ue2",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 1,
+   "duration": 38,
+   "gap": 13,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 0.8,
+      "seed": 202610651,
+      "size_seed": 113,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 0.8,
+      "seed": 202610652,
+      "size_seed": 113,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16,
+      "size_alpha": 1.0
+     }
+    }
+   },
+   "congestion_cfg": {
+    "rate": "4mbit"
+   }
+  },
+  {
+   "family": "fanout",
+   "pair": "fanout_udp~fanout_benign",
+   "atk_family": "fanout_udp",
+   "benign_class": "fanout_benign",
+   "attacker_ue": "ue1",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 1.2,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 59,
+   "gap": 10,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 202610353,
+      "size_seed": 39,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 1.2,
+      "seed": 202610354,
+      "size_seed": 39,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16,
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "fanout",
+   "pair": "fanout_udp~fanout_benign",
+   "atk_family": "fanout_udp",
+   "benign_class": "fanout_benign",
+   "attacker_ue": "ue2",
+   "atk_backend": "pacer",
+   "benign_backend": "pacer",
+   "load": 1.2,
+   "victim_mode": "responsive",
+   "congestion": 0,
+   "duration": 41,
+   "gap": 15,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "attack",
+      "level_mbps": 1.2,
+      "seed": 202610355,
+      "size_seed": 39,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "pacer",
+      "model": "cbr",
+      "role": "benign",
+      "level_mbps": 1.2,
+      "seed": 202610356,
+      "size_seed": 39,
+      "pair": "fanout_udp~fanout_benign",
+      "fanout": 16,
+      "size_alpha": 1.0
+     }
+    }
+   }
+  },
+  {
+   "family": "syn",
+   "pair": "syn_flood~tcp_shortconn",
+   "atk_family": "syn_flood",
+   "benign_class": "tcp_shortconn",
+   "attacker_ue": "ue1",
+   "atk_backend": "hping",
+   "benign_backend": "tcp_shortconn",
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 1,
+   "duration": 79,
+   "gap": 9,
+   "flows": {
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "hawkes",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 202610729,
+      "mode": "syn",
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    },
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "tcp_shortconn",
+      "model": "hawkes",
+      "role": "benign",
+      "level_mbps": 0.4,
+      "seed": 202610730,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    }
+   },
+   "congestion_cfg": {
+    "rate": "4mbit"
+   }
+  },
+  {
+   "family": "syn",
+   "pair": "syn_flood~tcp_shortconn",
+   "atk_family": "syn_flood",
+   "benign_class": "tcp_shortconn",
+   "attacker_ue": "ue2",
+   "atk_backend": "hping",
+   "benign_backend": "tcp_shortconn",
+   "load": 0.8,
+   "victim_mode": "responsive",
+   "congestion": 1,
+   "duration": 40,
+   "gap": 15,
+   "flows": {
+    "ue2": {
+     "ul": {
+      "v4": true,
+      "backend": "hping",
+      "model": "hawkes",
+      "role": "attack",
+      "level_mbps": 0.4,
+      "seed": 202610731,
+      "mode": "syn",
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    },
+    "ue1": {
+     "ul": {
+      "v4": true,
+      "backend": "tcp_shortconn",
+      "model": "hawkes",
+      "role": "benign",
+      "level_mbps": 0.4,
+      "seed": 202610732,
+      "pair": "syn_flood~tcp_shortconn"
+     }
+    }
+   },
+   "congestion_cfg": {
+    "rate": "4mbit"
+   }
+  }
+ ],
+ "attempt": {
+  "rep": 27,
+  "dir": "artifacts/experiments/20261021-102738_v4campaign_batch2c/runs/detection-off/rep-27",
+  "attempt_id": "20261021-102738_v4campaign_batch2c_rep-27@1792562330",
+  "t_start": 1792562330.6968102,
+  "camp": "20261021-102738_v4campaign_batch2c",
+  "meta_run_ok": 1,
+  "invalid_reason": "",
+  "status": "ok",
+  "error": "",
+  "prof_assert": {
+   "ok": true,
+   "reasons": []
+  },
+  "selected": true
+ }
+}
