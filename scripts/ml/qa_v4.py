@@ -474,6 +474,18 @@ def main():
         ("each section-6.3 cell ≥ 3 valid phases per UE", not missing, f"{len(missing)} cells short"),
         ("re-run from manifest + seed reproduces target schedule", repro, "check_reproducible.py" if repro is not None else "not run"),
     ]
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "k8s/exp/v4traffic"))
+    import integrity
+    integ = []
+    for rp in a.runs:
+        iok, irs, idet = integrity.check_run(rp)
+        integ.append((pathlib.Path(rp).name, iok, irs, idet))
+    L.append("\n## 10b. Run integrity (phase duration ±20%, stream gap ≤ 3 s, no host suspend)\n")
+    L.append("| run | ok | max dur dev | max stream gap s | reasons |\n|---|---|---:|---:|---|")
+    for nm, iok, irs, idet in integ:
+        L.append(f"| {nm} | {'ok' if iok else '**BAD**'} | {idet['max_dur_dev']} | {idet['max_stream_gap_s']} | {'; '.join(irs[:2])} |")
+    checks.append(("every selected run passes integrity guards", all(x[1] for x in integ),
+                   f"{sum(not x[1] for x in integ)} bad runs"))
     L.append("\n## 11. Acceptance (plan §7.3)\n")
     L.append("| criterion | result | value |\n|---|---|---|")
     for nm, okc, val in checks:

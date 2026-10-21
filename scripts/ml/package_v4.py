@@ -3,7 +3,7 @@
 
   .venv-ml/bin/python scripts/ml/package_v4.py --out research/datasets/oran_flooding_v4 CAMP_DIR [CAMP_DIR ...]
 
-For every manifest run it picks the meta_run_ok=1 attempt (later camp dirs win) and
+For every manifest run it picks the newest meta_run_ok=1 attempt (by t_start) and
 records EVERY attempt -- failed ones too, with their reason -- in manifest/runs_index.json
 (failed runs are kept, never dropped silently). Then, into --out:
   manifest/runs/<run_id>.json   per-run plan: manifest phases (seed, assignments) + attempt
@@ -32,8 +32,13 @@ def attempts(camps):
             except (OSError, ValueError):
                 meta = {}
             err = (rd / "error.txt").read_text().strip()[:300] if (rd / "error.txt").exists() else ""
-            out.append({"rep": int(rd.name.split("-")[1]), "dir": str(rd.relative_to(ROOT)),
-                        "camp": c.name, "meta_run_ok": meta.get("meta_run_ok", 0),
+            rep = int(rd.name.split("-")[1])
+            t0 = meta.get("t_start") or 0
+            integ = meta.get("integrity") or {}
+            out.append({"rep": rep, "dir": str(rd.relative_to(ROOT)),
+                        "attempt_id": meta.get("attempt_id") or "%s_rep-%02d@%d" % (c.name, rep, t0),
+                        "t_start": t0, "camp": c.name, "meta_run_ok": meta.get("meta_run_ok", 0),
+                        "invalid_reason": "; ".join(integ.get("reasons") or []) if not meta.get("meta_run_ok") else "",
                         "status": meta.get("status"), "error": err,
                         "prof_assert": meta.get("prof_assert")})
     return out
@@ -93,7 +98,7 @@ def main():
     man = json.loads(MANIFEST.read_text())
     att = attempts(a.camps)
     chosen = {}
-    for x in att:                                         # later camp wins among ok attempts
+    for x in sorted(att, key=lambda a: a["t_start"]):     # newest VALID attempt (by start time) wins
         if x["meta_run_ok"] == 1:
             chosen[x["rep"]] = x
     for x in att:

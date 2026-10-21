@@ -44,6 +44,16 @@
   Phục hồi THEO THỨ TỰ: `scripts/k8s/phase0/recover_core_ordered.sh`. **Cấm restart SMF đơn lẻ / restart core đồng thời.**
 - Sau host suspend/power-cycle: `scripts/k8s/phase0/recover_ran.sh` → `ip route replace 172.30.26.0/24 dev oaitun_ue1` trên cả 2 UE
   → tắt defense → kiểm 2 SUPI.
+- **Host suspend → E2 SCTP mất → `recover_ran.sh`** (gặp 2026-10-21, suspend 15:48→16:08): FlexRIC log
+  `SCTP_SEND_FAILED` / `Communication with E2 Node lost?` / `xApp N disconnected!` ngay lúc resume; xApp restart rồi lặp
+  `[E2AP]: Resending Setup Request after timeout` ⇒ API `:8090` không lên ⇒ preflight `defense state HTTP 0`. Core/URR/PFCP
+  vẫn khỏe (không đụng core). Phục hồi: `recover_ran.sh` → route `172.30.26.0/24 dev oaitun_ue1` trên 2 UE → POST
+  `/v1/defense/{core,enabled}` false → preflight. Kiểm sau phục hồi: `defense_state.ues` đủ 2 SUPI, log xApp có KPM
+  cho cả 2 `amf_ue_ngap_id`, 0 dòng "Resending Setup", URR age < 3 s, IP↔SUPI từ log SMF (PAA → PDU_SES_EST SUPI).
+  Phòng ngừa: sleep/suspend/hibernate/hybrid-sleep/suspend-then-hibernate targets đã `mask`, logind drop-in
+  `/etc/systemd/logind.conf.d/99-nosleep.conf` (lid/keys/idle = ignore), GNOME `sleep-inactive-{ac,battery}-type=nothing`.
+  Nguyên nhân 3 lần suspend ban ngày (02:04, 09:47, 14:33, 15:48): idle action của gsd-power (không có sự kiện lid);
+  17:47 là lid close. `systemd-inhibit` không chặn được vì gsd-power chỉ giữ inhibitor kiểu delay.
 - Multus race khi `minikube start`: rollout-restart core sau khi Multus sẵn sàng.
 - SMF segfault ~5.5 h (watchdog tự hồi phục). Preflight mỗi run kiểm PFCP association.
 - Luôn `kubectl --context oai-lab`; luôn tắt defense trước khi flood.

@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "scripts/ml"))           # build_dataset_v4, qa_v4
 import run as harness
 import lab
 import build_dataset_v4 as B
+import integrity
 
 STOP_GATES = {"nuisance_auc_max": 0.6, "balance_tol": 0.05, "sym_tol": 0.05,
               "achieved_ok_min": 0.85, "size_overlap_min": 0.6}
@@ -118,6 +119,15 @@ def record_mapping(run_dir):
     if s == 200:
         for x in body.get("sessions", []):
             mp[x.get("supi")] = x.get("ue_ip") or x.get("ip")
+    if not all(mp.values()) or not mp:                 # UPF API has no IP: pair SMF "PAA" -> "PDU_SES_EST ... SUPI"
+        log = lab.kubectl("-n", "oai-core", "logs", "deploy/oai-smf", "-c", "smf", check=False) or ""
+        paa = None
+        for line in log.splitlines():
+            if "PAA, Ipv4 Address:" in line:
+                paa = line.rsplit(":", 1)[1].strip()
+            elif "PDU_SES_EST (Event Exposure), SUPI" in line and paa:
+                mp[line.split("SUPI", 1)[1].split(",")[0].strip()] = paa
+                paa = None
     (run_dir / "meta" / "supi_ip_mapping.json").write_text(json.dumps(mp, indent=1) + "\n")
     return mp
 
@@ -223,17 +233,18 @@ def checkpoint_qa(data_dir, run_dirs):
 
 def prior_run_dirs(prior_camps, lo):
     """meta_run_ok=1 run dirs of earlier batches for manifest runs [0, lo), so a checkpoint
-    audits the whole PREFIX (the design balances prefixes, not slices). Later camp dirs win."""
-    best = {}
+    audits the whole PREFIX (the design balances prefixes, not slices). Newest valid attempt (t_start) wins."""
+    best, best_t = {}, {}
     for c in prior_camps:
         for rd in sorted((pathlib.Path(c) / "runs" / "detection-off").glob("rep-*")):
             rep = int(rd.name.split("-")[1])
             try:
-                ok = json.loads((rd / "run.json").read_text()).get("meta_run_ok") == 1
+                m = json.loads((rd / "run.json").read_text())
+                ok, t0 = m.get("meta_run_ok") == 1, m.get("t_start") or 0
             except (OSError, ValueError):
-                ok = False
-            if ok and rep <= lo:
-                best[rep] = rd
+                ok, t0 = False, 0
+            if ok and rep <= lo and t0 >= best_t.get(rep, 0):      # newest valid attempt by t_start
+                best[rep], best_t[rep] = rd, t0
     missing = [r for r in range(1, lo + 1) if r not in best]
     if missing:
         raise SystemExit("prior batches lack ok runs for reps %s" % missing)
@@ -266,14 +277,17 @@ def run_campaign(manifest_path, lo, hi, tag, prior=()):
         mp = record_mapping(rd)
         pok, reasons = prof_assert(rd)
         meta = json.loads((rd / "run.json").read_text())
-        meta["meta_run_ok"] = int(bool(ok) and pok)
+        iok, ireasons, idet = integrity.check_run(rd, i + 1, manifest_path)   # duration / gaps / host suspend
+        meta["attempt_id"] = "%s_rep-%02d@%d" % (camp.name, i + 1, int(meta.get("t_start") or 0))
+        meta["meta_run_ok"] = int(bool(ok) and pok and iok)
         meta["prof_assert"] = {"ok": pok, "reasons": reasons[:8]}
+        meta["integrity"] = {"ok": iok, "reasons": ireasons[:8], **idet}
         meta["supi_ip_mapping"] = mp
         (rd / "run.json").write_text(json.dumps(meta, indent=1) + "\n")
-        harness.log("   run %d meta_run_ok=%d%s" % (i + 1, meta["meta_run_ok"], "" if pok else " PROF-ASSERT FAIL: " + "; ".join(reasons[:3])))
+        harness.log("   run %d meta_run_ok=%d%s" % (i + 1, meta["meta_run_ok"], ("" if pok else " PROF-ASSERT FAIL: " + "; ".join(reasons[:3])) + ("" if iok else " INTEGRITY FAIL: " + "; ".join(ireasons[:3]))))
         if not meta["meta_run_ok"]:
-            harness.log("STOP: run %d failed (ok=%s prof=%s)" % (i + 1, ok, pok))
-            return {"stopped": i + 1, "reason": "run_not_ok", "reasons": reasons}
+            harness.log("STOP: run %d failed (ok=%s prof=%s integrity=%s)" % (i + 1, ok, pok, iok))
+            return {"stopped": i + 1, "reason": "run_not_ok", "reasons": reasons + ireasons}
         if (i + 1) in checkpoints or (i + 1) == hi:
             passed, m, breaches = checkpoint_qa(camp / "dataset_sofar", prior_dirs + run_dirs)
             harness.log("CHECKPOINT @%d: %s" % (i + 1, json.dumps(m)))
