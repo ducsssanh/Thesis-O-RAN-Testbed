@@ -33,6 +33,11 @@
 - Watchdog: `userplane_watchdog.py watch --interval 60 --recover --fail-ticks 3` chạy lại 03:05 bằng code hiện tại
   (chỉ `recover_core_ordered.sh`). Tiến trình cũ (từ 20/10, code cũ restart core đồng thời) đã bị dừng.
 
+- **Phase train (23/10):** detector UL-only (17 feature), icmp = negative control, gate UL ≥ 50 kbps là điểm vận hành.
+  Pipeline: `scripts/ml/{prep_v4_windows,v4_eval,baseline_v4,train_lstm_v4,leak_phase_v4,dl_leak_check_v4,report_model_eval_v4}.py`;
+  dữ liệu cửa sổ `artifacts/ml/v4/` (gitignored); LSTM train trên Colab (`artifacts/ml/colab-v4/`, kết quả `v4_lstm_results/`).
+  Kết quả: `reports/model_eval_v4.md` — GBDT rolling cross-domain UL ROC 0.930 tốt nhất; LSTM 0.838, kém GBDT ≤10 s có ý nghĩa.
+
 ## 3. Quyết định thiết kế đã chốt
 - UE-mirror packing: mỗi cặp (ue1 tấn công / ue2 tấn công) cùng run ⇒ prefix cân bằng UE (`deb1309`).
 - `benign_benign` bù bề mặt tấn công SYN/DNS cho backend dual-use (pacer/hping/iperf); gắn với cặp "surplus" thành unit trung tính.
@@ -89,8 +94,10 @@ c. Stream gap / prof peak sát ngưỡng — không nới.
 d. Lý do hiển thị "35 rows vs 39s (90% < 90%)" (rep 19) do làm tròn %.0f: thực tế 89.7%.
 
 ## 8. BƯỚC TIẾP THEO
-1. **User:** chép backup 20261022 ra ổ ngoài/cloud.
-2. **User (dọn log, 31 path ~54 MB, đều có trong backup):**
-   `grep -v '^#' artifacts/CLEANUP_20261022_delete.txt | xargs rm -rf`
-   12 mục còn được tham chiếu (docs/, `cl1_gate.py`) được GIỮ: `artifacts/CLEANUP_20261022_kept.txt`.
-3. Bước sau (ML): train/eval trên `rows.parquet`, chia theo `meta_run_id`; meta_* không bao giờ là feature.
+1. **User quyết định classifier v2**: (a) GBDT rolling cross-domain UL làm classifier v2, LSTM = negative result có số đo;
+   hoặc (b) cải thiện LSTM (lịch sử dài hơn, input là rolling features, regularisation, tune CHỈ trên val runs).
+2. Nếu (a): xuất model GBDT + danh sách feature + gate cho sidecar `/classify` của xApp; kiểm tra feature online của xApp
+   khớp `prep_v4_windows` (log1p, rolling nhân quả 5/10/30 s, age cap).
+3. Nghiệm thu vòng kín (defense ON) với detector mới — dataset v4 thu khi defense OFF nên không đo được tác động hành động.
+4. (Tùy chọn, eval-only) tập realism closed-loop app thật; tập FPR tải thấp.
+5. User: chép backup `/home/ducsssanh/DATN-backup/20261022/` ra ngoài; chạy lệnh dọn log trong `artifacts/CLEANUP_20261022_delete.txt`.

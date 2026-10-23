@@ -234,6 +234,15 @@ NOT idle traffic but the end of the previous phase: in the drain seconds 36% of 
   principle carry it (38.6% of main windows' 30 s history starts before the phase); cutting the history
   at the phase start does not lower any GBDT (cross-domain UL 0.930 → 0.937), so it is not exploited.
 
+## Model results (2026-10-23) — full report `reports/model_eval_v4.md`
+UL-only, test = 18 held-out runs, benign FPR 1% on val, gated operating point:
+- GBDT rolling cross-domain UL: ROC-AUC 0.930 [0.894–0.961], TPR 0.467, pair macro 0.936, idle FPR 0.004.
+- GBDT rolling ≤10 s (same history as the LSTM): ROC-AUC 0.900 [0.853–0.938].
+- LSTM 2×64, 10 s: ROC-AUC 0.838 ± 0.007 (3 seeds); vs GBDT ≤10 s ΔROC −0.067 [−0.093, −0.041] (paired
+  bootstrap by run); larger val→test gap; nearly order-blind (time-shuffled AUC −0.010).
+- Cross-domain beats every single domain and URR+prof (paired CIs exclude 0). Unseen-generator transfer is poor
+  (0.64–0.79), and the clean same-cell test shows the tool itself shifts the operating point.
+
 ## Known limitations
 - RFsim/GTP caps: UL linear region ≈ 10 Mbit/s per UE, payload ≤ 1200 B, TCP ≈ 330 kbps.
 - Two iperf backend versions coexist (pre-fix for the iperf phases of the runs that passed the
