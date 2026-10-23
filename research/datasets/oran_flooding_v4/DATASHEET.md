@@ -206,6 +206,26 @@ NOT idle traffic but the end of the previous phase: in the drain seconds 36% of 
   ~900 pps vs flood ~75 pps; syn 330 vs 780 pps) — valid signal, but not a load-matched test.
 - Genuinely hard pair: mimicry_udp ↔ udp_nofeedback (all HGB 0.88, without DL 0.85).
 
+## Detector scope: UL-only (decision 2026-10-23)
+- The main detector and every headline number use the 17 UL features only; all DL columns
+  (`rate_dl`, `thp_dl`, `prb_dl`, `cell_prb_dl`, `urr_dl_*`, `prof_dl_*` incl. the DL protocol counters)
+  are removed from training and evaluation. No derived feature uses DL.
+- Why: the threat model is a UL flood originating at the UE; in this testbed the DL is a designed
+  artefact (benign feedback 1–10% of UL, attack DL 0 / tiny), a near-label proxy (DL-only AUC 0.963).
+  Results with DL are kept in an appendix with that caveat. Future work: a DL-aware detector needs
+  realistic DL (real closed-loop applications), not designed feedback.
+- Indirect-DL check through RAN UL (`reports/dl_leak_check_v4.md`): `prb_ul_pct/urr_ul_kbps` and
+  `thp_ul_kbps/urr_ul_kbps` have overall AUC 0.525 / 0.503; strata above 0.6 (load 0.2, dns, pulsing)
+  are identical for silent and responsive victims and absent in udp_flood↔udp_bidir (0.49 / 0.46), so
+  they reflect packet size / burstiness, not DL feedback. The URR+prof-only and RAN-UL-without-PRB
+  ablations are reported anyway.
+- **Negative control:** icmp_flood↔icmp_ping is excluded from training, from the headline and from the
+  per-pair macro; its AUC is reported alone for every model (expected ~0.5, > 0.6 = leak warning).
+- Idle false alarms: rolling-feature GBDT flags every cold-start warm-up window (30 s of silence is
+  outside the training distribution); an activity gate (classify only when the 10 s mean UL ≥ 50 kbps)
+  removes them at no TPR cost. Reported as a secondary "gated" operating point, never instead of the
+  raw one.
+
 ## Known limitations
 - RFsim/GTP caps: UL linear region ≈ 10 Mbit/s per UE, payload ≤ 1200 B, TCP ≈ 330 kbps.
 - Two iperf backend versions coexist (pre-fix for the iperf phases of the runs that passed the

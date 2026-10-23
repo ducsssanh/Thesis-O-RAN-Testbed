@@ -11,6 +11,7 @@ the label of its LAST second (the xApp labels the newest vector). Window kinds:
   edge  - last second in a BENIGN/MALICIOUS phase but not main (crosses the phase start or
           touches a guard second). Eval only: time-to-detect from the phase start.
   idle  - all N seconds IDLE. Eval only: false alarms on an idle UE. Never a training target.
+roll_v4.npz (tabular GBDT): causal rolling mean/std/slope/max over 5/10/30 s + the 1 s value, per window end.
 Split by meta_run_id (never by row): every meta_pair has both classes in every split.
 Features = the 31 telemetry columns, never meta_*. Magnitudes go through log1p, percentages /100,
 then a z-score fitted on the train main windows; a missing value (stale URR/prof) becomes 0
@@ -56,6 +57,35 @@ def split_runs(df, seed, n_test, n_val, tries=500):
         if ok:
             return {k: sorted(v) for k, v in sp.items()}
     raise SystemExit("no run split covers every pair in every split")
+
+
+ROLL_W = (5, 10, 30)
+GATE_KBPS = 50.0
+
+
+def rolling(df, X, cols):
+    """Causal rolling features per (run, UE) on the transformed values: the value itself (1 s) and
+    mean/std/slope/max over the past 5/10/30 s (history may include gap seconds; min 2 points)."""
+    names = ["%s@1" % c for c in cols] + ["%s@%d_%s" % (c, w, s) for w in ROLL_W for s in ("mean", "std", "slope", "max")
+                                          for c in cols]
+    R = np.full((len(df), len(names)), np.nan, np.float32)
+    R[:, :len(cols)] = X
+    for _, g in df.groupby(["meta_run_id", "meta_supi"], sort=False):
+        ix = g.index.to_numpy()
+        x = pd.DataFrame(X[ix], columns=cols)
+        t = pd.Series(np.arange(len(ix), dtype=float))
+        xt = x.mul(t, axis=0)
+        j = len(cols)
+        for w in ROLL_W:
+            rx = x.rolling(w, min_periods=2)
+            mt = t.rolling(w, min_periods=2).mean()
+            vt = t.rolling(w, min_periods=2).var(ddof=0)
+            mx = rx.mean()
+            slope = xt.rolling(w, min_periods=2).mean().sub(mx.mul(mt, axis=0)).div(vt, axis=0)
+            for stat in (mx, rx.std(ddof=0), slope, rx.max()):
+                R[ix, j:j + len(cols)] = stat.to_numpy(np.float32)
+                j += len(cols)
+    return R, names
 
 
 def windows(df, N):
@@ -115,6 +145,11 @@ def main():
     # per-window aggregates for the tabular baselines (mean, std, min, max, last over the window)
     raw = X[end[:, None] - np.arange(a.window)[None, ::-1]]
     agg = np.concatenate([np.nanmean(raw, 1), np.nanstd(raw, 1), np.nanmin(raw, 1), np.nanmax(raw, 1), raw[:, -1]], 1)
+    # activity gate (deployment rule, evaluated as a secondary operating point): classify only when the
+    # UE's UL over the window averages >= GATE_KBPS (URR, profiler if URR is stale); never a feature
+    ul = df.urr_ul_kbps.to_numpy(float)
+    ul = np.where(np.isnan(ul), df.prof_ul_kbps.to_numpy(float), ul)
+    gate = np.nanmean(ul[end[:, None] - np.arange(a.window)[None, ::-1]], 1) >= GATE_KBPS
     np.savez_compressed(out / "windows_v4.npz", X=W, y=y, kind=kind, split=split, agg=agg.astype(np.float32),
                         label=lab.astype(str), run=m["meta_run_id"].astype(str), ue=m["meta_ue"].astype(str),
                         phase=m["meta_phase"].astype(str), pair=pair,
@@ -123,7 +158,9 @@ def main():
                         load=np.nan_to_num(m["meta_load_mbps"].astype(float)),
                         attack_active=np.nan_to_num(m["meta_attack_active"].astype(float), nan=-1),
                         t_since=np.nan_to_num(m["meta_t_since_phase_start"].astype(float), nan=-1),
-                        mean=mu, std=sd)
+                        gate=gate, mean=mu, std=sd)
+    R, roll_names = rolling(df, X, cols)
+    np.savez_compressed(out / "roll_v4.npz", R=R[end], names=np.array(roll_names))
     miss = {lb: {c: round(float(df.loc[df.label == lb, c].isna().mean()), 4) for c in ("urr_ul_kbps", "prof_ul_kbps")}
             for lb in ("BENIGN", "MALICIOUS", "IDLE")}
     cnt = {s: {k: {"n": int(((split == si) & (kind == ki)).sum()),
@@ -133,7 +170,7 @@ def main():
             "agg_features": ["%s_%s" % (s, c) for s in ("mean", "std", "min", "max", "last") for c in cols],
             "transform": "log1p(magnitudes), pct/100, z-score on train main windows, NaN->0 after scaling",
             "label": "MALICIOUS=1 / BENIGN=0 at the window's last second; IDLE never a target",
-            "kinds": KINDS, "split_seed": a.seed, "split_runs": sp, "counts": cnt,
+            "gate": "window mean UL (URR, else profiler) >= %g kbps" % GATE_KBPS, "kinds": KINDS, "split_seed": a.seed, "split_runs": sp, "counts": cnt,
             "missing_rate_by_label": miss}
     (out / "meta.json").write_text(json.dumps(meta, indent=1) + "\n")
     print(json.dumps({"features": len(cols), "windows": int(len(end)), "counts": cnt, "missing": miss}, indent=1))
