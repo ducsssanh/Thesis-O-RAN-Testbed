@@ -36,19 +36,17 @@ sys.path.insert(0, str(HERE))
 import prep_v4_windows as P
 import baseline_v4 as B
 import v4_eval as E
+import defence_engine_v4 as D
 
 ROOT = HERE.parents[1]
 DATA = ROOT / "research/datasets/oran_flooding_v4"
 WIN = ROOT / "artifacts/ml/v4"
 MODELS = WIN / "models"
 RAN_KPM = ("rate_ul_kbps", "thp_ul_kbps", "prb_ul_pct")
-FAIR_UL_KBPS, CELL_CONGESTED = 2000.0, 80.0
 GATE_KBPS = P.GATE_KBPS
-INT_W, HOLD_S, RAMP_S, CORE_AGE_S = 10, 60, 30, 4.0
-L3_HOLD_S = 10
+INT_W = D.INT_W
 MODEL_SETS = {"xd": B.HEADLINE, "core": "GBDT rolling URR+prof (UL)", "ran": "GBDT rolling RAN-UL"}
-CONFIGS = ("RAN-only (xApp KPM)", "core-only (5GC)", "cross-domain naive", "cross-domain trust-weighted",
-           "cross-domain trust-weighted v2")
+CONFIGS = D.CONFIGS
 # v2 (added after inspecting v1 on the test runs; checked on the val runs first): the integrity alarm is
 # asymmetric. KPM < URR (the RAN under-reports what the core measured: someone hides this UE) counts as
 # core-side evidence against the UE while it persists -> immediate L1 and the core-only block path
@@ -150,82 +148,18 @@ def scenario(df, name, factor=None, seed=0):
 
 # ---------------------------------------------------------------- engine
 def run_engine(df, z, cfg, tau, m, bias):
-    """Per-second decisions for one configuration. Returns per-row arrays."""
+    """Per-second decisions for one configuration (defence_engine_v4.DecisionState, the code the
+    live sidecar runs). Returns per-row arrays."""
     n = len(df)
     out = {k: np.zeros(n, bool) for k in ("hit", "l1", "l3", "integrity")}
     out["kt"] = np.ones(n); out["ct"] = np.ones(n)
     for _, g in df.groupby(["meta_run_id", "meta_supi"], sort=False):
         ix = g.index.to_numpy()
-        kpm = g.rate_ul_kbps.fillna(0)
-        urr = g.urr_ul_kbps
-        fresh = (g.meta_urr_age_s.fillna(99) <= CORE_AGE_S) & urr.notna()
-        ct = fresh.to_numpy().astype(float)
-        # activity gate: core view if fresh, else RAN view
-        ul_core = urr.where(urr.notna(), g.prof_ul_kbps).rolling(10, min_periods=1).mean().to_numpy()
-        ul_ran = kpm.rolling(10, min_periods=1).mean().to_numpy()
-        # KPM<->URR integrity rule
-        ks, us = roll_sum(kpm, INT_W).to_numpy(), roll_sum(urr.fillna(0), INT_W).to_numpy()
-        fresh_w = fresh.rolling(INT_W, min_periods=INT_W).min().fillna(0).to_numpy().astype(bool)
-        active = np.maximum(ks, us) / INT_W > GATE_KBPS
-        with np.errstate(divide="ignore", invalid="ignore"):
-            lr = np.log(np.clip(ks, 1, None) / np.clip(us, 1, None)) - bias
-        viol = fresh_w & active & (np.abs(lr) > tau)
-        run_len = np.zeros(len(ix), int)
-        for i in range(len(ix)):
-            run_len[i] = run_len[i - 1] + 1 if (viol[i] and i) else int(viol[i])
-        integ = run_len >= m
-        kt = np.ones(len(ix))
-        under = np.zeros(len(ix), bool)          # integrity violation with KPM < URR, ongoing
-        last, last_dir = -10 ** 9, 0.0
-        for i in range(len(ix)):
-            if integ[i]:
-                last, last_dir = i, lr[i]
-            under[i] = bool(integ[i]) and lr[i] < 0  # only while the under-report persists (a hold would
-            #                                          spill into the next phase, v4 swaps UE roles)
-            dt = i - last
-            kt[i] = 0.0 if dt <= HOLD_S else min(1.0, (dt - HOLD_S) / RAMP_S)
-        # rules (3 of 4)
-        ran_rule = ((kpm > FAIR_UL_KBPS) & (g.cell_prb_ul_pct.fillna(0) >= CELL_CONGESTED)).astype(int).rolling(4, min_periods=1).sum().to_numpy() >= 3
-        core_rule = ((urr.fillna(0) > FAIR_UL_KBPS) & fresh).astype(int).rolling(4, min_periods=1).sum().to_numpy() >= 3
-        zx, zc, zr = z["xd"][ix], z["core"][ix], z["ran"][ix]
-        if cfg == CONFIGS[0]:                    # RAN-only: no core data at all
-            gate = ul_ran >= GATE_KBPS
-            ran_hit = (zr >= 1) & gate | ran_rule
-            hit, core_hit, ranside = ran_hit, np.zeros(len(ix), bool), ran_hit
-            ktu = np.ones(len(ix))
-        elif cfg == CONFIGS[1]:                  # core-only
-            gate = (ul_core >= GATE_KBPS) & (ct > 0)
-            core_hit = (zc >= 1) & gate | core_rule
-            hit, ranside = core_hit, np.zeros(len(ix), bool)
-            ktu = np.ones(len(ix))
-        elif cfg == CONFIGS[2]:                  # naive cross-domain: one model, no trust, no integrity rule
-            gate = np.where(ct > 0, ul_core, ul_ran) >= GATE_KBPS
-            hit = ((zx >= 1) & gate) | ran_rule | core_rule
-            core_hit, ranside = hit, hit
-            ktu = np.ones(len(ix))
-        else:                                    # proposed (v1 / v2)
-            gate = np.where(ct > 0, ul_core, ul_ran) >= GATE_KBPS
-            zf = kt * ct * zx + (1 - kt) * ct * zc + kt * (1 - ct) * zr
-            hit = ((zf >= 1) & gate) | (ran_rule & (kt >= 0.5)) | core_rule
-            core_hit = ((zc >= 1) & gate & (ct > 0)) | core_rule
-            ranside = ((zr >= 1) & gate & (kt >= 0.5)) | (ran_rule & (kt >= 0.5))
-            if cfg == CONFIGS[4]:
-                hit = hit | under
-                core_hit = core_hit | under
-            ktu = kt
-        k5 = lambda a: pd.Series(a.astype(int)).rolling(5, min_periods=1).sum().to_numpy() >= 3
-        l1 = k5(hit)
-        held = np.zeros(len(ix), int)
-        for i in range(len(ix)):
-            held[i] = held[i - 1] + 1 if (l1[i] and i) else int(l1[i])
-        if cfg in CONFIGS[3:]:
-            both = k5(core_hit) & (k5(ranside) | (ktu < 0.5))
-            l3 = (held >= L3_HOLD_S) & both
-        else:
-            l3 = held >= L3_HOLD_S
-        out["hit"][ix], out["l1"][ix], out["l3"][ix] = hit, l1, l3
-        out["integrity"][ix] = integ if cfg in CONFIGS[3:] else False
-        out["kt"][ix], out["ct"][ix] = ktu, ct
+        r = D.run_timeline(cfg, g.rate_ul_kbps.to_numpy(float), g.urr_ul_kbps.to_numpy(float), g.prof_ul_kbps.to_numpy(float),
+                           g.meta_urr_age_s.to_numpy(float), g.cell_prb_ul_pct.to_numpy(float),
+                           {k: v[ix] for k, v in z.items()}, tau, m, bias)
+        for k in out:
+            out[k][ix] = r[k]
     return out
 
 
