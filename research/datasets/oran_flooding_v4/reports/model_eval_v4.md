@@ -129,3 +129,52 @@ LSTM all features: ROC 0.996, TPR 0.937, macro 0.974. GBDT rolling incl. DL: ROC
 better, more robust across runs and cheaper to serve. Options: (a) adopt the GBDT as classifier v2 and report the
 LSTM as a measured negative result; (b) keep the LSTM and try to close the gap (longer history, rolling-feature
 inputs, regularisation, hyper-parameter search on validation runs only — never on test).
+
+## Mini-simulations (added with stage B, offline, test runs, models frozen)
+
+Each GBDT alone, activity-gated alarm z ≥ 1, phase level (icmp control excluded); brackets = 95% bootstrap CI by run (`scripts/ml/mini_sim_v4.py`).
+
+### k-of-n alarm rule (honest telemetry)
+
+| model | rule | attack phases detected | median t (s) | benign phases with an alarm |
+|---|---|---:|---:|---:|
+| xd | 1 of 1 | 0.798 [0.723, 0.868] | 13.2 | 0.117 [0.058, 0.189] |
+| xd | 2 of 3 | 0.764 [0.685, 0.847] | 14.3 | 0.087 [0.03, 0.161] |
+| xd | 3 of 5 | 0.697 [0.6, 0.805] | 15.2 | 0.039 [0.009, 0.084] |
+| xd | 4 of 5 | 0.663 [0.571, 0.769] | 16.3 | 0.039 [0.009, 0.084] |
+| xd | 5 of 5 | 0.64 [0.547, 0.75] | 17.3 | 0.029 [0.009, 0.062] |
+| core | 1 of 1 | 0.742 [0.651, 0.839] | 14.2 | 0.058 [0.01, 0.119] |
+| core | 2 of 3 | 0.719 [0.62, 0.825] | 16.3 | 0.029 [0.0, 0.081] |
+| core | 3 of 5 | 0.652 [0.558, 0.758] | 17.5 | 0.019 [0.0, 0.05] |
+| core | 4 of 5 | 0.629 [0.532, 0.741] | 18.1 | 0.019 [0.0, 0.05] |
+| core | 5 of 5 | 0.562 [0.461, 0.674] | 18.0 | 0.01 [0.0, 0.032] |
+| ran | 1 of 1 | 0.708 [0.607, 0.813] | 13.6 | 0.155 [0.096, 0.206] |
+| ran | 2 of 3 | 0.652 [0.539, 0.775] | 15.0 | 0.087 [0.041, 0.131] |
+| ran | 3 of 5 | 0.607 [0.481, 0.742] | 16.0 | 0.049 [0.01, 0.086] |
+| ran | 4 of 5 | 0.517 [0.402, 0.652] | 16.5 | 0.019 [0.0, 0.05] |
+| ran | 5 of 5 | 0.461 [0.347, 0.588] | 19.2 | 0.019 [0.0, 0.05] |
+
+### KPM tamper per model (3 of 5)
+
+hide ×f: attacker's KPM UL deflated (detection on the tampered attack phases); frame ×f: a benign UE's KPM UL inflated (alarm on the framed benign phases).
+
+| scenario | model | attack detected | benign (framed) alarm |
+|---|---|---:|---:|
+| honest | xd | 0.697 [0.6, 0.805] | 0.039 [0.009, 0.084] |
+| honest | core | 0.652 [0.558, 0.758] | 0.019 [0.0, 0.05] |
+| honest | ran | 0.607 [0.481, 0.742] | 0.049 [0.01, 0.086] |
+| kpm_hide x0.1 | xd | 0.798 [0.658, 0.919] | 0.039 [0.009, 0.084] |
+| kpm_hide x0.1 | core | 0.652 [0.558, 0.758] | 0.019 [0.0, 0.05] |
+| kpm_hide x0.1 | ran | 0.0 [0.0, 0.0] | 0.049 [0.01, 0.086] |
+| kpm_hide x0.33 | xd | 0.921 [0.878, 0.963] | 0.039 [0.009, 0.084] |
+| kpm_hide x0.33 | core | 0.652 [0.558, 0.758] | 0.019 [0.0, 0.05] |
+| kpm_hide x0.33 | ran | 0.0 [0.0, 0.0] | 0.049 [0.01, 0.086] |
+| kpm_hide x0.5 | xd | 0.899 [0.808, 0.971] | 0.039 [0.009, 0.084] |
+| kpm_hide x0.5 | core | 0.652 [0.558, 0.758] | 0.019 [0.0, 0.05] |
+| kpm_hide x0.5 | ran | 0.056 [0.0, 0.117] | 0.049 [0.01, 0.086] |
+| kpm_frame x2 | xd | 0.708 [0.608, 0.816] | 0.476 [0.381, 0.57] |
+| kpm_frame x2 | core | 0.652 [0.558, 0.758] | 0.019 [0.0, 0.05] |
+| kpm_frame x2 | ran | 0.618 [0.487, 0.763] | 0.767 [0.663, 0.855] |
+| kpm_frame x5 | xd | 0.719 [0.62, 0.824] | 0.66 [0.574, 0.747] |
+| kpm_frame x5 | core | 0.652 [0.558, 0.758] | 0.019 [0.0, 0.05] |
+| kpm_frame x5 | ran | 0.618 [0.487, 0.763] | 1.0 [1.0, 1.0] |
