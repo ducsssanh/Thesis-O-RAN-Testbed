@@ -150,6 +150,10 @@ replicas: 0
 seedEnabled: false
 xappEnabled: false
 xappImage: ""
+sidecar:                 # v5 live model sidecar in the xApp pod (scripts/k8s/classifier/build_sidecar.py)
+  enabled: false
+  image: ""
+  mode: xd-trust-v2      # ran-only | core-only | xd-naive | xd-trust-v1 | xd-trust-v2
 adapter:
   replicas: 0
   image: oai-lab-a1-ei-adapter:unbuilt

@@ -61,6 +61,23 @@ spec:
             - {name: state, mountPath: /urr-state}
             - {name: tls, mountPath: /tls, readOnly: true}
             - {name: entrypoint, mountPath: /opt/lab/radio-entrypoint.sh, subPath: radio-entrypoint.sh, readOnly: true}
+        {{- $sc := .Values.sidecar | default dict }}
+        {{- if $sc.enabled }}
+        # v5 live: model sidecar of the classifier (127.0.0.1:8091, used when the xApp classifier is "external";
+        # frozen v4 models baked into the image, configuration via POST /mode, /reset)
+        - name: sidecar
+          image: {{ $sc.image | quote }}
+          imagePullPolicy: IfNotPresent
+          args: [--port, "8091", --mode, {{ $sc.mode | default "xd-trust-v2" | quote }}, --log, /artifacts/runs/$(RUN_ID)/KPI_Metrics_Sidecar.jsonl]
+          env:
+            - {name: RUN_ID, value: {{ .Values.global.lab.currentRun | default "bootstrap" | quote }}}
+          readinessProbe:
+            exec: {command: [python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8091/healthz', timeout=2)"]}
+            periodSeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - {name: artifacts, mountPath: /artifacts}
+        {{- end }}
       volumes:
         - name: artifacts
           persistentVolumeClaim: {claimName: oai-lab-artifacts}

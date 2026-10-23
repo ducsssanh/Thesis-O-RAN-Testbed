@@ -1,0 +1,16 @@
+{
+  "image": "oai-lab-sidecar:dff36dce3cca190a",
+  "id": "sha256:0f6322cb8abf5c09640fba5532727a0fdacbef640aff04e24500f08ed02f9d03",
+  "sourceHash": "dff36dce3cca190a",
+  "inputs": {
+    "deploy/k8s/images/Dockerfile.sidecar": "8ac2420b8596b11fc3c23a2c8e4a3565ff28dee285b81b41f732d48b1dddf59d",
+    "scripts/ml/defence_engine_v4.py": "09f164a49e7535df2a74713fc35538930377b86ac133a93104ae2b75161427ff",
+    "scripts/ml/prep_v4_windows.py": "707cbfd9335033fd2bfd6013b874bc89e59505f2c40ab511ff8d4deefab0e2da",
+    "scripts/k8s/classifier/sidecar_v4.py": "76b1420672801bc07a74f7e6e9e7a3903cf063bfa0dd0da6c25df3f58d8557e8",
+    "artifacts/ml/v4/models/gbdt_core.joblib": "09b7482ac1a647e282e5c202442678b1671a6358713b2758dd70943abf2b88e8",
+    "artifacts/ml/v4/models/gbdt_ran.joblib": "cdad0c5d5da74c9cc9620703a2f9db94e43a891fc972af8494e72c9357058c2b",
+    "artifacts/ml/v4/models/gbdt_xd.joblib": "4c29a3b48838c2ad7b53d4a85d2546cabc59334bd3331fa66af85319b9af20ed",
+    "artifacts/ml/v4/models/integrity_rule.json": "610face2148689a039ae4c1c4be1c450042de43775e6b8db8d2b8d7a04a5d7e6",
+    "artifacts/ml/v4/models/spec.json": "1fac7d0bd183b5e622d29367672922eec13ac71ad77a0939a4c4d3618a27809c"
+  }
+}

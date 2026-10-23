@@ -1,0 +1,551 @@
+diff -ruN a/examples/xApp/c/monitor/actuators.c b/examples/xApp/c/monitor/actuators.c
+--- a/examples/xApp/c/monitor/actuators.c	2026-10-23 22:04:21.842544111 +0700
++++ b/examples/xApp/c/monitor/actuators.c	2026-10-23 22:04:21.846544120 +0700
+@@ -381,6 +381,7 @@
+ /* RRC Release: once when the SUPI enters level 3, and at level 4 at every
+    attach (rate-limited) */
+ static bool release_due(const ue_t *u, int64_t now) {
++  if (!cfg.release_on_block) return false;
+   if (!cfg.enabled || u->level < 3 || !u->amf || now - u->last_seen_us > UE_GONE_US) return false;
+   if (u->release_pending) return true;
+   return u->level == 4 && u->released_amf != u->amf && now - u->released_us >= (int64_t)cfg.release_every_s * 1000000;
+diff -ruN a/examples/xApp/c/monitor/classifier.c b/examples/xApp/c/monitor/classifier.c
+--- a/examples/xApp/c/monitor/classifier.c	2026-10-23 22:04:21.852544134 +0700
++++ b/examples/xApp/c/monitor/classifier.c	2026-10-23 22:04:21.856544143 +0700
+@@ -6,10 +6,14 @@
+                     the label's layer is ran, core or both
+      "external"     a model behind a loopback HTTP endpoint (sidecar):
+                     POST {"supi","since_seq","window":[vectors]} ->
+-                    {"label":"benign|suspicious|attack|unknown","score","layer","kind","reason"};
++                    {"label":"benign|suspicious|attack|unknown","score","layer","kind","reason","level"?};
++                    the request also carries now_ms and the latest core records
++                    ("core": urr + ring, prof), the reply's level (if any) is
++                    taken by the policy as is (the model's own escalation);
+                     unknown, timeout or any failure falls back to v1 */
+ #include "defense_internal.h"
+ #include "http_client.h"
++#include "urr_receiver.h"
+ #include <stdlib.h>
+ #include <string.h>
+ 
+@@ -92,6 +96,60 @@
+            cfg.classes[last->cls].name);
+ }
+ 
++/* the latest URR report received for the SUPI with the receiver's ring (the
++   sidecar finds the report's period from it, as the offline dataset does) and
++   the latest UPF profile: the core telemetry as of now */
++static json_object *core_json(const char *supi) {
++  json_object *c = json_object_new_object();
++  urr_record_t ring[16];
++  int64_t rx[16];
++  int n = urr_receiver_ring_for_supi(supi, ring, rx, 16);
++  if (n > 0) {
++    const urr_record_t *r = &ring[n - 1];
++    json_object *u = json_object_new_object(), *h = json_object_new_array();
++    json_object_object_add(u, "observed_at", json_object_new_string(r->observed_at));
++    json_object_object_add(u, "received_ms", json_object_new_int64(rx[n - 1] / 1000));
++    json_object_object_add(u, "session_epoch", json_object_new_string(r->session_epoch));
++    json_object_object_add(u, "seid", json_object_new_uint64(r->seid));
++    json_object_object_add(u, "ur_seqn", json_object_new_uint64(r->ur_seqn));
++    json_object_object_add(u, "duration_seconds", json_object_new_uint64(r->duration_seconds));
++    json_object_object_add(u, "ul_bytes", json_object_new_uint64(r->ul_bytes));
++    json_object_object_add(u, "dl_bytes", json_object_new_uint64(r->dl_bytes));
++    json_object_object_add(u, "ul_packets", json_object_new_uint64(r->ul_packets));
++    json_object_object_add(u, "dl_packets", json_object_new_uint64(r->dl_packets));
++    for (int i = 0; i < n; i++) {
++      json_object *e = json_object_new_object();
++      json_object_object_add(e, "seq", json_object_new_uint64(ring[i].ur_seqn));
++      json_object_object_add(e, "session", json_object_new_string(ring[i].session_epoch));
++      json_object_object_add(e, "duration", json_object_new_uint64(ring[i].duration_seconds));
++      json_object_object_add(e, "received_ms", json_object_new_int64(rx[i] / 1000));
++      json_object_array_add(h, e);
++    }
++    json_object_object_add(u, "history", h);
++    json_object_object_add(c, "urr", u);
++  } else {
++    json_object_object_add(c, "urr", NULL);
++  }
++  profile_record_t p;
++  int64_t prx = 0;
++  if (urr_receiver_profile_latest(supi, &p, &prx)) {
++    json_object *o = json_object_new_object();
++    json_object_object_add(o, "observed_at", json_object_new_string(p.observed_at));
++    json_object_object_add(o, "received_ms", json_object_new_int64(prx / 1000));
++    json_object_object_add(o, "window_ms", json_object_new_uint64(p.window_ms));
++    struct { const char *k; uint64_t v; } f[] = {{"ul_pkts", p.ul_pkts}, {"ul_bytes", p.ul_bytes}, {"dl_pkts", p.dl_pkts},
++        {"dl_bytes", p.dl_bytes}, {"ul_tcp", p.ul_tcp}, {"ul_tcp_syn", p.ul_tcp_syn}, {"ul_udp", p.ul_udp}, {"ul_icmp", p.ul_icmp},
++        {"ul_frag", p.ul_frag}, {"ul_dns", p.ul_dns}, {"ul_gtp_in_gtp", p.ul_gtp_in_gtp}, {"dl_tcp", p.dl_tcp},
++        {"dl_tcp_syn", p.dl_tcp_syn}, {"dl_udp", p.dl_udp}, {"dl_icmp", p.dl_icmp}, {"dl_frag", p.dl_frag}};
++    for (size_t i = 0; i < sizeof(f) / sizeof(*f); i++) json_object_object_add(o, f[i].k, json_object_new_uint64(f[i].v));
++    json_object_object_add(o, "ul_dst_estimate", json_object_new_double(p.ul_dst_estimate));
++    json_object_object_add(c, "prof", o);
++  } else {
++    json_object_object_add(c, "prof", NULL);
++  }
++  return c;
++}
++
+ /* 0: answered, 1: the model does not know, -1: failure (last_error) */
+ static int external(const char *supi, const window_t *w, cls_result_t *out) {
+   json_object *req = json_object_new_object(), *arr = json_object_new_array();
+@@ -99,6 +157,8 @@
+   json_object_object_add(req, "since_seq", json_object_new_uint64(w->since_seq));
+   for (int i = 0; i < w->n; i++) json_object_array_add(arr, features_json(w->v[i], supi));
+   json_object_object_add(req, "window", arr);
++  if (w->n) json_object_object_add(req, "now_ms", json_object_new_double(w->v[w->n - 1]->at_us / 1000.0));
++  json_object_object_add(req, "core", core_json(supi));
+   int status = 0;
+   char *body = http_call("POST", cfg.endpoint, json_object_to_json_string_ext(req, JSON_C_TO_STRING_PLAIN), cfg.timeout_ms, &status,
+                          last_error, sizeof(last_error));
+@@ -125,6 +185,8 @@
+       snprintf(out->kind, sizeof(out->kind), "model_attack");
+     if (json_object_object_get_ex(r, "reason", &x) && json_object_is_type(x, json_type_string))
+       snprintf(out->reason, sizeof(out->reason), "%s", json_object_get_string(x));
++    if (json_object_object_get_ex(r, "level", &x) && json_object_is_type(x, json_type_int))
++      out->want_level = json_object_get_int(x);
+   }
+   json_object_put(r);
+   return l == LABEL_UNKNOWN ? 1 : 0;
+diff -ruN a/examples/xApp/c/monitor/defense.c b/examples/xApp/c/monitor/defense.c
+--- a/examples/xApp/c/monitor/defense.c	2026-10-23 22:04:21.860544153 +0700
++++ b/examples/xApp/c/monitor/defense.c	2026-10-23 22:04:21.865544165 +0700
+@@ -7,6 +7,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <inttypes.h>
++#include <math.h>
+ #include <time.h>
+ 
+ #define QUEUE_LEN 256
+@@ -24,6 +25,23 @@
+ static bool running;
+ static FILE *events;
+ 
++/* stage B: KPM tamper at ingest (emulated compromised E2 node / untrusted
++   KPM). A factor scales the UE's reported UL rate, throughput and PRB share
++   (DL too with "dl"; PRB capped at 100 %) before the sample reaches the
++   features; every tampered sample is logged with its raw values (ground
++   truth, <run>_Tamper.jsonl). Network MITM over SCTP is out of scope. */
++#define MAX_TAMPER 8
++typedef struct {
++  bool used, by_amf, dl;
++  char supi[96];
++  uint64_t amf;
++  double factor;
++  int64_t since_us, until_us; /* until 0: until cleared */
++} tamper_t;
++static tamper_t tampers[MAX_TAMPER];
++static pthread_mutex_t t_lock = PTHREAD_MUTEX_INITIALIZER;
++static FILE *tamper_log;
++
+ /* ---------- configuration ---------- */
+ 
+ static double num(json_object *o, const char *k, double def) {
+@@ -97,7 +115,7 @@
+                    .max_prb_ratio = 10, .q_sst = 1, .q_sd = 0xBADBAD, .d_sst = 1, .d_sd = 0xFFFFFF, .probation_s = 180, .expiry_s = {60, 180, 600, 0},
+                    .upf_api = "http://oai-upf-security.oai-core.svc.cluster.local:8095", .upf_timeout_ms = 1000, .upf_sync_s = 10,
+                    .upf_ttl_margin_s = 30, .upf_max_ttl_s = 86400, .ratelimit_factor = 1.0, .urr_max_age_s = 5, .fusion_s = 10,
+-                   .verify_s = 10, .release_every_s = 10, .evidence_interval_s = 10,
++                   .verify_s = 10, .release_every_s = 10, .release_on_block = true, .evidence_interval_s = 10,
+                    .endpoint = "http://127.0.0.1:8091/classify", .window = 10, .timeout_ms = 200,
+                    .sev_rate = 2, .sev_repeat = 1, .half_life_s = 60};
+   load_fair_use(NULL, NULL);
+@@ -158,6 +176,7 @@
+   cfg.fusion_s = (int)num(co, "fusionS", cfg.fusion_s);
+   cfg.verify_s = (int)num(co, "verifyS", cfg.verify_s);
+   cfg.release_every_s = (int)num(co, "releaseEveryS", cfg.release_every_s);
++  if (co && json_object_object_get_ex(co, "releaseOnBlock", &x)) cfg.release_on_block = json_object_get_boolean(x);
+   cfg.repeat_every = rp && json_object_object_get_ex(rp, "strategy", &x) && json_object_is_type(x, json_type_string) &&
+                      strcmp(json_object_get_string(x), "every") == 0;
+   cfg.evidence_interval_s = (int)num(rp, "evidenceIntervalS", cfg.evidence_interval_s);
+@@ -289,6 +308,156 @@
+ 
+ /* ---------- KPM input ---------- */
+ 
++static void tamper_line(json_object *o) {
++  if (tamper_log) {
++    fputs(json_object_to_json_string_ext(o, JSON_C_TO_STRING_PLAIN), tamper_log);
++    fputc('\n', tamper_log);
++    fflush(tamper_log);
++  }
++  json_object_put(o);
++}
++
++static void tamper(sample_t *s) {
++  s->raw_rate_ul = s->rate_ul;
++  s->raw_rate_dl = s->rate_dl;
++  s->raw_thp_ul = s->thp_ul;
++  s->raw_thp_dl = s->thp_dl;
++  s->raw_prb_ul = s->prb_ul;
++  s->raw_prb_dl = s->prb_dl;
++  char supi[96] = "";
++  bool have_supi = urr_receiver_supi_for_ue(s->amf, supi, sizeof(supi));
++  const int64_t now = time_now_us();
++  pthread_mutex_lock(&t_lock);
++  for (int i = 0; i < MAX_TAMPER; i++) {
++    tamper_t *t = &tampers[i];
++    if (!t->used) continue;
++    if (t->until_us && now >= t->until_us) {
++      t->used = false;
++      json_object *o = json_object_new_object();
++      json_object_object_add(o, "ts", json_object_new_double(now / 1e6));
++      json_object_object_add(o, "type", json_object_new_string("expired"));
++      json_object_object_add(o, "supi", json_object_new_string(t->supi));
++      tamper_line(o);
++      continue;
++    }
++    if (t->by_amf ? t->amf != s->amf : !have_supi || strcmp(t->supi, supi) != 0) continue;
++    const double f = t->factor;
++    s->tamper = f;
++    s->rate_ul *= f;
++    s->thp_ul *= f;
++    s->prb_ul = fmin(100.0, s->prb_ul * f);
++    if (t->dl) {
++      s->rate_dl *= f;
++      s->thp_dl *= f;
++      s->prb_dl = fmin(100.0, s->prb_dl * f);
++    }
++    json_object *o = json_object_new_object(), *raw = json_object_new_object(), *tam = json_object_new_object();
++    json_object_object_add(o, "ts", json_object_new_double(now / 1e6));
++    json_object_object_add(o, "type", json_object_new_string("sample"));
++    json_object_object_add(o, "source_ts", json_object_new_double(s->collect_us / 1e6));
++    json_object_object_add(o, "supi", json_object_new_string(have_supi ? supi : ""));
++    json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(s->amf));
++    json_object_object_add(o, "factor", json_object_new_double(f));
++    json_object_object_add(o, "dl", json_object_new_boolean(t->dl));
++    const struct { const char *k; double a, b; } v[] = {{"rate_ul_kbps", s->raw_rate_ul, s->rate_ul}, {"thp_ul_kbps", s->raw_thp_ul, s->thp_ul},
++        {"prb_ul_pct", s->raw_prb_ul, s->prb_ul}, {"rate_dl_kbps", s->raw_rate_dl, s->rate_dl}, {"thp_dl_kbps", s->raw_thp_dl, s->thp_dl},
++        {"prb_dl_pct", s->raw_prb_dl, s->prb_dl}};
++    for (size_t k = 0; k < sizeof(v) / sizeof(*v); k++) {
++      json_object_object_add(raw, v[k].k, json_object_new_double(v[k].a));
++      json_object_object_add(tam, v[k].k, json_object_new_double(v[k].b));
++    }
++    json_object_object_add(o, "raw", raw);
++    json_object_object_add(o, "tampered", tam);
++    tamper_line(o);
++    break;
++  }
++  pthread_mutex_unlock(&t_lock);
++}
++
++static json_object *tamper_state(void) {
++  json_object *a = json_object_new_array();
++  const int64_t now = time_now_us();
++  pthread_mutex_lock(&t_lock);
++  for (int i = 0; i < MAX_TAMPER; i++) {
++    const tamper_t *t = &tampers[i];
++    if (!t->used || (t->until_us && now >= t->until_us)) continue;
++    json_object *o = json_object_new_object();
++    if (t->by_amf) json_object_object_add(o, "amf_ue_ngap_id", json_object_new_uint64(t->amf));
++    else json_object_object_add(o, "supi", json_object_new_string(t->supi));
++    json_object_object_add(o, "factor", json_object_new_double(t->factor));
++    json_object_object_add(o, "dl", json_object_new_boolean(t->dl));
++    json_object_object_add(o, "remaining_s", json_object_new_double(t->until_us ? (t->until_us - now) / 1e6 : -1));
++    json_object_array_add(a, o);
++  }
++  pthread_mutex_unlock(&t_lock);
++  return a;
++}
++
++/* {"supi"|"amf_ue_ngap_id", "factor", "until_s"?, "dl"?} sets (replaces) the
++   UE's tamper; {"off": true[, "supi"|"amf_ue_ngap_id"]} clears one or all */
++static int tamper_http(json_object *in, json_object *o) {
++  json_object *x = NULL;
++  char supi[96] = "";
++  uint64_t amf = 0;
++  bool by_amf = false;
++  if (json_object_object_get_ex(in, "supi", &x) && json_object_is_type(x, json_type_string))
++    snprintf(supi, sizeof(supi), "%s", json_object_get_string(x));
++  else if (json_object_object_get_ex(in, "amf_ue_ngap_id", &x) && json_object_is_type(x, json_type_int)) {
++    amf = (uint64_t)json_object_get_int64(x);
++    by_amf = true;
++  }
++  const bool off = json_object_object_get_ex(in, "off", &x) && json_object_get_boolean(x);
++  const double factor = num(in, "factor", 0), until_s = num(in, "until_s", 0);
++  const bool dl = json_object_object_get_ex(in, "dl", &x) && json_object_get_boolean(x);
++  if (!off && ((!supi[0] && !by_amf) || !(factor > 0) || factor > 1000)) {
++    json_object_object_add(o, "error", json_object_new_string("supi|amf_ue_ngap_id and 0 < factor <= 1000, or off"));
++    return 400;
++  }
++  const int64_t now = time_now_us();
++  int cleared = 0;
++  pthread_mutex_lock(&t_lock);
++  for (int i = 0; i < MAX_TAMPER; i++) {
++    tamper_t *t = &tampers[i];
++    if (!t->used) continue;
++    const bool same = by_amf ? t->by_amf && t->amf == amf : supi[0] && !t->by_amf && strcmp(t->supi, supi) == 0;
++    if (same || (off && !supi[0] && !by_amf)) {
++      t->used = false;
++      cleared++;
++    }
++  }
++  int code = 200;
++  if (!off) {
++    tamper_t *slot = NULL;
++    for (int i = 0; i < MAX_TAMPER && !slot; i++)
++      if (!tampers[i].used) slot = &tampers[i];
++    if (!slot) {
++      code = 409;
++    } else {
++      *slot = (tamper_t){.used = true, .by_amf = by_amf, .dl = dl, .amf = amf, .factor = factor, .since_us = now,
++                         .until_us = until_s > 0 ? now + (int64_t)(until_s * 1e6) : 0};
++      snprintf(slot->supi, sizeof(slot->supi), "%s", supi);
++    }
++  }
++  pthread_mutex_unlock(&t_lock);
++  json_object *l = json_object_new_object();
++  json_object_object_add(l, "ts", json_object_new_double(now / 1e6));
++  json_object_object_add(l, "type", json_object_new_string(off ? "off" : "set"));
++  json_object_object_add(l, "supi", json_object_new_string(supi));
++  if (by_amf) json_object_object_add(l, "amf_ue_ngap_id", json_object_new_uint64(amf));
++  json_object_object_add(l, "factor", json_object_new_double(off ? 1.0 : factor));
++  json_object_object_add(l, "until_s", json_object_new_double(until_s));
++  json_object_object_add(l, "dl", json_object_new_boolean(dl));
++  json_object_object_add(l, "cleared", json_object_new_int(cleared));
++  json_object_object_add(l, "status", json_object_new_int(code));
++  tamper_line(l);
++  printf("[defense] KPM tamper %s %s%s x%.3g (%d cleared)\n", off ? "off" : "set", supi[0] ? supi : by_amf ? "amf" : "all",
++         dl ? " +dl" : "", off ? 1.0 : factor, cleared);
++  json_object_object_add(o, "cleared", json_object_new_int(cleared));
++  json_object_object_add(o, "tamper", tamper_state());
++  if (code == 409) json_object_object_add(o, "error", json_object_new_string("tamper table full"));
++  return code;
++}
++
+ static bool name_is(byte_array_t ba, const char *s) {
+   return ba.len == strlen(s) && memcmp(ba.buf, s, ba.len) == 0;
+ }
+@@ -314,6 +483,7 @@
+       else if (name_is(info->meas_type.name, "RRU.PrbTotDl")) s.prb_dl = v;
+     }
+   }
++  tamper(&s);
+   pthread_mutex_lock(&q_lock);
+   if (q_len == QUEUE_LEN) {
+     dropped++;
+@@ -359,7 +529,9 @@
+     json_object_object_add(tm, "expiry_s", ex);
+     json_object_object_add(tm, "probation_s", json_object_new_int(cfg.probation_s));
+     json_object_object_add(tm, "fusion_s", json_object_new_int(cfg.fusion_s));
++    json_object_object_add(tm, "release_on_block", json_object_new_boolean(cfg.release_on_block));
+     json_object_object_add(o, "timing", tm);
++    json_object_object_add(o, "tamper", tamper_state());
+     json_object *arr = json_object_new_array();
+     int64_t now = time_now_us();
+     for (int i = 0; i < MAX_UES; i++) {
+@@ -432,7 +604,7 @@
+     printf("[defense] action mode %s by request\n", cfg.slice_mode ? "slice" : "ue");
+     code = 200;
+   } else if (strcmp(url, "/v1/defense/timing") == 0 && in) {
+-    /* {"expiryS": [l1, l2, l3, l4], "probationS"?, "fusionS"?}: experiments
++    /* {"expiryS": [l1, l2, l3, l4], "probationS"?, "fusionS"?, "releaseOnBlock"?}: experiments
+        with a shorter ladder (not persisted; the next restart reads the config) */
+     json_object *y = NULL;
+     pthread_mutex_lock(&st_lock);
+@@ -440,11 +612,14 @@
+       for (size_t i = 0; i < json_object_array_length(y) && i < 4; i++) cfg.expiry_s[i] = json_object_get_int(json_object_array_get_idx(y, i));
+     cfg.probation_s = (int)num(in, "probationS", cfg.probation_s);
+     cfg.fusion_s = (int)num(in, "fusionS", cfg.fusion_s);
++    if (json_object_object_get_ex(in, "releaseOnBlock", &y) && json_object_is_type(y, json_type_boolean))
++      cfg.release_on_block = json_object_get_boolean(y);
+     json_object *ex = json_object_new_array();
+     for (int i = 0; i < 4; i++) json_object_array_add(ex, json_object_new_int(cfg.expiry_s[i]));
+     json_object_object_add(o, "expiry_s", ex);
+     json_object_object_add(o, "probation_s", json_object_new_int(cfg.probation_s));
+     json_object_object_add(o, "fusion_s", json_object_new_int(cfg.fusion_s));
++    json_object_object_add(o, "release_on_block", json_object_new_boolean(cfg.release_on_block));
+     printf("[defense] timing by request: expiry %d/%d/%d/%d s, probation %d s, fusion %d s\n", cfg.expiry_s[0], cfg.expiry_s[1],
+            cfg.expiry_s[2], cfg.expiry_s[3], cfg.probation_s, cfg.fusion_s);
+     pthread_mutex_unlock(&st_lock);
+@@ -479,6 +654,8 @@
+     pthread_mutex_unlock(&st_lock);
+     printf("[defense] classifier %s by request\n", cfg.external ? cfg.endpoint : "rules");
+     code = 200;
++  } else if (strcmp(url, "/v1/defense/tamper") == 0 && in) {
++    code = tamper_http(in, o);
+   } else if (strcmp(url, "/v1/defense/policy") == 0 && in && json_object_object_get_ex(in, "supi", &x) && json_object_is_type(x, json_type_string)) {
+     /* {"supi", "class"}: persistent fair-use class of a SUPI (admin) */
+     json_object *c = NULL;
+@@ -514,7 +691,7 @@
+     }
+     pthread_mutex_unlock(&st_lock);
+   } else {
+-    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset|policy|mode|classifier|timing|core"));
++    json_object_object_add(o, "error", json_object_new_string("GET /v1/defense/state, POST /v1/defense/enabled|reset|policy|mode|classifier|timing|core|tamper"));
+     code = body ? 400 : 404;
+   }
+   if (in) json_object_put(in);
+@@ -539,6 +716,10 @@
+     if (suffix) snprintf(rawp, sizeof(rawp), "%.*s_RawKpm.jsonl", (int)(suffix - event_log_path), event_log_path);
+     else snprintf(rawp, sizeof(rawp), "%s.rawkpm.jsonl", event_log_path);
+     features_raw_open(rawp);
++    char tp[512];
++    if (suffix) snprintf(tp, sizeof(tp), "%.*s_Tamper.jsonl", (int)(suffix - event_log_path), event_log_path);
++    else snprintf(tp, sizeof(tp), "%s.tamper.jsonl", event_log_path);
++    if (!(tamper_log = fopen(tp, "a"))) fprintf(stderr, "[defense] cannot open %s\n", tp);
+   }
+   policy_restore();
+   running = true;
+@@ -558,6 +739,10 @@
+   events = NULL;
+   features_close();
+   features_raw_close();
++  pthread_mutex_lock(&t_lock);
++  if (tamper_log) fclose(tamper_log);
++  tamper_log = NULL;
++  pthread_mutex_unlock(&t_lock);
+   if (db) sqlite3_close(db);
+   db = NULL;
+ }
+diff -ruN a/examples/xApp/c/monitor/defense_internal.h b/examples/xApp/c/monitor/defense_internal.h
+--- a/examples/xApp/c/monitor/defense_internal.h	2026-10-23 22:04:21.868544172 +0700
++++ b/examples/xApp/c/monitor/defense_internal.h	2026-10-23 22:04:21.871544179 +0700
+@@ -80,6 +80,9 @@
+   int upf_timeout_ms, upf_sync_s, upf_ttl_margin_s, upf_max_ttl_s;
+   double ratelimit_factor, urr_max_age_s;
+   int fusion_s, verify_s, release_every_s;
++  /* levels 3-4 also release the UE (RRC); off: UPF block only (stage B: the
++     OAI UE does not come back from a release within a run) */
++  bool release_on_block;
+   /* repeated attack labels while level >= 1 (plan L1 step 0a): "refresh"
+      refreshes the expiry and records evidence at most every
+      evidence_interval_s (repeats counted); "every" records each label */
+@@ -94,6 +97,10 @@
+   int64_t collect_us;
+   double rate_ul, rate_dl, thp_ul, thp_dl, prb_ul, prb_dl;
+   char node[32];
++  /* stage B KPM tamper (emulated compromised E2 node): factor applied at
++     ingest (0 = untouched) and the values as reported before it */
++  double tamper;
++  double raw_rate_ul, raw_rate_dl, raw_thp_ul, raw_thp_dl, raw_prb_ul, raw_prb_dl;
+ } sample_t;
+ 
+ typedef enum { LABEL_UNKNOWN = 0, LABEL_BENIGN, LABEL_SUSPICIOUS, LABEL_ATTACK } label_t;
+@@ -151,6 +158,9 @@
+   /* rules over the whole window (since_seq ignored): fusion input of the
+      policy, per layer */
+   bool ran_hit, core_hit;
++  /* level the external model asks for (sidecar v4: 1 while its L1 alarm
++     holds, 3 under its both-layer rule), 0 none; taken by the policy as is */
++  int want_level;
+ } cls_result_t;
+ 
+ typedef struct {
+diff -ruN a/examples/xApp/c/monitor/features.c b/examples/xApp/c/monitor/features.c
+--- a/examples/xApp/c/monitor/features.c	2026-10-23 22:04:21.875544188 +0700
++++ b/examples/xApp/c/monitor/features.c	2026-10-23 22:04:21.878544196 +0700
+@@ -66,6 +66,15 @@
+   json_object_object_add(o, "prb_dl_pct", json_object_new_double(f->prb_dl));
+   json_object_object_add(o, "cell_prb_ul_pct", json_object_new_double(f->cell_ul));
+   json_object_object_add(o, "cell_prb_dl_pct", json_object_new_double(f->cell_dl));
++  if (s->tamper > 0) { /* stage B: the values above as the defense saw them, the reported ones too */
++    json_object_object_add(o, "tamper_factor", json_object_new_double(s->tamper));
++    json_object_object_add(o, "raw_rate_ul_kbps", json_object_new_double(s->raw_rate_ul));
++    json_object_object_add(o, "raw_rate_dl_kbps", json_object_new_double(s->raw_rate_dl));
++    json_object_object_add(o, "raw_thp_ul_kbps", json_object_new_double(s->raw_thp_ul));
++    json_object_object_add(o, "raw_thp_dl_kbps", json_object_new_double(s->raw_thp_dl));
++    json_object_object_add(o, "raw_prb_ul_pct", json_object_new_double(s->raw_prb_ul));
++    json_object_object_add(o, "raw_prb_dl_pct", json_object_new_double(s->raw_prb_dl));
++  }
+   fputs(json_object_to_json_string_ext(o, JSON_C_TO_STRING_PLAIN), raw_kpm);
+   fputc('\n', raw_kpm);
+   fflush(raw_kpm);
+diff -ruN a/examples/xApp/c/monitor/policy.c b/examples/xApp/c/monitor/policy.c
+--- a/examples/xApp/c/monitor/policy.c	2026-10-23 22:04:21.882544205 +0700
++++ b/examples/xApp/c/monitor/policy.c	2026-10-23 22:04:21.887544217 +0700
+@@ -207,6 +207,13 @@
+ 
+   const bool in_prob = u->level == 0 && now < u->probation_us;
+   policy_next_t n = policy_next(u->level, u->peak, in_prob, u->pending, both);
++  /* an external model with its own escalation (sidecar v4: L3 only under its
++     both-layer rule) sets the level as is, above the ladder and the cap */
++  const bool by_model = attack && r->want_level > n.level;
++  if (by_model) {
++    n.level = r->want_level > POLICY_MAX_LEVEL ? POLICY_MAX_LEVEL : r->want_level;
++    n.pending = 0;
++  }
+   const bool escalates = n.level != u->level;
+   if (attack) u->since_seq = f->seq; /* later decisions use later samples only */
+   if (!escalates && u->level >= 1) {
+@@ -234,7 +241,7 @@
+   u->repeats = 0;
+   if (u->level == 0 && !in_prob) u->peak = 0; /* a new episode */
+   u->pending = n.pending;
+-  policy_set_level(u, n.level, now, !attack ? "both_layers" : escalates && in_prob ? "repeat_offense" : r->kind);
++  policy_set_level(u, n.level, now, !attack ? "both_layers" : by_model ? "model_level" : escalates && in_prob ? "repeat_offense" : r->kind);
+   return u->decision_id;
+ }
+ 
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.c b/examples/xApp/c/monitor/urr_receiver.c
+--- a/examples/xApp/c/monitor/urr_receiver.c	2026-10-23 22:04:21.891544226 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.c	2026-10-23 22:04:21.896544238 +0700
+@@ -304,6 +304,7 @@
+   copy_field(o,"supi",p.supi,sizeof(p.supi));
+   if(!p.supi[0] || !uint_field(o,"time_unix",&p.time_unix) || !json_object_object_get_ex(o,"body",&b) || !json_object_is_type(b,json_type_object))return;
+   uint_field(o,"seid",&p.seid);uint_field(o,"window_ms",&p.window_ms);
++  copy_field(o,"observed_at",p.observed_at,sizeof(p.observed_at));
+   struct { const char *k; uint64_t *v; } f[]={{"ul_pkts",&p.ul_pkts},{"ul_bytes",&p.ul_bytes},{"dl_pkts",&p.dl_pkts},{"dl_bytes",&p.dl_bytes},
+     {"ul_tcp",&p.ul_tcp},{"ul_tcp_syn",&p.ul_tcp_syn},{"ul_udp",&p.ul_udp},{"ul_icmp",&p.ul_icmp},{"ul_frag",&p.ul_frag},{"ul_dns",&p.ul_dns},
+     {"ul_gtp_in_gtp",&p.ul_gtp_in_gtp},{"dl_tcp",&p.dl_tcp},{"dl_tcp_syn",&p.dl_tcp_syn},{"dl_udp",&p.dl_udp},{"dl_icmp",&p.dl_icmp},{"dl_frag",&p.dl_frag}};
+@@ -560,6 +561,40 @@
+     break;
+   }
+   pthread_mutex_unlock(&lock);
++  return found;
++}
++
++int urr_receiver_ring_for_supi(const char *supi,urr_record_t *out,int64_t *received_us,int max){
++  int n=0;
++  pthread_mutex_lock(&lock);
++  for(size_t i=0;i<per_supi_count;i++){
++    if(strcmp(per_supi[i].r.supi,supi)!=0)continue;
++    int valid=0;
++    for(int k=0;k<URR_RING;k++)valid+=per_supi[i].ring[k].supi[0]!='\0';
++    int skip=valid>max?valid-max:0;
++    for(int k=0;k<URR_RING;k++){
++      int j=(per_supi[i].ring_head+k)%URR_RING; /* oldest first */
++      if(!per_supi[i].ring[j].supi[0])continue;
++      if(skip){skip--;continue;}
++      out[n]=per_supi[i].ring[j];if(received_us)received_us[n]=per_supi[i].ring_rx[j];n++;
++    }
++    break;
++  }
++  pthread_mutex_unlock(&lock);
++  return n;
++}
++
++int urr_receiver_profile_latest(const char *supi,profile_record_t *out,int64_t *received_us){
++  int found=0;
++  pthread_mutex_lock(&lock);
++  for(size_t i=0;i<profile_count;i++){
++    if(strcmp(profiles[i].supi,supi)!=0)continue;
++    int64_t best=-1;
++    for(int k=0;k<PROFILE_RING;k++)
++      if(profiles[i].ring[k].supi[0] && profiles[i].rx[k]>best){best=profiles[i].rx[k];*out=profiles[i].ring[k];if(received_us)*received_us=best;found=1;}
++    break;
++  }
++  pthread_mutex_unlock(&lock);
+   return found;
+ }
+ 
+diff -ruN a/examples/xApp/c/monitor/urr_receiver.h b/examples/xApp/c/monitor/urr_receiver.h
+--- a/examples/xApp/c/monitor/urr_receiver.h	2026-10-23 22:04:21.900544248 +0700
++++ b/examples/xApp/c/monitor/urr_receiver.h	2026-10-23 22:04:21.905544259 +0700
+@@ -43,10 +43,16 @@
+   uint64_t ul_tcp,ul_tcp_syn,ul_udp,ul_icmp,ul_frag,ul_dns,ul_gtp_in_gtp;
+   uint64_t dl_tcp,dl_tcp_syn,dl_udp,dl_icmp,dl_frag;
+   double ul_dst_estimate;
++  char observed_at[64];       /* the record's observed_at (stage B sidecar: age as in the dataset) */
+ } profile_record_t;
+ /* the SUPI's profile whose window ends at t (one of the last 16); 1 if any */
+ int urr_receiver_profile_at(const char *supi,uint64_t t,profile_record_t *out,int64_t *received_us);
+ /* 1 once any profile of the SUPI arrived (the vector then waits for one) */
+ int urr_receiver_profile_active(const char *supi);
++/* stage B sidecar: the SUPI's last (up to max) URR reports in arrival order, oldest first, with their
++   arrival times (Unix us); returns the count. The newest is the latest report received. */
++int urr_receiver_ring_for_supi(const char *supi,urr_record_t *out,int64_t *received_us,int max);
++/* the SUPI's profile received last (one of the last 16); 1 if any */
++int urr_receiver_profile_latest(const char *supi,profile_record_t *out,int64_t *received_us);
+ int urr_receiver_session_of(const char *supi,uint64_t *seid,char *epoch,size_t capacity,char *source,size_t source_capacity);
+ #endif

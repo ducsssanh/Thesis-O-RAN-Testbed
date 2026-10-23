@@ -1,10 +1,10 @@
 {
   "producer": {
-    "image": "oai-lab-urr-ei-producer:13faf55f31858cab",
-    "id": "sha256:35564759d44d1b44630ef9f382696f1ffac63c052769231fa3703e6a915096cb"
+    "image": "oai-lab-urr-ei-producer:00b9b70c6d9b8a39",
+    "id": "sha256:a038e3c5b5f3466cb2dddf59069604b1166016434e95fcb7a110d0a51acc9321"
   },
   "adapter": {
     "image": "oai-lab-a1-ei-adapter:6be3ddf2ba9f499a",
-    "id": "sha256:92a890cab35a6f5a6bcc3848c710b6049c55520ef58ca7cdb920a0b8544d5cdc"
+    "id": "sha256:cb04ec26170f9bbcd2820fe8e72636f0e91229125d81e82af2b711e55cc29ccc"
   }
 }

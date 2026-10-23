@@ -594,15 +594,26 @@ func (s *Server) smfPodUID(ctx context.Context) (string, error) {
 				UID string `json:"uid"`
 			}
 			Status struct {
-				Phase string `json:"phase"`
+				Phase             string `json:"phase"`
+				ContainerStatuses []struct {
+					Name        string `json:"name"`
+					ContainerID string `json:"containerID"`
+				} `json:"containerStatuses"`
 			}
 		} `json:"items"`
 	}
 	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", err
 	}
+	// the SMF container restarting in place (OAI SMF segfault) keeps the pod
+	// UID but loses the subscriptions: its container ID is part of the key
 	for _, p := range result.Items {
 		if p.Status.Phase == "Running" && p.Metadata.UID != "" {
+			for _, c := range p.Status.ContainerStatuses {
+				if c.Name == "smf" && c.ContainerID != "" {
+					return p.Metadata.UID + "/" + c.ContainerID, nil
+				}
+			}
 			return p.Metadata.UID, nil
 		}
 	}
