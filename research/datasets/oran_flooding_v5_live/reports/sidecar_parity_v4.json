@@ -1,0 +1,604 @@
+{
+ "summary": {
+  "runs": 18,
+  "parity_ok": true,
+  "latency_p99_ms_max": 34.869,
+  "latency_ok": true
+ },
+ "runs": [
+  {
+   "run": "20261020-232552_v4campaign_batch1c/runs/detection-off/rep-08",
+   "rows_offline": 1112,
+   "rows_sidecar": 1112,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 986,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.917,
+    "p99": 34.869,
+    "max": 51.417
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 351,
+   "l3_rows_v2": 208
+  },
+  {
+   "run": "20261021-102738_v4campaign_batch2c/runs/detection-off/rep-14",
+   "rows_offline": 976,
+   "rows_sidecar": 976,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 850,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.394,
+    "p99": 30.833,
+    "max": 44.388
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 327,
+   "l3_rows_v2": 42
+  },
+  {
+   "run": "20261021-102738_v4campaign_batch2c/runs/detection-off/rep-18",
+   "rows_offline": 882,
+   "rows_sidecar": 882,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 756,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.349,
+    "p99": 28.844,
+    "max": 35.196
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 157,
+   "l3_rows_v2": 27
+  },
+  {
+   "run": "20261021-102738_v4campaign_batch2c/runs/detection-off/rep-25",
+   "rows_offline": 974,
+   "rows_sidecar": 974,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 848,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.911,
+    "p99": 32.746,
+    "max": 50.428
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 306,
+   "l3_rows_v2": 44
+  },
+  {
+   "run": "20261021-102738_v4campaign_batch2c/runs/detection-off/rep-29",
+   "rows_offline": 998,
+   "rows_sidecar": 998,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 872,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.434,
+    "p99": 29.207,
+    "max": 39.005
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 365,
+   "l3_rows_v2": 36
+  },
+  {
+   "run": "20261021-102738_v4campaign_batch2c/runs/detection-off/rep-34",
+   "rows_offline": 930,
+   "rows_sidecar": 930,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 804,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.67,
+    "p99": 34.769,
+    "max": 63.867
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 278,
+   "l3_rows_v2": 62
+  },
+  {
+   "run": "20261021-195218_v4campaign_rerun37b/runs/detection-off/rep-37",
+   "rows_offline": 934,
+   "rows_sidecar": 934,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 808,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.555,
+    "p99": 34.431,
+    "max": 64.804
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 289,
+   "l3_rows_v2": 56
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-46",
+   "rows_offline": 762,
+   "rows_sidecar": 762,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 636,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.66,
+    "p99": 34.137,
+    "max": 38.566
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 197,
+   "l3_rows_v2": 37
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-55",
+   "rows_offline": 1058,
+   "rows_sidecar": 1058,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 932,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.833,
+    "p99": 34.41,
+    "max": 56.547
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 327,
+   "l3_rows_v2": 10
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-56",
+   "rows_offline": 910,
+   "rows_sidecar": 910,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 784,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.858,
+    "p99": 33.486,
+    "max": 44.259
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 311,
+   "l3_rows_v2": 22
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-57",
+   "rows_offline": 962,
+   "rows_sidecar": 962,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 836,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.74,
+    "p99": 32.146,
+    "max": 43.637
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 245,
+   "l3_rows_v2": 29
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-61",
+   "rows_offline": 836,
+   "rows_sidecar": 836,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 710,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.331,
+    "p99": 34.142,
+    "max": 46.183
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 265,
+   "l3_rows_v2": 0
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-63",
+   "rows_offline": 950,
+   "rows_sidecar": 950,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 824,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 18.297,
+    "p99": 34.684,
+    "max": 53.535
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 334,
+   "l3_rows_v2": 52
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-64",
+   "rows_offline": 988,
+   "rows_sidecar": 988,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 862,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 18.212,
+    "p99": 32.089,
+    "max": 46.935
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 255,
+   "l3_rows_v2": 86
+  },
+  {
+   "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-70",
+   "rows_offline": 970,
+   "rows_sidecar": 970,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 844,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 18.049,
+    "p99": 31.269,
+    "max": 41.322
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 320,
+   "l3_rows_v2": 76
+  },
+  {
+   "run": "20261022-012451_v4campaign_rerun_iperf/runs/detection-off/rep-13",
+   "rows_offline": 1046,
+   "rows_sidecar": 1046,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 920,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 18.231,
+    "p99": 27.659,
+    "max": 33.567
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 380,
+   "l3_rows_v2": 98
+  },
+  {
+   "run": "20261022-012451_v4campaign_rerun_iperf/runs/detection-off/rep-40",
+   "rows_offline": 1204,
+   "rows_sidecar": 1204,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 1078,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 18.027,
+    "p99": 31.012,
+    "max": 48.965
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 449,
+   "l3_rows_v2": 119
+  },
+  {
+   "run": "20261022-030535_v4campaign_rerun_iperf_b/runs/detection-off/rep-85",
+   "rows_offline": 908,
+   "rows_sidecar": 908,
+   "same_grid": true,
+   "row_mismatch": {},
+   "feature_cells_mismatch": 0,
+   "feature_rows_mismatch": 0,
+   "feature_max_abs_diff": 0.0,
+   "roll_v4_windows": 782,
+   "roll_v4_same_count": true,
+   "roll_v4_cells_mismatch": 0,
+   "roll_v4_max_abs_diff": 0.0,
+   "z_max_abs_diff": {
+    "xd": 0.0,
+    "core": 0.0,
+    "ran": 0.0
+   },
+   "z_alarm_flips": {
+    "xd": 0,
+    "core": 0,
+    "ran": 0
+   },
+   "decision_mismatch": {},
+   "latency_ms": {
+    "p50": 17.921,
+    "p99": 27.189,
+    "max": 44.825
+   },
+   "grid_seconds_without_new_kpm": 0,
+   "attack_rows": 640,
+   "l3_rows_v2": 17
+  }
+ ]
+}

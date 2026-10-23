@@ -12,11 +12,12 @@ second, dataset semantics of build_dataset_v4):
                   configuration (CONFIGS; see fusion_v4 for the rationale of each)
 Parameters (tau, m, bias) come from models/integrity_rule.json; the constants below are frozen.
 """
-import json, math, pathlib
+import json, math, pathlib, sys
 from collections import deque
 import numpy as np
 
 HERE = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))                    # prep_v4_windows next to this file
 ROOT = HERE.parents[1]
 MODELS = ROOT / "artifacts/ml/v4/models"
 
@@ -27,7 +28,6 @@ L3_HOLD_S = 10
 K5_W, K5_K = 5, 3                     # L1: fused alarm in 3 of the last 5 s
 RULE_W, RULE_K = 4, 3                 # fair-use rules: 3 of 4 samples
 ROLL_W = (5, 10, 30)
-PCT = ("prb_ul_pct", "prb_dl_pct", "cell_prb_ul_pct", "cell_prb_dl_pct")
 CONFIGS = ("RAN-only (xApp KPM)", "core-only (5GC)", "cross-domain naive", "cross-domain trust-weighted",
            "cross-domain trust-weighted v2")
 MODES = dict(zip(("ran-only", "core-only", "xd-naive", "xd-trust-v1", "xd-trust-v2"), CONFIGS))
@@ -40,50 +40,31 @@ def load_rule(models=MODELS):
 
 # ---------------------------------------------------------------- features (one row at a time)
 class OnlineFeatures:
-    """Rolling features of the newest row of one UE timeline. Equals prep_v4_windows.rolling
-    (pandas, min_periods=2 over non-missing values, slope on the row index t) to float32 rounding."""
+    """Rolling features of the newest row of one UE timeline: prep_v4_windows.transform + rolling (the
+    training code) run on the UE's history, so the vector is bit-identical to the offline one. History
+    is capped at MAX_HIST rows (the sidecar is reset at every run start; past the cap the slope's row
+    index restarts, a float-rounding difference only)."""
+    MAX_HIST = 3600
 
     def __init__(self, cols):
         self.cols = list(cols)
-        self.pct = np.array([c in PCT for c in self.cols])
         self.names = ["%s@1" % c for c in self.cols] + ["%s@%d_%s" % (c, w, s) for w in ROLL_W
                                                         for s in ("mean", "std", "slope", "max") for c in self.cols]
-        self.X = deque(maxlen=max(ROLL_W))
-        self.t = -1
-
-    def transform(self, row):
-        v = np.array([row.get(c, np.nan) for c in self.cols], np.float64)
-        v = np.where(self.pct, v / 100.0, np.log1p(np.clip(v, 0, None)))
-        return v.astype(np.float32)
+        self.X = deque(maxlen=self.MAX_HIST)
+        self.truncated = 0
 
     def push(self, row):
         """row: {raw feature: value or NaN}. Returns the float32 feature vector (len(names))."""
-        self.t += 1
-        self.X.append(self.transform(row))
-        A = np.array(self.X, np.float64)
-        T = np.arange(self.t - len(A) + 1, self.t + 1, dtype=np.float64)
-        out = [A[-1]]
-        F = A.shape[1]
-        for w in ROLL_W:
-            a, t = A[-w:], T[-w:]
-            ok = ~np.isnan(a)
-            n = ok.sum(0)
-            good = n >= 2
-            nan = np.full(F, np.nan)
-            with np.errstate(invalid="ignore", divide="ignore"):
-                s = np.where(ok, a, 0.0).sum(0)
-                mx = np.where(good, s / np.maximum(n, 1), nan)
-                d = np.where(ok, a - mx, 0.0)
-                sd = np.where(good, np.sqrt((d * d).sum(0) / np.maximum(n, 1)), nan)
-                mxx = np.where(good, np.where(ok, a, -np.inf).max(0), nan)
-                if len(t) >= 2:
-                    mt, vt = t.mean(), t.var()
-                    xt = np.where(ok, a * t[:, None], 0.0).sum(0) / np.maximum(n, 1)
-                    sl = np.where(good, (xt - mx * mt) / vt, nan)
-                else:
-                    sl = nan
-            out += [mx, sd, sl, mxx]
-        return np.concatenate(out).astype(np.float32)
+        import pandas as pd
+        import prep_v4_windows as P
+        one = pd.DataFrame([{c: row.get(c, np.nan) for c in self.cols}], dtype=np.float64)
+        if len(self.X) == self.MAX_HIST:
+            self.truncated += 1
+        self.X.append(P.transform(one, self.cols)[0])
+        X = np.stack(self.X)
+        R, names = P.rolling(pd.DataFrame({"meta_run_id": np.zeros(len(X), int), "meta_supi": 0}), X, self.cols)
+        assert names == self.names
+        return R[-1]
 
 
 class Scorer:
