@@ -63,6 +63,10 @@ def apply_defense(cfg, ue_names):
         reqs.append(["POST", base + "timing", cfg["timing"]])
     if "classifier" in cfg:
         reqs.append(["POST", base + "classifier", {"kind": cfg["classifier"]}])
+    if cfg.get("clear_tamper"):                    # v5: no KPM tamper left from an earlier run
+        reqs.append(["POST", base + "tamper", {"off": True}])
+    if "sidecar_mode" in cfg:                      # v5: model sidecar configuration (also resets its state)
+        reqs.append(["POST", "http://127.0.0.1:8091/mode", {"mode": cfg["sidecar_mode"]}])
     for ue, cls in (cfg.get("classes") or {}).items():
         reqs.append(["POST", base + "policy", {"supi": lab.UES[ue][2], "class": cls}])
     for ue in ue_names:
@@ -72,6 +76,45 @@ def apply_defense(cfg, ue_names):
     bad = [(r[1], s, b) for r, (s, b) in zip(reqs, res) if s not in (200,) and not (r[1].endswith("reset") and s == 404)]
     if bad:
         raise lab.LabError("defense config rejected: %s" % bad)
+
+
+def phase_hooks(p, run, ue_names):
+    """v5 live phase annotations, before the phase's traffic starts: defence reset (gaps), KPM
+    tamper of one UE, core-telemetry outage (A1-EI adapter scaled to 0). Returns what was done."""
+    done, reqs = {}, []
+    base = "http://127.0.0.1:8090/v1/defense/"
+    if p.get("reset_defense"):
+        reqs += [["POST", base + "reset", {"supi": lab.UES[n][2]}] for n in ue_names]
+        reqs.append(["POST", base + "tamper", {"off": True}])
+        done["reset_defense"] = True
+    if p.get("tamper"):
+        t = p["tamper"]
+        reqs.append(["POST", base + "tamper", {"supi": lab.UES[t["ue"]][2], "factor": t["factor"]}])
+        done["tamper"] = {**t, "supi": lab.UES[t["ue"]][2]}
+    if reqs:
+        res = lab.http_many(reqs)
+        bad = [(r[1], s) for r, (s, _) in zip(reqs, res) if s != 200 and not (r[1].endswith("reset") and s == 404)]
+        if bad:
+            raise lab.LabError("phase hook rejected: %s" % bad)
+    if p.get("core_outage"):
+        t0 = time.time()
+        lab.kubectl("-n", "near-rt-ric", "scale", "deploy/a1-ei-adapter", "--replicas=0")
+        lab.kubectl("-n", "near-rt-ric", "wait", "--for=delete", "pod", "-l", "app.kubernetes.io/name=a1-ei-adapter",
+                    "--timeout=60s", check=False, timeout=70)
+        done["core_outage"] = {"down_at": round(time.time(), 3), "down_s": round(time.time() - t0, 1)}
+    return done
+
+
+def phase_unhooks(p, done):
+    """Undo phase_hooks after the phase: tamper off, adapter back (waits until it is ready)."""
+    if done.get("tamper"):
+        s, _ = lab.defense("POST", "/v1/defense/tamper", {"off": True})
+        if s != 200:
+            raise lab.LabError("tamper off rejected: HTTP %s" % s)
+    if done.get("core_outage"):
+        lab.kubectl("-n", "near-rt-ric", "scale", "deploy/a1-ei-adapter", "--replicas=1")
+        lab.kubectl("-n", "near-rt-ric", "rollout", "status", "deploy/a1-ei-adapter", "--timeout=180s", timeout=190)
+        done["core_outage"]["up_at"] = round(time.time(), 3)
 
 
 def ensure_alive(ue_names):
@@ -153,6 +196,9 @@ def run_once(scn, variant, rep, camp_dir):
                     apply_defense(run["defense"], [])  # run-time settings are not persisted by the xApp
                 ph["action"] = {**act, "seconds": round(time.time() - t_a, 1), "new_ip": ip}
             ips = {n: lab.ue_ip(n, wait=30) for n in ue_names}
+            hooked = phase_hooks(p, run, ue_names)
+            if hooked:
+                ph["hooks"] = hooked
             flows = []
             cong = p.get("congestion")                 # phase-level env: {rate, burst?, latency?}
             for ue, dirs in (p.get("flows") or {}).items():
@@ -194,6 +240,8 @@ def run_once(scn, variant, rep, camp_dir):
                 f.stop()
             for f in flows:
                 f.finish()
+            if hooked:
+                phase_unhooks(p, hooked)
             for f in flows:
                 all_flows.append({"phase": p["name"], **f.summary(), "rows": f.rows, "client": f.client_out[-2000:]})
             phases.append(ph)
@@ -256,6 +304,11 @@ def run_once(scn, variant, rep, camp_dir):
             lab.ex(*d, "pkill", "iperf", check=False)
         try:
             traffic.v4_clear_congestion()             # never leave tc shaping on the UPF
+        except Exception:
+            pass
+        try:                                          # never leave the core path down or a tamper on
+            lab.kubectl("-n", "near-rt-ric", "scale", "deploy/a1-ei-adapter", "--replicas=1", check=False)
+            lab.defense("POST", "/v1/defense/tamper", {"off": True})
         except Exception:
             pass
         log("   FAILED: %s" % e)

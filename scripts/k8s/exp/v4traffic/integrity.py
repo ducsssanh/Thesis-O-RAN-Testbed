@@ -8,6 +8,10 @@ A run is INTEGRAL only if all four hold:
   4. every generator flow logged >= ROWS_MIN x planned-duration per-second rows
      (traffic/<phase>_<ue>_<dir>.csv) — catches a backend that stalls mid-phase
      (e.g. pre-fix iperf2 waiting ~3 s per block for a silent victim's FIN ack).
+v5 live runs (manifest run = {"phases": [...], ...}, defence ON) are exempt by design where the
+experiment itself removes data: URR/profiler gaps inside a phase marked core_outage (the A1-EI
+adapter is scaled to 0), and the row coverage of a UE's flows in a phase where the defence acted
+on that UE (level >= 1 in defense/state_timeline.jsonl: quarantined or blocked traffic).
 
   .venv-ml/bin/python -I scripts/k8s/exp/v4traffic/integrity.py RUN_DIR [RUN_DIR ...]
 """
@@ -24,6 +28,8 @@ _FLOW_CSV = re.compile(r"^(p\d\d_.+)_(ue\d+)_(ul|dl)\.csv$")
 def planned(rep, manifest=MANIFEST):
     """{phase name: planned seconds} for manifest run `rep` (1-based), as scn_for_run builds it."""
     run = json.loads(pathlib.Path(manifest).read_text())["runs"][rep - 1]
+    if isinstance(run, dict):                                       # v5 live manifest
+        run = run["phases"]
     d = {"idle": 15}
     for j, ph in enumerate(run):
         d["p%02d_%s" % (j, ph["family"])] = ph["duration"]
@@ -109,6 +115,24 @@ def suspend_intervals(t0, t1):
     return [(a, b) for a, b in ev if a <= t1 and (b is None or b >= t0)], None
 
 
+def _v5_exempt(rd, rep, manifest, meta):
+    """v5: ({phase: core outage}, {(phase, ue): defence acted}) — see the module docstring."""
+    run = json.loads(pathlib.Path(manifest).read_text())["runs"][rep - 1]
+    if not isinstance(run, dict):
+        return set(), set()
+    outage = {"p%02d_%s" % (j, ph["family"]) for j, ph in enumerate(run["phases"]) if ph.get("core_outage")}
+    supi_ue = {m["supi"]: ue for ue, m in (meta.get("ues") or {}).items()}
+    acted = set()
+    rows = list(_jsonl(pathlib.Path(rd) / "defense/state_timeline.jsonl"))
+    for ph in meta.get("phases") or []:
+        for r in rows:
+            if ph["t_start"] <= r["t"] <= ph["t_end"]:
+                for supi, u in r["ues"].items():
+                    if (u.get("level") or 0) >= 1 and supi in supi_ue:
+                        acted.add((ph["name"], supi_ue[supi]))
+    return outage, acted
+
+
 def check_run(rd, rep=None, manifest=MANIFEST):
     """Return (ok, reasons, details) for one run dir."""
     rd = pathlib.Path(rd)
@@ -132,6 +156,8 @@ def check_run(rd, rep=None, manifest=MANIFEST):
         if dev > DUR_TOL:
             reasons.append("phase %s lasted %.1fs vs plan %ds (%+.0f%%)" % (n, act, plan[n], 100 * (act - plan[n]) / plan[n]))
     det["max_dur_dev"], det["max_dur_dev_phase"] = round(worst[0], 3), worst[1]
+    outage, acted = _v5_exempt(rd, rep, manifest, meta)
+    det["v5_core_outage_phases"], det["v5_acted"] = sorted(outage), sorted("%s/%s" % x for x in acted)
     # 2. stream gaps inside each phase
     st = streams(rd)
     supis = sorted({s for d in st.values() for s in d} & {m["supi"] for m in (meta.get("ues") or {}).values()})
@@ -140,6 +166,8 @@ def check_run(rd, rep=None, manifest=MANIFEST):
         if ph["name"] not in plan:
             continue
         for name, per in st.items():
+            if ph["name"] in outage and name in ("urr", "prof"):
+                continue
             for supi in supis:
                 ts = [t for t in per.get(supi, []) if ph["t_start"] <= t <= ph["t_end"]]
                 edges = [ph["t_start"]] + ts + [ph["t_end"]]
@@ -150,7 +178,9 @@ def check_run(rd, rep=None, manifest=MANIFEST):
     det["max_stream_gap_s"] = round(maxgap, 2)
     # 4. per-flow row coverage (a stalled generator logs fewer 1 s rows than the phase lasted)
     worst = (None, None)
-    for name, _, n, dur in flow_rows(rd, plan):
+    for name, phase, n, dur in flow_rows(rd, plan):
+        if (phase, _FLOW_CSV.match(name).group(2)) in acted:
+            continue
         frac = n / dur
         if worst[0] is None or frac < worst[0]:
             worst = (frac, name)

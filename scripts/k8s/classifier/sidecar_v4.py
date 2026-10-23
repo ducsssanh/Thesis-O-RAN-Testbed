@@ -12,6 +12,8 @@ Speaks the classifier interface of classifier.c external() on the xApp loopback:
   GET  /state     per SUPI: steps, trust values, last decision
   POST /reset     {} all SUPIs | {"supi"}: drop the per-UE state (start of a run)
   POST /mode      {"mode": ran-only|core-only|xd-naive|xd-trust-v1|xd-trust-v2} (+ reset)
+While the xApp reports a UPF block / rate limit in force for the UE (newest vector's core_action), the
+KPM<->URR integrity rule is not evaluated (the UPF drops what the RAN still carries).
 One request = one step of the engine for that SUPI when the newest vector is new (a repeated seq
 returns the cached answer). The step's row has the dataset semantics of build_dataset_v4: the newest
 KPM (NaN when older than 3 s), the latest URR / profiler record received (NaN when older than 4 s or
@@ -22,7 +24,7 @@ Reply level: 3 when the L3 rule holds, 1 while L1 holds, else 0; label attack wh
 Every step is appended to --log (JSONL): row, z, trust, integrity, decisions of every config, latency.
 Usage: sidecar_v4.py [--port 8091] [--models DIR] [--mode xd-trust-v2] [--log PATH]
 """
-import argparse, datetime, hashlib, json, math, pathlib, sys, threading, time
+import argparse, datetime, hashlib, json, math, pathlib, signal, sys, threading, time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -32,7 +34,7 @@ for p in (HERE, HERE.parents[1] / "ml"):
 import numpy as np
 import defence_engine_v4 as D
 
-VERSION = "v4-live-1"
+VERSION = "v4-live-2"
 KPM_AGE_CAP, CORE_AGE_CAP = 3.0, D.CORE_AGE_S
 KPM = ["rate_ul_kbps", "rate_dl_kbps", "thp_ul_kbps", "thp_dl_kbps",
        "prb_ul_pct", "prb_dl_pct", "cell_prb_ul_pct", "cell_prb_dl_pct"]
@@ -78,7 +80,8 @@ def row_from_request(req):
     w = req.get("window") or []
     v = w[-1] if w else {}
     now = (req.get("now_ms") if req.get("now_ms") is not None else v.get("at_ms", 0)) / 1000.0
-    row = {"t": now, "seq": v.get("seq"), "e2_node": v.get("e2_node", ""), "amf_ue_ngap_id": v.get("amf_ue_ngap_id")}
+    row = {"t": now, "seq": v.get("seq"), "e2_node": v.get("e2_node", ""), "amf_ue_ngap_id": v.get("amf_ue_ngap_id"),
+           "core_action": v.get("core_action", "none")}
     row["kpm_age_s"] = now - v["collect_ms"] / 1000.0 if "collect_ms" in v else math.nan
     ok = row["kpm_age_s"] <= KPM_AGE_CAP
     for f in KPM:
@@ -172,8 +175,9 @@ class Sidecar:
             u.last_seq = row["seq"]
             R = u.feat.push(row)
             z = self.score(R)
+            enforced = row["core_action"] in ("block", "ratelimit")
             dec = {c: s.step(row["rate_ul_kbps"], row["urr_ul_kbps"], row["prof_ul_kbps"], row["urr_age_s"],
-                             row["cell_prb_ul_pct"], z) for c, s in u.dec.items()}
+                             row["cell_prb_ul_pct"], z, enforced) for c, s in u.dec.items()}
             cfg = D.MODES[self.mode]
             d = dec[cfg]
             level = 3 if d["l3"] else 1 if d["l1"] else 0
@@ -281,6 +285,8 @@ def main():
     ap.add_argument("--bind-all", action="store_true", help="listen on 0.0.0.0 (tests only; the xApp uses loopback)")
     a = ap.parse_args()
     sc_bind_local = not a.bind_all
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))   # PID 1 in the pod: no default SIGTERM action
+    pathlib.Path(a.log).parent.mkdir(parents=True, exist_ok=True)
     sc = Sidecar(a.models, a.mode, a.log)
     h = sc.health()
     print(json.dumps({"start": h["version"], "mode": h["mode"], "sha256": h["sha256"], "sklearn": h["sklearn"]}), flush=True)

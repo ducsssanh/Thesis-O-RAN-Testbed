@@ -1,12 +1,12 @@
 {
-  "image": "oai-lab-sidecar:dff36dce3cca190a",
-  "id": "sha256:0f6322cb8abf5c09640fba5532727a0fdacbef640aff04e24500f08ed02f9d03",
-  "sourceHash": "dff36dce3cca190a",
+  "image": "oai-lab-sidecar:5a2ca22005c47270",
+  "id": "sha256:9608701e4ffb7d6091b5516ff3aa5404699d94ce2d83ff522fc00a8f2af870ab",
+  "sourceHash": "5a2ca22005c47270",
   "inputs": {
     "deploy/k8s/images/Dockerfile.sidecar": "8ac2420b8596b11fc3c23a2c8e4a3565ff28dee285b81b41f732d48b1dddf59d",
-    "scripts/ml/defence_engine_v4.py": "09f164a49e7535df2a74713fc35538930377b86ac133a93104ae2b75161427ff",
+    "scripts/ml/defence_engine_v4.py": "6bc1c556c80cc44b4f1e5bdcd529e378354c4bf3fbb0cd85d69a0f178ca05515",
     "scripts/ml/prep_v4_windows.py": "707cbfd9335033fd2bfd6013b874bc89e59505f2c40ab511ff8d4deefab0e2da",
-    "scripts/k8s/classifier/sidecar_v4.py": "76b1420672801bc07a74f7e6e9e7a3903cf063bfa0dd0da6c25df3f58d8557e8",
+    "scripts/k8s/classifier/sidecar_v4.py": "b98c0980950704d50f2f981a2ea6713daf367b3493b7c4494e537b5f8da565fa",
     "artifacts/ml/v4/models/gbdt_core.joblib": "09b7482ac1a647e282e5c202442678b1671a6358713b2758dd70943abf2b88e8",
     "artifacts/ml/v4/models/gbdt_ran.joblib": "cdad0c5d5da74c9cc9620703a2f9db94e43a891fc972af8494e72c9357058c2b",
     "artifacts/ml/v4/models/gbdt_xd.joblib": "4c29a3b48838c2ad7b53d4a85d2546cabc59334bd3331fa66af85319b9af20ed",

@@ -1,0 +1,14 @@
+{
+ "run": "20261021-201043_v4campaign_batch3/runs/detection-off/rep-55",
+ "config": "xd-trust-v2",
+ "steps": 1058,
+ "level_mismatches": 0,
+ "kt_mismatches": 0,
+ "l1_steps": 127,
+ "l3_steps": 10,
+ "http_rtt_ms": {
+  "p50": 19.67,
+  "p99": 38.82,
+  "max": 74.02
+ }
+}

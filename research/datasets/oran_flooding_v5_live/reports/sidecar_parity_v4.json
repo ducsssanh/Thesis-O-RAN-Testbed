@@ -2,7 +2,7 @@
  "summary": {
   "runs": 18,
   "parity_ok": true,
-  "latency_p99_ms_max": 34.869,
+  "latency_p99_ms_max": 41.557,
   "latency_ok": true
  },
  "runs": [
@@ -31,9 +31,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.917,
-    "p99": 34.869,
-    "max": 51.417
+    "p50": 17.674,
+    "p99": 29.282,
+    "max": 40.85
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 351,
@@ -64,9 +64,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.394,
-    "p99": 30.833,
-    "max": 44.388
+    "p50": 18.171,
+    "p99": 41.557,
+    "max": 50.092
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 327,
@@ -97,9 +97,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.349,
-    "p99": 28.844,
-    "max": 35.196
+    "p50": 16.937,
+    "p99": 29.418,
+    "max": 36.071
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 157,
@@ -130,9 +130,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.911,
-    "p99": 32.746,
-    "max": 50.428
+    "p50": 17.716,
+    "p99": 31.521,
+    "max": 53.314
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 306,
@@ -163,9 +163,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.434,
-    "p99": 29.207,
-    "max": 39.005
+    "p50": 17.917,
+    "p99": 31.341,
+    "max": 39.788
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 365,
@@ -196,9 +196,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.67,
-    "p99": 34.769,
-    "max": 63.867
+    "p50": 17.432,
+    "p99": 29.116,
+    "max": 47.546
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 278,
@@ -229,9 +229,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.555,
-    "p99": 34.431,
-    "max": 64.804
+    "p50": 17.951,
+    "p99": 31.743,
+    "max": 45.369
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 289,
@@ -262,9 +262,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.66,
-    "p99": 34.137,
-    "max": 38.566
+    "p50": 17.485,
+    "p99": 25.646,
+    "max": 33.635
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 197,
@@ -295,9 +295,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.833,
-    "p99": 34.41,
-    "max": 56.547
+    "p50": 17.752,
+    "p99": 30.076,
+    "max": 39.938
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 327,
@@ -328,9 +328,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.858,
-    "p99": 33.486,
-    "max": 44.259
+    "p50": 17.325,
+    "p99": 32.007,
+    "max": 68.399
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 311,
@@ -361,9 +361,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.74,
-    "p99": 32.146,
-    "max": 43.637
+    "p50": 18.223,
+    "p99": 32.383,
+    "max": 42.681
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 245,
@@ -394,9 +394,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.331,
-    "p99": 34.142,
-    "max": 46.183
+    "p50": 17.411,
+    "p99": 29.857,
+    "max": 60.945
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 265,
@@ -427,9 +427,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 18.297,
-    "p99": 34.684,
-    "max": 53.535
+    "p50": 17.676,
+    "p99": 30.442,
+    "max": 37.697
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 334,
@@ -460,9 +460,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 18.212,
-    "p99": 32.089,
-    "max": 46.935
+    "p50": 18.078,
+    "p99": 30.454,
+    "max": 55.993
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 255,
@@ -493,9 +493,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 18.049,
-    "p99": 31.269,
-    "max": 41.322
+    "p50": 17.969,
+    "p99": 30.528,
+    "max": 36.037
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 320,
@@ -526,9 +526,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 18.231,
-    "p99": 27.659,
-    "max": 33.567
+    "p50": 17.64,
+    "p99": 32.694,
+    "max": 41.98
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 380,
@@ -559,9 +559,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 18.027,
-    "p99": 31.012,
-    "max": 48.965
+    "p50": 17.938,
+    "p99": 35.968,
+    "max": 48.632
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 449,
@@ -592,9 +592,9 @@
    },
    "decision_mismatch": {},
    "latency_ms": {
-    "p50": 17.921,
-    "p99": 27.189,
-    "max": 44.825
+    "p50": 17.966,
+    "p99": 31.568,
+    "max": 39.041
    },
    "grid_seconds_without_new_kpm": 0,
    "attack_rows": 640,

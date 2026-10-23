@@ -1,0 +1,22 @@
+{
+ "_n": {
+  "hping/attack": 192,
+  "dns_client/benign": 88,
+  "iperf/attack": 41,
+  "iperf/benign": 41,
+  "hping/benign": 166,
+  "pacer/attack": 263,
+  "pacer/benign": 221,
+  "synflood/attack": 40,
+  "tcp_shortconn/benign": 81
+ },
+ "hping/attack": 0.9911,
+ "dns_client/benign": 0.9791,
+ "iperf/attack": 1.0179,
+ "iperf/benign": 0.995,
+ "hping/benign": 0.999,
+ "pacer/attack": 1.0065,
+ "pacer/benign": 1.0003,
+ "synflood/attack": 0.9999,
+ "tcp_shortconn/benign": 5.8291
+}

@@ -8,6 +8,12 @@ far and STOPS on a stop-gate breach.
 
   python3 scripts/k8s/exp/v4traffic/campaign.py run --manifest <design.json> --lo 0 --hi 12 --tag batch1
   python3 scripts/k8s/exp/v4traffic/campaign.py run --reps 7 16 59 --tag rerun --prior <camp dirs>
+  python3 scripts/k8s/exp/v4traffic/campaign.py run --variant manifest --manifest <v5 design.json> --lo 0 --hi 42 --tag pilot
+--variant: detection-off (default, v4: defence off) | manifest (v5 live: each run's scenario and
+defence configuration from the manifest) | <config> (v5: only the manifest runs of that config).
+v5 runs reset the defence in every gap, apply the phase's KPM tamper / core outage, are checked by
+integrity.check_run (v5 exemptions) and prof_assert (core-outage phases exempt); a failed run is kept
+(meta_run_ok=0) and the batch stops after 2 failed runs in a row or a failed preflight.
 Run via the repo's system python3 (needs numpy+yaml+pandas), not .venv-ml.
 """
 import json, math, pathlib, sys, time
@@ -27,9 +33,10 @@ STOP_GATES = {"nuisance_auc_max": 0.6, "balance_tol": 0.05, "sym_tol": 0.05,
               "achieved_ok_min": 0.85, "size_overlap_min": 0.6}
 
 
-def scn_for_run(run_phases):
-    """Turn one manifest run (list of phases) into a harness scenario (warmup + gaps)."""
-    phases = [{"name": "idle", "duration": 15}]
+def scn_for_run(run_phases, v5=False):
+    """Turn one manifest run (list of phases) into a harness scenario (warmup + gaps). v5: the
+    phase's tamper / core_outage pass through, the defence is reset at idle and every gap."""
+    phases = [{"name": "idle", "duration": 15, **({"reset_defense": True} if v5 else {})}]
     for j, ph in enumerate(run_phases):
         p = {"name": "p%02d_%s" % (j, ph["family"]), "duration": ph["duration"],
              "attack": ph.get("attacker_ue") is not None, "flows": ph["flows"]}
@@ -37,8 +44,10 @@ def scn_for_run(run_phases):
             p["victim_mode"] = ph["victim_mode"]
         if ph.get("congestion"):
             p["congestion"] = ph.get("congestion_cfg", {"rate": "4mbit"})
+        if v5:
+            p.update({k: ph[k] for k in ("tamper", "core_outage") if k in ph})
         phases.append(p)
-        phases.append({"name": "gap%02d" % j, "duration": ph.get("gap", 10)})
+        phases.append({"name": "gap%02d" % j, "duration": ph.get("gap", 10), **({"reset_defense": True} if v5 else {})})
     return {"name": "v4campaign", "ues": {"ue1": "attacker", "ue2": "benign"},
             "payload_bytes": 1200, "drain": {"quiet_kbps": 300, "timeout_s": 300},
             "tail_s": 12, "phases": phases}
@@ -133,15 +142,18 @@ def record_mapping(run_dir):
     return mp
 
 
-def prof_assert(run_dir):
+def prof_assert(run_dir, skip=()):
     """Runtime check: in every attack phase, the ATTACKER UE's profiler UL pps must exceed
-    an idle floor. Returns (ok, reasons). Reads the run's raw profiler + schedule."""
+    an idle floor. Returns (ok, reasons). Reads the run's raw profiler + schedule.
+    skip: phase names exempt (v5 core outage: no profiler by design)."""
     ue_supi, phases = B.load_schedule(run_dir)
     prof = {r["supi"]: [] for r in B.load_prof(run_dir)}
     for r in B.load_prof(run_dir):
         prof[r["supi"]].append((r["source_ts"], r.get("prof_ul_pps", 0.0)))
     reasons = []
     for ph in phases:
+        if ph["name"] in skip:
+            continue
         atks = [(ue, info) for ue, info in ph["ues"].items() if info["label"] == "MALICIOUS"]
         for ue, info in atks:
             supi = ue_supi.get(ue)
@@ -269,8 +281,56 @@ def newest_valid_dirs(camps, n_runs):
     return [best[r][1] for r in sorted(best)], missing
 
 
-def run_campaign(manifest_path, lo, hi, tag, prior=(), reps=None):
+def run_v5(man, manifest_path, order, tag, only=None):
+    """v5 live runs (manifest entries with scenario, config, defence, phases)."""
+    camp = harness.OUT_DIR / (time.strftime("%Y%m%d-%H%M%S") + "_v5live_" + tag)
+    camp.mkdir(parents=True, exist_ok=True)
+    runs = man["runs"]
+    order = [i for i in order if only is None or runs[i]["config"] == only]
+    (camp / "campaign.json").write_text(json.dumps({"manifest": str(manifest_path), "runs": [i + 1 for i in order],
+                                                    "variant": only or "manifest"}, indent=1) + "\n")
+    harness.log("campaign %s: %d v5 runs" % (camp.name, len(order)))
+    ue_supi = {n: lab.UES[n][2] for n in ("ue1", "ue2")}
+    fails, done = 0, []
+    for i in order:
+        e = runs[i]
+        pok, preasons = extra_preflight(ue_supi)
+        if not pok:
+            harness.log("STOP before run %d: preflight: %s" % (i + 1, "; ".join(preasons)))
+            return {"stopped": i + 1, "reason": "preflight", "reasons": preasons, "done": done}
+        scn = scn_for_run(e["phases"], v5=True)
+        scn["name"] = "v5live"
+        variant = {"name": e["config"], "defense": e["defense"]}
+        ok = harness.run_once(scn, variant, i + 1, camp)
+        rd = camp / "runs" / e["config"] / ("rep-%02d" % (i + 1))
+        mp = record_mapping(rd)
+        outage = {"p%02d_%s" % (j, ph["family"]) for j, ph in enumerate(e["phases"]) if ph.get("core_outage")}
+        pok, reasons = prof_assert(rd, outage)
+        meta = json.loads((rd / "run.json").read_text())
+        iok, ireasons, idet = integrity.check_run(rd, i + 1, manifest_path)
+        meta.update({"attempt_id": "%s_rep-%02d@%d" % (camp.name, i + 1, int(meta.get("t_start") or 0)),
+                     "manifest_id": e["id"], "manifest_rep": e["rep"], "scenario": e["scenario"], "config": e["config"],
+                     "meta_run_ok": int(bool(ok) and pok and iok), "prof_assert": {"ok": pok, "reasons": reasons[:8]},
+                     "integrity": {"ok": iok, "reasons": ireasons[:8], **idet}, "supi_ip_mapping": mp})
+        (rd / "run.json").write_text(json.dumps(meta, indent=1) + "\n")
+        harness.log("   run %d (%s / %s / rep %d) meta_run_ok=%d%s%s" % (
+            i + 1, e["scenario"], e["config"], e["rep"], meta["meta_run_ok"], "" if pok else " PROF: " + "; ".join(reasons[:3]),
+            "" if iok else " INTEGRITY: " + "; ".join(ireasons[:3])))
+        done.append(i + 1)
+        fails = 0 if meta["meta_run_ok"] else fails + 1
+        if fails >= 2:
+            harness.log("STOP: 2 failed runs in a row")
+            return {"stopped": i + 1, "reason": "run_not_ok", "done": done}
+    return {"done": done, "camp": str(camp)}
+
+
+def run_campaign(manifest_path, lo, hi, tag, prior=(), reps=None, variant="detection-off"):
     man = json.loads(pathlib.Path(manifest_path).read_text())
+    if variant != "detection-off":
+        if not isinstance(man["runs"][0], dict):
+            raise SystemExit("--variant %s needs a v5 manifest" % variant)
+        order = [r - 1 for r in reps] if reps else list(range(lo, min(hi, len(man["runs"]))))
+        return run_v5(man, manifest_path, order, tag, None if variant == "manifest" else variant)
     runs = man["runs"]
     hi = min(hi, len(runs))
     camp = harness.OUT_DIR / (time.strftime("%Y%m%d-%H%M%S") + "_v4campaign_" + tag)
@@ -345,11 +405,13 @@ def main():
     r.add_argument("--hi", type=int, default=12)
     r.add_argument("--tag", default="batch")
     r.add_argument("--prior", nargs="*", default=[], help="earlier batch camp dirs (runs [0,lo)) for prefix checkpoints")
+    r.add_argument("--variant", default="detection-off",
+                   help="detection-off (v4) | manifest (v5: per-run config) | a v5 config name")
     r.add_argument("--reps", nargs="+", type=int, default=None,
                    help="non-contiguous manifest runs (1-based) to (re)run instead of [lo,hi); one checkpoint at the "
                         "end over the full prefix 1..N (newest valid attempt per run across --prior + this batch)")
     a = ap.parse_args()
-    res = run_campaign(a.manifest, a.lo, a.hi, a.tag, a.prior, a.reps)
+    res = run_campaign(a.manifest, a.lo, a.hi, a.tag, a.prior, a.reps, a.variant)
     print(json.dumps(res, indent=1))
 
 

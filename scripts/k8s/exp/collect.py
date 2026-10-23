@@ -78,6 +78,10 @@ def export_defense(out, t0, t1):
     # v4: raw KPM (one record per indication, source_ts + arrival_ts) for the causal offline build
     (out / "raw").mkdir(exist_ok=True)
     (out / "raw/kpm.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_RawKpm.jsonl"), lambda o: o["arrival_ts"], t0, t1))
+    # v5 live: KPM tamper ground truth (xApp) and the model sidecar's per-step decisions
+    (out / "defense/tamper.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_Tamper.jsonl"), lambda o: o["ts"], t0, t1))
+    (out / "defense/sidecar.jsonl").write_text(cut_jsonl(
+        tail("near-rt-ric", "oai-lab-xapp", "sidecar", d + "KPI_Metrics_Sidecar.jsonl"), lambda o: o["ts"], t0, t1))
     q = ("import sqlite3,json,sys\nc=sqlite3.connect('file:/urr-state/defense.db?mode=ro',uri=True)\n"
          "print(json.dumps({t:[list(r) for r in c.execute('SELECT * FROM '+t+' WHERE at>=? AND at<=?',(sys.argv[1],sys.argv[2]))]"
          " for t in ('evidence','actions')}))\n")

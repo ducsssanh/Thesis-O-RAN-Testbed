@@ -95,7 +95,9 @@ def _mean(d):
 class DecisionState:
     """Escalation state of one UE under one configuration. step() takes the row's raw inputs:
     kpm_ul (KPM rate UL kbps), urr_ul (URR UL kbps or NaN), prof_ul (profiler UL kbps or NaN),
-    urr_age (s, NaN = none), cell_ul (cell PRB UL %), z = {xd, core, ran}."""
+    urr_age (s, NaN = none), cell_ul (cell PRB UL %), z = {xd, core, ran}; enforced: a UPF block or
+    rate limit is in force for the UE (live only: the core then drops what the RAN still carries, so
+    the KPM<->URR rule cannot be evaluated and counts no violation; always False offline)."""
 
     def __init__(self, cfg, tau, m, bias):
         assert cfg in CONFIGS, cfg
@@ -109,7 +111,7 @@ class DecisionState:
         self.held = 0
         self.last_integ = -10 ** 9
 
-    def step(self, kpm_ul, urr_ul, prof_ul, urr_age, cell_ul, z):
+    def step(self, kpm_ul, urr_ul, prof_ul, urr_age, cell_ul, z, enforced=False):
         self.i += 1
         i = self.i
         kpm = 0.0 if kpm_ul != kpm_ul else float(kpm_ul)
@@ -130,7 +132,7 @@ class DecisionState:
         fresh_w = full and all(self.fresh)
         active = max(ks, us) / INT_W > GATE_KBPS if full else False
         lr = math.log(max(ks, 1.0) / max(us, 1.0)) - self.bias if full else math.nan
-        viol = fresh_w and active and abs(lr) > self.tau
+        viol = fresh_w and active and abs(lr) > self.tau and not enforced
         self.run_len = self.run_len + 1 if (viol and i) else int(viol)
         integ = self.run_len >= self.m
         if integ:
