@@ -161,6 +161,51 @@ passes the integrity guards (incl. the row-coverage guard).
   balanced across classes). Nuisance-only baseline: innocent AUC 0.49; + backend 0.74 (benign-only
   hard-negative backends carry label signal by design).
 
+## IDLE rows and their noise floor
+IDLE = a UE second without a generator flow: the 15 s warm-up (`idle`), the gaps between phases
+(`gapNN`) and the drain seconds between a phase's end and the next gap's start (empty
+`meta_phase`). IDLE is never a training target and never in the headline evaluation (see
+training protocol); it is kept to measure false alarms on an idle UE.
+Noise floor (all 25 182 IDLE rows): every feature has median 0 (PRB 2% UE / 4% cell). The tail is
+NOT idle traffic but the end of the previous phase: in the drain seconds 36% of rows still carry
+> 50 kbps UL (generator stop + the as-of join's 3–4 s URR/profiler lag), in the first 2 s of a gap
+28%, after 2 s 0%, and the warm-up 0%.
+
+| feature (IDLE, all rows) | median | p95 | p99 |
+|---|---:|---:|---:|
+| `rate_ul_kbps` | 0 | 375 | 1096 |
+| `prb_ul_pct` / `cell_prb_ul_pct` | 2 / 4 | 28 / 53 | 40 / 70 |
+| `urr_ul_kbps` / `urr_dl_kbps` | 0 / 0 | 823 / 173 | 1282 / 871 |
+| `prof_ul_kbps` / `prof_dl_kbps` | 0 / 0 | 867 / 76 | 1323 / 466 |
+| `prof_ul_pps` | 0 | 318 | 1097 |
+
+## Training protocol (2026-10-23)
+- `scripts/ml/prep_v4_windows.py`: windows of 10 s per (run, UE), label = last second.
+  `main` = all 10 s in one pNN phase, one label, no guard second (guard = first/last 3 s) →
+  train set and headline evaluation; `edge` (crosses a phase start / touches guard) → evaluation of
+  time-to-detect only; `idle` (all 10 s IDLE) → idle false-alarm rate only.
+- Split by run (seed 20261023): 56 train / 14 val / 18 test runs; every meta_pair shows all its
+  labels in every split. Threshold frozen on val at benign FPR 1%, applied to test.
+- Shared metrics `scripts/ml/v4_eval.py` (baselines `baseline_v4.py`, LSTM `train_lstm_v4.py`,
+  Kaggle package `artifacts/ml/kaggle-v4/`).
+
+## Baseline findings (test, 18 runs) — read before interpreting any model
+- **Designed downlink is a near-label proxy.** DL-kbps-only HGB reaches ROC-AUC 0.963 (all
+  features 0.981; all minus DL 0.868; UL kbps stats 0.818; UL mean only 0.759; meta-only 0.486).
+  Cause: every benign UDP flow receives the designed DN→UE feedback (1–10% of UL) and TCP/DNS
+  benign get real replies, while an attacker's DL is 0 (silent) or tiny (responsive: ICMP/RST,
+  median 4.7 kbps vs 86–94 kbps benign). The C2 control made DL independent of `victim_mode`, not
+  of the label. Per pair without DL: udp_flood↔udp_bidir 0.98 → 0.77, fanout 1.0 → 0.86.
+  Consequence: report every model with and without DL features (`--features no_dl`); the no-DL
+  number is the robustness headline. UL/DL asymmetry is a real flood indicator, but its size here is
+  a design artefact, so it must not carry the result.
+- **icmp_flood ↔ icmp_ping is indistinguishable by construction** (AUC 0.46–0.56 for every feature
+  set): same rate, same 84 B echo, the responsive DN answers both. Label = intent only. Report it
+  separately, exclude it from "per-pair minimum" claims.
+- Protocol pairs (dns, syn) are separable by protocol counters and by unmatched pps (dns benign
+  ~900 pps vs flood ~75 pps; syn 330 vs 780 pps) — valid signal, but not a load-matched test.
+- Genuinely hard pair: mimicry_udp ↔ udp_nofeedback (all HGB 0.88, without DL 0.85).
+
 ## Known limitations
 - RFsim/GTP caps: UL linear region ≈ 10 Mbit/s per UE, payload ≤ 1200 B, TCP ≈ 330 kbps.
 - Two iperf backend versions coexist (pre-fix for the iperf phases of the runs that passed the
@@ -170,6 +215,15 @@ passes the integrity guards (incl. the row-coverage guard).
 - Row-weighted P(mal|ue) of runs 1–42 cannot be corrected after the fact (see weighting).
 - Stream gaps up to ~2.7 s and attacker `prof_ul_pps` peaks down to ~24 pps sit close to their
   thresholds (3 s, 20 pps); thresholds were kept, not relaxed.
+- Traffic is synthetic and statistically modelled (CBR, Poisson, MMPP-2, on-off Pareto, fGn,
+  Hawkes, pulsing; real TCP handshakes and DNS answers for the hard negatives), not real user or
+  application behaviour; load levels are discrete (0.2–1.2 Mbit/s per UE) and there is no
+  low-rate background usage. Results show separability without the v3 shortcuts, not
+  generalisation to real users.
+- **pcap replay was rejected** as a realism test: replay is open-loop, so TCP never completes a
+  handshake against the testbed's DN and benign replays look like SYN floods — any FPR measured that
+  way is an artefact. A realism set, if needed later, must be closed-loop real applications
+  (e.g. nginx + HLS/ffmpeg video, curl with Pareto think-time, SIPp/RTP), evaluation-only.
 - Single-node minikube testbed; RFsim radio. A UE radio-link failure (run 76) and a host suspend
   (run 37) were observed; both invalidated the affected attempt.
 
