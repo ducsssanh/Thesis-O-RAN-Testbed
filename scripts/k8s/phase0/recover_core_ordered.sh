@@ -36,10 +36,11 @@ wait_ready oai-core oai-amf 150s
 
 # 3. wait until the NRF has the UPF REGISTERED (so the SMF's discovery will find it)
 log "wait for UPF registered at NRF"
-for i in $(seq 1 30); do
-  $K -n oai-core logs deploy/oai-nrf --since=120s 2>/dev/null \
+# a restarted UPF takes ~100 s to (re-)register (seen 2026-10-24): wait up to 180 s
+for i in $(seq 1 60); do
+  $K -n oai-core logs deploy/oai-nrf --since=240s 2>/dev/null \
     | grep -q "NF type UPF" && { log "UPF registered at NRF"; break; }
-  [ "$i" = 30 ] && fail "UPF never registered at NRF"
+  [ "$i" = 60 ] && fail "UPF never registered at NRF"
   sleep 3
 done
 
