@@ -58,8 +58,10 @@ def attempts(manifest, tag):
 
 def other_campaign_running():
     """A campaign or a recovery started by someone else is still running."""
-    rc, out = sh("pgrep -f '[v]4traffic/campaign.py run|[r]ecover_ran.sh|[r]ecover_core_ordered.sh' || true")
-    return bool(out.strip())            # [x] keeps pgrep from matching its own shell
+    # anchored to the process's own command (python ... / bash ...): a shell whose command line
+    # merely mentions these names (pgrep's own, a wrapper) must not count
+    rc, out = sh("pgrep -f '^[^ ]*python[^ ]* .*v4traffic/campaign\\.py run|^bash [^ ]*recover_(ran|core_ordered)\\.sh' || true")
+    return bool(out.strip())
 
 
 def xapp(path, body=None):
