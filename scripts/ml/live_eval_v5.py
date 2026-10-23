@@ -166,6 +166,60 @@ def cell(u, B):
     return r
 
 
+OFFLINE = ROOT / "artifacts/ml/v4/fusion/fusion_results.json"
+SCN_OFF = {"honest": "honest", "kpm_hide_x0.1": "kpm_hide x0.1", "kpm_hide_x0.33": "kpm_hide x0.33",
+           "kpm_frame_x2": "kpm_frame x2", "kpm_frame_x5": "kpm_frame x5", "core_outage": "core_outage"}
+CFG_OFF = {"ran-only": "RAN-only (xApp KPM)", "core-only": "core-only (5GC)", "xd-naive": "cross-domain naive",
+           "xd-trust-v1": "cross-domain trust-weighted", "xd-trust-v2": "cross-domain trust-weighted v2"}
+PAIRS = [("attack_L1", "attack_detected_L1"), ("attack_L3", "attack_blocked_L3"), ("benign_L3", "benign_wrongly_blocked_L3"),
+         ("framed_benign_L3", "framed_benign_blocked_L3"), ("integrity_tampered", "integrity_alarm_tampered"),
+         ("t_L1_median", "attack_t_L1_median_s"), ("t_L3_median", "attack_t_L3_median_s"), ("t_integrity_median", "integrity_t_median_s")]
+
+
+def offline_vs_live(res):
+    """Rows (scenario, config, metric, offline replay on the v4 test runs, live)."""
+    off = json.loads(OFFLINE.read_text())["results"] if OFFLINE.exists() else {}
+    rows = []
+    for s, by in res.items():
+        for c, r in by.items():
+            o = (off.get(SCN_OFF.get(s, ""), {}) or {}).get(CFG_OFF.get(c, ""), {})
+            for lk, ok in PAIRS:
+                if r.get(lk) is not None or o.get(ok) is not None:
+                    rows.append({"scenario": s, "config": c, "metric": lk, "offline": o.get(ok), "live": r.get(lk)})
+    return rows
+
+
+def write_report(path, summ, res, ovl, man):
+    M = [("runs", "runs"), ("attack_L1", "attack L1"), ("attack_L3", "attack L3"), ("benign_L1", "benign L1"),
+         ("benign_L3", "benign L3"), ("framed_benign_L3", "framed benign L3"), ("t_L1_median", "t→L1 med"),
+         ("t_L3_median", "t→L3 med"), ("integrity_tampered", "integrity on tampered"), ("t_integrity_median", "t→integrity"),
+         ("integrity_false_untampered", "integrity false (untampered)"), ("attack_delivered_frac", "attack delivered"),
+         ("benign_delivered_frac", "benign delivered")]
+    L = ["# Cross-domain defence live (v5, stage B) — results\n",
+         "Runs: %d (%d with meta_run_ok=1). Sidecar latency %s ms. xApp classifier fallbacks: %s. Unit = (run, UE, "
+         "attack phase), icmp control apart; brackets = 95%% bootstrap CI by run. Levels = enforced by the xApp; "
+         "delivered = DN UL packets / sent, calibrated to the v4 defence-off median (1 = untouched).\n"
+         % (summ["runs"], summ["runs_ok"], summ["sidecar_latency_ms"], summ["fallbacks_total"])]
+    for sc in man["scenarios"]:
+        if sc not in res:
+            continue
+        L += ["## %s\n" % sc, "| config | " + " | ".join(h for _, h in M) + " |", "|---|" + "---:|" * len(M)]
+        for c in man["configs"]:
+            r = res[sc].get(c)
+            if not r:
+                continue
+            cells = []
+            for k, _ in M:
+                v = r.get(k)
+                ci = r.get("ci_" + k)
+                cells.append("–" if v is None else ("%s %s" % (v, ci) if ci else str(v)))
+            L.append("| %s | %s |" % (c, " | ".join(cells)))
+        L.append("")
+    L += ["## Offline replay (v4 test runs) vs live\n", "| scenario | config | metric | offline | live |", "|---|---|---|---:|---:|"]
+    L += ["| %s | %s | %s | %s | %s |" % (r["scenario"], r["config"], r["metric"], r["offline"], r["live"]) for r in ovl]
+    path.write_text("\n".join(L) + "\n")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("camps", nargs="+")
@@ -197,7 +251,10 @@ def main():
     summ = {"runs": len(metas), "runs_ok": sum(1 for m in metas if m.get("meta_run_ok") == 1),
             "sidecar_latency_ms": {"p50": round(float(np.percentile(lat, 50)), 2), "p99": round(float(np.percentile(lat, 99)), 2)} if len(lat) else None,
             "fallbacks_total": sum(m["_fallbacks"] or 0 for m in metas)}
-    (out / "live_eval_v5.json").write_text(json.dumps({"summary": summ, "results": res, "runs": runs_tbl}, indent=1, default=str) + "\n")
+    ovl = offline_vs_live(res)
+    (out / "live_eval_v5.json").write_text(json.dumps({"summary": summ, "results": res, "offline_vs_live": ovl, "runs": runs_tbl},
+                                                      indent=1, default=str) + "\n")
+    write_report(out / "live_eval_v5.md", summ, res, ovl, man)
     print(json.dumps(summ))
     for s, by in res.items():
         for c, r in by.items():
