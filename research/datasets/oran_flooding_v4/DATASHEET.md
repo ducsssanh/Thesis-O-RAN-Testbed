@@ -223,8 +223,16 @@ NOT idle traffic but the end of the previous phase: in the drain seconds 36% of 
   per-pair macro; its AUC is reported alone for every model (expected ~0.5, > 0.6 = leak warning).
 - Idle false alarms: rolling-feature GBDT flags every cold-start warm-up window (30 s of silence is
   outside the training distribution); an activity gate (classify only when the 10 s mean UL ≥ 50 kbps)
-  removes them at no TPR cost. Reported as a secondary "gated" operating point, never instead of the
-  raw one.
+  removes them at no TPR cost.
+- **Operating point (decision 2026-10-23): activity gate UL ≥ 50 kbps** (10 s window mean, URR, profiler
+  if URR is stale; fixed, not tuned). Scores are set to 0 where the gate is closed and the val threshold
+  (benign FPR 1%) is chosen on gated scores. Every report also shows the ungated numbers.
+  **Scope: the detector does not detect attacks below 50 kbps UL** (all v4 attacks are ≥ 0.2 Mbit/s;
+  100% of attack main windows and 99.84% of benign ones pass the gate).
+- Previous-phase leak check (`reports/leak_phase_v4.md`): 48% of phases follow their UE-mirror and the
+  previous phase's label predicts the current one (AUC 0.178, inverted), so the 30 s history could in
+  principle carry it (38.6% of main windows' 30 s history starts before the phase); cutting the history
+  at the phase start does not lower any GBDT (cross-domain UL 0.930 → 0.937), so it is not exploited.
 
 ## Known limitations
 - RFsim/GTP caps: UL linear region ≈ 10 Mbit/s per UE, payload ≤ 1200 B, TCP ≈ 330 kbps.

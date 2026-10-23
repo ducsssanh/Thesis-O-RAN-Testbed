@@ -26,6 +26,8 @@ import v4_eval as E
 UL_KBPS = ("rate_ul_kbps", "thp_ul_kbps", "urr_ul_kbps", "prof_ul_kbps")
 RAN_UL = ("rate_ul_kbps", "thp_ul_kbps", "prb_ul_pct", "cell_prb_ul_pct")
 HEADLINE = "GBDT rolling cross-domain UL"
+HEADLINE_10 = "GBDT rolling <=10 s cross-domain UL"          # same history as the 10 s LSTM window
+PAIRED = ("GBDT rolling URR+prof (UL)", "GBDT rolling RAN-UL", "GBDT rolling URR-UL", "GBDT rolling prof-UL", HEADLINE_10)
 SPLIT_SEEDS = (None, 1, 2)                     # None = the stored split (same as the LSTM package)
 
 
@@ -52,6 +54,8 @@ def feature_sets(names, d):
         "GBDT rolling prof-UL": pick(lambda n: base_of(n).startswith("prof_ul")),
         "GBDT rolling URR+prof (UL)": pick(lambda n: base_of(n).startswith(("urr_ul", "prof_ul"))),
         HEADLINE: pick(lambda n: ul(base_of(n))),
+        HEADLINE_10: pick(lambda n: ul(base_of(n)) and "@30_" not in n),
+        "GBDT rolling <=10 s URR+prof (UL)": pick(lambda n: base_of(n).startswith(("urr_ul", "prof_ul")) and "@30_" not in n),
         "APPENDIX GBDT rolling incl. DL": pick(lambda n: True),
     }
 
@@ -75,11 +79,13 @@ def main():
     R, names = rl["R"], [str(x) for x in rl["names"]]
     sets = {k: (v if v.ndim == 2 else R[:, v]) for k, v in feature_sets(names, d).items()}
     test = d["split"] == 2
-    out, ci, seeds = {}, {}, {}
+    out, ci, seeds, scores, thrs = {}, {}, {}, {}, {}
     for name, X in sets.items():
         p = fit_predict(X, d)
         thr = E.val_threshold(p, d, a.fpr)
-        out[name] = {"n_features": int(X.shape[1]), "test": E.report(p, d, test, thr)}
+        scores[name], thrs[name] = p, thr
+        out[name] = {"n_features": int(X.shape[1]),
+                     "test": E.report(p, d, test, thr, E.val_threshold(p, d, a.fpr, gated=False))}
         ci[name] = E.bootstrap_ci(p, d, test, thr, B=a.boot)
         # split-seed repeat
         rows = []
@@ -96,19 +102,25 @@ def main():
         t = out[name]["test"]
         print("%-32s ROC %s PR %s TPR %s macro %s ctrl %s" % (name, t["roc_auc"], t["pr_auc"], t["tpr"],
               t["pair_macro_auc"], t["neg_control_auc"]), flush=True)
-    # transfers for the headline set
+    np.savez_compressed(w / "baseline_scores_v4.npz", **{k: v for k, v in scores.items()},
+                        **{"thr::" + k: np.array(v) for k, v in thrs.items()})
+    paired = {"%s - %s" % (HEADLINE, k): E.paired_bootstrap(scores[HEADLINE], scores[k], d, test, thrs[HEADLINE], thrs[k],
+                                                           B=a.boot) for k in PAIRED}
+    # transfers for the headline set (+ clean leave-generator-out: a = train+test inside the cells made by
+    # >=2 dual-use tools; b = train on everything except tool b, test only on b's clean cells)
     X = sets[HEADLINE]
     transfers = {}
-    for tname, ftrain, ftest in E.transfer_protocols(d):
+    for tname, ftrain, ftest in E.all_transfer_protocols(d):
         p = fit_predict(X, d, extra=ftrain)
         thr = E.val_threshold(p, d, a.fpr, extra=ftrain)
         transfers[tname] = E.short(E.report(p, d, test & ftest, thr))
         print("%-32s %s" % (tname, transfers[tname]), flush=True)
-    res = {"sets": out, "bootstrap_ci": ci, "split_seeds": seeds, "transfers_headline": transfers,
+    res = {"sets": out, "bootstrap_ci": ci, "split_seeds": seeds, "transfers_headline": transfers, "paired": paired,
            "fpr_target": a.fpr, "boot": a.boot}
     (w / "baseline_v4.json").write_text(json.dumps(res, indent=1) + "\n")
     main_sets = {k: v["test"] for k, v in out.items() if not k.startswith("APPENDIX")}
-    L = ["# v4 UL-only baselines (test = %d held-out runs; threshold frozen on val at benign FPR %g)\n"
+    L = ["# v4 UL-only baselines (test = %d held-out runs; threshold frozen on val at benign FPR %g; "
+         "operating point = activity gate UL >= 50 kbps, ungated in parentheses)\n"
          % (len(np.unique(d["run"][test])), a.fpr),
          "Negative control icmp_flood~icmp_ping is excluded from training, headline and macro; its AUC is "
          "reported alone (expected ~0.5). Brackets = 95% bootstrap CI by run.\n",
@@ -119,11 +131,22 @@ def main():
     for k, v in seeds.items():
         L.append("| %s | " % k + " | ".join("%.3f ± %.3f" % tuple(v[m]) for m in
                  ("roc_auc", "pr_auc", "tpr", "pair_macro_auc", "mimicry_auc", "pulsing_auc", "neg_control_auc")) + " |")
-    L += ["", "## Transfers (%s)\n" % HEADLINE, "| protocol | n | ROC-AUC | PR-AUC | TPR | FPR | pair macro | mimicry | pulsing |",
+    L += ["", "## Transfers (%s; gated operating point)\n" % HEADLINE,
+          "clean-a: train and test inside the generator cells (family × schedule × load) produced by ≥2 dual-use tools; "
+          "clean-b: train on everything except tool b, test only on b's clean cells. In the design every attack "
+          "(family, schedule) is produced by ONE tool (udp_flood: cbr=iperf, fgn=pacer, mmpp2=hping), so the plain "
+          "leave-generator-out also removes a schedule; the clean cells hold only dns_flood (MAL, pacer/hping) and "
+          "udp_bidir / benign_benign (BEN), so their AUC mixes pairs — read TPR / FPR.\n",
+          "| protocol | n | ROC-AUC | PR-AUC | TPR | FPR | pair macro | mimicry | pulsing |",
           "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for k, v in transfers.items():
         L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s |" % (k, v["n_main"], v["roc_auc"], v["pr_auc"], v["tpr"],
                  v["fpr"], v["pair_macro_auc"], v["mimicry_auc"], v["pulsing_auc"]))
+    L += ["", "## Paired bootstrap by run (difference A − B, 95% CI; same resampled runs)\n",
+          "| A − B | ΔROC-AUC | ΔPR-AUC | ΔTPR@FPR1% | Δpair macro |", "|---|---:|---:|---:|---:|"]
+    for k, v in paired.items():
+        L.append("| %s | " % k + " | ".join("%+.4f [%+.4f, %+.4f]" % (v[m]["diff"], *v[m]["ci"]) for m in
+                 ("roc_auc", "pr_auc", "tpr", "pair_macro_auc")) + " |")
     L += ["", "## Per-pair AUC (test)\n"]
     pairs = sorted({p for v in out.values() for p in v["test"]["per_pair_auc"]})
     L += ["| set | " + " | ".join(pairs) + " |", "|---|" + "---:|" * len(pairs)]

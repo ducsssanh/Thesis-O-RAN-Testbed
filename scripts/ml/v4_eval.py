@@ -7,6 +7,8 @@ headline and from the per-pair macro, and reported on its own (`neg_control_auc`
 > 0.6 = leak warning).
 Threshold: chosen on the validation main windows (control excluded) so that the BENIGN
 false-positive rate is `fpr_target` (1%), then frozen and applied to test.
+Operating point = activity GATE (score := 0 when the window's mean UL < 50 kbps; fixed, not tuned):
+every function scores gated p; r["ungated"] repeats the key metrics without the gate.
 Headline (main windows, control excluded): ROC-AUC, PR-AUC, TPR/FPR at the frozen threshold,
 per-pair macro AUC (attack pairs, control excluded), mimicry and pulsing AUC, time-to-detect
 (TTD, from main+edge windows), benign phases with an alarm, idle false-alarm rate.
@@ -46,6 +48,11 @@ def train_mask(d, extra=None):
     return m if extra is None else m & extra
 
 
+def operate(p, d):
+    """Scores at the operating point: 0 where the activity gate is closed."""
+    return np.where(d["gate"], p, 0.0) if "gate" in d else p
+
+
 def threshold_at_fpr(p, y, fpr_target=0.01):
     """Smallest threshold whose BENIGN false-positive rate is <= fpr_target."""
     neg = np.sort(p[y == 0])
@@ -55,11 +62,12 @@ def threshold_at_fpr(p, y, fpr_target=0.01):
     return float(neg[min(k, len(neg) - 1)]) + 1e-9
 
 
-def val_threshold(p, d, fpr_target=0.01, extra=None):
+def val_threshold(p, d, fpr_target=0.01, extra=None, gated=True):
     vm = headline_mask(d, d["split"] == 1)
     if extra is not None:
         vm &= extra
-    return threshold_at_fpr(p[vm], d["y"][vm], fpr_target)
+    q = operate(p, d) if gated else p
+    return threshold_at_fpr(q[vm], d["y"][vm], fpr_target)
 
 
 def pair_aucs(p, d, mm):
@@ -77,7 +85,7 @@ def macro(pa):
     return round(float(np.mean(v)), 4) if v else None
 
 
-def report(p, d, sel, thr, _gated=False):
+def _report(p, d, sel, thr):
     """All metrics on the windows in `sel` (any kind). p = scores for ALL windows. If the windows carry
     an activity `gate`, r["gated"] repeats the operating-point metrics with score := 0 where the gate is
     closed (window mean UL < 50 kbps): a deployment rule, reported next to, never instead of, the raw ones."""
@@ -124,15 +132,30 @@ def report(p, d, sel, thr, _gated=False):
     r["ttd"] = {"attack_phases": int(len(ttd) + missed), "detected": int(len(ttd)),
                 "median_s": round(float(np.median(ttd)), 1) if len(ttd) else None,
                 "p90_s": round(float(np.quantile(ttd, 0.9)), 1) if len(ttd) else None}
+    n_att = len(ttd) + missed
+    r["ttd"]["detected_within_10s"] = round(float((ttd <= 10).sum()) / n_att, 4) if n_att else None
+    r["ttd"]["detected_within_20s"] = round(float((ttd <= 20).sum()) / n_att, 4) if n_att else None
+    r["ttd"]["detected_in_phase"] = round(len(ttd) / n_att, 4) if n_att else None
     r["benign_phases_alarmed"] = round(ben_alarm / ben_n, 4) if ben_n else None
-    if "gate" in d and not _gated:
-        g = report(np.where(d["gate"], p, 0.0), d, sel, thr, _gated=True)
-        r["gated"] = {k: g[k] for k in ("tpr", "fpr", "idle_fpr", "benign_phases_alarmed", "ttd")}
+    return r
+
+
+UNGATED_KEYS = ("roc_auc", "pr_auc", "tpr", "fpr", "pair_macro_auc", "idle_fpr", "benign_phases_alarmed", "ttd")
+
+
+def report(p, d, sel, thr, thr_ungated=None):
+    """Metrics at the gated operating point; r["ungated"] = the same key metrics on raw scores
+    (with their own val threshold `thr_ungated` when given)."""
+    r = _report(operate(p, d), d, sel, thr)
+    if "gate" in d:
+        u = _report(p, d, sel, thr if thr_ungated is None else thr_ungated)
+        r["ungated"] = {k: u[k] for k in UNGATED_KEYS}
     return r
 
 
 def bootstrap_ci(p, d, sel, thr, B=1000, seed=0):
     """95% CI by resampling RUNS (with replacement) of the headline metrics on `sel`."""
+    p = operate(p, d)
     hm = headline_mask(d, sel)
     runs = np.unique(d["run"][hm])
     idx_by_run = {r: np.flatnonzero(hm & (d["run"] == r)) for r in runs}
@@ -140,7 +163,7 @@ def bootstrap_ci(p, d, sel, thr, B=1000, seed=0):
     pidx_by_run = {r: np.flatnonzero(pairs_all & (d["run"] == r)) for r in runs}
     y, pred = d["y"], p >= thr
     rng = np.random.default_rng(seed)
-    acc = {"roc_auc": [], "pr_auc": [], "tpr": [], "pair_macro_auc": []}
+    acc = {"roc_auc": [], "pr_auc": [], "tpr": [], "pair_macro_auc": [], "neg_control_auc": []}
     for _ in range(B):
         rs = rng.choice(runs, len(runs), replace=True)
         ix = np.concatenate([idx_by_run[r] for r in rs])
@@ -160,6 +183,9 @@ def bootstrap_ci(p, d, sel, thr, B=1000, seed=0):
                 pa.append(roc_auc_score(y[q], p[q]))
         if pa:
             acc["pair_macro_auc"].append(np.mean(pa))
+        q = jx[d["pair"][jx] == CONTROL]
+        if len(q) and y[q].min() != y[q].max():
+            acc["neg_control_auc"].append(roc_auc_score(y[q], p[q]))
     return {k: [round(float(np.quantile(v, 0.025)), 4), round(float(np.quantile(v, 0.975)), 4)] if v else None
             for k, v in acc.items()}
 
@@ -169,16 +195,16 @@ HEAD = ("roc_auc", "pr_auc", "tpr", "fpr", "pair_macro_auc", "mimicry_auc", "pul
 
 def md_table(name_to_report, ci=None):
     """Headline table; `ci` = {name: bootstrap_ci(...)} adds [lo, hi] under ROC/PR/TPR/macro."""
-    L = ["| model | ROC-AUC | PR-AUC | TPR@FPR1% | FPR | pair macro AUC | mimicry | pulsing | icmp control | idle FPR (gated) | TTD med/p90 s | benign phases alarmed (gated) |",
-         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
+    L = ["| model | ROC-AUC | PR-AUC | TPR@FPR1% (ungated) | FPR | pair macro AUC | mimicry | pulsing | icmp control | idle FPR (ungated) | attack phases detected ≤10 s / ≤20 s | TTD median s | benign phases alarmed (ungated) |",
+         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
     for n, r in name_to_report.items():
         c = (ci or {}).get(n) or {}
         f = lambda k: ("%s [%s–%s]" % (r[k], *c[k])) if c.get(k) else str(r[k])
-        g = r.get("gated") or {}
-        L.append("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s (%s) | %s/%s | %s (%s) |" % (
-            n, f("roc_auc"), f("pr_auc"), f("tpr"), r["fpr"], f("pair_macro_auc"), r["mimicry_auc"], r["pulsing_auc"],
-            r["neg_control_auc"], r["idle_fpr"], g.get("idle_fpr"), r["ttd"]["median_s"], r["ttd"]["p90_s"],
-            r["benign_phases_alarmed"], g.get("benign_phases_alarmed")))
+        u = r.get("ungated") or {}
+        L.append("| %s | %s | %s | %s (%s) | %s | %s | %s | %s | %s | %s (%s) | %s / %s | %s | %s (%s) |" % (
+            n, f("roc_auc"), f("pr_auc"), f("tpr"), u.get("tpr"), r["fpr"], f("pair_macro_auc"), r["mimicry_auc"],
+            r["pulsing_auc"], f("neg_control_auc"), r["idle_fpr"], u.get("idle_fpr"), r["ttd"]["detected_within_10s"],
+            r["ttd"]["detected_within_20s"], r["ttd"]["median_s"], r["benign_phases_alarmed"], u.get("benign_phases_alarmed")))
     return "\n".join(L)
 
 
@@ -219,3 +245,68 @@ def transfer_protocols(d):
 def short(r):
     return {k: r[k] for k in ("n_main", "roc_auc", "pr_auc", "tpr", "fpr", "pair_macro_auc", "mimicry_auc",
                               "pulsing_auc", "neg_control_auc")}
+
+
+def paired_bootstrap(pa, pb, d, sel, thra, thrb, B=1000, seed=0):
+    """95% CI of metric(A) - metric(B) on the SAME resampled runs (gated scores)."""
+    pa, pb = operate(pa, d), operate(pb, d)
+    hm = headline_mask(d, sel)
+    mm = sel & (d["kind"] == MAIN)
+    runs = np.unique(d["run"][hm])
+    ib = {r: np.flatnonzero(hm & (d["run"] == r)) for r in runs}
+    jb = {r: np.flatnonzero(mm & (d["run"] == r)) for r in runs}
+    y = d["y"]
+    rng = np.random.default_rng(seed)
+
+    def mets(p, thr, ix, jx):
+        yy = y[ix]
+        pa_ = []
+        for pr in set(d["pair"][jx]):
+            if "~" not in pr or pr == CONTROL:
+                continue
+            q = jx[d["pair"][jx] == pr]
+            if y[q].min() != y[q].max():
+                pa_.append(roc_auc_score(y[q], p[q]))
+        return (roc_auc_score(yy, p[ix]), average_precision_score(yy, p[ix]), (p[ix][yy == 1] >= thr).mean(),
+                np.mean(pa_) if pa_ else np.nan)
+
+    D = []
+    for _ in range(B):
+        rs = rng.choice(runs, len(runs), replace=True)
+        ix = np.concatenate([ib[r] for r in rs]); jx = np.concatenate([jb[r] for r in rs])
+        if y[ix].min() == y[ix].max():
+            continue
+        D.append(np.subtract(mets(pa, thra, ix, jx), mets(pb, thrb, ix, jx)))
+    D = np.array(D)
+    full_ix = np.flatnonzero(hm); full_jx = np.flatnonzero(mm)
+    point = np.subtract(mets(pa, thra, full_ix, full_jx), mets(pb, thrb, full_ix, full_jx))
+    return {k: {"diff": round(float(point[i]), 4), "ci": [round(float(np.nanquantile(D[:, i], 0.025)), 4),
+                                                         round(float(np.nanquantile(D[:, i], 0.975)), 4)]}
+            for i, k in enumerate(("roc_auc", "pr_auc", "tpr", "pair_macro_auc"))}
+
+
+def clean_generator_cells(d, min_backends=2):
+    """Windows whose generator cell (label-side family x schedule x load) is produced by >= 2
+    dual-use backends (main windows, all splits): leave-backend-out inside this subset tests an unseen
+    TOOL on a family/schedule/load that the model did see with another tool."""
+    mm = d["kind"] == MAIN
+    cell = np.char.add(np.char.add(d["family"], "|"), np.char.add(np.char.add(d["schedule"], "|"), d["load"].astype(str)))
+    ok = set()
+    for c in np.unique(cell[mm]):
+        b = set(d["backend"][mm & (cell == c)]) & set(DUAL_USE)
+        if len(b) >= min_backends:
+            ok.add(c)
+    return np.isin(cell, sorted(ok)), sorted(ok)
+
+
+def clean_generator_protocols(d):
+    sub, _ = clean_generator_cells(d)
+    return [("clean leave-generator-out %s" % b, sub & (d["backend"] != b), sub & (d["backend"] == b)) for b in DUAL_USE]
+
+
+def all_transfer_protocols(d):
+    """Every robustness transfer used by baselines and LSTM: plain transfers + clean leave-generator-out
+    (a: train+test inside the >=2-tool cells; b: train on all but tool b, test on b's clean cells)."""
+    sub, _ = clean_generator_cells(d)
+    return transfer_protocols(d) + clean_generator_protocols(d) + \
+        [("clean-b leave-generator-out %s" % b, d["backend"] != b, sub & (d["backend"] == b)) for b in DUAL_USE]

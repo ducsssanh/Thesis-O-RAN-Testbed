@@ -87,7 +87,7 @@ def main():
         d["split"] = E.split_from_windows(d, 20261023 + 100 * a.split_seed)
     ftrain, ftest = None, None
     if a.transfer:
-        P = {n: (tr, te) for n, tr, te in E.transfer_protocols(d)}
+        P = {n: (tr, te) for n, tr, te in E.all_transfer_protocols(d)}
         ftrain, ftest = P[a.transfer]
     names = meta["features"]
     keep = select(names, a.features)

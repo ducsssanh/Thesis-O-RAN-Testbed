@@ -63,14 +63,16 @@ ROLL_W = (5, 10, 30)
 GATE_KBPS = 50.0
 
 
-def rolling(df, X, cols):
-    """Causal rolling features per (run, UE) on the transformed values: the value itself (1 s) and
-    mean/std/slope/max over the past 5/10/30 s (history may include gap seconds; min 2 points)."""
+def rolling(df, X, cols, keys=("meta_run_id", "meta_supi")):
+    """Causal rolling features per `keys` group on the transformed values: the value itself (1 s) and
+    mean/std/slope/max over the past 5/10/30 s (min 2 points). Default groups = (run, UE): history
+    crosses phase starts into the gap / previous phase. keys + meta_phase = history CUT at the
+    phase start (leak diagnostic only; a deployed xApp does not know phase boundaries)."""
     names = ["%s@1" % c for c in cols] + ["%s@%d_%s" % (c, w, s) for w in ROLL_W for s in ("mean", "std", "slope", "max")
                                           for c in cols]
     R = np.full((len(df), len(names)), np.nan, np.float32)
     R[:, :len(cols)] = X
-    for _, g in df.groupby(["meta_run_id", "meta_supi"], sort=False):
+    for _, g in df.groupby(list(keys), sort=False):
         ix = g.index.to_numpy()
         x = pd.DataFrame(X[ix], columns=cols)
         t = pd.Series(np.arange(len(ix), dtype=float))
@@ -142,6 +144,12 @@ def main():
                                              "meta_victim_mode", "meta_backend", "meta_load_mbps",
                                              "meta_attack_active", "meta_t_since_phase_start")}
     pair = pd.Series(m["meta_pair"]).fillna("").astype(str).to_numpy().astype(str)
+    # generator cell of the window's own flow: schedule model and the label-side family
+    af = df.meta_attack_family.fillna("").astype(str).to_numpy()[end]
+    bc = df.meta_benign_class.fillna("").astype(str).to_numpy()[end]
+    schedule = np.where(lab == "MALICIOUS", [x.split("/")[-1] for x in af], bc).astype(str)
+    family = np.array([(pr.split("~")[0] if l == "MALICIOUS" else pr.split("~")[-1]) if pr else ""
+                       for pr, l in zip(pair, lab)]).astype(str)
     # per-window aggregates for the tabular baselines (mean, std, min, max, last over the window)
     raw = X[end[:, None] - np.arange(a.window)[None, ::-1]]
     agg = np.concatenate([np.nanmean(raw, 1), np.nanstd(raw, 1), np.nanmin(raw, 1), np.nanmax(raw, 1), raw[:, -1]], 1)
@@ -158,9 +166,12 @@ def main():
                         load=np.nan_to_num(m["meta_load_mbps"].astype(float)),
                         attack_active=np.nan_to_num(m["meta_attack_active"].astype(float), nan=-1),
                         t_since=np.nan_to_num(m["meta_t_since_phase_start"].astype(float), nan=-1),
-                        gate=gate, mean=mu, std=sd)
+                        gate=gate, schedule=schedule, family=family, mean=mu, std=sd)
     R, roll_names = rolling(df, X, cols)
     np.savez_compressed(out / "roll_v4.npz", R=R[end], names=np.array(roll_names))
+    df["_ph"] = df.meta_phase.fillna("")
+    Rc, _ = rolling(df, X, cols, keys=("meta_run_id", "meta_supi", "_ph"))
+    np.savez_compressed(out / "roll_cut_v4.npz", R=Rc[end], names=np.array(roll_names))
     miss = {lb: {c: round(float(df.loc[df.label == lb, c].isna().mean()), 4) for c in ("urr_ul_kbps", "prof_ul_kbps")}
             for lb in ("BENIGN", "MALICIOUS", "IDLE")}
     cnt = {s: {k: {"n": int(((split == si) & (kind == ki)).sum()),
