@@ -63,5 +63,15 @@ night batches under systemd-inhibit.
 - L1 (quarantine slice, 10 % PRB) does not throttle 0.4–1.2 Mbit/s floods in RFsim: delivered stays ~1.
 - rules-v1 (2 Mbit/s fair-use) cannot see these load-matched floods by construction.
 
-## Changes after the pilot
-(none yet)
+## Changes after the pilot (2026-10-24; pilot = 42/42 cells valid after 47 attempts, reports/pilot/)
+No change to the engine, models, thresholds, configurations, timing, scenarios or metrics.
+Tooling only:
+- `supervise_v5.py`: unattended driver (re-runs a manifest entry until valid, max 3 attempts; on a failed
+  preflight saves logs, recover_ran.sh, then recover_core_ordered.sh).
+- `recover_core_ordered.sh`: wait up to 180 s (was 90 s) for the UPF to register at the NRF — a restarted
+  UPF needs ~100 s; the short wait gave a false FAIL that left the SMF unassociated.
+- The v4 `userplane_watchdog.py` (auto-recovery, started 2026-10-22) was stopped: it restarted the core
+  during a pilot run (run 28 failed). Only the supervisor recovers during v5 campaigns.
+Pilot failure causes (all testbed, kept with meta_run_ok=0 and re-run): KPM indications stall ~15 s right at
+the gap-reset RC slice handover (2/46: runs 4, 19 — xApp watchdog restart); UE radio-link failure (2/46:
+runs 9, 33); external watchdog (1). Expected ~9 % re-runs in the main campaign.
