@@ -133,6 +133,12 @@ def recover(n):
     log("recover_core_ordered rc=%d: %s" % (rc, out.strip().splitlines()[-1] if out.strip() else ""))
     after_recovery()
     ok, reasons = healthy()
+    if not ok:                        # 2026-10-25: xApp<->FlexRIC E42 stuck (stale SCTP association) survived
+        log("recovery %d: still unhealthy (%s); recover_ran.sh again" % (n, "; ".join(reasons)))   # one pass, fixed by a second
+        sh("bash %s" % (ROOT / "scripts/k8s/phase0/recover_ran.sh"), timeout=900)
+        time.sleep(20)
+        after_recovery()
+        ok, reasons = healthy()
     log("recovery %d: %s" % (n, "healthy" if ok else "STILL UNHEALTHY: " + "; ".join(reasons)))
     return ok
 

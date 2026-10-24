@@ -155,3 +155,8 @@ decision changed; per-run sidecar p99 stayed 35–55 ms. User decision: run on, 
 stops only on: residual policy/level/tamper at a run start, a stale-KPM sidecar step in a valid run, a run whose
 sidecar p99 latency > 200 ms (= the xApp timeout: systematic fallback), or < 50 % valid attempts in a chunk of ≥ 10
 (testbed broken). In-phase fallbacks only flag the run (sensitivity analysis); flagged so far: 40, 91, 99.
+
+### Main campaign, tooling fix 5 (2026-10-25 03:50, after 115 valid runs; no defence/validity change)
+03:25 the xApp lost KPM (E42 to FlexRIC: setup response never received, xApp asserts and restarts in place; FlexRIC
+kept a stale SCTP association). recover_ran.sh, then recover_core_ordered.sh did not fix it and the supervisor
+stopped; a second manual recover_ran.sh did. The supervisor now runs recover_ran.sh once more before giving up.
