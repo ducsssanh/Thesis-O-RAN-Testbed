@@ -174,6 +174,7 @@ def main():
     ids = config_reps(parse_ids(a.ids, len(M["runs"])), M, a.config_reps)
     log("manifest %s: %d runs selected (config-reps %r), chunk %d" % (man.name, len(ids), a.config_reps, a.chunk))
     rec, batch = 0, 0
+    T0 = time.strftime("%Y%m%d-%H%M%S")              # QA report names stay unique across supervisor restarts
     while True:
         while other_campaign_running():
             time.sleep(30)
@@ -202,10 +203,10 @@ def main():
             camps = sorted(EXP.glob("*_v5live_%s_s%d" % (a.tag, batch)))
             qdir = EXP / ("qa_v5_%s" % a.tag)
             qdir.mkdir(exist_ok=True)
-            rc, out = sh("%s -I %s %s --out %s" % (PY, HERE / "qa_v5.py", " ".join(map(str, camps)), qdir / ("batch%02d.md" % batch)))
+            rc, out = sh("%s -I %s %s --out %s" % (PY, HERE / "qa_v5.py", " ".join(map(str, camps)), qdir / ("%s_batch%02d.md" % (T0, batch))))
             log("QA batch %d rc=%d: %s" % (batch, rc, out.strip().splitlines()[-1] if out.strip() else ""))
             if rc != 0:
-                log("STOP: QA failed after batch %d (report %s)" % (batch, (qdir / ("batch%02d.md" % batch)).relative_to(ROOT)))
+                log("STOP: QA failed after batch %d (report %s)" % (batch, (qdir / ("%s_batch%02d.md" % (T0, batch))).relative_to(ROOT)))
                 return 3
 
 

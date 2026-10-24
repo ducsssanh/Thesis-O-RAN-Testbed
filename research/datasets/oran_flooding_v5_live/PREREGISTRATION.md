@@ -128,3 +128,12 @@ QA valid-rate rule then stopped the supervisor on a 4-attempt chunk instead of l
 the QA valid-rate stop needs ≥ 10 attempts in the chunk (`qa_v5.MIN_N`); the supervisor preflight also requires the
 readiness condition (fresh KPM + URR for both UEs), so a dead UE triggers recover_ran.sh. Images verified unchanged
 (the xApp pod restart at 14:31 was the harness's `rollout restart` after it re-attached ue2).
+
+### Main campaign, tooling fix 2 (2026-10-24 17:00, after main attempt 30; no defence/validity change)
+QA stopped the supervisor on "classifier fallback in a valid run": runs 27 and 29 had 4 fallbacks each, all from one
+burst of sidecar latency 370–550 ms (> the xApp's 200 ms timeout; host load ~11, swap in use). Both bursts lie in
+gaps (run 27: gap00, 5 s after p00 ended; run 29: gap03, 37 s after p03 ended): no traffic, the xApp's rules said
+benign, no action; the sidecar still stepped (state = engine). No phase metric uses gap time. The QA stop is narrowed
+to a fallback inside a live_eval phase window ([t_start, t_end + 2 s], located by sidecar steps > 150 ms ± 1 s) or a
+fallback with no slow step at all; gap/idle fallbacks are counted and reported (metric group 5). QA report files
+are now named per supervisor start (`<start>_batchNN.md`) so a restart cannot overwrite one.

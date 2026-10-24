@@ -6,15 +6,19 @@
 Per attempt (every run dir, valid or not):
   run_ok        meta_run_ok and the reason of a failed attempt (error / integrity / profiler)
   readiness     wait before each traffic phase (s); a readiness timeout is a failed attempt
-  fallbacks     xApp classifier fallbacks to the rules during the run (snapshot end - start)
+  fallbacks     xApp classifier fallbacks to the rules during the run (snapshot end - start), located by the
+                sidecar steps slower than SLOW_MS (xApp timeout 200 ms) +- 1 s: inside a traffic phase window of
+                live_eval_v5 ([t_start, t_end + 2 s]) or not; a fallback with no slow step at all is unexplained
   residual      anything left at the run start: UPF policies, an xApp level > 0, a KPM tamper
   stale KPM     sidecar steps whose KPM was older than 3 s (would enter the integrity rule as
                 missing KPM; never seen in the pilot, must stay 0)
-STOP (exit 1) when: a residual policy/level/tamper at a run start, a fallback in a valid run, a
+STOP (exit 1) when: a residual policy/level/tamper at a run start, a fallback in a traffic phase of a
+valid run or one that no slow sidecar step explains (fallbacks in gaps/idle: no traffic, reported only), a
 stale-KPM step in a valid run, or fewer than MIN_OK of >= MIN_N attempts valid.
 """
 import argparse, json, pathlib, sys
 
+SLOW_MS = 150.0
 MIN_OK, MIN_N = 0.75, 10           # the valid-rate stop needs >= MIN_N attempts: a chunk cut short by the
                                    # campaign's 2-failures stop is a testbed failure, handled by the recovery
 
@@ -56,8 +60,12 @@ def attempt(rd):
         if (s0.get("defense_state") or {}).get("tamper"):
             res.append("tamper on")
     r["residual"] = res
-    r["stale_kpm_steps"] = sum(1 for o in jsonl(rd / "defense/sidecar.jsonl")
-                               if "row" in o and (o["row"].get("kpm_age_s") is None or o["row"]["kpm_age_s"] > 3.0))
+    steps = [o for o in jsonl(rd / "defense/sidecar.jsonl") if "row" in o]
+    r["stale_kpm_steps"] = sum(1 for o in steps if o["row"].get("kpm_age_s") is None or o["row"]["kpm_age_s"] > 3.0)
+    win = [(ph["name"], ph["t_start"], ph["t_end"] + 2) for ph in m.get("phases") or [] if ph["name"].startswith("p")]
+    slow = [o["ts"] for o in steps if (o.get("latency_ms") or 0) > SLOW_MS]
+    r["fallback_in_phase"] = sorted({n for t in slow for n, a, b in win if a <= t + 1 and t - 1 <= b})
+    r["fallback_unlocated"] = int(bool(r["fallbacks"]) and not slow)
     return r
 
 
@@ -66,8 +74,8 @@ def qa(camps):
     stop = []
     if any(a["residual"] for a in A):
         stop.append("residual state at a run start")
-    if any(a["ok"] and a["fallbacks"] for a in A):
-        stop.append("classifier fallback in a valid run")
+    if any(a["ok"] and a["fallbacks"] and (a["fallback_in_phase"] or a["fallback_unlocated"]) for a in A):
+        stop.append("classifier fallback in a traffic phase (or unexplained) of a valid run")
     if any(a["ok"] and a["stale_kpm_steps"] for a in A):
         stop.append("sidecar stepped on stale KPM in a valid run")
     n_ok = sum(a["ok"] for a in A)
@@ -78,6 +86,7 @@ def qa(camps):
     summ = {"attempts": len(A), "valid": n_ok, "readiness_timeouts": sum(a["readiness_timeout"] for a in A),
             "phases_checked": len(waits), "wait_p50_s": q(0.5), "wait_p99_s": q(0.99), "wait_max_s": waits[-1] if waits else None,
             "phases_waited_gt1s": sum(w > 1 for w in waits), "fallbacks": sum(a["fallbacks"] or 0 for a in A),
+            "fallback_runs_in_phase": sum(bool(a["fallback_in_phase"] or a["fallback_unlocated"]) for a in A if a["fallbacks"]),
             "residual": sum(bool(a["residual"]) for a in A), "stale_kpm_steps": sum(a["stale_kpm_steps"] for a in A),
             "stop": stop}
     return summ, A
@@ -90,7 +99,7 @@ def report(summ, A, camps):
     L += ["", "**%s**" % ("STOP: " + "; ".join(summ["stop"]) if summ["stop"] else "PASS"), "",
           "| id | scenario | config | ok | readiness waits (s) | fallbacks | residual | stale KPM | why |", "|---|---|---|---|---|---|---|---|---|"]
     L += ["| %s | %s | %s | %d | %s | %s | %s | %d | %s |" % (a["id"], a["scenario"], a["config"], a["ok"],
-          " ".join("%.1f" % w for w in a["waits"]), a["fallbacks"], "; ".join(a["residual"]), a["stale_kpm_steps"],
+          " ".join("%.1f" % w for w in a["waits"]), "%s%s" % (a["fallbacks"], " in " + ",".join(a["fallback_in_phase"]) if a.get("fallback_in_phase") else ""), "; ".join(a["residual"]), a["stale_kpm_steps"],
           a["why"].replace("|", "/")) for a in A]
     return "\n".join(L) + "\n"
 
