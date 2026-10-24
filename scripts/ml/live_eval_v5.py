@@ -231,13 +231,19 @@ def main():
     man = json.loads(pathlib.Path(a.manifest).read_text())
     cal = calibration()
     units, metas = [], []
-    for c in a.camps:
+    for c in a.camps:                     # pilot data never enters a main analysis: other manifest -> refuse
+        cm = pathlib.Path(json.loads((pathlib.Path(c) / "campaign.json").read_text())["manifest"]).resolve()
+        if cm != pathlib.Path(a.manifest).resolve():
+            raise SystemExit("%s ran manifest %s, not %s" % (c, cm, a.manifest))
         for rd in sorted(pathlib.Path(c).glob("runs/*/rep-*")):
             u, m = run_units(rd, man, cal)
             m["_dir"] = str(rd)
             metas.append(m)
             if a.all_runs or m.get("meta_run_ok") == 1:
                 units += u
+    dup = pd.Series([m.get("manifest_id") for m in metas if m.get("meta_run_ok") == 1]).value_counts()
+    if not a.all_runs and (dup > 1).any():
+        raise SystemExit("manifest runs with more than one valid attempt: %s" % list(dup[dup > 1].index))
     U = pd.DataFrame(units)
     out = pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

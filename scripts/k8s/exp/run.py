@@ -117,6 +117,49 @@ def phase_unhooks(p, done):
         done["core_outage"]["up_at"] = round(time.time(), 3)
 
 
+_READY = r"""
+import json, sys, time, datetime
+d, supis = sys.argv[1], sys.argv[2].split(",")
+def tail(f, n=40000):
+    try:
+        with open(d + f, "rb") as fh:
+            fh.seek(0, 2); fh.seek(max(0, fh.tell() - n)); return fh.read().decode(errors="replace").splitlines()[1:]
+    except OSError:
+        return []
+kpm, urr = {}, {}
+for l in tail("KPI_Metrics_RawKpm.jsonl"):
+    try: o = json.loads(l); kpm[o["supi"]] = max(kpm.get(o["supi"], 0), o["arrival_ts"])
+    except (ValueError, KeyError): pass
+for l in tail("urr-received.jsonl"):
+    try: o = json.loads(l); urr[o["report"]["supi"]] = max(urr.get(o["report"]["supi"], 0), o["received_unix_ms"] / 1000.0)
+    except (ValueError, KeyError): pass
+now = time.time()
+print(json.dumps({s: [round(now - kpm[s], 2) if s in kpm else None, round(now - urr[s], 2) if s in urr else None] for s in supis}))
+"""
+
+
+def readiness(ue_names, kpm_max=3.0, urr_max=3.0, max_wait=30.0):
+    """v5: before a traffic phase, wait until the xApp has a KPM report younger than kpm_max s and a
+    URR report received less than urr_max s ago for every UE (what the defence would see). Returns
+    {wait_s, ages}; raises LabError (run not valid) after max_wait s."""
+    supis = [lab.UES[n][2] for n in ue_names]
+    t0, ages = time.time(), {}
+    while True:
+        try:
+            ages = json.loads(lab.ex("near-rt-ric", "oai-lab-xapp", "xapp", "python3", "-c", _READY, collect.run_dir_xapp(),
+                                     ",".join(supis), timeout=20).strip().splitlines()[-1])
+        except Exception as e:
+            ages = {"error": str(e)[:200]}
+        ok = all(isinstance(ages.get(s), list) and ages[s][0] is not None and ages[s][0] < kpm_max
+                 and ages[s][1] is not None and ages[s][1] < urr_max for s in supis)
+        waited = round(time.time() - t0, 1)
+        if ok:
+            return {"wait_s": waited, "ages": ages}
+        if waited >= max_wait:
+            raise lab.LabError("readiness: KPM/URR not fresh after %.0f s (ages [kpm, urr] s: %s)" % (waited, json.dumps(ages)))
+        time.sleep(1)
+
+
 def ensure_alive(ue_names):
     """A UE whose PDU session is gone (e.g. released by T2 after a long block)
     is re-attached, then the xApp restarted (its KPM UE list)."""
@@ -196,6 +239,8 @@ def run_once(scn, variant, rep, camp_dir):
                     apply_defense(run["defense"], [])  # run-time settings are not persisted by the xApp
                 ph["action"] = {**act, "seconds": round(time.time() - t_a, 1), "new_ip": ip}
             ips = {n: lab.ue_ip(n, wait=30) for n in ue_names}
+            if run["defense"].get("readiness") and p.get("flows"):   # v5: fresh telemetry before the hooks
+                ph["readiness"] = readiness(ue_names, **run["defense"]["readiness"])
             hooked = phase_hooks(p, run, ue_names)
             if hooked:
                 ph["hooks"] = hooked

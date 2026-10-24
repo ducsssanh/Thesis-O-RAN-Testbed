@@ -75,3 +75,48 @@ Tooling only:
 Pilot failure causes (all testbed, kept with meta_run_ok=0 and re-run): KPM indications stall ~15 s right at
 the gap-reset RC slice handover (2/46: runs 4, 19 — xApp watchdog restart); UE radio-link failure (2/46:
 runs 9, 33); external watchdog (1). Expected ~9 % re-runs in the main campaign.
+
+## Main campaign freeze (2026-10-24, before main run 1)
+Approved after the pilot with three tooling changes. Engine, models, thresholds, configurations,
+timing, scenarios, metrics and validity rules are unchanged.
+
+Frozen artifacts, checked against the running pod before run 1 (sidecar `/healthz`, deployment images):
+| item | value (sha256) |
+|---|---|
+| xApp / sidecar / producer / adapter images | `oai-lab-xapp:31961c9a9a28f3c1`, `oai-lab-sidecar:5a2ca22005c47270`, `oai-lab-urr-ei-producer:00b9b70c6d9b8a39`, `oai-lab-a1-ei-adapter:6be3ddf2ba9f499a` |
+| sidecar `v4-live-2`: `sidecar_v4.py` / `defence_engine_v4.py` | `b98c0980950704d50f2f981a2ea6713daf367b3493b7c4494e537b5f8da565fa` / `6bc1c556c80cc44b4f1e5bdcd529e378354c4bf3fbb0cd85d69a0f178ca05515` |
+| spec / integrity rule | `1fac7d0bd183b5e622d29367672922eec13ac71ad77a0939a4c4d3618a27809c` / `610face2148689a039ae4c1c4be1c450042de43775e6b8db8d2b8d7a04a5d7e6` (tau 0.7, m 10, bias −0.0476) |
+| GBDT xd / core / ran | `4c29a3b48838c2ad7b53d4a85d2546cabc59334bd3331fa66af85319b9af20ed` / `09b7482ac1a647e282e5c202442678b1671a6358713b2758dd70943abf2b88e8` / `cdad0c5d5da74c9cc9620703a2f9db94e43a891fc972af8494e72c9357058c2b` |
+| main manifest `design.json` | `69e38a7152227e176e313218a0f80693adb317fa7f429235b221f54fb2878c92` (unchanged; the subset below is selected by the supervisor) |
+| tooling (sha256 prefix) | run.py `d5a7b1d6be717525`, campaign.py `5626e3d4f69ce021`, supervise_v5.py `7a581e1f0a09eadf`, qa_v5.py `60ed2376fde71c2e`, integrity.py `34c21b8a2f07c3c1`, live_eval_v5.py `272297c38f981176` |
+
+Changes (tooling only):
+1. **Readiness before each traffic phase** (`run.py readiness()`, config `campaign.READINESS`): a phase (and its
+   tamper / core-outage hook) starts only when the xApp holds, for both UEs, a KPM report < 3 s old and a URR report
+   received < 3 s ago. Wait ≤ 30 s, else the run fails (`meta_run_ok=0`, error `readiness: …` with the ages).
+   The wait lies between the gap's end and the phase's start, so phase and gap durations are unaffected. Each phase
+   records `readiness.wait_s` and the ages. A KPM stall inside a gap still fails the run under the unchanged
+   integrity rule (stream gap > 3 s in any planned phase, gaps included) — the pilot's 2 KPM-stall failures were of
+   that kind, so the re-run rate is not expected to drop much.
+2. **rules-v1 = 2 reps per scenario** (reference only; it cannot see these floods by construction): manifest reps
+   1 and 3 (loads 0.4 and 1.2 Mbit/s, pairs udp/syn and mimicry/fanout), `supervise_v5.py --config-reps rules-v1=1,3`.
+   Main campaign = 7 × 5 × 6 + 7 × 2 = **224 runs**. Pilot wall time per run (start to start): 384 s for 4-phase runs,
+   217 s for icmp_control → 192 × 384 s + 32 × 217 s ≈ 22.4 h, + ~11 % re-runs (pilot 5/47) and recoveries ≈ **25–26 h**.
+3. **Pilot excluded** from every main analysis: `live_eval_v5.py` refuses a campaign whose `campaign.json` manifest
+   is not `--manifest` (the pilot ran `pilot.json`), and refuses two valid attempts of one manifest run.
+Automatic QA after every 50 runs (`qa_v5.py`, supervisor `--chunk 50`, reports in `artifacts/experiments/qa_v5_main/`):
+run_ok and failure reasons, readiness waits / timeouts, classifier fallbacks, residual UPF policy / xApp level /
+tamper at each run start, sidecar steps on stale KPM. The supervisor STOPS (human needed) on a residual state, a
+fallback or a stale-KPM step in a valid run, fewer than 75 % valid attempts in a chunk, or a failed recovery.
+
+Missing KPM vs deviating KPM in the integrity rule (checked before run 1):
+- The engine itself does not separate them: `defence_engine_v4.py:117` turns a missing KPM UL rate (NaN) into
+  0 kbps, and only URR freshness gates the rule (`:119` fresh, `:135` violation needs the 10 s window fully URR-fresh).
+  A row with missing KPM and active URR would therefore count as "KPM < URR" (hiding).
+- Live, such a row is never formed: the sidecar steps only on a new KPM report (`sidecar_v4.py:170-171`, a repeated
+  seq returns the cached answer without a step), so a KPM stall pauses the rule instead of feeding it zeros; a step
+  whose KPM is older than 3 s would carry NaN (`sidecar_v4.py:85-88`). Pilot: 29,859 sidecar steps, KPM age max
+  0.09 s, 0 steps with missing KPM. `qa_v5.py` asserts this stays 0 for every valid main run (stop otherwise).
+- Missing URR (core outage) is never a violation (`:119`, `:135`).
+- Not changed (frozen defence). Limitation for the thesis: in the offline replay grid (1 row per second) a second
+  without KPM enters the rule as 0 kbps; the live system only avoids this through its KPM-driven stepping.

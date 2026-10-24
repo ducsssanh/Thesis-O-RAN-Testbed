@@ -4,13 +4,15 @@ testbed in between. Unattended driver around campaign.py (which stops on a faile
 2 failed runs in a row).
 
   .venv-ml/bin/python -I scripts/k8s/exp/v4traffic/supervise_v5.py --manifest <json> --tag pilot \
-        [--ids 1-42] [--max-attempts 3]
+        [--ids 1-42] [--max-attempts 3] [--config-reps rules-v1=1,3] [--chunk 50]
 
 Loop: wait while another campaign.py runs -> runs still lacking a valid attempt (all campaigns
 artifacts/experiments/*_v5live_<tag>* of this manifest) -> preflight (PFCP + fresh URR of both
 sessions + xApp knows 2 SUPIs); if it fails: save core/RAN logs, recover_ran.sh, UE routes,
 defence off; still failing: recover_core_ordered.sh; still failing: stop (human needed) ->
-campaign.py --reps <missing> -> repeat. A run is given up after --max-attempts failed attempts.
+campaign.py --reps <next --chunk missing> -> qa_v5 over that chunk's attempts (STOP on a QA
+failure: human needed) -> repeat. A run is given up after --max-attempts failed attempts.
+--config-reps CONFIG=REPS keeps only those manifest reps of CONFIG (main campaign: rules-v1 = reference).
 Every action is logged to artifacts/experiments/supervise_v5_<tag>.log.
 """
 import argparse, json, pathlib, subprocess, sys, time
@@ -140,6 +142,16 @@ def parse_ids(s, n):
     return out
 
 
+def config_reps(ids, man, spec):
+    """Drop the manifest runs of a config whose rep is not listed (spec 'rules-v1=1,3;...')."""
+    keep = {}
+    for part in filter(None, (spec or "").split(";")):
+        c, _, r = part.partition("=")
+        keep[c] = {int(x) for x in r.split(",")}
+    runs = man["runs"]
+    return [i for i in ids if runs[i - 1]["config"] not in keep or runs[i - 1]["rep"] in keep[runs[i - 1]["config"]]]
+
+
 def main():
     global LOG
     ap = argparse.ArgumentParser()
@@ -148,10 +160,14 @@ def main():
     ap.add_argument("--ids", default="")
     ap.add_argument("--max-attempts", type=int, default=3)
     ap.add_argument("--max-recoveries", type=int, default=6)
+    ap.add_argument("--config-reps", default="")
+    ap.add_argument("--chunk", type=int, default=0, help="runs per campaign.py call, QA after each (0: all, no QA)")
     a = ap.parse_args()
     man = pathlib.Path(a.manifest)
     LOG = EXP / ("supervise_v5_%s.log" % a.tag)
-    ids = parse_ids(a.ids, len(json.loads(man.read_text())["runs"]))
+    M = json.loads(man.read_text())
+    ids = config_reps(parse_ids(a.ids, len(M["runs"])), M, a.config_reps)
+    log("manifest %s: %d runs selected (config-reps %r), chunk %d" % (man.name, len(ids), a.config_reps, a.chunk))
     rec, batch = 0, 0
     while True:
         while other_campaign_running():
@@ -171,10 +187,21 @@ def main():
                 log("STOP: testbed not recoverable automatically (recoveries %d)" % rec)
                 return 2
         batch += 1
+        if a.chunk:
+            todo = todo[:a.chunk]
         log("batch %d: runs %s" % (batch, todo))
         rc, out = sh("systemd-inhibit --what=sleep:idle --why='v5 %s' %s -I %s run --variant manifest --manifest %s --reps %s --tag %s_s%d"
                      % (a.tag, PY, HERE / "campaign.py", man, " ".join(map(str, todo)), a.tag, batch), timeout=48 * 3600)
         log("batch %d ended rc=%d: %s" % (batch, rc, " ".join(out.strip().splitlines()[-3:])[:300]))
+        if a.chunk:
+            camps = sorted(EXP.glob("*_v5live_%s_s%d" % (a.tag, batch)))
+            qdir = EXP / ("qa_v5_%s" % a.tag)
+            qdir.mkdir(exist_ok=True)
+            rc, out = sh("%s -I %s %s --out %s" % (PY, HERE / "qa_v5.py", " ".join(map(str, camps)), qdir / ("batch%02d.md" % batch)))
+            log("QA batch %d rc=%d: %s" % (batch, rc, out.strip().splitlines()[-1] if out.strip() else ""))
+            if rc != 0:
+                log("STOP: QA failed after batch %d (report %s)" % (batch, (qdir / ("batch%02d.md" % batch)).relative_to(ROOT)))
+                return 3
 
 
 if __name__ == "__main__":

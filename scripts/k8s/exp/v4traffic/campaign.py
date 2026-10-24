@@ -29,6 +29,9 @@ import lab
 import build_dataset_v4 as B
 import integrity
 
+# v5 main campaign (tooling, after the pilot): every traffic phase starts only when the xApp holds a KPM
+# report < 3 s old and a URR report received < 3 s ago for both UEs; else the run fails after 30 s
+READINESS = {"kpm_max": 3.0, "urr_max": 3.0, "max_wait": 30.0}
 STOP_GATES = {"nuisance_auc_max": 0.6, "balance_tol": 0.05, "sym_tol": 0.05,
               "achieved_ok_min": 0.85, "size_overlap_min": 0.6}
 
@@ -300,7 +303,7 @@ def run_v5(man, manifest_path, order, tag, only=None):
             return {"stopped": i + 1, "reason": "preflight", "reasons": preasons, "done": done}
         scn = scn_for_run(e["phases"], v5=True)
         scn["name"] = "v5live"
-        variant = {"name": e["config"], "defense": e["defense"]}
+        variant = {"name": e["config"], "defense": {**e["defense"], "readiness": READINESS}}
         ok = harness.run_once(scn, variant, i + 1, camp)
         rd = camp / "runs" / e["config"] / ("rep-%02d" % (i + 1))
         mp = record_mapping(rd)
