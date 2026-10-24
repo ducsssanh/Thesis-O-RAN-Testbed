@@ -12,13 +12,16 @@ Per attempt (every run dir, valid or not):
   residual      anything left at the run start: UPF policies, an xApp level > 0, a KPM tamper
   stale KPM     sidecar steps whose KPM was older than 3 s (would enter the integrity rule as
                 missing KPM; never seen in the pilot, must stay 0)
-STOP (exit 1) when: a residual policy/level/tamper at a run start, a fallback in a traffic phase of a
-valid run or one that no slow sidecar step explains (fallbacks in gaps/idle: no traffic, reported only), a
+A valid run with a fallback in a traffic phase (or one no slow sidecar step explains) is FLAGGED: it stays
+valid and the final report repeats every metric without the flagged runs (sensitivity). Gap/idle fallbacks
+are counted only. STOP (exit 1) when: a residual policy/level/tamper at a run start, a flagged run with more
+than FLAG_MAX_FB fallbacks, flagged runs > FLAG_MAX_FRAC of the attempts (>= MIN_N), a
 stale-KPM step in a valid run, or fewer than MIN_OK of >= MIN_N attempts valid.
 """
 import argparse, json, pathlib, sys
 
 SLOW_MS = 150.0
+FLAG_MAX_FB, FLAG_MAX_FRAC = 3, 0.10   # beyond this a fallback is systematic (latency), not a one-off
 MIN_OK, MIN_N = 0.75, 10           # the valid-rate stop needs >= MIN_N attempts: a chunk cut short by the
                                    # campaign's 2-failures stop is a testbed failure, handled by the recovery
 
@@ -74,8 +77,13 @@ def qa(camps):
     stop = []
     if any(a["residual"] for a in A):
         stop.append("residual state at a run start")
-    if any(a["ok"] and a["fallbacks"] and (a["fallback_in_phase"] or a["fallback_unlocated"]) for a in A):
-        stop.append("classifier fallback in a traffic phase (or unexplained) of a valid run")
+    flagged = [a for a in A if a["ok"] and a["fallbacks"] and (a["fallback_in_phase"] or a["fallback_unlocated"])]
+    for a in A:
+        a["flagged"] = a in flagged
+    if any(a["fallbacks"] > FLAG_MAX_FB for a in flagged):
+        stop.append("flagged run with > %d fallbacks" % FLAG_MAX_FB)
+    if len(A) >= MIN_N and len(flagged) / len(A) > FLAG_MAX_FRAC:
+        stop.append("flagged runs %d/%d > %.0f %%" % (len(flagged), len(A), 100 * FLAG_MAX_FRAC))
     if any(a["ok"] and a["stale_kpm_steps"] for a in A):
         stop.append("sidecar stepped on stale KPM in a valid run")
     n_ok = sum(a["ok"] for a in A)
@@ -86,7 +94,7 @@ def qa(camps):
     summ = {"attempts": len(A), "valid": n_ok, "readiness_timeouts": sum(a["readiness_timeout"] for a in A),
             "phases_checked": len(waits), "wait_p50_s": q(0.5), "wait_p99_s": q(0.99), "wait_max_s": waits[-1] if waits else None,
             "phases_waited_gt1s": sum(w > 1 for w in waits), "fallbacks": sum(a["fallbacks"] or 0 for a in A),
-            "fallback_runs_in_phase": sum(bool(a["fallback_in_phase"] or a["fallback_unlocated"]) for a in A if a["fallbacks"]),
+            "flagged_runs": [a["id"] for a in flagged],
             "residual": sum(bool(a["residual"]) for a in A), "stale_kpm_steps": sum(a["stale_kpm_steps"] for a in A),
             "stop": stop}
     return summ, A

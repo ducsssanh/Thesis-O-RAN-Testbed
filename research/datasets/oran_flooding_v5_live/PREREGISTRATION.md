@@ -137,3 +137,12 @@ benign, no action; the sidecar still stepped (state = engine). No phase metric u
 to a fallback inside a live_eval phase window ([t_start, t_end + 2 s], located by sidecar steps > 150 ms ± 1 s) or a
 fallback with no slow step at all; gap/idle fallbacks are counted and reported (metric group 5). QA report files
 are now named per supervisor start (`<start>_batchNN.md`) so a restart cannot overwrite one.
+
+### Main campaign, tooling fix 3 (2026-10-24 18:50, after main attempt 56; user decision; no defence/validity change)
+Run 40 (honest / xd-trust-v1) had 1 fallback inside p03_syn: the xApp's 200 ms timeout expired before the request
+reached the sidecar (no slow sidecar step; the sidecar missed one step of ue2), so the xApp's rules decided that one
+second. A valid run with a fallback in a traffic phase (or an unexplained one) is now FLAGGED instead of stopping the
+campaign: it keeps meta_run_ok, and the final report repeats every metric without the flagged runs (sensitivity
+analysis). QA still stops when a flagged run has > 3 fallbacks or flagged runs exceed 10 % of a chunk (≥ 10 attempts)
+— a systematic latency problem. Flagged so far: run 40. The supervisor's QA now covers only the campaigns of its
+own start (a restart reuses batch numbers). Runs 48–49 failed because ue1 lost its tunnel IP (testbed, re-run).

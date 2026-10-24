@@ -200,7 +200,7 @@ def main():
                      % (a.tag, PY, HERE / "campaign.py", man, " ".join(map(str, todo)), a.tag, batch), timeout=48 * 3600)
         log("batch %d ended rc=%d: %s" % (batch, rc, " ".join(out.strip().splitlines()[-3:])[:300]))
         if a.chunk:
-            camps = sorted(EXP.glob("*_v5live_%s_s%d" % (a.tag, batch)))
+            camps = sorted(c for c in EXP.glob("*_v5live_%s_s%d" % (a.tag, batch)) if c.name[:15] >= T0)  # this start only
             qdir = EXP / ("qa_v5_%s" % a.tag)
             qdir.mkdir(exist_ok=True)
             rc, out = sh("%s -I %s %s --out %s" % (PY, HERE / "qa_v5.py", " ".join(map(str, camps)), qdir / ("%s_batch%02d.md" % (T0, batch))))
