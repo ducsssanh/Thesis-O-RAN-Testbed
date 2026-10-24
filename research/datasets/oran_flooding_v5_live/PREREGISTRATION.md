@@ -120,3 +120,11 @@ Missing KPM vs deviating KPM in the integrity rule (checked before run 1):
 - Missing URR (core outage) is never a violation (`:119`, `:135`).
 - Not changed (frozen defence). Limitation for the thesis: in the offline replay grid (1 row per second) a second
   without KPM enters the rule as 0 kbps; the live system only avoids this through its KPM-driven stepping.
+
+### Main campaign, tooling fix 1 (2026-10-24 14:55, after main attempt 16; no defence/validity change)
+Main runs 13 and 14 (rules-v1) failed on the readiness check: ue1 had a radio-link failure (gNB "UL failure timer
+expiry", then RRCReject) — KPM age 52 s / 110 s. campaign.py stopped after 2 failures in a row, as designed, but the
+QA valid-rate rule then stopped the supervisor on a 4-attempt chunk instead of letting the recovery run. Fixes:
+the QA valid-rate stop needs ≥ 10 attempts in the chunk (`qa_v5.MIN_N`); the supervisor preflight also requires the
+readiness condition (fresh KPM + URR for both UEs), so a dead UE triggers recover_ran.sh. Images verified unchanged
+(the xApp pod restart at 14:31 was the harness's `rollout restart` after it re-attached ue2).

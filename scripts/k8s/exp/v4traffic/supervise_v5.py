@@ -8,7 +8,7 @@ testbed in between. Unattended driver around campaign.py (which stops on a faile
 
 Loop: wait while another campaign.py runs -> runs still lacking a valid attempt (all campaigns
 artifacts/experiments/*_v5live_<tag>* of this manifest) -> preflight (PFCP + fresh URR of both
-sessions + xApp knows 2 SUPIs); if it fails: save core/RAN logs, recover_ran.sh, UE routes,
+sessions + xApp knows 2 SUPIs + fresh KPM/URR of both UEs); if it fails: save core/RAN logs, recover_ran.sh, UE routes,
 defence off; still failing: recover_core_ordered.sh; still failing: stop (human needed) ->
 campaign.py --reps <next --chunk missing> -> qa_v5 over that chunk's attempts (STOP on a QA
 failure: human needed) -> repeat. A run is given up after --max-attempts failed attempts.
@@ -87,6 +87,11 @@ def healthy():
     n = len((st or {}).get("ues") or [])
     if n < 2:
         ok, reasons = False, reasons + ["xApp knows %d SUPIs" % n]
+    import run                                     # KPM + URR fresh for both UEs (a UE after a radio-link failure)
+    try:
+        run.readiness(["ue1", "ue2"], **campaign.READINESS)
+    except Exception as e:
+        ok, reasons = False, reasons + [str(e)[:200]]
     return ok, reasons
 
 

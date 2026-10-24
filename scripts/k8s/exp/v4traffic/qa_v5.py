@@ -11,11 +11,12 @@ Per attempt (every run dir, valid or not):
   stale KPM     sidecar steps whose KPM was older than 3 s (would enter the integrity rule as
                 missing KPM; never seen in the pilot, must stay 0)
 STOP (exit 1) when: a residual policy/level/tamper at a run start, a fallback in a valid run, a
-stale-KPM step in a valid run, or fewer than MIN_OK of the attempts valid.
+stale-KPM step in a valid run, or fewer than MIN_OK of >= MIN_N attempts valid.
 """
 import argparse, json, pathlib, sys
 
-MIN_OK = 0.75
+MIN_OK, MIN_N = 0.75, 10           # the valid-rate stop needs >= MIN_N attempts: a chunk cut short by the
+                                   # campaign's 2-failures stop is a testbed failure, handled by the recovery
 
 
 def jsonl(p):
@@ -70,7 +71,7 @@ def qa(camps):
     if any(a["ok"] and a["stale_kpm_steps"] for a in A):
         stop.append("sidecar stepped on stale KPM in a valid run")
     n_ok = sum(a["ok"] for a in A)
-    if A and n_ok / len(A) < MIN_OK:
+    if len(A) >= MIN_N and n_ok / len(A) < MIN_OK:
         stop.append("valid attempts %d/%d < %.0f %%" % (n_ok, len(A), 100 * MIN_OK))
     waits = sorted(w for a in A for w in a["waits"])
     q = lambda p: waits[min(len(waits) - 1, int(p * len(waits)))] if waits else None
