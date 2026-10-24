@@ -146,3 +146,12 @@ campaign: it keeps meta_run_ok, and the final report repeats every metric withou
 analysis). QA still stops when a flagged run has > 3 fallbacks or flagged runs exceed 10 % of a chunk (≥ 10 attempts)
 — a systematic latency problem. Flagged so far: run 40. The supervisor's QA now covers only the campaigns of its
 own start (a restart reuses batch numbers). Runs 48–49 failed because ue1 lost its tunnel IP (testbed, re-run).
+
+### Main campaign, tooling fix 4 (2026-10-25 00:40, after 95 valid runs; user decision; no defence/validity change)
+QA stopped at 00:29 on the "systematic fallback" thresholds: runs 99 (core_outage / core-only: one 1.5 s burst of
+450–630 ms sidecar latency at second 20 of p02_fanout, 4 fallbacks) and 91 (honest / ran-only: 1 fallback 0.3 s before
+p02). In both, the sidecar's own answer at those steps was benign / level 0 and the rules produced no evidence, so no
+decision changed; per-run sidecar p99 stayed 35–55 ms. User decision: run on, stop only for serious errors. QA now
+stops only on: residual policy/level/tamper at a run start, a stale-KPM sidecar step in a valid run, a run whose
+sidecar p99 latency > 200 ms (= the xApp timeout: systematic fallback), or < 50 % valid attempts in a chunk of ≥ 10
+(testbed broken). In-phase fallbacks only flag the run (sensitivity analysis); flagged so far: 40, 91, 99.

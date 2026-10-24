@@ -14,15 +14,15 @@ Per attempt (every run dir, valid or not):
                 missing KPM; never seen in the pilot, must stay 0)
 A valid run with a fallback in a traffic phase (or one no slow sidecar step explains) is FLAGGED: it stays
 valid and the final report repeats every metric without the flagged runs (sensitivity). Gap/idle fallbacks
-are counted only. STOP (exit 1) when: a residual policy/level/tamper at a run start, a flagged run with more
-than FLAG_MAX_FB fallbacks, flagged runs > FLAG_MAX_FRAC of the attempts (>= MIN_N), a
-stale-KPM step in a valid run, or fewer than MIN_OK of >= MIN_N attempts valid.
+are counted only. STOP (exit 1) only on serious errors: a residual policy/level/tamper at a run start, a
+sidecar whose per-run p99 latency exceeds P99_MAX_MS (systematic: fallbacks everywhere), a
+stale-KPM step in a valid run, or fewer than MIN_OK of >= MIN_N attempts valid (testbed broken).
 """
 import argparse, json, pathlib, sys
 
 SLOW_MS = 150.0
-FLAG_MAX_FB, FLAG_MAX_FRAC = 3, 0.10   # beyond this a fallback is systematic (latency), not a one-off
-MIN_OK, MIN_N = 0.75, 10           # the valid-rate stop needs >= MIN_N attempts: a chunk cut short by the
+P99_MAX_MS = 200.0                     # = the xApp timeout: beyond it most decisions would be fallbacks
+MIN_OK, MIN_N = 0.50, 10           # the valid-rate stop needs >= MIN_N attempts: a chunk cut short by the
                                    # campaign's 2-failures stop is a testbed failure, handled by the recovery
 
 
@@ -69,6 +69,8 @@ def attempt(rd):
     slow = [o["ts"] for o in steps if (o.get("latency_ms") or 0) > SLOW_MS]
     r["fallback_in_phase"] = sorted({n for t in slow for n, a, b in win if a <= t + 1 and t - 1 <= b})
     r["fallback_unlocated"] = int(bool(r["fallbacks"]) and not slow)
+    lat = sorted(o.get("latency_ms") or 0 for o in steps)
+    r["p99_ms"] = lat[int(0.99 * (len(lat) - 1))] if lat else None
     return r
 
 
@@ -80,10 +82,8 @@ def qa(camps):
     flagged = [a for a in A if a["ok"] and a["fallbacks"] and (a["fallback_in_phase"] or a["fallback_unlocated"])]
     for a in A:
         a["flagged"] = a in flagged
-    if any(a["fallbacks"] > FLAG_MAX_FB for a in flagged):
-        stop.append("flagged run with > %d fallbacks" % FLAG_MAX_FB)
-    if len(A) >= MIN_N and len(flagged) / len(A) > FLAG_MAX_FRAC:
-        stop.append("flagged runs %d/%d > %.0f %%" % (len(flagged), len(A), 100 * FLAG_MAX_FRAC))
+    if any(a["p99_ms"] is not None and a["p99_ms"] > P99_MAX_MS for a in A):
+        stop.append("sidecar p99 latency > %.0f ms in a run" % P99_MAX_MS)
     if any(a["ok"] and a["stale_kpm_steps"] for a in A):
         stop.append("sidecar stepped on stale KPM in a valid run")
     n_ok = sum(a["ok"] for a in A)
