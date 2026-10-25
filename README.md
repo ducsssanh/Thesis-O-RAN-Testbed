@@ -6,6 +6,7 @@ the eBPF UPF acts as sensor, per-SUPI memory and enforcement.
 
 - **Start here: `research/CROSS-DOMAIN-DEFENCE.md`** — the single reference: testbed, threat model, defence
   design, offline (v4) and live (v5) experiments, results, credibility, figures, reproduction
+- ML foundations and model / xApp design choices: `research/ML-FOUNDATIONS.md`
 - Current state / next steps: `research/datasets/oran_flooding_v5_live/HANDOFF.md`
 - Design rationale (history): `docs/TWO-LAYER-DEFENSE-DESIGN.md`; outdated documents: `docs/archive/`,
   `research/archive/`

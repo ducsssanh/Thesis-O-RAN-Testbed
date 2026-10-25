@@ -118,7 +118,80 @@ The UPF refuses a block that would leave more than half of the known UEs blocked
 | **Trust-weighted (proposed)** | `xd-trust-v2` | full design §4.1–4.2 |
 
 Sources: `scripts/ml/defence_engine_v4.py` (engine), `scripts/k8s/classifier/sidecar_v4.py` (sidecar),
-`patches/flexric-xapp-*.patch` (xApp), `docs/TWO-LAYER-DEFENSE-DESIGN.md` (design rationale).
+`patches/flexric-xapp-*.patch` (xApp), `docs/TWO-LAYER-DEFENSE-DESIGN.md` (early design log). The ML foundations
+(features, gradient boosting, thresholds, model choice, why a C xApp + Python sidecar) are in
+`research/ML-FOUNDATIONS.md`.
+
+### 4.4 Design rationale — why the pipeline is built this way
+
+**(a) Two domains, because each one alone has a blind spot.**
+| domain | sees | cannot see / weakness |
+|---|---|---|
+| RAN (KPM) | radio resources per UE, 1 s, ~1 ms delay; the UE identity in the cell | only what the E2 node reports — a compromised E2 node can falsify it; no protocol detail |
+| core (URR + profiler) | bytes, packets and protocol mix that actually crossed the UPF | 1.5–2.8 s delay; disappears when the core telemetry path fails; no radio context |
+Offline, the cross-domain model beats every single domain (§5). More importantly, two independent views of the same
+traffic make a **consistency check** possible — the basis of everything below.
+
+**(b) The KPM↔URR integrity check uses a physical invariant.** The UL bytes a UE sends are counted twice: by the
+gNB (KPM) and by the UPF (URR). Up to protocol overhead and report timing they must agree, whatever the traffic is,
+so a sustained disagreement means one of the counters lies — and only the E2 node is in the threat model.
+- *Log ratio* $r=\log(\sum \text{KPM}/\sum \text{URR})$: scale-free (the same at 0.4 and 1.2 Mbit/s) and symmetric
+  (×2 and ×0.5 are equally far from 0), so hiding and framing are measured on one axis.
+- *Bias* −0.048: the systematic offset between the two counters on honest data, removed before thresholding.
+- *10 s sums*: the two reports are not aligned (URR every 1–2 s, delayed); summing over 10 s cancels the jitter.
+- *τ = 0.7 ≈ log 2, m = 10 consecutive seconds*: chosen on honest train + validation runs from a grid
+  (τ ∈ {0.7 … 1.6}, m ∈ {3, 5, 10}) as the most sensitive setting with ≤ 1 % of honest phases alarmed:
+  | τ | m = 3 | m = 5 | m = 10 |
+  |---|---|---|---|
+  | 0.7 (2×) | 33.7 % | 7.5 % | **0.12 %** |
+  | 1.1 (3×) | 17.0 % | 0.95 % | 0 % |
+  | 1.6 (5×) | 6.1 % | 0.24 % | 0 % |
+  The most sensitive ratio (2×) needs persistence (10 s); a shorter persistence would need a coarser ratio and miss
+  ×0.33 hiding. Live: 1 false alarm in 48 honest phases, 0 elsewhere.
+- *Not evaluated while the UPF blocks or rate-limits the UE*: then the core drops what the RAN still carries and the
+  invariant no longer holds by construction.
+
+**(c) Trust weights select the model that is valid for the available evidence.**
+$z_{\text{fused}} = kt\,ct\,z_{xd} + (1-kt)\,ct\,z_{core} + kt\,(1-ct)\,z_{ran}$ reduces to the cross-domain, the
+core or the RAN model when both / only the core / only the RAN can be trusted. Each of the three models was trained
+on exactly those inputs, so no model ever scores inputs it should not trust, and no extra model per trust state is
+needed. *KPM trust* drops at once and is held 60 s, then ramps over 30 s: an attacker cannot regain trust by
+behaving for a few seconds, and trust does not flip back and forth at the alarm boundary. *Core trust* is a direct
+observation (data age > 4 s), so it switches immediately, without hysteresis.
+
+**(d) Hiding and framing are treated asymmetrically, because they mean different things.** KPM *below* URR is
+under-reporting that only benefits the UE being hidden — the discrepancy itself is evidence against that UE, so it
+feeds the UE's alarm and the core-only block path. KPM *above* URR is over-reporting that harms the UE being framed —
+the E2 node is flagged, and the UE is judged on core evidence alone, so a lying E2 node cannot get a victim blocked.
+*Disclosure:* this rule (trust-weighted v2) was added after inspecting the v1 rule on the offline test runs (checked
+on the validation runs first; a 60 s hold of the hiding flag was tried and dropped because it spilled into the next
+phase on validation). The live campaign is fresh data (new seeds, actions in the loop) and confirms it, but the
+offline replay numbers of v2 are not a clean held-out estimate.
+
+**(e) Two escalation levels, because the costs differ.**
+- *Isolate* is cheap and reversible: an E2SM-RC slice handover keeps the PDU session and moves the UE to a quarantine
+  slice (10 % PRB); it expires 3 s after the alarm stops, so it holds exactly while the alarm holds (the same
+  semantics as the offline replay). It needs only 3 alarms in 5 s (offline: one third of the false alarms of a
+  1-of-1 rule, §4.3 of ML-FOUNDATIONS).
+- *Block* stops the traffic at the UPF — where it is measured and before it reaches the data network — and is costly
+  if wrong. It requires the isolation to have held ≥ 10 s **and** independent core evidence (3 of 5 s): two
+  independent views agreeing is the strongest guard against a false block. The exception "core alone while KPM is
+  untrusted" exists because otherwise a hiding attacker (whose RAN evidence is suppressed) could never be blocked.
+- No RRC release on block (UPF block only): the UE stays attached, its traffic remains measurable at the DN, and the
+  re-attach path of the testbed is avoided.
+- Consequence by design: without core telemetry the system isolates but never blocks (§8.3), and when KPM is
+  distrusted it needs stronger core evidence, so it blocks fewer attacks than naive fusion (§8.2) — the price of not
+  punishing framed or unverifiable UEs.
+
+**(f) Supporting choices.**
+- *Activity gate (10 s mean UL ≥ 50 kbit/s)*: idle UEs produce noise-driven scores and cannot be flooding.
+- *Fair-use rules kept as evidence*: they catch high-volume floods the models never saw (outside the training load
+  range) and are the fallback when the sidecar is unavailable.
+- *One engine for replay and live*: the same Python module computes features and decisions offline and in the
+  sidecar, so a live/replay difference is a property of the live system (feedback, delays), not of the code.
+- *Step only on a new KPM report*: stale KPM never enters the integrity rule (a stall pauses it instead).
+- *Sidecar state carried across gaps, reset per run*: rolling history and trust behave as in the replay; the cost
+  was the gap-reset race of §10.1 — a lesson: a reset must clear every component that can re-assert a decision.
 
 ---
 
@@ -362,6 +435,7 @@ Data figures (matplotlib, 95 % CI): `research/datasets/oran_flooding_v5_live/rep
 
 | what | where |
 |---|---|
+| ML foundations: features, gradient boosting math, thresholds, model choice, xApp + sidecar architecture | `research/ML-FOUNDATIONS.md` |
 | pre-registration, frozen hashes, all deviations | `research/datasets/oran_flooding_v5_live/PREREGISTRATION.md` |
 | v5 datasheet / handoff | `research/datasets/oran_flooding_v5_live/{DATASHEET,HANDOFF}.md` |
 | live results (primary) / as pre-registered | `.../reports/live_results_v5.md` / `.../reports/live_eval_v5.md` |
