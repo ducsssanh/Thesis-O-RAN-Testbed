@@ -2820,5 +2820,1491 @@
    "0.46",
    "0.54"
   ]
- }
+ },
+ "offline_vs_live": [
+  {
+   "scenario": "honest",
+   "config": "rules-v1",
+   "metric": "attack_L1",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "honest",
+   "config": "rules-v1",
+   "metric": "attack_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "honest",
+   "config": "rules-v1",
+   "metric": "benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "honest",
+   "config": "ran-only",
+   "metric": "attack_L1",
+   "offline": 0.607,
+   "live": 0.941
+  },
+  {
+   "scenario": "honest",
+   "config": "ran-only",
+   "metric": "attack_L3",
+   "offline": 0.416,
+   "live": 0.647
+  },
+  {
+   "scenario": "honest",
+   "config": "ran-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.158
+  },
+  {
+   "scenario": "honest",
+   "config": "ran-only",
+   "metric": "t_L1_median",
+   "offline": 16.0,
+   "live": 14.7
+  },
+  {
+   "scenario": "honest",
+   "config": "ran-only",
+   "metric": "t_L3_median",
+   "offline": 26.3,
+   "live": 22.5
+  },
+  {
+   "scenario": "honest",
+   "config": "core-only",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.75
+  },
+  {
+   "scenario": "honest",
+   "config": "core-only",
+   "metric": "attack_L3",
+   "offline": 0.483,
+   "live": 0.417
+  },
+  {
+   "scenario": "honest",
+   "config": "core-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "honest",
+   "config": "core-only",
+   "metric": "t_L1_median",
+   "offline": 17.5,
+   "live": 15.0
+  },
+  {
+   "scenario": "honest",
+   "config": "core-only",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 22.0
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-naive",
+   "metric": "attack_L1",
+   "offline": 0.697,
+   "live": 0.792
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-naive",
+   "metric": "attack_L3",
+   "offline": 0.506,
+   "live": 0.667
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-naive",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.0
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-naive",
+   "metric": "t_L1_median",
+   "offline": 15.2,
+   "live": 13.7
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-naive",
+   "metric": "t_L3_median",
+   "offline": 23.7,
+   "live": 22.5
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v1",
+   "metric": "attack_L1",
+   "offline": 0.697,
+   "live": 0.958
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v1",
+   "metric": "attack_L3",
+   "offline": 0.337,
+   "live": 0.458
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v1",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.045
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v1",
+   "metric": "t_L1_median",
+   "offline": 15.2,
+   "live": 13.4
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v1",
+   "metric": "t_L3_median",
+   "offline": 24.4,
+   "live": 22.4
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v2",
+   "metric": "attack_L1",
+   "offline": 0.697,
+   "live": 0.917
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v2",
+   "metric": "attack_L3",
+   "offline": 0.337,
+   "live": 0.667
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v2",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.083
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v2",
+   "metric": "t_L1_median",
+   "offline": 15.2,
+   "live": 16.1
+  },
+  {
+   "scenario": "honest",
+   "config": "xd-trust-v2",
+   "metric": "t_L3_median",
+   "offline": 24.4,
+   "live": 31.7
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "rules-v1",
+   "metric": "attack_L1",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "rules-v1",
+   "metric": "attack_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "rules-v1",
+   "metric": "benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "ran-only",
+   "metric": "attack_L1",
+   "offline": 0.0,
+   "live": 0.053
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "ran-only",
+   "metric": "attack_L3",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "ran-only",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.583
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "ran-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "ran-only",
+   "metric": "t_L1_median",
+   "offline": null,
+   "live": 13.7
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "core-only",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.75
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "core-only",
+   "metric": "attack_L3",
+   "offline": 0.483,
+   "live": 0.542
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "core-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "core-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "core-only",
+   "metric": "t_L1_median",
+   "offline": 17.5,
+   "live": 15.2
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "core-only",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 24.4
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-naive",
+   "metric": "attack_L1",
+   "offline": 0.798,
+   "live": 0.833
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-naive",
+   "metric": "attack_L3",
+   "offline": 0.64,
+   "live": 0.625
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-naive",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.167
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-naive",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-naive",
+   "metric": "t_L1_median",
+   "offline": 16.0,
+   "live": 14.7
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-naive",
+   "metric": "t_L3_median",
+   "offline": 24.4,
+   "live": 22.3
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "attack_L1",
+   "offline": 0.674,
+   "live": 0.792
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "attack_L3",
+   "offline": 0.461,
+   "live": 0.583
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "integrity_tampered",
+   "offline": 1.0,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "t_L1_median",
+   "offline": 17.6,
+   "live": 15.2
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 23.8
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v1",
+   "metric": "t_integrity_median",
+   "offline": 13.6,
+   "live": 13.8
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "attack_L1",
+   "offline": 1.0,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "attack_L3",
+   "offline": 0.989,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.042
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "integrity_tampered",
+   "offline": 1.0,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "t_L1_median",
+   "offline": 15.1,
+   "live": 14.9
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "t_L3_median",
+   "offline": 24.1,
+   "live": 24.1
+  },
+  {
+   "scenario": "kpm_hide_x0.1",
+   "config": "xd-trust-v2",
+   "metric": "t_integrity_median",
+   "offline": 13.6,
+   "live": 13.9
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "rules-v1",
+   "metric": "attack_L1",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "rules-v1",
+   "metric": "attack_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "rules-v1",
+   "metric": "benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "ran-only",
+   "metric": "attack_L1",
+   "offline": 0.0,
+   "live": 0.429
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "ran-only",
+   "metric": "attack_L3",
+   "offline": 0.0,
+   "live": 0.333
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "ran-only",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.4
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "ran-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "ran-only",
+   "metric": "t_L1_median",
+   "offline": null,
+   "live": 16.2
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "ran-only",
+   "metric": "t_L3_median",
+   "offline": null,
+   "live": 41.6
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "core-only",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.826
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "core-only",
+   "metric": "attack_L3",
+   "offline": 0.483,
+   "live": 0.739
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "core-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "core-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "core-only",
+   "metric": "t_L1_median",
+   "offline": 17.5,
+   "live": 15.5
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "core-only",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 25.2
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-naive",
+   "metric": "attack_L1",
+   "offline": 0.921,
+   "live": 0.913
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-naive",
+   "metric": "attack_L3",
+   "offline": 0.753,
+   "live": 0.87
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-naive",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.136
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-naive",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-naive",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 13.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-naive",
+   "metric": "t_L3_median",
+   "offline": 24.1,
+   "live": 22.1
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "attack_L1",
+   "offline": 0.742,
+   "live": 0.875
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "attack_L3",
+   "offline": 0.461,
+   "live": 0.625
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "integrity_tampered",
+   "offline": 0.989,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "t_L1_median",
+   "offline": 15.3,
+   "live": 13.4
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 23.9
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v1",
+   "metric": "t_integrity_median",
+   "offline": 16.3,
+   "live": 17.3
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "attack_L1",
+   "offline": 1.0,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "attack_L3",
+   "offline": 0.966,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.125
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "integrity_tampered",
+   "offline": 0.989,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 13.6
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "t_L3_median",
+   "offline": 24.4,
+   "live": 23.3
+  },
+  {
+   "scenario": "kpm_hide_x0.33",
+   "config": "xd-trust-v2",
+   "metric": "t_integrity_median",
+   "offline": 16.3,
+   "live": 18.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "rules-v1",
+   "metric": "attack_L1",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "rules-v1",
+   "metric": "attack_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "rules-v1",
+   "metric": "benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "rules-v1",
+   "metric": "framed_benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "attack_L1",
+   "offline": 0.618,
+   "live": 0.867
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "attack_L3",
+   "offline": 0.404,
+   "live": 0.333
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "benign_L3",
+   "offline": 0.66,
+   "live": 0.636
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "framed_benign_L3",
+   "offline": 0.66,
+   "live": 0.636
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 17.5
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "ran-only",
+   "metric": "t_L3_median",
+   "offline": 25.9,
+   "live": 36.1
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.75
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "attack_L3",
+   "offline": 0.483,
+   "live": 0.5
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "framed_benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "t_L1_median",
+   "offline": 17.5,
+   "live": 16.1
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "core-only",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 23.4
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "attack_L1",
+   "offline": 0.708,
+   "live": 0.857
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "attack_L3",
+   "offline": 0.506,
+   "live": 0.667
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "benign_L3",
+   "offline": 0.437,
+   "live": 0.455
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "framed_benign_L3",
+   "offline": 0.437,
+   "live": 0.455
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "t_L1_median",
+   "offline": 14.6,
+   "live": 13.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-naive",
+   "metric": "t_L3_median",
+   "offline": 22.9,
+   "live": 26.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "attack_L1",
+   "offline": 0.685,
+   "live": 0.792
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "attack_L3",
+   "offline": 0.404,
+   "live": 0.292
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.083
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "framed_benign_L3",
+   "offline": 0.01,
+   "live": 0.083
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "integrity_tampered",
+   "offline": 0.728,
+   "live": 0.75
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 15.6
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "t_L3_median",
+   "offline": 24.9,
+   "live": 25.6
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v1",
+   "metric": "t_integrity_median",
+   "offline": 11.3,
+   "live": 10.8
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "attack_L1",
+   "offline": 0.685,
+   "live": 0.708
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "attack_L3",
+   "offline": 0.404,
+   "live": 0.292
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "framed_benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "integrity_tampered",
+   "offline": 0.728,
+   "live": 0.75
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 15.8
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "t_L3_median",
+   "offline": 24.9,
+   "live": 31.1
+  },
+  {
+   "scenario": "kpm_frame_x2",
+   "config": "xd-trust-v2",
+   "metric": "t_integrity_median",
+   "offline": 11.3,
+   "live": 10.9
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "rules-v1",
+   "metric": "attack_L1",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "rules-v1",
+   "metric": "attack_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "rules-v1",
+   "metric": "benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "rules-v1",
+   "metric": "framed_benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "attack_L1",
+   "offline": 0.618,
+   "live": 0.682
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "attack_L3",
+   "offline": 0.416,
+   "live": 0.273
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "benign_L3",
+   "offline": 0.932,
+   "live": 0.619
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "framed_benign_L3",
+   "offline": 0.932,
+   "live": 0.619
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "t_L1_median",
+   "offline": 13.8,
+   "live": 43.7
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "ran-only",
+   "metric": "t_L3_median",
+   "offline": 25.3,
+   "live": 55.2
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.875
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "attack_L3",
+   "offline": 0.483,
+   "live": 0.667
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.042
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "framed_benign_L3",
+   "offline": 0.01,
+   "live": 0.042
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "t_L1_median",
+   "offline": 17.5,
+   "live": 16.1
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "core-only",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 25.1
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "attack_L1",
+   "offline": 0.719,
+   "live": 0.792
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "attack_L3",
+   "offline": 0.517,
+   "live": 0.792
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "benign_L3",
+   "offline": 0.757,
+   "live": 0.444
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "framed_benign_L3",
+   "offline": 0.757,
+   "live": 0.444
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": 0.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "t_L1_median",
+   "offline": 13.9,
+   "live": 13.2
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-naive",
+   "metric": "t_L3_median",
+   "offline": 22.7,
+   "live": 30.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.609
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "attack_L3",
+   "offline": 0.449,
+   "live": 0.478
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.083
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "framed_benign_L3",
+   "offline": 0.019,
+   "live": 0.083
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "integrity_tampered",
+   "offline": 1.0,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 14.5
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 24.2
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v1",
+   "metric": "t_integrity_median",
+   "offline": 11.3,
+   "live": 10.7
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "attack_L1",
+   "offline": 0.663,
+   "live": 0.75
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "attack_L3",
+   "offline": 0.449,
+   "live": 0.417
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "benign_L3",
+   "offline": 0.019,
+   "live": 0.042
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "framed_benign_L3",
+   "offline": 0.019,
+   "live": 0.042
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "integrity_tampered",
+   "offline": 1.0,
+   "live": 1.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 14.6
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "t_L3_median",
+   "offline": 24.3,
+   "live": 22.0
+  },
+  {
+   "scenario": "kpm_frame_x5",
+   "config": "xd-trust-v2",
+   "metric": "t_integrity_median",
+   "offline": 11.3,
+   "live": 10.5
+  },
+  {
+   "scenario": "core_outage",
+   "config": "rules-v1",
+   "metric": "attack_L1",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "core_outage",
+   "config": "rules-v1",
+   "metric": "attack_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "core_outage",
+   "config": "rules-v1",
+   "metric": "benign_L3",
+   "offline": null,
+   "live": 0.0
+  },
+  {
+   "scenario": "core_outage",
+   "config": "ran-only",
+   "metric": "attack_L1",
+   "offline": 0.607,
+   "live": 0.739
+  },
+  {
+   "scenario": "core_outage",
+   "config": "ran-only",
+   "metric": "attack_L3",
+   "offline": 0.416,
+   "live": 0.609
+  },
+  {
+   "scenario": "core_outage",
+   "config": "ran-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "core_outage",
+   "config": "ran-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": null
+  },
+  {
+   "scenario": "core_outage",
+   "config": "ran-only",
+   "metric": "t_L1_median",
+   "offline": 16.0,
+   "live": 14.9
+  },
+  {
+   "scenario": "core_outage",
+   "config": "ran-only",
+   "metric": "t_L3_median",
+   "offline": 26.3,
+   "live": 23.2
+  },
+  {
+   "scenario": "core_outage",
+   "config": "core-only",
+   "metric": "attack_L1",
+   "offline": 0.36,
+   "live": 0.417
+  },
+  {
+   "scenario": "core_outage",
+   "config": "core-only",
+   "metric": "attack_L3",
+   "offline": 0.247,
+   "live": 0.25
+  },
+  {
+   "scenario": "core_outage",
+   "config": "core-only",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.042
+  },
+  {
+   "scenario": "core_outage",
+   "config": "core-only",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": null
+  },
+  {
+   "scenario": "core_outage",
+   "config": "core-only",
+   "metric": "t_L1_median",
+   "offline": 20.0,
+   "live": 15.1
+  },
+  {
+   "scenario": "core_outage",
+   "config": "core-only",
+   "metric": "t_L3_median",
+   "offline": 25.0,
+   "live": 23.1
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-naive",
+   "metric": "attack_L1",
+   "offline": 0.787,
+   "live": 0.667
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-naive",
+   "metric": "attack_L3",
+   "offline": 0.517,
+   "live": 0.542
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-naive",
+   "metric": "benign_L3",
+   "offline": 0.204,
+   "live": 0.125
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-naive",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": null
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-naive",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 14.1
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-naive",
+   "metric": "t_L3_median",
+   "offline": 24.2,
+   "live": 22.8
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v1",
+   "metric": "attack_L1",
+   "offline": 0.652,
+   "live": 0.833
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v1",
+   "metric": "attack_L3",
+   "offline": 0.18,
+   "live": 0.25
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v1",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v1",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": null
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v1",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 13.6
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v1",
+   "metric": "t_L3_median",
+   "offline": 27.3,
+   "live": 31.5
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v2",
+   "metric": "attack_L1",
+   "offline": 0.652,
+   "live": 0.833
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v2",
+   "metric": "attack_L3",
+   "offline": 0.18,
+   "live": 0.333
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v2",
+   "metric": "benign_L3",
+   "offline": 0.01,
+   "live": 0.0
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v2",
+   "metric": "integrity_tampered",
+   "offline": 0.0,
+   "live": null
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v2",
+   "metric": "t_L1_median",
+   "offline": 15.6,
+   "live": 13.6
+  },
+  {
+   "scenario": "core_outage",
+   "config": "xd-trust-v2",
+   "metric": "t_L3_median",
+   "offline": 27.3,
+   "live": 23.8
+  }
+ ]
 }

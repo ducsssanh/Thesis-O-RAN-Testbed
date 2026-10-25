@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Paper/thesis figures of the live cross-domain defence (v5, stage B), static PDF + PNG.
 
-  .venv-ml/bin/python -I scripts/ml/figures_v5.py --eval <live_eval_v5.json dir> --run <one live run dir> [--out DIR]
+  .venv-ml/bin/python -I scripts/ml/figures_v5.py --eval <reports dir> --run <one live run dir> [--out DIR]
+
+Cells from live_results_v5.json (clean units: phases that started with a carried-over L3 dropped) when
+present, else live_eval_v5.json (all units).
 
 (a) per scenario, configuration comparison: attack phases blocked (L3) and benign phases wrongly
     blocked (L3; framed benign for kpm_frame), 95% run-bootstrap CIs, one panel per measure
@@ -21,6 +24,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[1].parent
 CONFIGS = ["rules-v1", "ran-only", "core-only", "xd-naive", "xd-trust-v1", "xd-trust-v2"]
 COLOR = dict(zip(CONFIGS, ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"]))
 INK, INK2, GRID, SURF = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
+LABEL = {"rules-v1": "Fair-use rules", "ran-only": "RAN-only", "core-only": "Core-only", "xd-naive": "Naive cross-domain",
+         "xd-trust-v1": "Trust-weighted (v1)", "xd-trust-v2": "Trust-weighted (proposed)"}
+SCN_LABEL = {"honest": "Honest", "kpm_hide_x0.1": "KPM hide\n×0.1", "kpm_hide_x0.33": "KPM hide\n×0.33",
+             "kpm_frame_x2": "KPM frame\n×2", "kpm_frame_x5": "KPM frame\n×5", "core_outage": "Core telemetry\noutage"}
 OFF_CFG = {"ran-only": "RAN-only (xApp KPM)", "core-only": "core-only (5GC)", "xd-naive": "cross-domain naive",
            "xd-trust-v1": "cross-domain trust-weighted", "xd-trust-v2": "cross-domain trust-weighted v2"}
 
@@ -38,8 +45,8 @@ def save(fig, out, name):
 
 def fig_a(res, out):
     scen = [s for s in ("honest", "kpm_hide_x0.1", "kpm_hide_x0.33", "kpm_frame_x2", "kpm_frame_x5", "core_outage") if s in res]
-    panels = [("attack_L3", "ci_attack_L3", "attack phases blocked (L3)"),
-              ("benign_L3", "ci_benign_L3", "benign phases wrongly blocked (L3)\n(kpm_frame: framed benign)")]
+    panels = [("attack_L3", "ci_attack_L3", "attack phases blocked"),
+              ("benign_L3", "ci_benign_L3", "benign phases wrongly blocked\n(KPM frame: the framed UE)")]
     fig, axs = plt.subplots(len(panels), 1, figsize=(7.2, 5.2), sharex=True)
     w = 0.8 / len(CONFIGS)
     for ax, (k, ck, title) in zip(axs, panels):
@@ -62,9 +69,9 @@ def fig_a(res, out):
         ax.axhline(0, color=INK2, linewidth=0.8, zorder=0)
         ax.spines["bottom"].set_visible(False)
         ax.set_ylabel(title, fontsize=8)
-    axs[-1].set_xticks(range(len(scen)), [s.replace("_", " ") for s in scen])
+    axs[-1].set_xticks(range(len(scen)), [SCN_LABEL.get(s, s) for s in scen])
     from matplotlib.patches import Patch
-    axs[0].legend(handles=[Patch(color=COLOR[c], label=c) for c in CONFIGS], ncol=6, loc="lower center",
+    axs[0].legend(handles=[Patch(color=COLOR[c], label=LABEL[c]) for c in CONFIGS], ncol=3, loc="lower center",
                   bbox_to_anchor=(0.5, 1.02), fontsize=7.5)
     save(fig, out, "fig_a_live_configs")
 
@@ -72,17 +79,17 @@ def fig_a(res, out):
 def fig_b(res, out):
     off = json.loads((ROOT / "artifacts/ml/v4/fusion/fusion_results.json").read_text())["results"]
     fig, axs = plt.subplots(1, 2, figsize=(7.2, 2.8))
-    sides = [("kpm_hide", [0.1, 0.2, 0.33, 0.5], "attack_blocked_L3", "attack_L3", "attack phases blocked (L3)", "KPM hide factor"),
-             ("kpm_frame", [2.0, 3.0, 5.0, 10.0], "framed_benign_blocked_L3", "framed_benign_L3", "framed benign blocked (L3)", "KPM frame factor")]
+    sides = [("kpm_hide", [0.1, 0.2, 0.33, 0.5], "attack_blocked_L3", "attack_L3", "attack phases blocked", "KPM hide factor (attacker's KPM × f)"),
+             ("kpm_frame", [2.0, 3.0, 5.0, 10.0], "framed_benign_blocked_L3", "framed_benign_L3", "framed benign UE blocked", "KPM frame factor (benign KPM × f)")]
     for ax, (sc, fs, ok, lk, ylab, xlab) in zip(axs, sides):
         for c in ("ran-only", "xd-naive", "xd-trust-v2"):
             ys = [(off.get("%s x%g" % (sc, f)) or {}).get(OFF_CFG[c], {}).get(ok) for f in fs]
-            ax.plot(fs, ys, color=COLOR[c], linewidth=2, label="%s (replay)" % c)
+            ax.plot(fs, ys, color=COLOR[c], linewidth=2, label="%s (replay)" % LABEL[c])
             live = [(f, (res.get("%s_x%g" % (sc, f)) or {}).get(c, {}).get(lk)) for f in fs]
             live = [(f, v) for f, v in live if v is not None]
             if live:
                 ax.plot(*zip(*live), "o", color=COLOR[c], markersize=7, markeredgecolor=SURF, markeredgewidth=1.5,
-                        label="%s (live)" % c)
+                        label="%s (live)" % LABEL[c])
         ax.set_xscale("log")
         ax.set_xticks(fs, [("%g" % f) for f in fs])
         ax.minorticks_off()
@@ -112,13 +119,13 @@ def fig_c(rd, out):
     axs[0].plot(t, g("rate_ul_kbps"), color=COLOR["ran-only"], linewidth=1.5, label="KPM UL (RAN, as reported)")
     axs[0].plot(t, g("urr_ul_kbps"), color=COLOR["core-only"], linewidth=1.5, label="URR UL (core)")
     axs[0].set_ylabel("kbit/s"); axs[0].legend(fontsize=7, ncol=2, loc="upper right")
-    axs[1].plot(t, [r["kt"] for r in s], color=INK2, linewidth=1.5, label="kpm_trust")
+    axs[1].plot(t, [r["kt"] for r in s], color=INK2, linewidth=1.5, label="KPM trust")
     integ = np.array([r["integrity"] for r in s])
     axs[1].fill_between(t, 0, 1, where=integ, color=COLOR["xd-naive"], alpha=0.35, step="mid", linewidth=0, label="integrity alarm")
     axs[1].set_ylim(-0.05, 1.05); axs[1].legend(fontsize=7, ncol=2, loc="upper right")
     lt = [(r["t"] - t0, (r["ues"].get(supi) or {}).get("level") or 0) for r in tl]
     axs[2].step(*zip(*lt), where="post", color=COLOR["xd-trust-v2"], linewidth=2)
-    axs[2].set_yticks([0, 1, 3], ["0", "L1", "L3"]); axs[2].set_ylabel("xApp level")
+    axs[2].set_yticks([0, 1, 3], ["none", "isolate", "block"]); axs[2].set_ylabel("xApp action")
     d = dn[(dn.ue_ip == ip) & (dn.dir == "ul")]
     axs[3].bar(d.t - t0, d.pkts, width=0.9, color=COLOR["rules-v1"], linewidth=0)
     axs[3].set_ylabel("UL pkt/s at DN"); axs[3].set_xlabel("time since run start (s)")
@@ -128,7 +135,9 @@ def fig_c(rd, out):
     for p in ph:
         axs[0].text((p["t_start"] + p["t_end"]) / 2 - t0, 1.0, p["name"], transform=axs[0].get_xaxis_transform(),
                     ha="center", va="bottom", fontsize=7, color=INK2)
-    fig.suptitle("%s / %s — attacker %s (%s)" % (m.get("scenario"), m.get("config"), atk_ue, supi[-3:]), fontsize=9, color=INK)
+    fig.suptitle("KPM hidden ×0.1, %s — UE %s (attacker in the first phase)" % (LABEL.get(m.get("config"), m.get("config")), atk_ue[-1]),
+                 fontsize=9, color=INK) if m.get("scenario") == "kpm_hide_x0.1" else \
+        fig.suptitle("%s / %s — UE %s" % (m.get("scenario"), LABEL.get(m.get("config"), m.get("config")), atk_ue[-1]), fontsize=9, color=INK)
     fig.tight_layout()
     save(fig, out, "fig_c_timeline")
 
@@ -140,7 +149,14 @@ def main():
     ap.add_argument("--out", default=str(ROOT / "research/datasets/oran_flooding_v5_live/reports/figures"))
     a = ap.parse_args()
     out = pathlib.Path(a.out); out.mkdir(parents=True, exist_ok=True)
-    res = json.loads((pathlib.Path(a.eval) / "live_eval_v5.json").read_text())["results"]
+    clean = pathlib.Path(a.eval) / "live_results_v5.json"      # primary analysis: clean units (live_extra_v5.py)
+    if clean.exists():
+        res = {}
+        for k, v in json.loads(clean.read_text())["cells"].items():
+            sc, c = k.split("/")
+            res.setdefault(sc, {})[c] = v["clean"]
+    else:
+        res = json.loads((pathlib.Path(a.eval) / "live_eval_v5.json").read_text())["results"]
     fig_a(res, out)
     fig_b(res, out)
     if a.run:

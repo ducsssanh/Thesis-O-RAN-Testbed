@@ -275,6 +275,24 @@ def main():
         L.append("| %s | %s |" % (c, " | ".join(map(str, row))))
     L.append("")
 
+    # J. offline replay vs live, clean units
+    clean = {}
+    for k, v in res["cells"].items():
+        sc, c = k.split("/")
+        clean.setdefault(sc, {})[c] = v["clean"]
+    ovl = LE.offline_vs_live(clean)
+    res["offline_vs_live"] = ovl
+    L += ["## J. Offline replay (v4 test runs, defence off) vs live (clean units)\n",
+          "The replay applies the same engine to recorded v4 runs (no actuation feedback, tamper applied to the recorded KPM); "
+          "live acts on the traffic. Differences are reported, never retuned.\n",
+          "| scenario | config | metric | offline | live | live − offline |", "|---|---|---|---:|---:|---:|"]
+    for r in ovl:
+        o_, l_ = r["offline"], r["live"]
+        d = "%+.2f" % (l_ - o_) if isinstance(o_, (int, float)) and isinstance(l_, (int, float)) else "–"
+        f = lambda x: "%.2f" % x if isinstance(x, (int, float)) else "–"
+        L.append("| %s | %s | %s | %s | %s | %s |" % (r["scenario"], r["config"], r["metric"], f(o_), f(l_), d))
+    L.append("")
+
     # H. hypotheses
     cl = lambda s, c, k: res["cells"]["%s/%s" % (s, c)]["clean"].get(k)
     h1 = [(s, k, cl(s, "xd-trust-v2", k), cl(s, "xd-naive", k)) for s in

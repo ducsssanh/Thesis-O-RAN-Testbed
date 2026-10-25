@@ -1,0 +1,31 @@
+%% Paper Fig. 1 — system architecture: two telemetry domains, one decision point, two actuators
+flowchart LR
+  subgraph RAN["RAN domain"]
+    UE1["UE 1"] --- GNB["gNB<br/>(E2 node)"]
+    UE2["UE 2"] --- GNB
+  end
+  subgraph CORE["5G Core"]
+    UPF["UPF (eBPF)<br/>URR counters + profiler<br/>Security API: monitor / rate-limit / block"]
+    SMF["SMF"]
+    UPF -- "N4 usage report (1 s)" --> SMF
+  end
+  subgraph NONRT["Non-RT RIC"]
+    PROD["URR producer"] --> EI["A1-EI adapter"]
+  end
+  subgraph NEARRT["Near-RT RIC"]
+    FR["FlexRIC"]
+    subgraph XAPP["Defence xApp"]
+      ING["KPM ingest<br/>(tamper point: compromised E2 node)"]
+      SC["Model sidecar<br/>3 GBDT + KPM↔URR integrity<br/>+ trust-weighted fusion"]
+      POL["Escalation policy<br/>isolate → block"]
+      ING --> SC --> POL
+    end
+  end
+  GNB -- "E2SM-KPM (1 s)" --> FR --> ING
+  SMF -- "Nsmf event exposure" --> PROD
+  EI -- "URR + profile (A1-EI)" --> SC
+  GNB --> UPF
+  UPF --> DN["Data network"]
+  POL -- "E2SM-RC: quarantine slice (10 % PRB)" --> FR
+  FR -.-> GNB
+  POL -- "HTTP PUT /v1/ues/{supi}: block" --> UPF

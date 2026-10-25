@@ -1,0 +1,12 @@
+%% Thesis — xApp escalation per UE
+stateDiagram-v2
+  [*] --> Normal
+  Normal --> Isolated: fused alarm in 3 of 5 s
+  Isolated --> Isolated: alarm continues (expiry refreshed, 3 s)
+  Isolated --> Normal: no alarm for 3 s
+  Isolated --> Blocked: isolated ≥ 10 s AND core alarm in 3 of 5 s (or core alone while KPM untrusted)
+  Blocked --> Normal: expiry 120 s / admin reset
+  note right of Blocked
+    UPF refuses a block beyond
+    maxBlockedRatio 0.5 (HTTP 403)
+  end note

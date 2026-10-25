@@ -1,0 +1,16 @@
+%% Thesis — deviation: L3 carried over across the gap (run 11)
+sequenceDiagram
+  participant H as Harness
+  participant X as xApp
+  participant S as Sidecar
+  participant U as UPF
+  Note over X,U: end of phase 0: UE2 blocked (L3, expiry 120 s)
+  H->>X: gap start: admin reset UE2 → level 0 (t = −0.01 s)
+  X->>U: unblock UE2
+  X->>S: classify last step of phase 0
+  S-->>X: still L3 (its 3-of-5 window not drained, sidecar not reset at gaps)
+  X->>X: set level 3 again, fresh 120 s expiry (t = +0.12 s)
+  X->>U: block UE2
+  S-->>X: benign from t = +1 s (no traffic)
+  Note over X: level only falls on expiry, not on benign answers
+  Note over H,U: phase 1 starts 15 s later with UE2 still blocked → unit dropped from the primary analysis

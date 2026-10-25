@@ -1,0 +1,14 @@
+%% Thesis — KPM trust and core trust
+stateDiagram-v2
+  state "KPM trust" as KTS {
+    [*] --> Trusted
+    Trusted --> Untrusted: KPM and URR differ more than 2x for 10 s (integrity alarm)
+    Untrusted --> Ramp: 60 s without a new alarm
+    Ramp --> Trusted: linear 0 → 1 over 30 s
+    Ramp --> Untrusted: new alarm
+  }
+  state "Core trust" as CTS {
+    [*] --> CoreFresh
+    CoreFresh --> CoreStale: URR or profiler older than 4 s
+    CoreStale --> CoreFresh: fresh report
+  }
