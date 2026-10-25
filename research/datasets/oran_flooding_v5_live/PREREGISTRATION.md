@@ -160,3 +160,29 @@ sidecar p99 latency > 200 ms (= the xApp timeout: systematic fallback), or < 50 
 03:25 the xApp lost KPM (E42 to FlexRIC: setup response never received, xApp asserts and restarts in place; FlexRIC
 kept a stale SCTP association). recover_ran.sh, then recover_core_ordered.sh did not fix it and the supervisor
 stopped; a second manual recover_ran.sh did. The supervisor now runs recover_ran.sh once more before giving up.
+
+## Main campaign result and deviations found after it (2026-10-25)
+224/224 runs valid (42 cells, 6 reps; rules-v1 2), 30 failed attempts re-run (testbed: UE radio-link / PDU-session
+loss, PFCP loss, xApp↔FlexRIC E42 stuck; spread 3–7 per configuration). QA: no residual state at any run start, no
+sidecar step on stale KPM, 34 classifier fallbacks in 124,758 calls; 6 runs flagged (40, 91, 99, 110, 173, 212).
+Results: `reports/live_eval_v5.{md,json}` (as pre-registered, all units) and `reports/live_results_v5.{md,json}`
+(primary analysis below).
+
+**Deviation 1 — L3 carried over across the gap (analysis correction, user decision).** The gap reset sets the xApp
+level to 0, but the sidecar (by design not reset at gaps) still answers L3 for the last step of the phase that just
+ended (~0.1 s later); the xApp then sets L3 again with a fresh 120 s expiry and does not lower it on later benign
+answers, so the UE enters the next phase blocked (`scripts/ml/carryover_v5.py`; e.g. run 11: admin reset −0.01 s,
+model_level 3 at +0.12 s). 63 of 1536 phases (4.1 %, 38 runs) + 7 icmp phases started at L3: ran-only 43, xd-naive 16,
+core-only 8, xd-trust-v1 3, xd-trust-v2 0. Their outcome is not their phase's, so the **primary analysis drops these
+units** and shows the all-units value beside it. No re-run (the main configuration is unaffected; the correction lowers
+the baselines). Run 11 of batch 1 (failed, profiler assert) was this carry-over, not a PDU-session loss as first logged.
+A fix for later campaigns: reset the xApp level once more after the sidecar's first post-phase answer, or reset the
+sidecar's L3 hold per UE at the gap.
+
+**Deviation 2 — "L3" = the xApp's decision, not always a UPF block.** The UPF Security API refuses a block beyond
+maxBlockedRatio 0.5 (2 UEs: the second block → 403). Attacker L3 was enforced in 95–96 % of phases for core-only /
+trust-v1 / trust-v2, 75 % naive, 62 % ran-only; benign L3 was enforced in 30–67 %. Reported in live_results_v5 §I; the
+delivered fraction is the measured effect.
+
+Other notes: the loop latency (one KPM report → RC ack p50 39 ms / p99 100 ms; → UPF policy p50 41 ms) is in §G
+(`scripts/ml/loop_latency_v5.py`). Readiness waits reached 10.6 s on 11 phases of batch 6 (all within the 30 s bound).
