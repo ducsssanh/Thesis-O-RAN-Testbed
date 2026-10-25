@@ -1,7 +1,7 @@
 # Baseline Verification (Phase I)
 
 Date: 2026-10-19. All numbers recomputed from saved artifacts with
-`research/audits/scripts/verify_baseline.py` and `share_ablation.py`
+`research/archive/ncsrd-audits/scripts/verify_baseline.py` and `share_ablation.py`
 (`.venv-ml/bin/python -I`). Nothing here is from memory — every figure is
 reproduced from `val_scores.npz` / `windows.npz`.
 

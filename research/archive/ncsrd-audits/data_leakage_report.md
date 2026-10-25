@@ -1,6 +1,6 @@
 # Data Leakage & Dataset-Integrity Report (Phase I)
 
-Date: 2026-10-19. Evidence from `research/audits/scripts/leakage.py` on
+Date: 2026-10-19. Evidence from `research/archive/ncsrd-audits/scripts/leakage.py` on
 `artifacts/ml/ncsrd/windows.npz`, plus inspection of `scripts/ml/prep_ncsrd.py`
 and the raw CSVs under `data/NCSRD_5GDDOS_V3/`.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train the LSTM that ranks UEs by safety x volume (docs/AI-DEFENSE-MODEL-DESIGN.md).
+"""Train the LSTM that ranks UEs by safety x volume (docs/archive/AI-DEFENSE-MODEL-DESIGN.md).
 
   .venv-ml/bin/python -I scripts/ml/train_lstm.py --data artifacts/ml/ncsrd/windows.npz --out artifacts/ml/ncsrd
 

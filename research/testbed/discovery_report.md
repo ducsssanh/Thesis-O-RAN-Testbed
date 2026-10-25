@@ -2,7 +2,7 @@
 
 Date: 2026-10-19. Phase A (discovery) + Phase B (minimum viable collection) of the
 dataset master plan. Everything here is backed by commands run against the live
-`oai-lab` cluster; nothing is assumed. Companion to `docs/SESSION-HANDOFF-AI-PHASE.md`.
+`oai-lab` cluster; nothing is assumed. Companion to `docs/archive/SESSION-HANDOFF-AI-PHASE.md`.
 
 ## TL;DR
 

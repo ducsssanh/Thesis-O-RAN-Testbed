@@ -5,7 +5,7 @@
       --merged data/NCSRD_5GDDOS_V3/amari_ue_data_merged_with_attack_number.csv \
       --out artifacts/ml/ncsrd
 
-What it produces and why (docs/AI-DEFENSE-MODEL-DESIGN.md, CLOSED-LOOP-FRAMEWORK.md):
+What it produces and why (docs/archive/AI-DEFENSE-MODEL-DESIGN.md, CLOSED-LOOP-FRAMEWORK.md):
 
 - Labels are rebuilt from the attack schedule (summary_report.xlsx), not the
   dataset's `attack` / `malicious` columns. `attack` is set for every UE in an

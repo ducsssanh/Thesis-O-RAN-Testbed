@@ -6,9 +6,9 @@ pandas). Untrusted dataset under `data/` — always run with `-I`.
 ## Reproduce the verified baseline numbers
 ```bash
 cd /home/ducsssanh/6G/O-RAN/DATN/Codebase
-.venv-ml/bin/python -I research/audits/scripts/verify_baseline.py   # metric table + thresholds
-.venv-ml/bin/python -I research/audits/scripts/leakage.py           # UE/window leakage
-.venv-ml/bin/python -I research/audits/scripts/share_ablation.py    # detection vs ranking ablation
+.venv-ml/bin/python -I research/archive/ncsrd-audits/scripts/verify_baseline.py   # metric table + thresholds
+.venv-ml/bin/python -I research/archive/ncsrd-audits/scripts/leakage.py           # UE/window leakage
+.venv-ml/bin/python -I research/archive/ncsrd-audits/scripts/share_ablation.py    # detection vs ranking ablation
 ```
 These read the committed-small artifacts' `val_scores.npz` / `windows.npz` under
 `artifacts/ml/{ncsrd,ncsrd-timesplit}/` (the `windows.npz` files are git-ignored;
@@ -33,7 +33,7 @@ regenerate with the prep command below if missing).
 ```
 
 ## Known limitations of this split (do not over-claim)
-See `research/audits/data_leakage_report.md`. The current splits leak via shared
+See `research/archive/ncsrd-audits/data_leakage_report.md`. The current splits leak via shared
 UEs and overlapping windows; treat the numbers as an optimistic baseline, not a
 generalisation result. The next iteration replaces the split with a group/
 gap-guarded one before any new modelling claims.

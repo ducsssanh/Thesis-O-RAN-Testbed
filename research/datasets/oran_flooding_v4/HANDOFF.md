@@ -16,7 +16,7 @@
   tách flooding khỏi tải cao hợp lệ; detection/mitigation TẮT khi thu. Một hàng = 1 giây × 1 UE (KPM + URR + prof,
   as-of join nhân quả theo `arrival_ts`).
 - Spec gốc: "PROMPT: Xây dựng pipeline sinh dữ liệu v4" (§0–10) — chỉ có trong hội thoại cũ, không có file trong repo.
-- Chi tiết kỹ thuật: `docs/SESSION-HANDOFF-V4.md` (gitignored), `research/testbed/phase0_v4.md`.
+- Chi tiết kỹ thuật: `docs/archive/SESSION-HANDOFF-V4.md` (gitignored), `research/testbed/phase0_v4.md`.
 - Code chính: `scripts/k8s/exp/v4traffic/{design,campaign,integrity,runner}.py`, `backends/*.py`;
   `scripts/ml/{build_dataset_v4,qa_v4,package_v4}.py`.
 

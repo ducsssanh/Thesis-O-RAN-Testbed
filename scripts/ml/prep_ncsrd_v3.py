@@ -3,7 +3,7 @@
 cell-level PRB-utilisation context joined from enb_counters.
 
 Adds 4 CELL-level context features (not per-UE PRB, which NCSRD lacks -- see
-research/audits/prb_feature_investigation.md): cell_ul_use, cell_dl_use,
+research/archive/ncsrd-audits/prb_feature_investigation.md): cell_ul_use, cell_dl_use,
 cell_ul_sched_users, cell_ue_active. Joined by time (merge_asof) for the UE's
 cell_id. cell_id==2 has no enb counter column -> filled 0 (documented).
 

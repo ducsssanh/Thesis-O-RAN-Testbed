@@ -2,7 +2,7 @@
 """NCSRD -> windows, v2: leakage-free, segment-atomic group split.
 
 Versioned successor to prep_ncsrd.py (v1 is kept unchanged for comparison).
-Fixes the leakage found in research/audits/data_leakage_report.md:
+Fixes the leakage found in research/archive/ncsrd-audits/data_leakage_report.md:
 
   * Windows are built within a `segment` (one UE's contiguous timeline, broken at
     >15 s gaps) exactly as v1.
