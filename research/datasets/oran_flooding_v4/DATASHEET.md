@@ -179,69 +179,9 @@ NOT idle traffic but the end of the previous phase: in the drain seconds 36% of 
 | `prof_ul_kbps` / `prof_dl_kbps` | 0 / 0 | 867 / 76 | 1323 / 466 |
 | `prof_ul_pps` | 0 | 318 | 1097 |
 
-## Training protocol (2026-10-23)
-- `scripts/ml/prep_v4_windows.py`: windows of 10 s per (run, UE), label = last second.
-  `main` = all 10 s in one pNN phase, one label, no guard second (guard = first/last 3 s) →
-  train set and headline evaluation; `edge` (crosses a phase start / touches guard) → evaluation of
-  time-to-detect only; `idle` (all 10 s IDLE) → idle false-alarm rate only.
-- Split by run (seed 20261023): 56 train / 14 val / 18 test runs; every meta_pair shows all its
-  labels in every split. Threshold frozen on val at benign FPR 1%, applied to test.
-- Shared metrics `scripts/ml/v4_eval.py` (baselines `baseline_v4.py`, LSTM `train_lstm_v4.py`,
-  Kaggle package `artifacts/ml/kaggle-v4/`).
-
-## Baseline findings (test, 18 runs) — read before interpreting any model
-- **Designed downlink is a near-label proxy.** DL-kbps-only HGB reaches ROC-AUC 0.963 (all
-  features 0.981; all minus DL 0.868; UL kbps stats 0.818; UL mean only 0.759; meta-only 0.486).
-  Cause: every benign UDP flow receives the designed DN→UE feedback (1–10% of UL) and TCP/DNS
-  benign get real replies, while an attacker's DL is 0 (silent) or tiny (responsive: ICMP/RST,
-  median 4.7 kbps vs 86–94 kbps benign). The C2 control made DL independent of `victim_mode`, not
-  of the label. Per pair without DL: udp_flood↔udp_bidir 0.98 → 0.77, fanout 1.0 → 0.86.
-  Consequence: report every model with and without DL features (`--features no_dl`); the no-DL
-  number is the robustness headline. UL/DL asymmetry is a real flood indicator, but its size here is
-  a design artefact, so it must not carry the result.
-- **icmp_flood ↔ icmp_ping is indistinguishable by construction** (AUC 0.46–0.56 for every feature
-  set): same rate, same 84 B echo, the responsive DN answers both. Label = intent only. Report it
-  separately, exclude it from "per-pair minimum" claims.
-- Protocol pairs (dns, syn) are separable by protocol counters and by unmatched pps (dns benign
-  ~900 pps vs flood ~75 pps; syn 330 vs 780 pps) — valid signal, but not a load-matched test.
-- Genuinely hard pair: mimicry_udp ↔ udp_nofeedback (all HGB 0.88, without DL 0.85).
-
-## Detector scope: UL-only (decision 2026-10-23)
-- The main detector and every headline number use the 17 UL features only; all DL columns
-  (`rate_dl`, `thp_dl`, `prb_dl`, `cell_prb_dl`, `urr_dl_*`, `prof_dl_*` incl. the DL protocol counters)
-  are removed from training and evaluation. No derived feature uses DL.
-- Why: the threat model is a UL flood originating at the UE; in this testbed the DL is a designed
-  artefact (benign feedback 1–10% of UL, attack DL 0 / tiny), a near-label proxy (DL-only AUC 0.963).
-  Results with DL are kept in an appendix with that caveat. Future work: a DL-aware detector needs
-  realistic DL (real closed-loop applications), not designed feedback.
-- Indirect-DL check through RAN UL (`reports/dl_leak_check_v4.md`): `prb_ul_pct/urr_ul_kbps` and
-  `thp_ul_kbps/urr_ul_kbps` have overall AUC 0.525 / 0.503; strata above 0.6 (load 0.2, dns, pulsing)
-  are identical for silent and responsive victims and absent in udp_flood↔udp_bidir (0.49 / 0.46), so
-  they reflect packet size / burstiness, not DL feedback. The URR+prof-only and RAN-UL-without-PRB
-  ablations are reported anyway.
-- **Negative control:** icmp_flood↔icmp_ping is excluded from training, from the headline and from the
-  per-pair macro; its AUC is reported alone for every model (expected ~0.5, > 0.6 = leak warning).
-- Idle false alarms: rolling-feature GBDT flags every cold-start warm-up window (30 s of silence is
-  outside the training distribution); an activity gate (classify only when the 10 s mean UL ≥ 50 kbps)
-  removes them at no TPR cost.
-- **Operating point (decision 2026-10-23): activity gate UL ≥ 50 kbps** (10 s window mean, URR, profiler
-  if URR is stale; fixed, not tuned). Scores are set to 0 where the gate is closed and the val threshold
-  (benign FPR 1%) is chosen on gated scores. Every report also shows the ungated numbers.
-  **Scope: the detector does not detect attacks below 50 kbps UL** (all v4 attacks are ≥ 0.2 Mbit/s;
-  100% of attack main windows and 99.84% of benign ones pass the gate).
-- Previous-phase leak check (`reports/leak_phase_v4.md`): 48% of phases follow their UE-mirror and the
-  previous phase's label predicts the current one (AUC 0.178, inverted), so the 30 s history could in
-  principle carry it (38.6% of main windows' 30 s history starts before the phase); cutting the history
-  at the phase start does not lower any GBDT (cross-domain UL 0.930 → 0.937), so it is not exploited.
-
-## Model results (2026-10-23) — full report `reports/model_eval_v4.md`
-UL-only, test = 18 held-out runs, benign FPR 1% on val, gated operating point:
-- GBDT rolling cross-domain UL: ROC-AUC 0.930 [0.894–0.961], TPR 0.467, pair macro 0.936, idle FPR 0.004.
-- GBDT rolling ≤10 s (same history as the LSTM): ROC-AUC 0.900 [0.853–0.938].
-- LSTM 2×64, 10 s: ROC-AUC 0.838 ± 0.007 (3 seeds); vs GBDT ≤10 s ΔROC −0.067 [−0.093, −0.041] (paired
-  bootstrap by run); larger val→test gap; nearly order-blind (time-shuffled AUC −0.010).
-- Cross-domain beats every single domain and URR+prof (paired CIs exclude 0). Unseen-generator transfer is poor
-  (0.64–0.79), and the clean same-cell test shows the tool itself shifts the operating point.
+## Use of the dataset
+Model training and evaluation built on this dataset were removed on 2026-10-27 (ML direction changed to DRL,
+`research/DRL-DIRECTION.md`); the dataset itself is unchanged.
 
 ## Known limitations
 - RFsim/GTP caps: UL linear region ≈ 10 Mbit/s per UE, payload ≤ 1200 B, TCP ≈ 330 kbps.

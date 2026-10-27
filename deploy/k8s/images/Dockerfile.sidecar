@@ -1,10 +1,8 @@
-# Model sidecar of the xApp classifier (v5 live, stage B): scripts/k8s/classifier/sidecar_v4.py with the
-# frozen v4 models baked in (image tag = hash of every input, so a run's sidecar is identified by its tag).
-# Library versions = .venv-ml (the joblib models are only valid with the sklearn that wrote them).
+# Classifier sidecar of the xApp (127.0.0.1:8091). Placeholder since 2026-10-27: the GBDT model sidecar was removed
+# (ML direction changed to DRL); scripts/k8s/classifier/stub_classifier.py answers "benign" so the xApp's "external"
+# classifier path, the harness and the chart keep working until a DRL policy plugs into the same interface.
 FROM python:3.12-slim
-RUN pip install --no-cache-dir scikit-learn==1.9.1 numpy==2.5.4 pandas==3.0.6 joblib==1.6.0 threadpoolctl==3.7.0 scipy==1.18.1
-ENV OMP_NUM_THREADS=1 PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1
 WORKDIR /opt/sidecar
-COPY scripts/ml/defence_engine_v4.py scripts/ml/prep_v4_windows.py scripts/k8s/classifier/sidecar_v4.py ./
-COPY artifacts/ml/v4/models/ ./models/
-ENTRYPOINT ["python3", "-I", "/opt/sidecar/sidecar_v4.py", "--models", "/opt/sidecar/models"]
+COPY scripts/k8s/classifier/stub_classifier.py ./
+ENTRYPOINT ["python3", "-I", "/opt/sidecar/stub_classifier.py", "--port", "8091"]

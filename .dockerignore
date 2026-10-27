@@ -6,6 +6,5 @@
 **/*.o
 **/*.a
 artifacts
-!artifacts/ml/v4/models
 src/5gdeploy
 src/oai-upf

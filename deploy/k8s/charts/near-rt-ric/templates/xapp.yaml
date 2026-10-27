@@ -63,12 +63,12 @@ spec:
             - {name: entrypoint, mountPath: /opt/lab/radio-entrypoint.sh, subPath: radio-entrypoint.sh, readOnly: true}
         {{- $sc := .Values.sidecar | default dict }}
         {{- if $sc.enabled }}
-        # v5 live: model sidecar of the classifier (127.0.0.1:8091, used when the xApp classifier is "external";
-        # frozen v4 models baked into the image, configuration via POST /mode, /reset)
+        # classifier sidecar (127.0.0.1:8091, used when the xApp classifier is "external"); since 2026-10-27 the
+        # stub classifier, placeholder until a DRL policy plugs into the same interface
         - name: sidecar
           image: {{ $sc.image | quote }}
           imagePullPolicy: IfNotPresent
-          args: [--port, "8091", --mode, {{ $sc.mode | default "xd-trust-v2" | quote }}, --log, /artifacts/runs/$(RUN_ID)/KPI_Metrics_Sidecar.jsonl]
+          args: [--port, "8091", --mode, {{ $sc.mode | default "answer" | quote }}]
           env:
             - {name: RUN_ID, value: {{ .Values.global.lab.currentRun | default "bootstrap" | quote }}}
           readinessProbe:

@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Build the v5 live model sidecar image and lock it (artifacts/k8s/state/sidecar-image.json).
+"""Build the xApp classifier sidecar image and lock it (artifacts/k8s/state/sidecar-image.json).
+Since 2026-10-27 the image holds the stub classifier (placeholder until a DRL policy replaces it).
 
   python3 scripts/k8s/classifier/build_sidecar.py [--load]
 
-Tag = sha256 of the Dockerfile, the 3 Python files and the frozen models (16 hex). --load also puts the
+Tag = sha256 of the Dockerfile and the sidecar source (16 hex). --load also puts the
 image into minikube (staged.ensure_image; clean the tarballs afterwards, see the handoff).
 """
 import argparse, hashlib, json, pathlib, subprocess, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "scripts/k8s"))
-INPUTS = ["deploy/k8s/images/Dockerfile.sidecar", "scripts/ml/defence_engine_v4.py", "scripts/ml/prep_v4_windows.py",
-          "scripts/k8s/classifier/sidecar_v4.py"] + sorted(str(p.relative_to(ROOT)) for p in (ROOT / "artifacts/ml/v4/models").iterdir())
+INPUTS = ["deploy/k8s/images/Dockerfile.sidecar", "scripts/k8s/classifier/stub_classifier.py"]
 
 
 def main():
