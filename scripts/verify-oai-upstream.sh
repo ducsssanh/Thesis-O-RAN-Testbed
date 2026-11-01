@@ -115,6 +115,7 @@ apply "$F" "$P/flexric-xapp-upf-profile.patch"        # CL-3: UPF packet mix in 
 apply "$F" "$P/flexric-xapp-rawkpm.patch"             # v4: raw KPM tap (source+arrival ts) for the causal build
 apply "$F" "$P/flexric-xapp-urr-arrival-ms.patch"     # v4: ms arrival stamp on URR exports (causal join)
 apply "$F" "$P/flexric-xapp-live-sidecar-tamper.patch" # v5 live: core records to the sidecar, model level, KPM tamper, releaseOnBlock
+apply "$F" "$P/flexric-xapp-kpm-gate-profiler.patch"  # 2026-11: UPF profile as core source, KPM trust gate, KPM subscribed on a second boundary
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722
