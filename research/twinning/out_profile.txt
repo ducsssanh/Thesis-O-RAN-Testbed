@@ -1,0 +1,9 @@
+madrid_I-2650_persec.parquet: 40691444 active seconds, 1748122 sessions
+madrid_I-1815_persec.parquet: 37434554 active seconds, 2895252 sessions
+madrid_II-816_persec.parquet: 23761473 active seconds, 1581796 sessions
+madrid_II-1835_persec.parquet: 52742219 active seconds, 4466056 sessions
+P1: sessions 4727370, rate p50 434 bit/s, rho p50 3.16
+P2: sessions 3782047, rate p50 2642 bit/s, rho p50 0.73
+P3: sessions 850952, rate p50 13077 bit/s, rho p50 0.61
+P4: sessions 94550, rate p50 67411 bit/s, rho p50 1.85
+band edges bit/s: [1251.4, 7847.3, 45116.1] | attack anchors (active-second UL bit/s): {'q0.9': 52536.0, 'q0.95': 111088.0, 'q0.99': 409856.0}

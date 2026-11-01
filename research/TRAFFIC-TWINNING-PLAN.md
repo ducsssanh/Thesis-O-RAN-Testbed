@@ -13,6 +13,21 @@ Nothing in the measurement path changes (see §1).
 
 ---
 
+## 0a. Revision 4 (2026-11-01) — advisor review; supersedes the matching parts below
+
+| # | change | where it applies |
+|---|---|---|
+| 1 | **Benign twin = replay of a real 75 s window** (15 s pre-roll + 60 s phase) of one user: pick a session of the band uniformly, take that RNTI's UL and DL bytes per second from the session start, zeros after the session ends; never bridge into later activity of the same value (after T it may belong to another phone). Replaces ON/OFF resampling + duty-based ON rate. W_s = last − first active second + 1 (1 s for a single-second session). | §4.A, §4.C (`onoff_empirical` → window replay) |
+| 2 | **No exact-mean rescale**: each window keeps its natural mean; validation adds KS on the 60 s window mean and on the busy share of a 60 s window (k = 8 per band, 10 for P4). | §4.A step 6, §6.2 |
+| 3 | DL twin comes from the **same window** (real UL–DL coupling), not from rho × UL. | §4.E |
+| 4 | Gate: c_t = log((KPM + ε) / (max(B − βN, 0) + ε)); benign c_t band reported **per rate band P1–P4**; extra tampering levels ×0.8, ×1.25, **ON-only** adaptive tampering and an **identity swap**; identity join KPM (AMF UE NGAP ID + GUAMI) ↔ profiler (SUPI/SEID + AMF-table RAN identity) stated in the threat model. | Methodology §7.2, DRL doc §3 |
+| 5 | Replay tampering scales **UL rate, UE UL PRB and the UE's share of cell UL PRB together**; check that a KPM-only classifier cannot tell tampered from honest seconds. | dataset builder / DRL replay |
+| 6 | **L3 uses real TCP / application clients** (`backends/tcp_shortconn.py`, `dns_client.py` against `dn_sink.py`), not hping3; tool defaults visible to the profiler (sizes, protocol mix) aligned with benign; check header fields the profiler could read. | §5.1, §5.3 |
+| 7 | Baselines: classifier probabilities **calibrated** (temperature scaling, inner split) — needed for CUSUM and fixed operating points; no time-in-phase or cumulative counters in any input. FA rate denominator = benign time actually observed (episodes stop at the first alarm). | DRL doc §3.2, §7 |
+| 8 | Mitigation claim narrowed: 26 ms is a direct call to the UPF; the standard NEF → PCF → SMF → N4 path is not measured. | Methodology §7.4 |
+| 9 | Wording: "O-RAN-aligned" (A1-EI is standard, sub-second per-session UPF push is an extended use); 3GPP counterparts NWDAF (TS 23.288), Nupf_EventExposure (TS 23.502 / TS 29.564), to be verified. LTE influence "limited, bounded by ×2/×4 sensitivity" (TCP / ABR adapt to LTE capacity). | Methodology §2, §7.1, §8 |
+| 10 | Contributions: (1) cross-domain defence (gate, eBPF UPF profiler, in-kernel mitigation); (2) paired RAN–core dataset, published (Zenodo / IEEE DataPort), twinning = its method; (3) DRL decision layer, modest claim (thesis title keeps DRL as a component). | both documents |
+
 ## 0. Revision 2 (2026-10-29) — what changed and why
 
 A review of rev 1 against `v4traffic/schedules.py`, `sizes.py`, `planbuilder.py` and the Madrid data found:
@@ -131,6 +146,30 @@ interval in §3.1; rerun the profile with the measured value; keep a sensitivity
 ACM MSWiM 2021 version, doi:10.1145/3479239.3485685) study RNTI allocation and management with the same kind of
 sniffer traces from the same group; read them before step 1 and compare their timer and allocation findings with the
 measurement above. If they disagree, the measurement on our cells wins and the difference is reported.
+
+**Result (2026-11-01, `research/twinning/madrid_session_rule.py`, `out_session_rule_<cell>.txt`).** No fixed-delay
+release signature exists at ms resolution, so the inter-transmission method of Attanasio et al. (Computer Networks
+2022, Sec. 4.1.1; same group, same FALCON sniffer) is used: T sits right after the knee between the smooth decrease and
+the levelling out of the same-RNTI silence distribution. The 10 s rule is wrong: the silence count does not drop at
+10 s on any cell.
+
+| cell | T (s) | allocation | note |
+|---|---|---|---|
+| I-2650 | 59.3 | random (both halves of the value range) | |
+| I-1815 | 59.3 | random | |
+| II-816 | 28.4 | random | |
+| II-1835 | 41.0 | random | hump of reuses at 3-8 min (interval-based reuse of a value subset, as in the paper) |
+
+These match the paper's Spanish settings (60 s city BSs, 30 s suburban). Sessions are cut per cell at its T, with
+activity = UL or DL bytes > 0. **Units:** the Madrid `tbs_sum` is in bits; all earlier Mbit/s figures in §3.1 are 8x
+too high and are superseded by the library below.
+
+**Profile library (`research/twinning/benign_profiles.json`, `out_profile.txt`; 4 build cells, 10.7 M sessions).**
+Band edges on the session long-run UL rate: q50 1.25, q90 7.85, q99 45.1 kbit/s. Per band (rate p50; DL/UL ratio p50;
+UL OFF gap p50/p99 inside a session): P1 0.43 kbit/s, 3.16, 11/119 s; P2 2.6 kbit/s, 0.73, 2/26 s; P3 13.1 kbit/s,
+0.61, 1/12 s; P4 67 kbit/s (p99 0.75 Mbit/s), 1.85, 1/8 s. UL OFF gaps can exceed T because DL activity keeps a
+session open. **Attack load anchors** (active-second UL rate, pooled): q0.90 53, q0.95 111, q0.99 410 kbit/s; §5.2
+uses these instead of the rev-2 Mbit/s values. Per-app packet priors: `research/twinning/kr5g_app_priors.json`.
 
 ### 3.2 Korean 5G — per-app behaviour prior (`research/twinning/out_kr5g.txt`)
 

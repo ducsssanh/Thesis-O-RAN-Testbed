@@ -3,6 +3,9 @@
 direction that second; a direction without grants has 0 bytes / 0 TTIs. Column `ttis` is the UL TTI count (rev-1
 name), `dl_ttis` the DL one.
 
+Units: `tbs_sum` is in **bits** (3GPP TS 36.213 TBS table: DL MCS 28 on 100 PRB = 75376, as found in the data). The
+columns keep the rev-1 names `ul_bytes` / `dl_bytes` but hold summed bits; readers divide by 8.
+
 The raw files are time-ordered (checked), so each batch's seconds before its last second are final and written
 out at once; only the last second is carried into the next batch. Memory stays at one batch, which the large
 cells (II-816, II-1835: two parts, ~14 GB raw) need. Multi-part cells are passed in time order.
