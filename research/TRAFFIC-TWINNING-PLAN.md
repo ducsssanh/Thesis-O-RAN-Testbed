@@ -28,6 +28,29 @@ Nothing in the measurement path changes (see §1).
 | 9 | Wording: "O-RAN-aligned" (A1-EI is standard, sub-second per-session UPF push is an extended use); 3GPP counterparts NWDAF (TS 23.288), Nupf_EventExposure (TS 23.502 / TS 29.564), to be verified. LTE influence "limited, bounded by ×2/×4 sensitivity" (TCP / ABR adapt to LTE capacity). | Methodology §2, §7.1, §8 |
 | 10 | Contributions: (1) cross-domain defence (gate, eBPF UPF profiler, in-kernel mitigation); (2) paired RAN–core dataset, published (Zenodo / IEEE DataPort), twinning = its method; (3) DRL decision layer, modest claim (thesis title keeps DRL as a component). | both documents |
 
+**Gate measured (2026-11-01, `scripts/k8s/phase0/ct_gate.py`, xApp `oai-lab-xapp:f6625bfec5bc82fa`).** The benign c_t band
+depends on where the KPM windows sit against the whole-second UPF profile windows. v4, benign, by offset: < 0.05 s
+-0.17..+0.15 (53 runs), about 0.17 s -0.38..+0.47 (14 runs), about 0.44 s -0.97..+0.82 (16 runs); the offset was
+whatever the subscription time gave. The xApp now subscribes KPM on a second boundary (offset measured live: 0 ms). The
+profiler counts the whole XDP frame, so beta = 57 B is the outer Ethernet/IP/UDP/GTP-U headers.
+
+| live phase (2 UEs, one run, synthetic UDP) | c_t q01 / q50 / q99 | seconds outside +-0.2 |
+|---|---|---|
+| honest, 1000 B steady | -0.08 / 0.00 / +0.08 | 0 % |
+| honest, 120 B bursts | -0.15 / 0.00 / +0.16 | 1 % |
+| hiding x0.33 / x0.1 | -1.07 / -2.14 (q50) | 100 % / 100 % |
+| framing x2 / x5 | +0.66 / +1.55 (q50) | 100 % / 100 % |
+| hiding x0.8 | -0.32 / -0.22 / -0.14 | 71 % |
+| framing x1.25 | +0.15 / +0.21 / +0.30 | 73 % |
+
+With the defense on: framing x5 of a UE below its class caused no action; hiding x0.1 of a UE above its class raised
+core evidence (`core_rate_ul`) and climbed the ladder. `scripts/k8s/phase0/hide_block_gate.py` (ladder expiries shortened to
+15/15/60 s through the timing API, ladder logic untouched, RRC release off) reached level 3 on core evidence alone at
+t = 68 s with KPM hidden x0.1: while blocked URR UL was 0 kbit/s, the profiler (before the policy) still saw about
+1 Mbit/s and UE2 stayed at level 0. With the default expiries (60/180 s) the same ladder takes about 4 min, during which
+the flood is only rate-limited; level >= 1 also applies the RAN quarantine quota, which is why the UE sent about 1 Mbit/s
+instead of 3. Still open: the c_t band per rate band on twinned traffic (Phase 5 runs), and more than one run.
+
 ## 0. Revision 2 (2026-10-29) — what changed and why
 
 A review of rev 1 against `v4traffic/schedules.py`, `sizes.py`, `planbuilder.py` and the Madrid data found:
@@ -164,12 +187,32 @@ These match the paper's Spanish settings (60 s city BSs, 30 s suburban). Session
 activity = UL or DL bytes > 0. **Units:** the Madrid `tbs_sum` is in bits; all earlier Mbit/s figures in §3.1 are 8x
 too high and are superseded by the library below.
 
-**Profile library (`research/twinning/benign_profiles.json`, `out_profile.txt`; 4 build cells, 10.7 M sessions).**
+**Profile library (`research/twinning/benign_profiles.json`, `out_profile.txt`; 4 build cells, 10.7 M sessions, of which
+9.45 M have UL bytes and enter the bands).**
 Band edges on the session long-run UL rate: q50 1.25, q90 7.85, q99 45.1 kbit/s. Per band (rate p50; DL/UL ratio p50;
 UL OFF gap p50/p99 inside a session): P1 0.43 kbit/s, 3.16, 11/119 s; P2 2.6 kbit/s, 0.73, 2/26 s; P3 13.1 kbit/s,
 0.61, 1/12 s; P4 67 kbit/s (p99 0.75 Mbit/s), 1.85, 1/8 s. UL OFF gaps can exceed T because DL activity keeps a
 session open. **Attack load anchors** (active-second UL rate, pooled): q0.90 53, q0.95 111, q0.99 410 kbit/s; §5.2
 uses these instead of the rev-2 Mbit/s values. Per-app packet priors: `research/twinning/kr5g_app_priors.json`.
+
+**Real-window index (`research/twinning/madrid_windows.py`, `benign_windows.npz`, `out_windows.txt`).** 10 000 windows of
+75 s per band, UL and DL bytes per second. Session picked with probability proportional to W + 74, window start uniform
+in [s0 - 74, s1], only that session's seconds kept. Activity is flat over the window (share active in the first /
+middle / last 15 s: P1 0.117/0.116/0.119, P2 0.091/0.091/0.093, P3 0.212/0.208/0.211, P4 0.493/0.492/0.493), so the
+twin carries no time-in-phase pattern. Reference for validation, over the 60 s phase part:
+
+| band | UL mean bit/s q25 / q50 / q75 / q99 | busy share q25 / q50 / q75 / q99 |
+|---|---|---|
+| P1 | 3 / 87 / 279 / 1 308 | 0.05 / 0.08 / 0.13 / 0.82 |
+| P2 | 39 / 311 / 672 / 5 111 | 0.02 / 0.07 / 0.12 / 0.67 |
+| P3 | 213 / 1 775 / 6 306 / 50 667 | 0.02 / 0.10 / 0.27 / 1.00 |
+| P4 | 5 162 / 33 097 / 76 532 / 825 893 | 0.12 / 0.47 / 0.88 / 1.00 |
+
+Real users are idle most of a 60 s window, except in P4.
+
+**Sensitivity to T (T ± 5 s per cell).** Stable: band edges move by less than 0.4 % (q50 1246.7 / 1251.4 / 1254.1, q90
+7837 / 7847 / 7851, q99 45044 / 45116 / 45167 bit/s), sessions with UL 9.50 / 9.45 / 9.42 M, median wallclock per band
+unchanged within 1 s, P4 rate p99 within 0.5 %, ACF at lag 1 within 0.005. The attack anchors do not depend on T.
 
 ### 3.2 Korean 5G — per-app behaviour prior (`research/twinning/out_kr5g.txt`)
 
