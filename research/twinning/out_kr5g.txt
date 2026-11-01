@@ -1,0 +1,75 @@
+== Zoom_2.csv  ue=10.215.173.1 span=23581s pkts=5810990
+   proto={'UDP': 5806716, 'DNS': 2830, 'WireGuard': 1440, 'CLASSIC-STUN': 4}
+   UL pkts=3199868 (55%)  DL pkts=2611037  UL Mbit/s=0.836  DL Mbit/s=0.705
+   UL pktsize p5/50/95=116/877/1203
+   UL inter-arrival ms p50/p95=0.15/32.13  UL pkts/s mean=135.7
+   UL bytes/s p50/p95=113344/123414  nonzero-sec frac=1.00
+== YouTube_Live_2.csv  ue=10.215.173.1 span=10758s pkts=517790
+   proto={'GQUIC': 517790}
+   UL pkts=30848 (5%)  DL pkts=486942  UL Mbit/s=0.007  DL Mbit/s=0.425
+   UL pktsize p5/50/95=57/59/930
+   UL inter-arrival ms p50/p95=5.38/4311.22  UL pkts/s mean=2.9
+   UL bytes/s p50/p95=0/4035  nonzero-sec frac=0.26
+== Battleground_3.csv  ue=10.215.173.1 span=5006s pkts=286949
+   proto={'UDP': 274362, 'TCP': 5839, 'DB-LSP': 4605, 'TLSv1.2': 694, 'SSL': 646}
+   UL pkts=142262 (49%)  DL pkts=144673  UL Mbit/s=0.018  DL Mbit/s=0.023
+   UL pktsize p5/50/95=46/68/124
+   UL inter-arrival ms p50/p95=32.99/38.22  UL pkts/s mean=28.4
+   UL bytes/s p50/p95=2301/3449  nonzero-sec frac=0.99
+== Roblox_1.csv  ue=10.215.173.1 span=90250s pkts=928378
+   proto={'RakNet': 928378}
+   UL pkts=453685 (48%)  DL pkts=474693  UL Mbit/s=0.005  DL Mbit/s=0.011
+   UL pktsize p5/50/95=55/58/380
+   UL inter-arrival ms p50/p95=134.99/599.36  UL pkts/s mean=5.0
+   UL bytes/s p50/p95=547/1392  nonzero-sec frac=0.99
+== Teamfight_Tactics_6.csv  ue=10.215.173.1 span=2466s pkts=97818
+   proto={'UDP': 95848, 'TCP': 1004, 'TLSv1.2': 406, 'TLSv1.3': 332, 'DNS': 208}
+   UL pkts=48966 (50%)  DL pkts=48845  UL Mbit/s=0.010  DL Mbit/s=0.027
+   UL pktsize p5/50/95=51/51/79
+   UL inter-arrival ms p50/p95=34.14/179.97  UL pkts/s mean=19.9
+   UL bytes/s p50/p95=982/2342  nonzero-sec frac=0.98
+== MS_Teams_1.csv  ue=10.215.173.1 span=29277s pkts=11620089
+   proto={'UDP': 11486877, 'RTCP': 67593, 'STUN': 64607, 'CLASSIC-STUN': 826, 'DNS': 186}
+   UL pkts=265 (0%)  DL pkts=460  UL Mbit/s=0.000  DL Mbit/s=0.000
+   UL pktsize p5/50/95=35/35/868
+   UL inter-arrival ms p50/p95=94584.20/240001.79  UL pkts/s mean=0.0
+   UL bytes/s p50/p95=0/0  nonzero-sec frac=0.01
+== Netflix_1.csv  ue=10.215.173.1 span=88980s pkts=4290778
+   proto={'TCP': 3942556, 'TLSv1.3': 348222}
+   UL pkts=886487 (20%)  DL pkts=3404284  UL Mbit/s=0.005  DL Mbit/s=0.447
+   UL pktsize p5/50/95=40/40/40
+   UL inter-arrival ms p50/p95=0.17/11.90  UL pkts/s mean=10.0
+   UL bytes/s p50/p95=0/2966  nonzero-sec frac=0.09
+Traceback (most recent call last):
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/research/twinning/inspect_kr5g.py", line 6, in <module>
+    d = pd.read_csv(f, usecols=["Time", "Source", "Destination", "Protocol", "Length"], low_memory=False)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/.venv-ml/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 872, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/.venv-ml/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/.venv-ml/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1643, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/.venv-ml/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1925, in _make_engine
+    return mapping[engine](f, **self.options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/.venv-ml/lib/python3.12/site-packages/pandas/io/parsers/c_parser_wrapper.py", line 137, in __init__
+    self._validate_usecols_names(usecols, self.orig_names)
+  File "/home/ducsssanh/6G/O-RAN/DATN/Codebase/.venv-ml/lib/python3.12/site-packages/pandas/io/parsers/base_parser.py", line 662, in _validate_usecols_names
+    raise ValueError(
+ValueError: Usecols do not match columns, columns expected but not found: ['Destination', 'Length', 'Source', 'Protocol', 'Time']
+== GeForce_Now_8.csv  ue=10.215.173.1 span=2184s pkts=3313973
+   proto={'UDP': 3311683, 'TLSv1.2': 1125, 'TCP': 1115, 'RTCP': 47, 'THRIFT': 2}
+   UL pkts=132789 (4%)  DL pkts=3181184  UL Mbit/s=0.149  DL Mbit/s=12.300
+   UL pktsize p5/50/95=64/106/810
+   UL inter-arrival ms p50/p95=13.75/50.27  UL pkts/s mean=60.8
+   UL bytes/s p50/p95=18524/22657  nonzero-sec frac=1.00
+== KT_GameBox_3.csv  ue=10.215.173.1 span=1653s pkts=1367093
+   proto={'UDP': 1269684, 'TCP': 96321, 'TLSv1': 781, 'TLSv1.3': 284, 'TLSv1.2': 12}
+   UL pkts=141984 (10%)  DL pkts=1225102  UL Mbit/s=0.035  DL Mbit/s=7.273
+   UL pktsize p5/50/95=40/52/70
+   UL inter-arrival ms p50/p95=11.10/20.83  UL pkts/s mean=85.9
+   UL bytes/s p50/p95=4010/6805  nonzero-sec frac=0.97

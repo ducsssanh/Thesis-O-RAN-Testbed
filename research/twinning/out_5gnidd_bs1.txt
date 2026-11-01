@@ -1,0 +1,45 @@
+== Goldeneye1.csv  attack flows=76121 benign flows=17682  tool=['Goldeneye']  type=['HTTPFlood']
+   proto={'tcp': 76121}  state={'FIN': 26165, 'CON': 25549, 'RST': 24402}  srcs=1 dsts=1 dports=1
+   pkts/flow p50=2 p99=22  dur p50=0.000s  sMeanPktSz p5/50/95=0/66/190  SrcLoad(bit/s) p50=0 p95=89700  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=263 pkts/s p50=552 p95=1930  Mbit/s p50=0.532 p95=1.886
+   per-source totals: {'10.155.15.3': {'bytes': 24820173, 'pkts': 208603, 'n': 76121}}
+== ICMPFlood1.csv  attack flows=613 benign flows=17666  tool=['Hping3']  type=['ICMPFlood']
+   proto={'icmp': 613}  state={'ECO': 613}  srcs=1 dsts=1 dports=1
+   pkts/flow p50=2 p99=2  dur p50=0.002s  sMeanPktSz p5/50/95=42/42/42  SrcLoad(bit/s) p50=0 p95=0  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=613 pkts/s p50=1 p95=1  Mbit/s p50=0.000 p95=0.000
+   per-source totals: {'10.155.15.9': {'bytes': 25746, 'pkts': 613, 'n': 613}}
+== SYNFlood1.csv  attack flows=4792 benign flows=39844  tool=['Hping3']  type=['SYNFlood']
+   proto={'tcp': 4792}  state={'RST': 3407, 'REQ': 1385}  srcs=1 dsts=1 dports=1
+   pkts/flow p50=3 p99=3  dur p50=0.035s  sMeanPktSz p5/50/95=54/54/54  SrcLoad(bit/s) p50=9172 p95=25558  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=483 pkts/s p50=20 p95=20  Mbit/s p50=0.009 p95=0.009
+   per-source totals: {'10.155.15.4': {'bytes': 445878, 'pkts': 8257, 'n': 4792}}
+== SYNScan1.csv  attack flows=10019 benign flows=1431  tool=['Nmap']  type=['SYNScan']
+   proto={'tcp': 10009, 'icmp': 10}  state={'REQ': 9970, 'RST': 34, 'TST': 5}  srcs=1 dsts=1 dports=1004
+   pkts/flow p50=1 p99=1  dur p50=0.000s  sMeanPktSz p5/50/95=58/58/58  SrcLoad(bit/s) p50=0 p95=0  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=33 pkts/s p50=252 p95=716  Mbit/s p50=0.117 p95=0.332
+   per-source totals: {'10.155.15.1': {'bytes': 581684, 'pkts': 10032, 'n': 10019}}
+== Slowloris1.csv  attack flows=6207 benign flows=24808  tool=['Slowloris']  type=['SlowrateDoS']
+   proto={'tcp': 6207}  state={'CON': 2634, 'RST': 1916, 'FIN': 1657}  srcs=1 dsts=1 dports=1
+   pkts/flow p50=6 p99=9  dur p50=0.033s  sMeanPktSz p5/50/95=0/74/115  SrcLoad(bit/s) p50=292 p95=91769  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=122 pkts/s p50=64 p95=412  Mbit/s p50=0.048 p95=0.243
+   per-source totals: {'10.155.15.0': {'bytes': 1391590, 'pkts': 14649, 'n': 6207}}
+== TCPConnect1.csv  attack flows=10022 benign flows=1623  tool=['Nmap']  type=['TCPConnectScan']
+   proto={'tcp': 10012, 'icmp': 10}  state={'REQ': 9970, 'RST': 37, 'CON': 5}  srcs=1 dsts=1 dports=1004
+   pkts/flow p50=1 p99=1  dur p50=0.000s  sMeanPktSz p5/50/95=74/74/74  SrcLoad(bit/s) p50=0 p95=0  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=30 pkts/s p50=368 p95=655  Mbit/s p50=0.217 p95=0.388
+   per-source totals: {'10.155.15.1': {'bytes': 748748, 'pkts': 10130, 'n': 10022}}
+== Torshammer1.csv  attack flows=29885 benign flows=8235  tool=['Torshammer']  type=['SlowrateDoS']
+   proto={'tcp': 29885}  state={'CON': 18138, 'RST': 7924, 'FIN': 3823}  srcs=1 dsts=1 dports=1
+   pkts/flow p50=10 p99=17  dur p50=3.951s  sMeanPktSz p5/50/95=67/68/111  SrcLoad(bit/s) p50=532 p95=1444  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=619 pkts/s p50=226 p95=317  Mbit/s p50=0.149 p95=0.217
+   per-source totals: {'10.155.15.4': {'bytes': 11345383, 'pkts': 138174, 'n': 29885}}
+== UDPFlood1.csv  attack flows=175811 benign flows=291906  tool=['Hping3']  type=['UDPFlood']
+   proto={'udp': 175811}  state={'REQ': 109907, 'INT': 65904}  srcs=1 dsts=1 dports=0
+   pkts/flow p50=2 p99=3  dur p50=2.277s  sMeanPktSz p5/50/95=42/42/42  SrcLoad(bit/s) p50=74 p95=148  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=609 pkts/s p50=1 p95=2  Mbit/s p50=0.000 p95=0.001
+   per-source totals: {'10.155.15.4': {'bytes': 13116138, 'pkts': 312289, 'n': 175811}}
+== UDPScan1.csv  attack flows=7887 benign flows=2156  tool=['Nmap']  type=['UDPScan']
+   proto={'udp': 7862, 'tcp': 17, 'icmp': 8}  state={'INT': 7862, 'RST': 13, 'CON': 4}  srcs=1 dsts=1 dports=1003
+   pkts/flow p50=1 p99=1  dur p50=0.000s  sMeanPktSz p5/50/95=42/42/42  SrcLoad(bit/s) p50=0 p95=0  SIntPkt(ms) p50=nan
+   per-second (by flow start) seconds=281 pkts/s p50=20 p95=50  Mbit/s p50=0.007 p95=0.018
+   per-source totals: {'10.155.15.9': {'bytes': 338748, 'pkts': 7888, 'n': 7887}}

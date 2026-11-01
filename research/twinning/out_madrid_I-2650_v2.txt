@@ -1,0 +1,10 @@
+ACTIVE-SECOND UL Mbit/s: {'p50': 0.0385, 'p90': 0.2446, 'p95': 0.3968, 'p99': 1.4653} mean 0.1228 max 257.9
+SESSIONS: 6105417
+  active-seconds: {'p50': 1.0, 'p90': 3.0, 'p95': 4.0, 'p99': 13.0}
+  wallclock s: {'p50': 1.0, 'p90': 10.0, 'p95': 15.0, 'p99': 33.0}
+  duty cycle: {'p50': 1.0, 'p90': 1.0, 'p95': 1.0, 'p99': 1.0}
+  session mean Mbit/s: {'p50': 0.0381, 'p90': 0.1689, 'p95': 0.235, 'p99': 0.422}
+  sessions with mean UL in [0.4,1.2] Mbit/s: 68785 (1.1%)
+ON-run s: {'p50': 1.0, 'p90': 1.0, 'p95': 2.0, 'p99': 6.0} mean 1.26
+OFF-gap s (within session): {'p50': 4.0, 'p90': 8.0, 'p95': 9.0, 'p99': 9.0} mean 4.06
+CONCURRENT users/sec: {'p50': 14.0, 'p90': 32.0, 'p95': 40.0, 'p99': 63.0} mean 17.0 max 121
