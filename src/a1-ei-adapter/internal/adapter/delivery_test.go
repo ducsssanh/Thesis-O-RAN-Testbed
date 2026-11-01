@@ -182,3 +182,40 @@ func TestRejectPlainHTTPXApp(t *testing.T) {
 		t.Fatal("plain HTTP accepted")
 	}
 }
+
+// An idle loop must deliver a new report at once, not at its 1 s safety tick.
+func TestDeliveryWakesOnQueue(t *testing.T) {
+	got := make(chan time.Time, 1)
+	receiver := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got <- time.Now()
+		w.WriteHeader(http.StatusCreated)
+	}))
+	defer receiver.Close()
+	ca := filepath.Join(t.TempDir(), "ca.crt")
+	if err := os.WriteFile(ca, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: receiver.Certificate().Raw}), 0600); err != nil {
+		t.Fatal(err)
+	}
+	s, err := New(Config{StateDir: t.TempDir(), CAFile: ca, JobID: "job", XAppURL: receiver.URL})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go s.DeliveryLoop(ctx)
+	time.Sleep(100 * time.Millisecond) // the loop is now idle
+	sent := time.Now()
+	w := httptest.NewRecorder()
+	s.Handler().ServeHTTP(w, httptest.NewRequest("POST", "/callbacks/a1-ei/results/job", strings.NewReader(`{"seid":1,"ur_seqn":1}`)))
+	if w.Code != 204 {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	select {
+	case at := <-got:
+		if d := at.Sub(sent); d > 300*time.Millisecond {
+			t.Fatalf("delivered after %v", d)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("not delivered")
+	}
+}

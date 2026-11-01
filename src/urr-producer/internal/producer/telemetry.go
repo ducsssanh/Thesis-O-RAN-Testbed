@@ -204,20 +204,32 @@ func (s *Server) pullStream(ctx context.Context, baseURL, typ string, cursorK []
 	return n, nil
 }
 
+// upfTickLag: the UPF closes each 1 s window 20 ms after the wall-clock second
+// (SecurityPolicyStore::TelemetryLoop); pulling just after that tick, not on a
+// free-running ticker, saves up to 1 s of waiting per record.
+const upfTickLag = 80 * time.Millisecond
+
+func untilUPFTick() time.Duration {
+	now := time.Now()
+	next := now.Truncate(time.Second).Add(upfTickLag)
+	if !next.After(now) {
+		next = next.Add(time.Second)
+	}
+	return next.Sub(now)
+}
+
 // EventLoop pulls the UPF event ring every second while oai-upf-event is on.
 func (s *Server) EventLoop(ctx context.Context) {
 	typ := s.eventType()
 	if typ == "" || s.cfg.EventsURL == "" {
 		return
 	}
-	t := time.NewTicker(time.Second)
-	defer t.Stop()
 	failing := false
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-t.C:
+		case <-time.After(untilUPFTick()):
 		}
 		_, err := s.pullStream(ctx, s.cfg.EventsURL, typ, eventCursorKey)
 		if err != nil && !failing {
@@ -232,14 +244,12 @@ func (s *Server) TelemetryLoop(ctx context.Context) {
 	if s.profileType() == "" || s.cfg.TelemetryURL == "" {
 		return
 	}
-	t := time.NewTicker(time.Second)
-	defer t.Stop()
 	failing := false
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-t.C:
+		case <-time.After(untilUPFTick()):
 		}
 		_, err := s.pullTelemetry(ctx)
 		if err != nil && !failing {

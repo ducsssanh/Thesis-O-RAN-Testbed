@@ -38,6 +38,7 @@ type Server struct {
 	sessions   map[string]sessionRef  // SUPI -> latest PDU session (usage reports)
 	seqs       map[string]uint64      // record sequence per source (envelopes)
 	started    string                 // source_epoch of the producer's own records
+	wake       chan struct{}          // a record was queued: deliver now, not at the next retry tick
 }
 type pendingDelivery struct {
 	Report   json.RawMessage `json:"report"`
@@ -88,9 +89,17 @@ func New(c Config) (*Server, error) {
 		kubePool.AppendCertsFromPEM(kubeCA)
 	}
 	kubeTransport := &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: kubePool}}
-	return &Server{started: time.Now().UTC().Format("20060102T150405Z"), cfg: c, db: db, client: &http.Client{Timeout: 10 * time.Second, Transport: tr}, kubeClient: &http.Client{Timeout: 5 * time.Second, Transport: kubeTransport}}, nil
+	return &Server{started: time.Now().UTC().Format("20060102T150405Z"), cfg: c, db: db, client: &http.Client{Timeout: 10 * time.Second, Transport: tr}, kubeClient: &http.Client{Timeout: 5 * time.Second, Transport: kubeTransport}, wake: make(chan struct{}, 1)}, nil
 }
 func (s *Server) Close() error { return s.db.Close() }
+
+// notify wakes DeliverPending; a wake already pending covers this record too.
+func (s *Server) notify() {
+	select {
+	case s.wake <- struct{}{}:
+	default:
+	}
+}
 func (s *Server) Handler() http.Handler {
 	m := http.NewServeMux()
 	m.HandleFunc("/healthz", s.health)
@@ -323,6 +332,7 @@ func (s *Server) smf(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+	s.notify()
 	w.WriteHeader(http.StatusNoContent)
 }
 func (s *Server) appendCSV(v Normalized) {
@@ -419,17 +429,25 @@ func matches(j Job, v Normalized) bool {
 	}
 	return true
 }
+// DeliverPending sends queued records as soon as they are queued (notify);
+// the 2 s tick only retries records whose backoff has run out.
 func (s *Server) DeliverPending(ctx context.Context) {
 	for {
-		s.deliverBatch(ctx)
+		if s.deliverBatch(ctx) == deliverBatchMax {
+			continue // more queued than one batch
+		}
 		select {
 		case <-ctx.Done():
 			return
+		case <-s.wake:
 		case <-time.After(2 * time.Second):
 		}
 	}
 }
-func (s *Server) deliverBatch(ctx context.Context) {
+
+const deliverBatchMax = 50
+
+func (s *Server) deliverBatch(ctx context.Context) int {
 	type item struct {
 		key     string
 		pending pendingDelivery
@@ -438,7 +456,7 @@ func (s *Server) deliverBatch(ctx context.Context) {
 	items := []item{}
 	_ = s.db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket(pendingBucket).Cursor()
-		for k, b := c.First(); k != nil && len(items) < 50; k, b = c.Next() {
+		for k, b := c.First(); k != nil && len(items) < deliverBatchMax; k, b = c.Next() {
 			jobID, _, _ := strings.Cut(string(k), ":")
 			raw := tx.Bucket(jobsBucket).Get([]byte(jobID))
 			if raw == nil {
@@ -485,6 +503,7 @@ func (s *Server) deliverBatch(ctx context.Context) {
 		}
 		_ = appendJSON(filepath.Join(s.cfg.StateDir, "delivery-errors.jsonl"), map[string]any{"at": time.Now().UTC(), "key": it.key, "error": message})
 	}
+	return len(items)
 }
 func putJSON(ctx context.Context, c *http.Client, method, url string, v any) (*http.Response, error) {
 	b, _ := json.Marshal(v)

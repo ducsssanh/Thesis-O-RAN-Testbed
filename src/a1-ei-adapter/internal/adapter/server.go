@@ -41,6 +41,7 @@ type Server struct {
 	mu        sync.RWMutex
 	enabled   bool              // URR job ENABLED (readiness)
 	jobStatus map[string]string // job ID -> last EI job status
+	wake      chan struct{}     // a report was queued for the xApp: deliver now
 }
 
 // maxPendingExtra keeps half of the xApp queue for URR.
@@ -128,12 +129,20 @@ func New(c Config) (*Server, error) {
 			return nil, fmt.Errorf("invalid CA")
 		}
 	}
-	s := &Server{cfg: c, db: db, client: &http.Client{Timeout: 10 * time.Second, Transport: &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: pool}}}}
+	s := &Server{cfg: c, db: db, client: &http.Client{Timeout: 10 * time.Second, Transport: &http.Transport{TLSClientConfig: &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: pool}}}, wake: make(chan struct{}, 1)}
 	s.exportDeadletter()
 	s.exportDeliveryLog()
 	return s, nil
 }
 func (s *Server) Close() error { return s.db.Close() }
+
+// notify wakes DeliveryLoop; a wake already pending covers this report too.
+func (s *Server) notify() {
+	select {
+	case s.wake <- struct{}{}:
+	default:
+	}
+}
 func (s *Server) Handler() http.Handler {
 	m := http.NewServeMux()
 	m.HandleFunc("/healthz", s.health)
@@ -253,6 +262,9 @@ func (s *Server) result(w http.ResponseWriter, r *http.Request) {
 			f.Write(append(b, '\n'))
 			f.Close()
 		}
+		if s.cfg.XAppURL != "" {
+			s.notify()
+		}
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -315,6 +327,9 @@ func (s *Server) resultEnvelope(w http.ResponseWriter, st Stream, b []byte) {
 		if f != nil {
 			f.Write(append(b, '\n'))
 			f.Close()
+		}
+		if s.cfg.XAppURL != "" {
+			s.notify()
 		}
 	}
 	w.WriteHeader(http.StatusNoContent)

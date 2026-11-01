@@ -179,6 +179,7 @@ func (s *Server) Publish(e Envelope) error {
 	}
 	if fresh {
 		_ = appendJSON(filepath.Join(s.cfg.StateDir, "envelopes.jsonl"), json.RawMessage(raw))
+		s.notify()
 	}
 	return nil
 }

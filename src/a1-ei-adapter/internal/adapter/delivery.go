@@ -173,10 +173,11 @@ func (s *Server) DeliveryLoop(ctx context.Context) {
 			report = append([]byte(nil), v...)
 			return nil
 		})
-		if len(key) == 0 {
+		if len(key) == 0 { // idle until a report is queued (1 s safety net)
 			select {
 			case <-ctx.Done():
 				return
+			case <-s.wake:
 			case <-time.After(time.Second):
 			}
 			continue
