@@ -34,8 +34,8 @@ global:
           quotaDlBytes: 3125000
       sessionTtl:
         deactivatedReleaseS: 120  # T1 (also the grace after a T2 UPIR)
-        upInactivityS: 60         # T2, PFCP IE 117
-      ueKeepaliveS: 20          # benign UE background traffic, < upInactivityS; 0 = off
+        upInactivityS: 172800     # T2, PFCP IE 117; twin runs: longer than any run, real users are silent for minutes
+      ueKeepaliveS: 86400       # twin runs: one datagram at UE start, then none, or it would add 5 % busy seconds; < upInactivityS; 0 removes the sidecar the traffic runs in
       upfSecurity:              # per-SUPI block/ratelimit/monitor in the eBPF UPF (Phase U, design 5.1-5.3a, 6.1)
         enabled: true           # HTTP API (no TLS, design 8) for the xApp; changing this block restarts only the UPF
         port: 8095              # Service oai-upf-security.oai-core.svc

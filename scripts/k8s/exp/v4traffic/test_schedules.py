@@ -74,6 +74,76 @@ s1 = S.make("fgn", RBAR, 300, np.random.default_rng(3), MS)["bytes_s"]
 s2 = S.make("fgn", RBAR, 300, np.random.default_rng(3), MS)["bytes_s"]
 ok(np.array_equal(s1, s2), "same seed did not reproduce the schedule")
 
+# ---- benign twin: packets of a real second, plan of a real window, pacer run, MAC counters ----------
+import json, socket, subprocess, tempfile
+import planbuilder as PB
+q = Z.app_priors()["Zoom_2"]["ul_size_q"]
+prng = np.random.default_rng(1)
+for target in (5000.0, 73.0, 300.0, 1_000_000.0):
+    pk = Z.packetize(target, q, prng)
+    mac = sum(pk) + Z.MAC_OVERHEAD * len(pk)
+    ok(0 <= target - mac < Z.MIN_IP + Z.MAC_OVERHEAD, f"packetize {target}: MAC bytes {mac}")
+    ok(min(pk) >= Z.MIN_IP and max(pk) <= Z.MAX_IP, f"packetize {target}: length out of range")
+ok(Z.packetize(0, q, prng) == [], "packetize: a silent second must send nothing")
+pk = Z.packetize(20.0, q, prng); ok(pk == [Z.MIN_IP], f"packetize: below one packet gives the floor, got {pk}")
+ok(len(Z.packetize(4_000_000.0, q, prng)) <= Z.MAX_PPS * 2, "packetize: pps cap")
+
+tmp = pathlib.Path(tempfile.mkdtemp())
+ul_w = np.zeros((2, 75), dtype=np.uint32); dl_w = np.zeros((2, 75), dtype=np.uint32)
+ul_w[:, 10:20] = 900; dl_w[:, 15:25] = 3000; ul_w[:, 30] = 3_000_000
+np.savez(tmp / "w.npz", ul_P4=ul_w, dl_P4=dl_w, src_P4=np.array([[1, 54628, 1586178760], [2, 7, 8]]))
+spec = {"band": "P4", "seed": 5, "windows_npz": tmp / "w.npz", "role": "benign", "model": "real_window", "backend": "pacer"}
+plan, meta = PB.build_plan(spec, 75, "127.0.0.1", "127.0.0.1", 5999)
+plan2, _ = PB.build_plan(spec, 75, "127.0.0.1", "127.0.0.1", 5999)
+ok(plan == plan2, "real_window: same seed did not reproduce the plan")
+ok(all(not s["pkts"] for i, s in enumerate(plan["seconds"]) if not (10 <= i < 20 or i == 30)), "real_window: traffic outside the window's active seconds")
+ok(all(s["pkts"] for i, s in enumerate(plan["seconds"]) if 10 <= i < 20), "real_window: active second without packets")
+ok(all(bool(s["pkts"]) == (15 <= i < 25) for i, s in enumerate(plan["dl_seconds"])), "real_window: DL is not the window's DL")
+ok(meta["ul_clipped_s"] == 1 and plan["seconds"][30]["bytes"] == PB.REPLAY_CAP_BYTES_S["ul"], "real_window: capacity clip not applied or not counted")
+ok(meta["window"]["rnti"] in (54628, 7) and meta["app"] in Z.app_priors(), "real_window: window source not in the meta")
+try:
+    PB.build_plan(spec, 60, "127.0.0.1", "127.0.0.1", 5999); ok(False, "real_window accepted a phase that is not 75 s")
+except ValueError:
+    pass
+
+# pacer: exact packets, sent on time, inside the span of their second, silent seconds stay silent
+sink = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); sink.bind(("127.0.0.1", 0)); sink.settimeout(3)
+secs = [{"bytes": 0, "pkts": []}, {"bytes": 500, "pkts": [100, 29, 300]}, {"bytes": 0, "pkts": []}]
+t0 = __import__("time").time() + 0.5
+(tmp / "p.json").write_text(json.dumps({"dst": "127.0.0.1", "ports": [sink.getsockname()[1]], "process": "poisson", "span": [0.05, 0.75],
+                                        "seconds": secs, "start_at": t0, "seed": 1}))
+pc = subprocess.Popen([sys.executable, str(pathlib.Path(__file__).parent / "backends/pacer.py"), str(tmp / "p.json")], stdout=subprocess.PIPE, text=True)
+got = []
+try:
+    while len(got) < 3:
+        d, _ = sink.recvfrom(4096); got.append((__import__("time").time() - t0, len(d)))
+except socket.timeout:
+    pass
+rows = [json.loads(x) for x in pc.communicate(timeout=10)[0].splitlines()]
+ok(sorted(g[1] for g in got) == [1, 72, 272], f"pacer: wrong datagram sizes {got}")
+ok(all(1.0 <= g[0] <= 1.8 for g in got), f"pacer: packets outside second 1 span {got}")
+ok([r["sent_pkts"] for r in rows] == [0, 3, 0] and rows[1]["sent_bytes"] == 429, f"pacer rows {rows}")
+ok(rows[0]["late_s"] < 0.1, "pacer: started late")
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+import collect
+raw = """@1793538766.384
+UE RNTI 2580 CU-UE-ID 1 in-sync PH 48 dB
+UE 2580: dlsch_rounds 14987/894/0/0, dlsch_errors 0
+UE 2580: ulsch_rounds 103036/6768/0/0, ulsch_errors 0
+UE 2580: LCID 1: TX            528 RX            294 bytes
+UE 2580: LCID 2: TX              0 RX              0 bytes
+UE 2580: LCID 4: TX         461910 RX      122273648 bytes
+@1793538767.385
+UE RNTI 2580 CU-UE-ID 1 in-sync PH 48 dB
+UE 2580: dlsch_rounds 14990/894/0/0, dlsch_errors 0
+UE 2580: ulsch_rounds 103040/6768/0/0, ulsch_errors 0
+UE 2580: LCID 4: TX         461985 RX      122273700 bytes
+"""
+lines = collect.parse_mac_stats(raw, {"2580": "ue1"}).splitlines()
+ok(lines[1] == "1793538766.384,2580,ue1,1,122273648,461910,103036,14987", f"mac csv row: {lines[1]}")
+ok(lines[2] == "1793538767.385,2580,ue1,1,122273700,461985,103040,14990" and len(lines) == 3, f"mac csv: {lines}")
+
 if fails:
     print("FAIL:"); [print("  -", f) for f in fails]; sys.exit(1)
 print("ALL SCHEDULE TESTS PASSED (cbr, poisson, mmpp2, onoff_pareto, fgn H, hawkes, pulsing, sizes, mixer, seed-repro)")

@@ -296,8 +296,10 @@ class V4Flow:
         self.backend = self.spec.get("backend", "pacer")
         self.model = self.spec.get("model", "cbr")
         self.mode = self.spec.get("mode")
-        self.level = float(self.spec.get("level", 0.0))
         self.plan, self.meta = planbuilder.build_plan(self.spec, int(duration), DN_IP, ip, port)
+        self.replay = self.model == "real_window"
+        self.level = self.meta["level_bytes_s"] if self.replay else float(self.spec.get("level", 0.0))
+        self.start_at, self.dl_rows = None, []
         self.fanout = int(self.spec.get("fanout", 0) or 0)
         if self.fanout > 1:
             self.plan["fanout"] = self.fanout
@@ -318,7 +320,7 @@ class V4Flow:
         # does not track the label); the DROP is installed only for the malicious flow.
         self.victim_mode = self.spec.get("victim_mode")
         self.dl_feedback = 0.0
-        if not self.malicious and self.proto == "udp" and self.spec.get("dl_feedback", "auto") != 0:
+        if not self.replay and not self.malicious and self.proto == "udp" and self.spec.get("dl_feedback", "auto") != 0:
             fb = self.spec.get("dl_feedback", "auto")
             rng = __import__("random").Random(int(self.spec["seed"]) ^ 0x5DF)
             self.dl_feedback = float(fb) if fb != "auto" else round(rng.uniform(0.01, 0.10), 4)
@@ -331,6 +333,9 @@ class V4Flow:
         self.pair = self.spec.get("pair")
 
     def start_server(self):
+        if self.replay:
+            self._start_replay()
+            return
         self._srv = self._runner._start_dn_server(self.backend, self.port, self.duration + 6)
         if self.fanout > 1:
             self._runner.add_dn_aliases(self.fanout)       # responsive fan-out destinations on the DN
@@ -342,12 +347,27 @@ class V4Flow:
             self._dl_threads = self._runner.start_dl_feedback(
                 UES[self.ue][0], self.ip, self.port + 1000, rate, int(self.duration), seed=int(self.spec["seed"]) ^ 0xD1)
 
+    def _start_replay(self):
+        """Second 0 of the UL and DL replay on one common grid: UNIX seconds (dataset, as KPM and the
+        profiler), or `grid: gnb` = the gNB stats seconds (validation, so one second's bytes stay in one
+        stats second). The DN drops the UL silently, so ICMP replies do not add DL that the window lacks."""
+        offset = self._runner.gnb_stats_offset() if self.spec.get("grid") == "gnb" else 0.0
+        self.start_at = __import__("math").ceil(time.time() + self.REPLAY_LEAD_S - offset) + offset
+        self.plan["start_at"] = self.start_at
+        self._runner.set_victim_silent(self.ip, "udp", self.port)
+        self._dl_threads = self._runner.start_dl_feedback(
+            UES[self.ue][0], self.ip, self.port + 1000, None, int(self.duration + self.REPLAY_LEAD_S + 2),
+            seed=int(self.spec["seed"]) ^ 0xD1, dl_seconds=self.plan.pop("dl_seconds"), start_at=self.start_at,
+            span=self.plan["span"], rows=self.dl_rows)
+
+    REPLAY_LEAD_S = 6                                  # kubectl exec of both pacers fits in this
+
     def start_client(self):
         self.started = time.time()
 
         def _go():
             self._achieved = self._runner.run_backend(UES[self.ue][0], self.plan,
-                                                       timeout=self.duration + 30)
+                                                       timeout=self.duration + 30 + (self.REPLAY_LEAD_S if self.replay else 0))
         self._thread = threading.Thread(target=_go, daemon=True)
         self._thread.start()
 
@@ -365,6 +385,8 @@ class V4Flow:
             t.join(timeout=timeout)
         if self.malicious and self.victim_mode == "silent":
             self._runner.clear_victim_silent(self.ip, self.proto, self.port)
+        if self.replay:
+            self._runner.clear_victim_silent(self.ip, "udp", self.port)
         if self.fanout > 1:
             self._runner.del_dn_aliases(self.fanout)
             if self._fanout_srv:
@@ -395,6 +417,8 @@ class V4Flow:
              "load_mbps": round(self.level * 8 / 1e6, 4), "victim_mode": self.victim_mode,
              "dl_feedback": self.dl_feedback, "fanout": self.fanout, "stress_cell": int(self.stress_cell),
              "congestion": int(bool(self.spec.get("congestion"))), "pair": self.pair, "v4_meta": self.meta}
+        if self.replay:
+            s.update({"replay_start_at": self.start_at, "dl_rows": self.dl_rows})
         if self.backend == "dns_client":
             s["answers"] = sum(r.get("answers", 0) for r in self._achieved)
         if self.backend == "tcp_shortconn":
@@ -475,6 +499,44 @@ for k in sorted(c):print('%d,%s,%s,%d,%d'%(k[0],k[1],k[2],c[k],b[k]))
             self.csv = self._p.communicate(timeout=60)[0] or ""
         except Exception:
             self._p.kill()
+
+
+class MacStats:
+    """Per-UE MAC counters of the gNB, one sample per rewrite of nrMAC_stats.log (1 s). The raw lines
+    stay in self.raw; collect.parse_mac_stats turns them into ran/mac_stats.csv. Validation of the twin
+    reads byte counts here (TRAFFIC-TWINNING-PLAN §6.1): the same layer as the Madrid sniffer."""
+
+    FILE = "/opt/oai/ran/nrMAC_stats.log"
+    STOP = "/tmp/macstats.stop"
+    LOOP = r"""rm -f %(stop)s; last=""; end=$(( $(date +%%s) + %(seconds)d ))
+while [ ! -e %(stop)s ] && [ $(date +%%s) -lt $end ]; do
+  m=$(stat -c %%.3Y %(file)s)
+  if [ "$m" != "$last" ]; then
+    c=$(grep -E "^UE RNTI|ulsch_rounds|dlsch_rounds|LCID" %(file)s)
+    if [ -n "$c" ]; then echo "@$m"; echo "$c"; last="$m"; fi
+  fi
+  sleep 0.1
+done"""
+
+    def __init__(self, seconds):
+        self.seconds = seconds
+        self.raw = ""
+
+    def start(self):
+        self._p = popen_ex("oai-ran", "oai-gnb", "gnb", "bash", "-c",
+                           self.LOOP % {"stop": self.STOP, "seconds": self.seconds, "file": self.FILE})
+        # read all along: a full pipe (64 kB, about 40 samples) would block the sampling loop
+        self._lines = []
+        self._reader = threading.Thread(target=lambda: self._lines.extend(self._p.stdout), daemon=True)
+        self._reader.start()
+
+    def stop(self):
+        ex("oai-ran", "oai-gnb", "gnb", "touch", self.STOP, check=False)
+        self._reader.join(timeout=30)
+        if self._reader.is_alive():
+            self._p.kill()
+            self._reader.join(timeout=5)
+        self.raw = "".join(self._lines)
 
 
 class PfcpCapture:

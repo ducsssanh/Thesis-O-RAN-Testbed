@@ -82,10 +82,22 @@ def _dn_server_cmd(backend, port, seconds):
 
 
 # ---- designed DL feedback for benign (§5.5, C2 fix) --------------------------
-def start_dl_feedback(ue_dep, ue_ip, port, rate_bytes_s, seconds, seed=7):
+def gnb_stats_offset():
+    """Fraction of the UNIX second at which the gNB rewrites nrMAC_stats.log (its 1 s stats grid)."""
+    rc, out, err = _k(["-n", "oai-ran", "exec", "deploy/oai-gnb", "-c", "gnb", "--",
+                       "stat", "-c", "%.3Y", "/opt/oai/ran/nrMAC_stats.log"])
+    if rc != 0:
+        raise RuntimeError("cannot read nrMAC_stats.log: " + err.strip())
+    t = float(out.strip())
+    return t - int(t)
+
+
+def start_dl_feedback(ue_dep, ue_ip, port, rate_bytes_s, seconds, seed=7, dl_seconds=None, start_at=None, span=None, rows=None):
     """Downlink feedback DN -> UE at `rate_bytes_s` (a fraction of the UL level),
     so a benign UE has a realistic DL channel. Returns threads to join. A UE-side
-    UDP sink on `port` absorbs it; the DN runs the pacer DN -> UE:port."""
+    UDP sink on `port` absorbs it; the DN runs the pacer DN -> UE:port.
+    Benign twin: dl_seconds = per-second packets of the same real window, sent from start_at;
+    `seconds` must then include the lead time up to start_at. The achieved rows go to `rows`."""
     threads = []
     # UE sink (shares the UE netns via the keepalive sidecar)
     _k(["-n", "oai-ran", "exec", "-i", f"deploy/{ue_dep}", "-c", "keepalive", "--",
@@ -101,12 +113,18 @@ def start_dl_feedback(ue_dep, ue_ip, port, rate_bytes_s, seconds, seed=7):
         "sh", "-c", "cat > /tmp/pacer.py"], inp=BACKENDS["pacer"])
     plan = {"dst": ue_ip, "bind": DN_N6, "ports": [port], "sizes": [[256, 1.0]],
             "process": "even", "seed": seed,
-            "seconds": [{"bytes": float(rate_bytes_s), "pps": None}] * seconds}
+            "seconds": dl_seconds if dl_seconds is not None else [{"bytes": float(rate_bytes_s), "pps": None}] * seconds}
+    if dl_seconds is not None:
+        plan.update({"start_at": start_at, "span": span, "process": "poisson"})
     pj = json.dumps(plan)
-    t_dn = threading.Thread(target=lambda: _k(
-        ["-n", "oai-core", "exec", "-i", "deploy/oai-lab-dn", "-c", "dn", "--",
-         "sh", "-c", "cat > /tmp/dlplan.json && timeout %d python3 /tmp/pacer.py /tmp/dlplan.json" % (seconds + 3)],
-        inp=pj, timeout=seconds + 12), daemon=True)
+
+    def _dn_pacer():
+        _, out, _ = _k(["-n", "oai-core", "exec", "-i", "deploy/oai-lab-dn", "-c", "dn", "--",
+                        "sh", "-c", "cat > /tmp/dlplan-%d.json && timeout %d python3 /tmp/pacer.py /tmp/dlplan-%d.json" % (port, seconds + 3, port)],
+                       inp=pj, timeout=seconds + 12)
+        if rows is not None:
+            rows.extend(json.loads(x) for x in out.splitlines() if x.startswith("{"))
+    t_dn = threading.Thread(target=_dn_pacer, daemon=True)
     t_dn.start()
     threads.append(t_dn)
     return threads

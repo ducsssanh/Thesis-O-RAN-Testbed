@@ -6,6 +6,7 @@ built the same way and are load-matched.
 A "spec" (from a scenario YAML or the design) names:
   backend : pacer | hping | iperf | tcp_shortconn | dns_client
   model   : cbr|poisson|mmpp2|onoff_pareto|fgn|hawkes|pulsing   (rate schedule)
+            real_window = benign twin, replay of a real window; takes `band` and `seed`, no `level`
   level   : mean IP bytes/s (the load level L1/L2/L3 -> bytes/s)
   role    : "benign" | "attack"
   seed    : int (reproducible)
@@ -43,6 +44,49 @@ def _series(model, rbar, T, rng, mean_size, **kw):
     return np.asarray(r["bytes_s"], dtype=float), r["params"], r.get("process", "even")
 
 
+# Capacity of the path: the OAI UE queues what it cannot send (up to 50 MB UL), which would smear a
+# real window over later seconds. Seconds above this are cut and counted in the meta.
+REPLAY_CAP_BYTES_S = {"ul": 1_000_000, "dl": 1_000_000}
+REPLAY_SPAN = [0.05, 0.75]     # send inside this part of each second, so a second's bytes stay in one stats second
+
+
+def _replay_seconds(series, quantiles, rng, cap):
+    out, clipped, floored = [], 0, 0
+    for v in series:
+        v = float(v)
+        if v > cap:
+            v, clipped = float(cap), clipped + 1
+        floored += int(0 < v < sizes.MIN_IP + sizes.MAC_OVERHEAD)
+        out.append({"bytes": v, "pkts": sizes.packetize(v, quantiles, rng)})
+    return out, clipped, floored
+
+
+def build_replay(spec, T, dst, bind, port):
+    """Benign twin: replay of a real window of `band` (TRAFFIC-TWINNING-PLAN §0a rev 4). UL and DL come
+    from the same window and are not rescaled; packet lengths come from one app of the band. The DL
+    seconds are left in plan["dl_seconds"] for the caller."""
+    if T != schedules.WINDOW_LEN:
+        raise ValueError("real_window needs a phase of %d s, got %d" % (schedules.WINDOW_LEN, T))
+    band = spec["band"]
+    rng = np.random.default_rng(spec["seed"])
+    w = schedules.real_window(band, rng, spec.get("windows_npz", schedules.WINDOWS_NPZ))
+    apps = {k: v for k, v in sizes.app_priors().items() if v["band"] == band}
+    app = spec.get("app") or sorted(apps)[int(rng.integers(len(apps)))]
+    ul, ul_clip, ul_floor = _replay_seconds(w["ul"], apps[app]["ul_size_q"], rng, REPLAY_CAP_BYTES_S["ul"])
+    dl, dl_clip, dl_floor = _replay_seconds(w["dl"], apps[app]["dl_size_q"], rng, REPLAY_CAP_BYTES_S["dl"])
+    plan = {"dst": dst, "bind": bind, "ports": [port], "backend": "pacer", "process": "poisson",
+            "span": REPLAY_SPAN, "seconds": ul, "dl_seconds": dl, "seed": int(spec["seed"])}
+    n_pkts = sum(len(x["pkts"]) for x in ul)
+    meta = {"backend": "pacer", "model": "real_window", "role": "benign", "band": band, "app": app,
+            "level_bytes_s": float(w["ul"].mean()), "seed": int(spec["seed"]),
+            "mean_size": (sum(sum(x["pkts"]) for x in ul) / n_pkts) if n_pkts else None,
+            "window": {"cell": w["src"][0], "rnti": w["src"][1], "start": w["src"][2], "index": w["index"]},
+            "ul_clipped_s": ul_clip, "dl_clipped_s": dl_clip, "ul_floored_s": ul_floor, "dl_floored_s": dl_floor,
+            "target_mean_bytes_s": float(np.mean([x["bytes"] for x in ul])),
+            "target_dl_mean_bytes_s": float(np.mean([x["bytes"] for x in dl])), "params": {}}
+    return plan, meta
+
+
 def build_plan(spec, T, dst, bind, port):
     """Return (plan, meta). plan -> runner.run_backend; meta -> flows.json label.
 
@@ -51,6 +95,8 @@ def build_plan(spec, T, dst, bind, port):
     size-matched cell the same `size_seed` so their packet-size mix is identical
     per-phase (the dry-run in design.py shows independent draws leave per-cell size
     overlap ≈ 0 even across many reps), while keeping distinct behaviour seeds."""
+    if spec.get("model") == "real_window":
+        return build_replay(spec, T, dst, bind, port)
     rng = np.random.default_rng(spec["seed"])
     size_rng = np.random.default_rng(spec.get("size_seed", spec["seed"]))
     backend = spec["backend"]

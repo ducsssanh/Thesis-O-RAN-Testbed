@@ -17,7 +17,7 @@ Layout of the results (see experiments/README.md):
       meta/       snapshot_start.json, snapshot_end.json (defense state, UPF policies/stats), link_stats.json
       traffic/    flows.json (per-second receiver rows of every flow), <phase>_<ue>_<dir>.csv
       dataplane/  dn_per_second.csv (packets/bytes per UE address at the DN's N6)
-      ran/        kpm.csv, kpm_cells.csv, rc_control.jsonl (E2SM-RC requests and acks)
+      ran/        kpm.csv, kpm_cells.csv, rc_control.jsonl (E2SM-RC requests and acks), mac_stats.csv (gNB MAC counters, 1 s)
       core/       urr_received.jsonl (xApp), producer_normalized.jsonl, producer_smf_raw.jsonl,
                   adapter_delivery.jsonl, upf_audit.jsonl, pfcp.pcap, pfcp_messages.csv, pfcp_usage_reports.csv
       defense/    events.jsonl (evidence, level, action, verdict), features.jsonl, state_timeline.jsonl, db_rows.json
@@ -217,11 +217,13 @@ def run_once(scn, variant, rep, camp_dir):
         planned = sum(p.get("duration", 0) for p in scn["phases"]) + 600
         tag = "%s-%s-%02d-%d" % (scn["name"], variant["name"], rep, int(time.time()))
         rec, dn, pf = traffic.StateRecorder(), traffic.DnCounter(planned), traffic.PfcpCapture(tag, planned)
+        mac = traffic.MacStats(planned)
         collect.snapshot(run_dir, "start")
         links = {"start": collect.link_stats()}
         t_run0 = time.time()
         rec.start()
         dn.start()
+        mac.start()
         pf.start()
         time.sleep(2)
         phases, all_flows, port = [], [], 5400
@@ -269,7 +271,8 @@ def run_once(scn, variant, rep, camp_dir):
                 traffic.v4_set_congestion(cong)
                 ph["congestion"] = cong
             stop = p.get("stop_when")
-            t_end = time.time() + p["duration"]
+            # a real-window replay starts at its start_at, so the phase runs until its last second
+            t_end = max([time.time() + p["duration"]] + [f.start_at + p["duration"] + 1 for f in flows if getattr(f, "start_at", None)])
             while time.time() < t_end:
                 if stop and rec.level(lab.UES[stop["ue"]][2]) >= stop["level_gte"]:
                     hold = stop.get("hold_s", 0)
@@ -298,6 +301,7 @@ def run_once(scn, variant, rep, camp_dir):
         rec.stop_flag = True
         rec.join(timeout=5)
         dn.stop()
+        mac.stop()
         pf.stop()
         links["end"] = collect.link_stats()
         collect.snapshot(run_dir, "end")
@@ -315,6 +319,7 @@ def run_once(scn, variant, rep, camp_dir):
                     w.writerow([r["t"], r["interval"][0], r["interval"][1], r["bytes"], r["bps"], r["jitter_ms"], r["lost"], r["total"],
                                 int(r["final"])])
         collect.export_ran(run_dir, w0, w1)
+        (run_dir / "ran/mac_stats.csv").write_text(collect.parse_mac_stats(mac.raw, collect.ue_rnti(ue_names)))
         collect.export_core(run_dir, w0, w1)
         collect.export_defense(run_dir, w0, w1)
         collect.export_logs(run_dir, w0, ue_names)

@@ -13,6 +13,10 @@ Plan (JSON on argv[1] or stdin):
    "process": "even"|"poisson",
    "seconds": [{"bytes": 100000.0, "pps": null}, ...],  # per-second targets
    "seed": 1, "attack_active": [1,0,...]}    # optional per-second gate (for the log)
+Benign twin (real window replay) adds:
+   "seconds": [{"bytes": 500.0, "pkts": [58, 58, 300]}, ...]   # exact IP lengths of that second; no "sizes"
+   "start_at": 1793539600.42,               # wall-clock time of second 0 (first row reports late_s)
+   "span": [0.05, 0.75]                     # part of each second the packets are sent in
 
 Rate control: each second, derive a packet count from target bytes and the mean
 sampled size (or from "pps" if given), draw sizes from the bin weights, schedule
@@ -34,7 +38,7 @@ def main():
     rng = random.Random(p.get("seed", 0))
     dst = p["dst"]
     ports = p.get("ports") or [p.get("port", 5401)]
-    bins = p["sizes"]                                  # [[ip_len, weight], ...]
+    bins = p.get("sizes") or [[256, 1.0]]              # [[ip_len, weight], ...]; unused when a second has "pkts"
     lens = [b[0] for b in bins]
     weights = [b[1] for b in bins]
     mean_size = sum(l * w for l, w in zip(lens, weights)) / sum(weights)
@@ -45,6 +49,7 @@ def main():
         s.bind((p["bind"], 0))
     s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1 << 20)
     payloads = {l: bytes(max(l - 28, 1)) for l in lens}   # IP len -> UDP payload bytes
+    span0, span1 = p.get("span") or [0.0, 1.0]
     # fan-out: rotate the destination host over <dst_base>.1 .. .N (dst_estimate signal)
     fanout = int(p.get("fanout", 0) or 0)
     if fanout > 1:
@@ -54,11 +59,20 @@ def main():
     else:
         dsts = [dst]
 
+    late = None
+    if p.get("start_at"):
+        wait = p["start_at"] - time.time()
+        if wait > 0:
+            time.sleep(wait)
+        late = round(max(-wait, 0.0), 3)
     start = time.clock_gettime(time.CLOCK_REALTIME)
     mono0 = time.monotonic()
     for i, sec in enumerate(p["seconds"]):
         target_bytes = float(sec.get("bytes") or 0.0)
-        if sec.get("pps"):
+        exact = sec.get("pkts")
+        if exact is not None:
+            n = len(exact)
+        elif sec.get("pps"):
             n = int(round(sec["pps"]))
         else:
             n = int(round(target_bytes / mean_size)) if mean_size > 0 else 0
@@ -68,11 +82,11 @@ def main():
             offsets = []
         elif process == "poisson":
             # given n arrivals in the second, Poisson arrival times are uniform order statistics
-            offsets = sorted(rng.random() for _ in range(n))
+            offsets = sorted(span0 + (span1 - span0) * rng.random() for _ in range(n))
         else:
-            offsets = [(k + 0.5) / n for k in range(n)]
+            offsets = [span0 + (span1 - span0) * (k + 0.5) / n for k in range(n)]
         sent_pkts = sent_bytes = 0
-        szs = [lens[_weighted(rng, weights)] for _ in range(n)]
+        szs = exact if exact is not None else [lens[_weighted(rng, weights)] for _ in range(n)]
         for k in range(n):
             due = t_sec_start + offsets[k]
             now = time.monotonic()
@@ -82,7 +96,7 @@ def main():
                 break                                    # out of budget for this second; record shortfall
             L = szs[k]
             try:
-                s.sendto(payloads[L], (dsts[k % len(dsts)], ports[k % len(ports)]))
+                s.sendto(payloads[L] if L in payloads else bytes(max(L - 28, 1)), (dsts[k % len(dsts)], ports[k % len(ports)]))
                 sent_pkts += 1
                 sent_bytes += L
             except OSError:
@@ -95,6 +109,8 @@ def main():
                "target_bytes": round(target_bytes, 1), "target_pkts": n,
                "sent_bytes": sent_bytes, "sent_pkts": sent_pkts,
                "achieved_mbps": round(sent_bytes * 8 / 1e6, 4), "achieved_pps": sent_pkts}
+        if late is not None and i == 0:
+            row["late_s"] = late
         if gate is not None and i < len(gate):
             row["attack_active"] = int(gate[i])
         print(json.dumps(row), flush=True)

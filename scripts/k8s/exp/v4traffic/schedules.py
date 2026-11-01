@@ -24,6 +24,8 @@ Models (mean constraint in brackets):
   pulsing       square wave period T, on-length L, amplitude R = r̄·T/L,
                 random phase offset; mean R·L/T = r̄                    [exact]
 """
+import pathlib
+
 import numpy as np
 
 MODELS = ("cbr", "poisson", "mmpp2", "onoff_pareto", "fgn", "hawkes", "pulsing")
@@ -154,6 +156,23 @@ def pulsing(rbar, T, rng, period=10, on=2):
     off = int(rng.integers(period))
     rate = np.array([R if ((t + off) % period) < on else 0.0 for t in range(T)])
     return _result("pulsing", rate, "even", {"rbar": rbar, "period": period, "on": on, "amplitude": R, "offset": off})
+
+
+# ---- benign twin: replay of a real window (TRAFFIC-TWINNING-PLAN §0a rev 4) -----------------------
+WINDOWS_NPZ = pathlib.Path(__file__).resolve().parents[4] / "research/twinning/benign_windows.npz"
+WINDOW_LEN = 75                                      # 15 s pre-roll + 60 s phase
+_windows = {}
+
+
+def real_window(band, rng, path=WINDOWS_NPZ):
+    """One real user's window of the band: UL and DL bytes per second of the SAME window, never
+    rescaled, zeros outside the session. src = (cell index, rnti, start second)."""
+    if path not in _windows:
+        _windows[path] = np.load(path)
+    d = _windows[path]
+    i = int(rng.integers(d["ul_" + band].shape[0]))
+    return {"ul": d["ul_" + band][i].astype(float), "dl": d["dl_" + band][i].astype(float),
+            "src": [int(x) for x in d["src_" + band][i]], "index": i}
 
 
 def make(model, rbar, T, rng, mean_size, **kw):

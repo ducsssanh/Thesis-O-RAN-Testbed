@@ -4,6 +4,7 @@ UPF audit), plus UPF/xApp snapshots and the NF logs."""
 import datetime
 import gzip
 import json
+import re
 
 from lab import UES, ex, kubectl, staged
 
@@ -68,6 +69,50 @@ def export_ran(out, t0, t1):
     (out / "ran/kpm_cells.csv").write_text(cut_csv(h, tail(*x, d + "KPI_Metrics_Cells.csv"), "Time (UNIX ms)", t0, t1))
     (out / "ran/rc_control.jsonl").write_text(
         cut_jsonl(tail(*x, d + "KPI_Metrics_RAN_Control.jsonl"), lambda o: o["sent_unix_ms"] / 1000, t0, t1))
+
+
+def ue_rnti(ue_names):
+    """{rnti hex: ue name} from the UE logs ("UE 0 RNTI 2580 stats ..."); the latest one per UE."""
+    out = {}
+    for n in ue_names:
+        raw = kubectl("-n", "oai-ran", "logs", "deploy/" + UES[n][0], "-c", "nr-ue", "--tail=400", timeout=60, check=False)
+        found = re.findall(r"UE 0 RNTI ([0-9a-f]{4}) stats", raw)
+        if found:
+            out[found[-1]] = n
+    return out
+
+
+def parse_mac_stats(raw, rnti_ue):
+    """Raw nrMAC_stats.log samples (traffic.MacStats) -> CSV with one row per UE per sample; the counters
+    are cumulative and restart at 0 when a UE gets a new RNTI. *_sdu_bytes = data bearers (LCID >= 3),
+    the bytes of the MAC SDUs: no padding, BSR or retransmission. *_grants = first HARQ transmissions,
+    which include the empty grants the gNB gives an idle UE."""
+    rows, now, ues = ["stat_unix,rnti,ue,cu_ue_id,ul_sdu_bytes,dl_sdu_bytes,ul_grants,dl_grants"], None, {}
+
+    def flush():
+        for r, u in sorted(ues.items()):
+            if {"ul", "dl", "ug", "dg"} <= set(u):
+                rows.append("%s,%s,%s,%s,%d,%d,%d,%d" % (now, r, rnti_ue.get(r, ""), u.get("cu", ""), u["ul"], u["dl"], u["ug"], u["dg"]))
+
+    for line in raw.splitlines():
+        if line.startswith("@"):
+            flush()
+            now, ues = line[1:].strip(), {}
+        elif m := re.match(r"UE RNTI ([0-9a-f]+) CU-UE-ID (\S+)", line):
+            ues.setdefault(m[1], {})["cu"] = m[2]
+        elif m := re.match(r"UE ([0-9a-f]+): ulsch_rounds (\d+)", line):
+            ues.setdefault(m[1], {})["ug"] = int(m[2])
+        elif m := re.match(r"UE ([0-9a-f]+): dlsch_rounds (\d+)", line):
+            ues.setdefault(m[1], {})["dg"] = int(m[2])
+        elif m := re.match(r"UE ([0-9a-f]+): LCID (\d+): TX +(\d+) RX +(\d+) bytes", line):
+            u = ues.setdefault(m[1], {})
+            u.setdefault("dl", 0)
+            u.setdefault("ul", 0)
+            if int(m[2]) >= 3:
+                u["dl"] += int(m[3])
+                u["ul"] += int(m[4])
+    flush()
+    return "\n".join(rows) + "\n"
 
 
 def export_defense(out, t0, t1):

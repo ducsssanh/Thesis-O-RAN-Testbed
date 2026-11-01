@@ -1,0 +1,35 @@
+name: ds-benign-twin
+description: |
+  Benign twin, trial and validation (TRAFFIC-TWINNING-PLAN §0a rev 4, §6): each UE replays real 75 s windows of
+  one rate band (UL and DL of the same window, no rescale). `grid: gnb` puts the send seconds on the gNB stats
+  seconds, so ran/mac_stats.csv can be compared with Madrid. Needs the long keep-alive and T2 of
+  deploy/k8s/values/minikube.yaml, which keep the idle seconds silent. Detection off. This file is the trial: band P4,
+  6 windows per UE.
+ues: {ue1: benign, ue2: benign}
+reps: 1
+drain: {quiet_kbps: 300, timeout_s: 120}
+tail_s: 5
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle, duration: 30}
+  - {name: w1, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 1001}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 2001}}}}
+  - {name: w2, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 1002}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 2002}}}}
+  - {name: w3, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 1003}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 2003}}}}
+  - {name: w4, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 1004}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 2004}}}}
+  - {name: w5, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 1005}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 2005}}}}
+  - {name: w6, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 1006}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P4, grid: gnb, role: benign, seed: 2006}}}}
+report: []
