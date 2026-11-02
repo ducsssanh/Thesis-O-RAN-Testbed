@@ -1,0 +1,57 @@
+{
+ "ul_rate": {
+  "selected": 0.0229,
+  "planned": 0.023,
+  "measured": 0.0234
+ },
+ "dl_rate": {
+  "selected": 0.0115,
+  "planned": 0.0254,
+  "measured": 0.0274
+ },
+ "ratio": {
+  "selected": 0.0368,
+  "planned": 0.06,
+  "measured": 0.0599
+ },
+ "on_run": {
+  "selected": 0.0305,
+  "planned": 0.0305,
+  "measured": 0.029
+ },
+ "off_gap": {
+  "selected": 0.0129,
+  "planned": 0.0129,
+  "measured": 0.0089
+ },
+ "win_mean": {
+  "selected": 0.0908,
+  "planned": 0.0907,
+  "measured": 0.095
+ },
+ "busy": {
+  "selected": 0.0761,
+  "planned": 0.0761,
+  "measured": 0.0817
+ },
+ "d_acf": {
+  "selected": 0.0084,
+  "planned": 0.0085,
+  "measured": 0.0086
+ },
+ "spearman": {
+  "selected": 0.0355,
+  "planned": 0.0336,
+  "measured": 0.0387
+ },
+ "q99": {
+  "selected": 0.0407,
+  "planned": 0.0406,
+  "measured": 0.0571
+ },
+ "ad": {
+  "selected": 0.885,
+  "planned": 0.897,
+  "measured": 1.0476
+ }
+}

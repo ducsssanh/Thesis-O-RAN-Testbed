@@ -116,6 +116,8 @@ apply "$F" "$P/flexric-xapp-rawkpm.patch"             # v4: raw KPM tap (source+
 apply "$F" "$P/flexric-xapp-urr-arrival-ms.patch"     # v4: ms arrival stamp on URR exports (causal join)
 apply "$F" "$P/flexric-xapp-live-sidecar-tamper.patch" # v5 live: core records to the sidecar, model level, KPM tamper, releaseOnBlock
 apply "$F" "$P/flexric-xapp-kpm-gate-profiler.patch"  # 2026-11: UPF profile as core source, KPM trust gate, KPM subscribed on a second boundary
+apply "$F" "$P/flexric-xapp-gate-window.patch"         # 2026-11: soft c_t per second, trust updated on a sum of seconds (second-boundary gap KPM/profiler)
+apply "$F" "$P/flexric-xapp-kpm-phase-watchdog.patch" # 2026-11: restart the xApp when a gNB stall moves the KPM report phase
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722

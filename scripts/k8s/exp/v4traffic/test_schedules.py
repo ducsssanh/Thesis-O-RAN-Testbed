@@ -79,15 +79,19 @@ import json, socket, subprocess, tempfile
 import planbuilder as PB
 q = Z.app_priors()["Zoom_2"]["ul_size_q"]
 prng = np.random.default_rng(1)
+OVH = Z.MAC_OVERHEAD["ul"]
 for target in (5000.0, 73.0, 300.0, 1_000_000.0):
-    pk = Z.packetize(target, q, prng)
-    mac = sum(pk) + Z.MAC_OVERHEAD * len(pk)
-    ok(0 <= target - mac < Z.MIN_IP + Z.MAC_OVERHEAD, f"packetize {target}: MAC bytes {mac}")
+    pk = Z.packetize(target, q, prng, OVH)
+    mac = sum(pk) + OVH * len(pk)
+    ok(0 <= target - mac < Z.MIN_IP + OVH, f"packetize {target}: MAC bytes {mac}")
     ok(min(pk) >= Z.MIN_IP and max(pk) <= Z.MAX_IP, f"packetize {target}: length out of range")
-ok(Z.packetize(0, q, prng) == [], "packetize: a silent second must send nothing")
-pk = Z.packetize(20.0, q, prng); ok(pk == [Z.MIN_IP], f"packetize: below one packet gives the floor, got {pk}")
-ok(len(Z.packetize(4_000_000.0, q, prng)) <= Z.MAX_PPS * 2, "packetize: pps cap")
+ok(Z.packetize(0, q, prng, OVH) == [], "packetize: a silent second must send nothing")
+pk = Z.packetize(20.0, q, prng, OVH); ok(pk == [Z.MIN_IP], f"packetize: below one packet gives the floor, got {pk}")
+ok(len(Z.packetize(4_000_000.0, q, prng, OVH)) <= Z.MAX_PPS * 2, "packetize: pps cap")
 
+of = Z.place([100, 100, 100], OVH, [0.1, 0.5], [1000.0, 1000.0]); ok(of == [0.1, 0.1, 0.5] or of == [0.1, 0.5, 0.5], f"place: follows TTI bytes, got {of}")
+ok(Z.place([100], OVH, [0.3], [50.0]) == [0.3], "place: single TTI")
+ok(Z.place([], OVH, [], []) == [], "place: silent second")
 tmp = pathlib.Path(tempfile.mkdtemp())
 ul_w = np.zeros((2, 75), dtype=np.uint32); dl_w = np.zeros((2, 75), dtype=np.uint32)
 ul_w[:, 10:20] = 900; dl_w[:, 15:25] = 3000; ul_w[:, 30] = 3_000_000

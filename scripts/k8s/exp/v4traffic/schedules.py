@@ -175,6 +175,20 @@ def real_window(band, rng, path=WINDOWS_NPZ):
             "src": [int(x) for x in d["src_" + band][i]], "index": i}
 
 
+WINDOWS_TTI_NPZ = WINDOWS_NPZ.replace("benign_windows.npz", "benign_windows_tti.npz") if isinstance(WINDOWS_NPZ, str) else WINDOWS_NPZ.with_name("benign_windows_tti.npz")
+_tti = {}
+
+
+def window_tti(band, index, direction, path=WINDOWS_TTI_NPZ):
+    """TTIs of one window: ms from the window start and bytes, sorted by time."""
+    if path not in _tti:
+        z = np.load(path)
+        _tti[path] = {k: z[k] for k in z.files}
+    d, n = _tti[path], "%s_%s_" % (direction, band)
+    a, b = d[n + "off"][index], d[n + "off"][index + 1]
+    return d[n + "ms"][a:b], d[n + "b"][a:b]
+
+
 def make(model, rbar, T, rng, mean_size, **kw):
     if model == "cbr":
         return cbr(rbar, T)

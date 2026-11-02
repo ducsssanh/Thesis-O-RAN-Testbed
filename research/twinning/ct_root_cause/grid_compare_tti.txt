@@ -1,0 +1,33 @@
+artifacts/experiments/20261102-011550_ds-benign-twin-P4_val2/runs/detection-off/rep-01 tamper.jsonl bytes 0
+artifacts/experiments/20261102-124505_ds-benign-twin-P4_tti/runs/detection-off/rep-01 tamper.jsonl bytes 0
+same windows: True 20
+gnb grid : send start frac 0.26-0.36 | KPM/core total 1.0011 | gate secs 805 | outside +-0.2 6.34% | +-0.35 3.23% | q01/q99 -0.391/0.545 | min/max -0.786/0.970 | masked rows 19.93%
+  outliers 51, neighbour cancels (ratio -0.5..-1.5) 92%
+tti timing: send start frac 0.75-0.85 | KPM/core total 1.0038 | gate secs 787 | outside +-0.2 4.83% | +-0.35 0.64% | q01/q99 -0.213/0.279 | min/max -1.847/0.444 | masked rows 10.59%
+  outliers 38, neighbour cancels (ratio -0.5..-1.5) 89%
+remaining tti outliers (KPM, core, c_t, neighbour KPM, neighbour core):
+   (3635, 5934, np.float64(-0.4), 36187, 33888)
+   (8803, 11128, np.float64(-0.21), 10660, 8336)
+   (10660, 8336, np.float64(0.22), 8803, 11128)
+   (4558, 3390, np.float64(0.24), 9529, 10697)
+   (0, 1607, np.float64(-0.96), 5603, 3997)
+   (5603, 3997, np.float64(0.28), 0, 1607)
+   (19257, 14778, np.float64(0.25), 20514, 19539)
+   (23344, 17862, np.float64(0.26), 28604, 28646)
+   (16165, 20338, np.float64(-0.22), 20017, 15844)
+   (20017, 15844, np.float64(0.22), 16165, 20338)
+   (622, 9289, np.float64(-1.85), 31260, 20198)
+   (31260, 20198, np.float64(0.42), 622, 9289)
+   (17489, 13571, np.float64(0.24), 14221, 12557)
+   (17399, 12146, np.float64(0.34), 17288, 15070)
+   (2757, 1929, np.float64(0.25), 11686, 12514)
+   (2619, 1731, np.float64(0.28), 11972, 12861)
+   (696, 1227, np.float64(-0.27), 531, 0)
+   (6034, 4716, np.float64(0.21), 8321, 9639)
+   (2488, 1610, np.float64(0.29), 3922, 4800)
+   (2824, 4103, np.float64(-0.29), 10305, 9027)
+   (1407, 544, np.float64(0.44), 2936, 3799)
+   (5256, 6931, np.float64(-0.24), 14800, 13125)
+   (3679, 2473, np.float64(0.3), 7601, 8807)
+   (2841, 2123, np.float64(0.21), 8251, 8969)
+   (3989, 3074, np.float64(0.2), 6603, 7519)

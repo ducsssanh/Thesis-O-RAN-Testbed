@@ -1,0 +1,16 @@
+W 30 theta0 3000 L 0.2 rho 0.02
+  P4  runs 5 benign violations 1.46% (60/4102) | x0.8 lat q50/q90 6/11 bytes q50 12944 miss 2/134 | x1.25 lat q50/q90 4/9 bytes q50 11803 miss 2/134 | x0.33 lat q50/q90 2/7 bytes q50 14142 miss 1/134 | x2 lat q50/q90 2/4 bytes q50 13614 miss 0/134 |
+  P3  runs 5 benign violations 0.00% (0/1339) | x0.8 lat q50/q90 12/23 bytes q50 5956 miss 4/42 | x1.25 lat q50/q90 10/18 bytes q50 6470 miss 2/42 | x0.33 lat q50/q90 4/9 bytes q50 6789 miss 0/42 | x2 lat q50/q90 3/8 bytes q50 6999 miss 0/42 |
+  P4tti runs 3 benign violations 2.44% (62/2538) | x0.8 lat q50/q90 6/13 bytes q50 11349 miss 1/84 | x1.25 lat q50/q90 4/10 bytes q50 11102 miss 0/84 | x0.33 lat q50/q90 2/5 bytes q50 15013 miss 0/84 | x2 lat q50/q90 2/4 bytes q50 15518 miss 0/84 |
+W 30 theta0 5000 L 0.2 rho 0.02
+  P4  runs 5 benign violations 0.56% (23/4102) | x0.8 lat q50/q90 8/15 bytes q50 14710 miss 2/134 | x1.25 lat q50/q90 6/11 bytes q50 14647 miss 2/134 | x0.33 lat q50/q90 3/7 bytes q50 16657 miss 1/134 | x2 lat q50/q90 2/6 bytes q50 16344 miss 0/134 |
+  P3  runs 5 benign violations 0.00% (0/1339) | x0.8 lat q50/q90 15/28 bytes q50 8720 miss 10/42 | x1.25 lat q50/q90 13/26 bytes q50 8211 miss 6/42 | x0.33 lat q50/q90 6/10 bytes q50 7995 miss 1/42 | x2 lat q50/q90 4/9 bytes q50 9467 miss 0/42 |
+  P4tti runs 3 benign violations 1.62% (41/2538) | x0.8 lat q50/q90 7/18 bytes q50 14551 miss 2/84 | x1.25 lat q50/q90 6/11 bytes q50 13667 miss 1/84 | x0.33 lat q50/q90 2/7 bytes q50 15975 miss 0/84 | x2 lat q50/q90 2/4 bytes q50 16357 miss 0/84 |
+W 30 theta0 5000 L 0.3 rho 0.03
+  P4  runs 5 benign violations 0.12% (5/4102) | x0.8 lat q50/q90 10/17 bytes q50 18116 miss 4/134 | x1.25 lat q50/q90 7/12 bytes q50 18172 miss 2/134 | x0.33 lat q50/q90 3/8 bytes q50 22261 miss 1/134 | x2 lat q50/q90 2/7 bytes q50 19686 miss 1/134 |
+  P3  runs 5 benign violations 0.00% (0/1339) | x0.8 lat q50/q90 17/29 bytes q50 9446 miss 12/42 | x1.25 lat q50/q90 15/28 bytes q50 10095 miss 7/42 | x0.33 lat q50/q90 6/12 bytes q50 9718 miss 1/42 | x2 lat q50/q90 4/9 bytes q50 10529 miss 0/42 |
+  P4tti runs 3 benign violations 0.63% (16/2538) | x0.8 lat q50/q90 9/21 bytes q50 17927 miss 3/84 | x1.25 lat q50/q90 7/13 bytes q50 16239 miss 1/84 | x0.33 lat q50/q90 3/7 bytes q50 21271 miss 0/84 | x2 lat q50/q90 2/4 bytes q50 20349 miss 0/84 |
+W 15 theta0 5000 L 0.2 rho 0.02
+  P4  runs 5 benign violations 0.34% (14/4102) | x0.8 lat q50/q90 6/12 bytes q50 13195 miss 2/134 | x1.25 lat q50/q90 5/10 bytes q50 13819 miss 1/134 | x0.33 lat q50/q90 2/7 bytes q50 14552 miss 1/134 | x2 lat q50/q90 2/5 bytes q50 13646 miss 0/134 |
+  P3  runs 5 benign violations 0.00% (0/1339) | x0.8 lat q50/q90 15/31 bytes q50 8954 miss 11/42 | x1.25 lat q50/q90 13/26 bytes q50 8674 miss 7/42 | x0.33 lat q50/q90 6/10 bytes q50 8094 miss 1/42 | x2 lat q50/q90 4/9 bytes q50 9467 miss 0/42 |
+  P4tti runs 3 benign violations 1.10% (28/2538) | x0.8 lat q50/q90 6/15 bytes q50 13218 miss 0/84 | x1.25 lat q50/q90 4/11 bytes q50 11783 miss 0/84 | x0.33 lat q50/q90 2/6 bytes q50 15377 miss 0/84 | x2 lat q50/q90 1/4 bytes q50 15518 miss 0/84 |

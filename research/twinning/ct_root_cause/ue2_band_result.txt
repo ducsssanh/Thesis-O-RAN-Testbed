@@ -1,0 +1,18 @@
+780 on rate bytes/s 51450 totals KPM 6689529 core 6689529 seconds outside +-0.2 0 of 130
+  core-ahead bytes at second end: q50/q90/q100 [   0. 4116. 8232.] min 0 as ms of on-rate q50/q90/q100 [  0.  80. 160.]
+  seconds with core ahead by >0 share 0.41; series first 60: [0, 0, 0, 0, 0, 0, 0, 1029, 3087, 4116, 4116, 0, 0, 1029, 1029, 4116, 1029, 0, 0, 1029, 0, 0, 0, 0, 4116, 4116, 3087, 0, 1029, 4116, 4116, 0, 5145, 0, 0, 3087, 0, 5145, 4116, 0, 1029, 2058, 0, 5145, 5145, 0, 2058, 1029, 1029, 4116, 4116, 1029, 2058, 0, 0, 0, 0, 0, 2058, 2058]
+781 on rate bytes/s 22946 totals KPM 1812883 core 1812883 seconds outside +-0.2 9 of 92
+  core-ahead bytes at second end: q50/q90/q100 [   0. 1490. 3129.] min 0 as ms of on-rate q50/q90/q100 [  0.  65. 136.]
+  seconds with core ahead by >0 share 0.28; series first 60: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1788, 0, 0, 298, 0, 1490, 0, 149, 0, 745, 0, 0, 0, 0, 1490, 0, 0, 149, 2086, 1937, 2235, 0, 0, 1788, 0, 0, 0, 0, 2086, 0, 1490, 0, 0, 149, 298, 0, 0, 0, 0, 745, 745, 0, 0]
+  outlier seconds: KPM, core, core-ahead just before (should equal KPM-core), rest of burst
+   t=18 KPM 1788 core 0 diff 1788 | core-ahead end of t-1 1788 | end of t 0 | bytes in second before 23393
+   t=23 KPM 1490 core 0 diff 1490 | core-ahead end of t-1 1490 | end of t 0 | bytes in second before 24287
+   t=38 KPM 2235 core 0 diff 2235 | core-ahead end of t-1 2235 | end of t 0 | bytes in second before 23244
+   t=48 KPM 1490 core 0 diff 1490 | core-ahead end of t-1 1490 | end of t 0 | bytes in second before 24138
+   t=58 KPM 1341 core 596 diff 745 | core-ahead end of t-1 745 | end of t 0 | bytes in second before 22797
+   t=68 KPM 1341 core 0 diff 1341 | core-ahead end of t-1 1341 | end of t 0 | bytes in second before 24734
+   t=108 KPM 2533 core 0 diff 2533 | core-ahead end of t-1 2533 | end of t 0 | bytes in second before 23840
+   t=123 KPM 2682 core 0 diff 2682 | core-ahead end of t-1 2682 | end of t 0 | bytes in second before 24436
+   t=128 KPM 1490 core 149 diff 1341 | core-ahead end of t-1 1341 | end of t 0 | bytes in second before 22499
+  burst-end seconds 26 outside 10 ; non-tail seconds with traffic 66 outside 0
+  burst-end true bytes (KPM) q50/q100 [ 819.5 2980. ] so the sender stops about 36 ms after the boundary (median)

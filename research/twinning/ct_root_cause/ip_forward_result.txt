@@ -1,0 +1,10 @@
+forward ON  rep-01 | flows |K-C|>500: 6 max 20930 sum K-C 43697 | core ICMP 19 | 1 s out 4.03% 3 s out 0.50% masked 0.00% (n 794)
+forward ON  rep-02 | flows |K-C|>500: 10 max 35851 sum K-C 192918 | core ICMP 57 | 1 s out 8.28% 3 s out 2.81% masked 5.30% (n 604)
+forward ON  rep-03 | flows |K-C|>500: 6 max 67385 sum K-C 133480 | core ICMP 34 | 1 s out 3.61% 3 s out 0.54% masked 0.00% (n 554)
+forward ON  rep-04 | flows |K-C|>500: 11 max 44306 sum K-C 121735 | core ICMP 40 | 1 s out 5.07% 3 s out 1.20% masked 3.07% (n 749)
+forward ON  rep-05 | flows |K-C|>500: 7 max 9406 sum K-C 18375 | core ICMP 18 | 1 s out 3.32% 3 s out 1.75% masked 1.40% (n 573)
+forward OFF rep-01 | flows |K-C|>500: 2 max 1071 sum K-C -156 | core ICMP 0 | 1 s out 3.18% 3 s out 0.64% masked 0.00% (n 786)
+OFF flows with |K-C|>200 or ICMP (flow,K-C,ICMP,K-plan,C-plan,plan): [('w06ue2', -1071, 0, 375, 1446, 255746), ('w09ue2', 915, 0, 467, -448, 323060)]
+OFF all K-plan [1059, 133, 725, 867, 955, 1101, 1025, 10, 1768, 514, 326, 375, 13, 1553, 34, 714, 1419, 467, 541, 292]
+OFF all C-plan [1059, 133, 725, 867, 955, 1101, 1025, 10, 1768, 514, 326, 1446, 13, 1553, 34, 714, 1419, -448, 541, 292]
+OFF c_t q01/q99 [-0.278  0.25 ] max abs 1.502 3 s [-0.137  0.06 ]

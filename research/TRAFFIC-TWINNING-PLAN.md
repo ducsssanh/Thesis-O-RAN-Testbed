@@ -18,7 +18,7 @@ Nothing in the measurement path changes (see §1).
 | # | change | where it applies |
 |---|---|---|
 | 1 | **Benign twin = replay of a real 75 s window** (15 s pre-roll + 60 s phase) of one user: pick a session of the band uniformly, take that RNTI's UL and DL bytes per second from the session start, zeros after the session ends; never bridge into later activity of the same value (after T it may belong to another phone). Replaces ON/OFF resampling + duty-based ON rate. W_s = last − first active second + 1 (1 s for a single-second session). | §4.A, §4.C (`onoff_empirical` → window replay) |
-| 2 | **No exact-mean rescale**: each window keeps its natural mean; validation adds KS on the 60 s window mean and on the busy share of a 60 s window (k = 8 per band, 10 for P4). | §4.A step 6, §6.2 |
+| 2 | **No exact-mean rescale**: each window keeps its natural mean; validation adds KS on the 60 s window mean and on the busy share of a 60 s window (k = 9 per band, 11 for P4, as validate_twin.py counts them). | §4.A step 6, §6.2 |
 | 3 | DL twin comes from the **same window** (real UL–DL coupling), not from rho × UL. | §4.E |
 | 4 | Gate: c_t = log((KPM + ε) / (max(B − βN, 0) + ε)); benign c_t band reported **per rate band P1–P4**; extra tampering levels ×0.8, ×1.25, **ON-only** adaptive tampering and an **identity swap**; identity join KPM (AMF UE NGAP ID + GUAMI) ↔ profiler (SUPI/SEID + AMF-table RAN identity) stated in the threat model. | Methodology §7.2, DRL doc §3 |
 | 5 | Replay tampering scales **UL rate, UE UL PRB and the UE's share of cell UL PRB together**; check that a KPM-only classifier cannot tell tampered from honest seconds. | dataset builder / DRL replay |
@@ -27,6 +27,8 @@ Nothing in the measurement path changes (see §1).
 | 8 | Mitigation claim narrowed: 26 ms is a direct call to the UPF; the standard NEF → PCF → SMF → N4 path is not measured. | Methodology §7.4 |
 | 9 | Wording: "O-RAN-aligned" (A1-EI is standard, sub-second per-session UPF push is an extended use); 3GPP counterparts NWDAF (TS 23.288), Nupf_EventExposure (TS 23.502 / TS 29.564), to be verified. LTE influence "limited, bounded by ×2/×4 sensitivity" (TCP / ABR adapt to LTE capacity). | Methodology §2, §7.1, §8 |
 | 10 | Contributions: (1) cross-domain defence (gate, eBPF UPF profiler, in-kernel mitigation); (2) paired RAN–core dataset, published (Zenodo / IEEE DataPort), twinning = its method; (3) DRL decision layer, modest claim (thesis title keeps DRL as a component). | both documents |
+| 11 | **Replay is timed by TTI (2026-11-02):** each packet leaves at the time of its TTI in the raw Madrid data, replacing the even spread over 0.05-0.75 of each second; the gNB aggregates and KPM reports each second, the dataset unit stays one second. Bytes per second and packet sizes are unchanged. | rows 1-3, §4.A, §6; `timing: tti` |
+| 12 | **Gate (2026-11-02):** KPM and profiler close their seconds apart, so bytes at a boundary land in different seconds (research/twinning/ct_root_cause). c_t per second is a soft signal; node trust updates on c_t_w, the same ratio over 3 s, band still +-0.2. xApp restarts if the KPM phase stays over 100 ms from the second for 5 s. UEs run with ip_forward=0. Report: false alarms per band, detection time, bytes hidden. | row 4, Methodology §7.2 |
 
 **Gate measured (2026-11-01, `scripts/k8s/phase0/ct_gate.py`, xApp `oai-lab-xapp:f6625bfec5bc82fa`).** The benign c_t band
 depends on where the KPM windows sit against the whole-second UPF profile windows. v4, benign, by offset: < 0.05 s
@@ -527,6 +529,8 @@ samples ≤ x differ by D; everywhere else by less.*
 Everything downstream (the DRL replay environment, baselines) consumes this dataset unchanged.
 
 ## 9. Limitations (state them, do not paper over)
+
+- **DL spill between seconds (measured 2026-11-02).** A large DL second does not all leave within that second at the testbed; part of it lands in the next second. In the second-timed P3 and P4 runs about 1.1 % of active DL seconds were off, seen from about 250 kB/s; total bytes still match (P4 MAC/target 1.000). DL capacity was not measured, so the cause is not established. Lowering the 1 MB/s clip would remove it at the cost of the real P4 tail; it is kept and stated.
 - Madrid is **LTE**, not 5G NR; we twin *user demand* (rate/timing), which is largely RAT-independent, while the gNB
   scheduler and capacity are the testbed's own. No public 5G per-UE commercial trace exists (checked 2026-10-28).
 - TBS includes retransmissions/padding; RNTI reuse fragments long sessions → session *duration* is unreliable (rate

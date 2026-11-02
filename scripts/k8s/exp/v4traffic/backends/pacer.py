@@ -17,6 +17,7 @@ Benign twin (real window replay) adds:
    "seconds": [{"bytes": 500.0, "pkts": [58, 58, 300]}, ...]   # exact IP lengths of that second; no "sizes"
    "start_at": 1793539600.42,               # wall-clock time of second 0 (first row reports late_s)
    "span": [0.05, 0.75]                     # part of each second the packets are sent in
+   "seconds": [{..., "offs": [0.012, 0.012, 0.407]}, ...]   # send time of each packet in its second (TTI replay); span unused
 
 Rate control: each second, derive a packet count from target bytes and the mean
 sampled size (or from "pps" if given), draw sizes from the bin weights, schedule
@@ -80,6 +81,8 @@ def main():
         # intra-second schedule of send offsets (seconds from t_sec_start)
         if n <= 0:
             offsets = []
+        elif sec.get("offs") is not None:
+            offsets = sec["offs"]
         elif process == "poisson":
             # given n arrivals in the second, Poisson arrival times are uniform order statistics
             offsets = sorted(span0 + (span1 - span0) * rng.random() for _ in range(n))

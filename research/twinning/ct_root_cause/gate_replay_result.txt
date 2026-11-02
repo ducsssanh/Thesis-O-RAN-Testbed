@@ -1,0 +1,3 @@
+masked share of UE1 gate seconds, sum over runs
+W=1: benign 9.5%  x0.8 88.2%  x1.25 90.5%  x0.33 98.5%  x2 98.6%  x0.8 1/3 50.4%  x1.25 1/3 64.7%  x0.33 1/3 91.9%  x2 1/3 93.2% (gate secs 892 )
+W=3: benign 0.4%  x0.8 77.5%  x1.25 84.4%  x0.33 98.2%  x2 98.4%  x0.8 1/3 1.0%  x1.25 1/3 1.0%  x0.33 1/3 88.3%  x2 1/3 93.4% (gate secs 906 )

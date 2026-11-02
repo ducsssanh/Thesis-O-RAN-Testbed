@@ -1,0 +1,58 @@
+P1 n=100 dropped=0 tau*=0.995 pass=True worst=win_mean no_data=[]
+tau per pair {'0-1': 0.9281, '1-0': 0.9905, '2-3': 0.9915, '3-2': 0.998}
+  ul_rate   stat 0.07311   pct 0.383   null q50/q95 0.11149/0.21773  n 225 loc 0.8349650349650349 sign -1
+  dl_rate   stat 0.05189   pct 0.001   null q50/q95 0.13962/0.22032  n 740 loc 0.3400252525252525 sign 1
+  ratio     stat 0.11146   pct 0.003   null q50/q95 0.46339/0.63119  n 74 loc 0.7002341920374707 sign -1
+  on_run    stat 0.01593   pct 0.077   null q50/q95 0.04569/0.0936  n 202 loc 1.0 sign 1
+  off_gap   stat 0.09427   pct 0.155   null q50/q95 0.31578/0.65857  n 115 loc 16.0 sign -1
+  win_mean  stat 0.1805    pct 0.486   null q50/q95 0.19343/0.29367  n 100 loc 0.26666666666666666 sign -1
+  busy      stat 0.0759    pct 0.111   null q50/q95 0.19688/0.33749  n 100 loc 0.08333333333333333 sign -1
+  d_acf     stat 0.00209   pct 0.214   null q50/q95 0.02197/0.05544  n  loc  sign 
+  spearman  stat 0.06362   pct 0.366   null q50/q95 0.08883/0.19426  n  loc  sign
+ MAC/target UL 1.007 corr 0.992 rel q01/50/99 [0.525, 0.987, 1.005] | DL 1.003 corr 0.986 rel [0.708, 1.009, 1.232]
+ thr 30 B: UL false 10 miss 3 | DL false 3 miss 1 (active UL 218 DL 738)
+ gate seconds 71 | c_t 1 s q01/q99 [-0.093, 0.039] outside 0.00% | 3 s q01/q99 [-0.047, 0.0] outside 0.00% | KPM masked 0.00%
+P2 n=100 dropped=0 tau*=0.995 pass=True worst=d_acf no_data=[]
+tau per pair {'0-1': 0.9965, '1-0': 0.9885, '2-3': 0.993, '3-2': 0.9965}
+  ul_rate   stat 0.04067   pct 0.002   null q50/q95 0.12772/0.17746  n 517 loc 0.8795411089866156 sign -1
+  dl_rate   stat 0.10538   pct 0.036   null q50/q95 0.20839/0.34888  n 567 loc 0.0819050508114667 sign -1
+  ratio     stat 0.24437   pct 0.269   null q50/q95 0.30891/0.38399  n 418 loc 0.10268714011516315 sign -1
+  on_run    stat 0.0157    pct 0.008   null q50/q95 0.04902/0.10546  n 257 loc 1.0 sign -1
+  off_gap   stat 0.09383   pct 0.135   null q50/q95 0.20097/0.31979  n 161 loc 2.0 sign 1
+  win_mean  stat 0.0974    pct 0.184   null q50/q95 0.12177/0.17689  n 100 loc 809.6 sign 1
+  busy      stat 0.052     pct 0.041   null q50/q95 0.12483/0.20956  n 100 loc 0.16666666666666666 sign 1
+  d_acf     stat 0.05372   pct 0.96    null q50/q95 0.01714/0.0509  n  loc  sign 
+  spearman  stat 0.02959   pct 0.275   null q50/q95 0.05324/0.15416  n  loc  sign
+ MAC/target UL 0.965 corr 0.978 rel q01/50/99 [0.085, 0.963, 1.564] | DL 1.007 corr 1.000 rel [0.744, 1.008, 1.101]
+ thr 30 B: UL false 14 miss 10 | DL false 2 miss 4 (active UL 513 DL 569)
+ gate seconds 21 | c_t 1 s q01/q99 [-0.019, 0.015] outside 0.00% | 3 s q01/q99 [-0.011, 0.0] outside 0.00% | KPM masked 0.00%
+P3 n=100 dropped=0 tau*=0.994 pass=True worst=ratio no_data=[]
+tau per pair {'0-1': 0.997, '1-0': 0.994, '2-3': 0.9895, '3-2': 0.9915}
+  ul_rate   stat 0.05646   pct 0.107   null q50/q95 0.13504/0.24137  n 1289 loc 0.4400392017106201 sign 1
+  dl_rate   stat 0.05749   pct 0.016   null q50/q95 0.13867/0.33855  n 1145 loc 0.009858344470386846 sign -1
+  ratio     stat 0.12466   pct 0.528   null q50/q95 0.12199/0.26973  n 1099 loc 0.09501445086705203 sign -1
+  on_run    stat 0.03828   pct 0.012   null q50/q95 0.08467/0.14077  n 343 loc 1.0 sign 1
+  off_gap   stat 0.06573   pct 0.006   null q50/q95 0.12928/0.22261  n 243 loc 1.0 sign -1
+  win_mean  stat 0.0912    pct 0.123   null q50/q95 0.20035/0.33987  n 100 loc 5326.133333333333 sign 1
+  busy      stat 0.0737    pct 0.12    null q50/q95 0.19528/0.38044  n 100 loc 0.3333333333333333 sign 1
+  d_acf     stat 0.00791   pct 0.129   null q50/q95 0.02365/0.07912  n  loc  sign 
+  spearman  stat 0.06589   pct 0.402   null q50/q95 0.09072/0.20723  n  loc  sign
+ MAC/target UL 1.000 corr 0.995 rel q01/50/99 [0.107, 0.998, 1.758] | DL 0.989 corr 0.766 rel [0.216, 1.008, 2.447]
+ thr 30 B: UL false 26 miss 21 | DL false 8 miss 1 (active UL 1284 DL 1138)
+ gate seconds 358 | c_t 1 s q01/q99 [-0.397, 0.252] outside 4.75% | 3 s q01/q99 [-0.13, 0.091] outside 0.28% | KPM masked 0.00%
+P4 n=100 dropped=0 tau*=0.995 pass=True worst=d_acf no_data=[]
+tau per pair {'0-1': 0.996, '1-0': 0.998, '2-3': 0.967, '3-2': 0.9915}
+  ul_rate   stat 0.02257   pct 0.0     null q50/q95 0.09925/0.15815  n 3941 loc 0.6354941825272328 sign -1
+  dl_rate   stat 0.02682   pct 0.0     null q50/q95 0.09961/0.31908  n 3772 loc 0.00011935453659674501 sign -1
+  ratio     stat 0.06472   pct 0.007   null q50/q95 0.16041/0.4465  n 3705 loc 0.11672683513838748 sign -1
+  on_run    stat 0.03043   pct 0.004   null q50/q95 0.10738/0.17119  n 457 loc 1.0 sign -1
+  off_gap   stat 0.01772   pct 0.0     null q50/q95 0.10793/0.205  n 357 loc 1.0 sign -1
+  win_mean  stat 0.0953    pct 0.055   null q50/q95 0.16556/0.24015  n 100 loc 29830.666666666668 sign -1
+  busy      stat 0.0833    pct 0.008   null q50/q95 0.17495/0.24641  n 100 loc 0.4 sign -1
+  d_acf     stat 0.00827   pct 0.281   null q50/q95 0.02358/0.0958  n  loc  sign 
+  spearman  stat 0.03215   pct 0.078   null q50/q95 0.10856/0.20139  n  loc  sign 
+  q99       stat 0.02742   pct 0.01    null q50/q95 1.15848/2.14518  n  loc  sign 
+  ad        stat 0.91942   pct 0.0     null q50/q95 51.56577/141.41041  n  loc  sign
+ MAC/target UL 1.008 corr 0.995 rel q01/50/99 [0.394, 1.006, 1.602] | DL 0.999 corr 0.973 rel [0.506, 1.002, 1.46]
+ thr 30 B: UL false 18 miss 26 | DL false 8 miss 7 (active UL 3949 DL 3771)
+ gate seconds 3274 | c_t 1 s q01/q99 [-0.332, 0.331] outside 4.86% | 3 s q01/q99 [-0.128, 0.168] outside 1.31% | KPM masked 1.92%

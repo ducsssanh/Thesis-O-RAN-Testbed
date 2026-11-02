@@ -1,0 +1,9 @@
+artifacts/experiments/20261102-011550_ds-benign-twin-P4_val2/runs/detection-off/rep-01 tamper.jsonl bytes 0
+artifacts/experiments/20261102-103328_ds-benign-twin-P4_unixgrid/runs/detection-off/rep-01 tamper.jsonl bytes 0
+same windows: True 20
+gnb grid : send start frac 0.26-0.36 | KPM/core total 1.0011 | gate secs 805 | outside +-0.2 6.34% | +-0.35 3.23% | q01/q99 -0.391/0.545 | min/max -0.786/0.970 | masked rows 19.93%
+  outliers 51, neighbour cancels (ratio -0.5..-1.5) 92%
+unix grid: send start frac 0.00-0.00 | KPM/core total 1.0006 | gate secs 775 | outside +-0.2 0.13% | +-0.35 0.00% | q01/q99 -0.000/0.035 | min/max -0.291/0.195 | masked rows 0.00%
+  outliers 1, neighbour cancels (ratio -0.5..-1.5) 0%
+remaining unix-grid outliers (KPM, core, c_t, neighbour KPM, neighbour core):
+   (2372, 3513, np.float64(-0.29), 2165, 2165)

@@ -40,7 +40,8 @@ def fixed_mix(kind):
 # kr5g_app_priors.json holds 101 quantiles of the IP-level packet length per app, per direction.
 # The smallest value in the captures (31-33 B) is below an Ethernet + IP + UDP frame, so the captured
 # frame length is the IP length, without a link header.
-MAC_OVERHEAD = 18    # SDAP/PDCP/RLC bytes per packet in the gNB DRB counter (measured 15-20 B, 2026-11-01)
+MAC_OVERHEAD = {"ul": 11, "dl": 7}  # bytes per packet in the gNB DRB counter above the IP length: least-squares slope on
+                                    # 2026-11-01 validation runs with small packets (ul 9.9-11.2, dl 5.8-6.8)
 MIN_IP = 29          # IPv4 + UDP + 1 B payload: the smallest datagram the pacer sends
 MAX_IP = 1228        # above this the GTP path is unreliable (see the module docstring)
 MAX_PPS = 2000       # above this a second is sent with MAX_IP packets (per-second load, not packet shape)
@@ -56,25 +57,39 @@ def app_priors(path=APP_PRIORS):
     return _apps[path]
 
 
-def packetize(target, quantiles, rng):
+def packetize(target, quantiles, rng, overhead):
     """IP lengths of the packets of one second, so that their bytes at the gNB MAC add up to `target`.
     Lengths are drawn from the app's quantile table; the last one is cut to fit. A target too small
-    for one packet (below MIN_IP + MAC_OVERHEAD) still gives one packet, reported by the caller as
+    for one packet (below MIN_IP + overhead) still gives one packet, reported by the caller as
     floored. Returns a list of ints."""
     if target <= 0:
         return []
     q = np.minimum(np.maximum(np.asarray(quantiles, dtype=float), MIN_IP), MAX_IP)
-    if target / (q.mean() + MAC_OVERHEAD) > MAX_PPS:
+    if target / (q.mean() + overhead) > MAX_PPS:
         q = np.array([float(MAX_IP)])
     pkts, left = [], float(target)
     while True:
-        n = max(int(left / (q.mean() + MAC_OVERHEAD)), 1)
+        n = max(int(left / (q.mean() + overhead)), 1)
         for ln in np.interp(rng.random(n), np.linspace(0, 1, q.size), q):
             ln = int(round(ln))
-            if ln + MAC_OVERHEAD >= left:
-                ln = int(left - MAC_OVERHEAD)
+            if ln + overhead >= left:
+                ln = int(left - overhead)
                 if ln >= MIN_IP or not pkts:
                     pkts.append(max(ln, MIN_IP))
                 return pkts
             pkts.append(ln)
-            left -= ln + MAC_OVERHEAD
+            left -= ln + overhead
+
+
+def place(pkts, overhead, tti_s, tti_bytes):
+    """Send time of each packet in its second (TTI replay): a packet goes at the TTI where the second's TTI bytes,
+    cumulated, reach the middle of that packet in the second's MAC bytes. tti_s is sorted, in [0, 1)."""
+    if not pkts:
+        return []
+    if len(tti_s) == 0:
+        raise ValueError("a second with packets needs TTIs")
+    mac = np.asarray(pkts, dtype=float) + overhead
+    mid = (np.cumsum(mac) - mac / 2) / mac.sum()
+    cum = np.cumsum(np.asarray(tti_bytes, dtype=float))
+    idx = np.minimum(np.searchsorted(cum / cum[-1], mid), len(tti_s) - 1)
+    return [round(float(x), 4) for x in np.asarray(tti_s, dtype=float)[idx]]

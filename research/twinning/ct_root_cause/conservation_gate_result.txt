@@ -1,0 +1,42 @@
+theta0 2000 B, L 0.1 s
+  tti          x1 4.52% first 119 | x0.8 78.93% first 1 | x1.25 80.16% first 2 | x0.33 90.03% first 1 | x2 91.88% first 2
+  tti2         x1 15.01% first 22 | x0.8 70.36% first 10 | x1.25 72.14% first 10 | x0.33 78.63% first 9 | x2 81.93% first 3
+  gatew        x1 9.88% first 120 | x0.8 70.73% first 11 | x1.25 71.76% first 10 | x0.33 79.08% first 6 | x2 82.03% first 3
+  secondP4r1   x1 1.78% first 135 | x0.8 81.47% first 1 | x1.25 82.66% first 1 | x0.33 90.58% first 1 | x2 92.47% first 1
+  secondP4r4   x1 10.11% first 38 | x0.8 84.25% first 3 | x1.25 85.52% first 2 | x0.33 91.95% first 1 | x2 93.68% first 1
+  secondP3r2   x1 0.00% first - | x0.8 57.19% first 4 | x1.25 60.20% first 3 | x0.33 71.91% first 2 | x2 74.58% first 2
+theta0 2000 B, L 0.2 s
+  tti          x1 4.42% first 119 | x0.8 75.64% first 3 | x1.25 77.90% first 2 | x0.33 89.41% first 1 | x2 91.26% first 2
+  tti2         x1 11.96% first 25 | x0.8 66.28% first 12 | x1.25 68.58% first 10 | x0.33 78.12% first 9 | x2 81.30% first 3
+  gatew        x1 9.24% first 123 | x0.8 66.37% first 11 | x1.25 68.42% first 11 | x0.33 78.56% first 6 | x2 81.51% first 4
+  secondP4r1   x1 0.79% first 136 | x0.8 79.09% first 3 | x1.25 80.57% first 2 | x0.33 89.79% first 1 | x2 91.48% first 1
+  secondP4r4   x1 8.74% first 92 | x0.8 82.07% first 3 | x1.25 83.45% first 3 | x0.33 91.38% first 1 | x2 92.99% first 2
+  secondP3r2   x1 0.00% first - | x0.8 52.51% first 4 | x1.25 57.53% first 4 | x0.33 71.57% first 2 | x2 74.25% first 2
+theta0 2000 B, L 0.3 s
+  tti          x1 4.11% first 120 | x0.8 73.18% first 4 | x1.25 74.41% first 3 | x0.33 88.18% first 1 | x2 90.85% first 2
+  tti2         x1 9.41% first 28 | x0.8 62.09% first 12 | x1.25 64.38% first 12 | x0.33 77.48% first 9 | x2 80.53% first 4
+  gatew        x1 8.99% first 124 | x0.8 61.23% first 17 | x1.25 64.44% first 12 | x0.33 77.41% first 7 | x2 81.00% first 4
+  secondP4r1   x1 0.30% first 137 | x0.8 76.91% first 3 | x1.25 78.39% first 3 | x0.33 88.90% first 1 | x2 91.08% first 1
+  secondP4r4   x1 7.70% first 123 | x0.8 79.08% first 4 | x1.25 81.61% first 4 | x0.33 91.03% first 1 | x2 92.30% first 2
+  secondP3r2   x1 0.00% first - | x0.8 51.17% first 5 | x1.25 54.52% first 4 | x0.33 69.23% first 2 | x2 72.91% first 2
+theta0 5000 B, L 0.1 s
+  tti          x1 4.42% first 119 | x0.8 72.35% first 3 | x1.25 74.41% first 2 | x0.33 82.32% first 2 | x2 86.02% first 2
+  tti2         x1 10.05% first 28 | x0.8 62.21% first 10 | x1.25 65.01% first 10 | x0.33 74.81% first 10 | x2 76.84% first 9
+  gatew        x1 9.24% first 123 | x0.8 62.39% first 11 | x1.25 64.44% first 11 | x0.33 74.84% first 10 | x2 76.89% first 10
+  secondP4r1   x1 0.00% first - | x0.8 74.13% first 3 | x1.25 75.42% first 2 | x0.33 84.44% first 1 | x2 87.22% first 1
+  secondP4r4   x1 4.48% first 202 | x0.8 78.28% first 5 | x1.25 80.00% first 5 | x0.33 87.93% first 2 | x2 89.54% first 2
+  secondP3r2   x1 0.00% first - | x0.8 46.15% first 9 | x1.25 48.83% first 5 | x0.33 63.21% first 3 | x2 66.89% first 2
+theta0 5000 B, L 0.2 s
+  tti          x1 4.01% first 120 | x0.8 69.48% first 4 | x1.25 72.46% first 3 | x0.33 81.29% first 2 | x2 84.89% first 2
+  tti2         x1 7.89% first 30 | x0.8 59.41% first 12 | x1.25 61.45% first 13 | x0.33 73.41% first 10 | x2 76.08% first 9
+  gatew        x1 8.99% first 124 | x0.8 58.66% first 13 | x1.25 61.62% first 11 | x0.33 73.43% first 10 | x2 75.74% first 10
+  secondP4r1   x1 0.00% first - | x0.8 72.55% first 3 | x1.25 73.64% first 3 | x0.33 83.75% first 1 | x2 86.72% first 1
+  secondP4r4   x1 4.37% first 202 | x0.8 76.78% first 5 | x1.25 78.16% first 5 | x0.33 87.13% first 2 | x2 89.43% first 2
+  secondP3r2   x1 0.00% first - | x0.8 44.82% first 10 | x1.25 47.83% first 6 | x0.33 62.21% first 3 | x2 66.56% first 2
+theta0 5000 B, L 0.3 s
+  tti          x1 3.80% first 121 | x0.8 68.24% first 4 | x1.25 70.09% first 4 | x0.33 80.37% first 2 | x2 84.28% first 2
+  tti2         x1 5.85% first 229 | x0.8 55.98% first 19 | x1.25 59.16% first 13 | x0.33 72.39% first 10 | x2 75.70% first 9
+  gatew        x1 8.60% first 124 | x0.8 55.20% first 18 | x1.25 59.31% first 13 | x0.33 72.53% first 10 | x2 75.48% first 10
+  secondP4r1   x1 0.00% first - | x0.8 70.47% first 3 | x1.25 72.45% first 3 | x0.33 83.35% first 1 | x2 86.03% first 1
+  secondP4r4   x1 4.25% first 202 | x0.8 73.91% first 6 | x1.25 76.32% first 5 | x0.33 86.32% first 2 | x2 89.08% first 2
+  secondP3r2   x1 0.00% first - | x0.8 43.81% first 10 | x1.25 45.48% first 9 | x0.33 61.20% first 3 | x2 65.89% first 2

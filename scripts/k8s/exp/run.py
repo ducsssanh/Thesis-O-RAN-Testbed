@@ -241,6 +241,7 @@ def run_once(scn, variant, rep, camp_dir):
                     apply_defense(run["defense"], [])  # run-time settings are not persisted by the xApp
                 ph["action"] = {**act, "seconds": round(time.time() - t_a, 1), "new_ip": ip}
             ips = {n: lab.ue_ip(n, wait=30) for n in ue_names}
+            lab.ues_no_forward(ue_names)
             if run["defense"].get("readiness") and p.get("flows"):   # v5: fresh telemetry before the hooks
                 ph["readiness"] = readiness(ue_names, **run["defense"]["readiness"])
             hooked = phase_hooks(p, run, ue_names)
@@ -259,6 +260,8 @@ def run_once(scn, variant, rep, camp_dir):
                             env["congestion"] = cong
                         if env:
                             spec = {**spec, **env}     # phase-level env properties
+                        if spec.get("model") == "real_window":
+                            spec = {**spec, "seed": spec["seed"] + 100000 * (rep - 1)}  # each rep replays other windows
                     flows.append(traffic.make_flow(ue, d, spec, payload, p["duration"], port, ips[ue]))
             for f in flows:
                 f.start_server()

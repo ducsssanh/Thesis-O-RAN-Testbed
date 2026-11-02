@@ -1,0 +1,33 @@
+W 30 theta0 5000 L 0.2 rho 0.02
+  UE780 honest: active 130, conservation violations 0 | same seconds, 1 s c_t outside +-0.2: 0 of 130 | max |D| 8232 B
+  UE781 honest: active 103, conservation violations 0 | same seconds, 1 s c_t outside +-0.2: 9 of 92 | max |D| 3129 B
+    hide x0.33   first violation after 2 s, net bytes by then 68254, violating share of active seconds 97%
+    hide x0.1    first violation after 1 s, net bytes by then 47643, violating share of active seconds 100%
+    hide x0.8    first violation after 0 s, net bytes by then 9261, violating share of active seconds 100%
+    frame x2     first violation after 1 s, net bytes by then 22499, violating share of active seconds 100%
+    frame x5     first violation after 0 s, net bytes by then 98340, violating share of active seconds 100%
+    frame x1.25  first violation after 1 s, net bytes by then 5960, violating share of active seconds 100%
+W 30 theta0 3000 L 0.1 rho 0.01
+  UE780 honest: active 130, conservation violations 0 | same seconds, 1 s c_t outside +-0.2: 0 of 130 | max |D| 8232 B
+  UE781 honest: active 103, conservation violations 0 | same seconds, 1 s c_t outside +-0.2: 9 of 92 | max |D| 3129 B
+    hide x0.33   first violation after 1 s, net bytes by then 35840, violating share of active seconds 100%
+    hide x0.1    first violation after 1 s, net bytes by then 47643, violating share of active seconds 100%
+    hide x0.8    first violation after 0 s, net bytes by then 9261, violating share of active seconds 100%
+    frame x2     first violation after 1 s, net bytes by then 22499, violating share of active seconds 100%
+    frame x5     first violation after 0 s, net bytes by then 98340, violating share of active seconds 100%
+    frame x1.25  first violation after 1 s, net bytes by then 5960, violating share of active seconds 100%
+Clean latency: KPM set equal to core before each tamper start, so earlier tamper does not stay in the window
+W 30 theta0 5000 L 0.2 rho 0.02
+    hide x0.33   first violation after 2 s, |core-KPM| by then 68254 B
+    hide x0.1    first violation after 1 s, |core-KPM| by then 47643 B
+    hide x0.8    first violation after 4 s, |core-KPM| by then 50215 B
+    frame x2     first violation after 1 s, |core-KPM| by then 22499 B
+    frame x5     first violation after 0 s, |core-KPM| by then 98340 B
+    frame x1.25  first violation after 6 s, |core-KPM| by then 21716 B
+W 30 theta0 3000 L 0.1 rho 0.01
+    hide x0.33   first violation after 1 s, |core-KPM| by then 35840 B
+    hide x0.1    first violation after 1 s, |core-KPM| by then 47643 B
+    hide x0.8    first violation after 2 s, |core-KPM| by then 29635 B
+    frame x2     first violation after 1 s, |core-KPM| by then 22499 B
+    frame x5     first violation after 0 s, |core-KPM| by then 98340 B
+    frame x1.25  first violation after 4 s, |core-KPM| by then 11547 B

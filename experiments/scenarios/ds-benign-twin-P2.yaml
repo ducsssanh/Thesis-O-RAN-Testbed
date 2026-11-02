@@ -1,0 +1,45 @@
+name: ds-benign-twin-P2
+description: |
+  Benign twin validation, band P2 (TRAFFIC-TWINNING-PLAN §6): 5 reps x 10 phases x 2 UEs = 100 real 75 s windows, each rep with
+  its own windows (run.py adds the rep to the seed). `grid: gnb` keeps each sent second inside one gNB stats second.
+  Compare with research/twinning/validate_twin.py. Needs the long keep-alive and T2 of deploy/k8s/values/minikube.yaml. Detection off.
+ues: {ue1: benign, ue2: benign}
+reps: 5
+drain: {quiet_kbps: 300, timeout_s: 120}
+tail_s: 5
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle, duration: 10}
+  - {name: w01, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21001}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22001}}}}
+  - {name: w02, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21002}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22002}}}}
+  - {name: w03, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21003}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22003}}}}
+  - {name: w04, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21004}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22004}}}}
+  - {name: w05, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21005}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22005}}}}
+  - {name: w06, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21006}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22006}}}}
+  - {name: w07, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21007}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22007}}}}
+  - {name: w08, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21008}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22008}}}}
+  - {name: w09, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21009}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22009}}}}
+  - {name: w10, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 21010}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P2, grid: gnb, timing: tti, role: benign, seed: 22010}}}}
+report: []

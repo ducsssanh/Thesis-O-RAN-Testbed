@@ -1,0 +1,107 @@
+{
+ "band": "P1",
+ "windows": 100,
+ "seconds_without_sample": 0,
+ "clipped_s": {
+  "ul": 0,
+  "dl": 18
+ },
+ "floored_s": {
+  "ul": 16,
+  "dl": 70
+ },
+ "ul": {
+  "target_MB": 0.177,
+  "mac_over_target": 1.002,
+  "corr": 0.9996,
+  "rel_q01_50_99": [
+   0.924,
+   0.962,
+   0.992
+  ],
+  "n_big": 54,
+  "active_target": 218,
+  "idle_target": 7282,
+  "false_bytes_q50_90_100": [
+   6.0,
+   27.0,
+   60.0
+  ],
+  "thresholds": {
+   "0": {
+    "false": 670,
+    "miss": 0
+   },
+   "30": {
+    "false": 19,
+    "miss": 0
+   },
+   "40": {
+    "false": 5,
+    "miss": 16
+   },
+   "47": {
+    "false": 3,
+    "miss": 17
+   }
+  }
+ },
+ "dl": {
+  "target_MB": 27.003,
+  "mac_over_target": 0.99,
+  "corr": 0.99997,
+  "rel_q01_50_99": [
+   0.931,
+   0.987,
+   1.004
+  ],
+  "n_big": 390,
+  "active_target": 738,
+  "idle_target": 6762,
+  "false_bytes_q50_90_100": [
+   6.0,
+   21.0,
+   33.0
+  ],
+  "thresholds": {
+   "0": {
+    "false": 150,
+    "miss": 0
+   },
+   "30": {
+    "false": 2,
+    "miss": 0
+   },
+   "40": {
+    "false": 0,
+    "miss": 70
+   },
+   "47": {
+    "false": 0,
+    "miss": 77
+   }
+  }
+ },
+ "c_t": {
+  "n": 290,
+  "q01_05_50_95_99": [
+   -0.226,
+   -0.042,
+   0.0,
+   0.031,
+   0.064
+  ],
+  "min_max": [
+   -0.605,
+   0.197
+  ],
+  "outside_band": 0.01379,
+  "ge_10kB_n": 0,
+  "ge_10kB_q01_50_99": null,
+  "ge_10kB_outside": null,
+  "trust_q01_50": [
+   0.907,
+   0.983
+  ]
+ }
+}

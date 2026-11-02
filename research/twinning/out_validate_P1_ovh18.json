@@ -1,0 +1,98 @@
+{
+ "band": "P1",
+ "n_windows": 100,
+ "tau_star": 0.995,
+ "tau_per_pair": {
+  "0-1": 0.9281,
+  "1-0": 0.9905,
+  "2-3": 0.9915,
+  "3-2": 0.998
+ },
+ "pass": true,
+ "worst": "win_mean",
+ "no_data": [],
+ "active_bytes": 30,
+ "replicates": 1000,
+ "tests": {
+  "ul_rate": {
+   "stat": 0.05217,
+   "percentile": 0.186,
+   "null_q50": 0.11149,
+   "null_q95": 0.21773,
+   "n_twin": 237,
+   "location": 0.8372093023255814,
+   "sign": -1
+  },
+  "dl_rate": {
+   "stat": 0.05493,
+   "percentile": 0.001,
+   "null_q50": 0.13962,
+   "null_q95": 0.22032,
+   "n_twin": 740,
+   "location": 0.35406698564593303,
+   "sign": 1
+  },
+  "ratio": {
+   "stat": 0.19069,
+   "percentile": 0.08,
+   "null_q50": 0.46339,
+   "null_q95": 0.63119,
+   "n_twin": 89,
+   "location": 241.08373205741626,
+   "sign": -1
+  },
+  "on_run": {
+   "stat": 0.00652,
+   "percentile": 0.011,
+   "null_q50": 0.04569,
+   "null_q95": 0.0936,
+   "n_twin": 209,
+   "location": 3.0,
+   "sign": 1
+  },
+  "off_gap": {
+   "stat": 0.07331,
+   "percentile": 0.075,
+   "null_q50": 0.31578,
+   "null_q95": 0.65857,
+   "n_twin": 122,
+   "location": 16.0,
+   "sign": -1
+  },
+  "win_mean": {
+   "stat": 0.1805,
+   "percentile": 0.486,
+   "null_q50": 0.19343,
+   "null_q95": 0.29367,
+   "n_twin": 100,
+   "location": 0.26666666666666666,
+   "sign": -1
+  },
+  "busy": {
+   "stat": 0.0859,
+   "percentile": 0.159,
+   "null_q50": 0.19688,
+   "null_q95": 0.33749,
+   "n_twin": 100,
+   "location": 0.08333333333333333,
+   "sign": -1
+  },
+  "d_acf": {
+   "stat": 0.00349,
+   "percentile": 0.344,
+   "null_q50": 0.02197,
+   "null_q95": 0.05544
+  },
+  "spearman": {
+   "stat": 0.03304,
+   "percentile": 0.201,
+   "null_q50": 0.08883,
+   "null_q95": 0.19426
+  }
+ },
+ "dropped_windows": 0,
+ "runs": [
+  "artifacts/experiments/20261101-212103_ds-benign-twin-P1_val"
+ ],
+ "windows": "/home/ducsssanh/6G/O-RAN/DATN/Codebase/research/twinning/benign_windows.npz"
+}
