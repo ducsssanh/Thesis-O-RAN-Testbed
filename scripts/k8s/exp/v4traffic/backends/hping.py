@@ -32,7 +32,7 @@ def _mean_size(bins):
 
 
 def _argv(mode, dst, port, total, interval_us, payload):
-    base = ["hping3", "-q", "-c", str(int(total)), "-i", f"u{int(interval_us)}"]
+    base = ["hping3", "-I", "oaitun_ue1", "-q", "-c", str(int(total)), "-i", f"u{int(interval_us)}"]
     if mode == "udp":
         return base + ["--udp", "-p", str(port), "-d", str(max(payload - 28, 0)), dst]
     if mode == "syn":
@@ -60,27 +60,40 @@ def main():
         else:
             pps.append(int(round(float(sec.get("bytes") or 0.0) / mean_size)) if mean_size > 0 else 0)
     total = sum(pps)
-    mean_pps = total / T if T else 0
+    active = [i for i in range(T) if pps[i] > 0]         # a flood over the twin stays silent before its onset
+    mean_pps = total / len(active) if active else 0
     interval_us = max(int(round(1e6 / mean_pps)), 1) if mean_pps > 0 else 1000000
 
-    proc = None
+    if p.get("start_at"):
+        wait = p["start_at"] - time.time()
+        if wait > 0:
+            time.sleep(wait)
+    hold = {}
     result = {}
-    if total > 0:
-        argv = _argv(mode, dst, port, total, interval_us, payload)
-        proc = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        def _wait():
-            out, err = proc.communicate()
-            m = _TX.search((err or "") + (out or ""))
-            result["tx"] = int(m.group(1)) if m else total
-        threading.Thread(target=_wait, daemon=True).start()
+    def _run():
+        time.sleep(active[0])
+        try:
+            hold["proc"] = subprocess.Popen(_argv(mode, dst, port, total, interval_us, payload), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        except OSError as e:
+            result["error"] = str(e)
+            return
+        out, err = hold["proc"].communicate()
+        m = _TX.search((err or "") + (out or ""))
+        if m:
+            result["tx"] = int(m.group(1))
+        else:
+            result["error"] = "no transmit count: rc %s %s" % (hold["proc"].returncode, (err or "")[-200:])
 
+    worker = threading.Thread(target=_run, daemon=True) if total > 0 else None
+    if worker:
+        worker.start()
     start = time.clock_gettime(time.CLOCK_REALTIME)
     mono0 = time.monotonic()
     for i in range(T):
         tgt_b = float(p["seconds"][i].get("bytes") or (pps[i] * mean_size))
         # modelled per-second send = the even share of the single run
-        sent_pkts = int(round(mean_pps))
+        sent_pkts = int(round(mean_pps)) if pps[i] > 0 else 0
         sent_bytes = sent_pkts * payload
         rem = (mono0 + i + 1) - time.monotonic()
         if rem > 0:
@@ -94,12 +107,14 @@ def main():
             row["attack_active"] = int(gate[i])
         print(json.dumps(row), flush=True)
 
-    if proc is not None:
-        try:
-            proc.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            proc.terminate()
+    if worker:
+        worker.join(timeout=5)
+        if worker.is_alive() and hold.get("proc"):
+            hold["proc"].terminate()
+            worker.join(timeout=2)
     # final row: hping3's real total transmitted over the run (for achieved QA)
+    if result.get("error") or (total > 0 and "tx" not in result):
+        sys.exit("hping3 failed: %s" % result.get("error", "still running"))   # never report the target as sent
     tx = result.get("tx", total)
     print(json.dumps({"t": round(start + T, 3), "sec": T, "backend": "hping", "mode": mode,
                       "final": True, "run_tx_pkts": tx, "run_target_pkts": total,

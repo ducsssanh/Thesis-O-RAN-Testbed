@@ -260,7 +260,7 @@ def run_once(scn, variant, rep, camp_dir):
                             env["congestion"] = cong
                         if env:
                             spec = {**spec, **env}     # phase-level env properties
-                        if spec.get("model") == "real_window":
+                        if spec.get("model") == "real_window" or spec.get("evasion"):
                             spec = {**spec, "seed": spec["seed"] + 100000 * (rep - 1)}  # each rep replays other windows
                     flows.append(traffic.make_flow(ue, d, spec, payload, p["duration"], port, ips[ue]))
             for f in flows:

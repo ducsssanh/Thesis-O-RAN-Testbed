@@ -151,3 +151,22 @@ ok(lines[2] == "1793538767.385,2580,ue1,1,122273700,461985,103040,14990" and len
 if fails:
     print("FAIL:"); [print("  -", f) for f in fails]; sys.exit(1)
 print("ALL SCHEDULE TESTS PASSED (cbr, poisson, mmpp2, onoff_pareto, fgn H, hawkes, pulsing, sizes, mixer, seed-repro)")
+
+
+def test_attack_overlay_plans():
+    import planbuilder as pb
+    base = {"role": "attack", "anchor_bps": 111088.0, "band": "P4", "seed": 3}
+    for e, extra, backend in (("L1", {"mode": "syn"}, "hping"), ("L3", {"backend": "tcp_shortconn"}, "tcp_shortconn"), ("L3", {"backend": "dns_client"}, "dns_client")):
+        plan, meta = pb.build_attack({**base, "evasion": e, **extra}, 75, "10.0.0.1", "10.0.0.2", 5401)
+        assert plan["backend"] == backend and len(plan["seconds"]) == 75 and 0 <= meta["onset_s"] < 15
+        o = meta["onset_s"]
+        assert all(s["pps"] == 0 for s in plan["seconds"][:o]) and all(s["pps"] > 0 for s in plan["seconds"][o:])
+        assert abs(plan["seconds"][-1]["bytes"] * 8 - 111088) / 111088 < .02
+        assert plan["attack_active"] == [0] * o + [1] * (75 - o)
+    plan, meta = pb.build_attack({**base, "evasion": "L2"}, 75, "10.0.0.1", "10.0.0.2", 5401)
+    b = np.array([s["bytes"] for s in plan["seconds"]])
+    assert plan["backend"] == "pacer" and (b[:meta["onset_s"]] == 0).all() and (b > 0).sum() >= pb.L2_MIN_ACTIVE_S
+    assert abs(b[b > 0].mean() * 8 - 111088) / 111088 < .2      # the clip at 1 MB/s can pull it down
+    assert plan["attack_active"] == [int(x > 0) for x in b]
+    a, _ = pb.build_attack({**base, "evasion": "L2"}, 75, "10.0.0.1", "10.0.0.2", 5401)
+    assert a["seconds"] == plan["seconds"]

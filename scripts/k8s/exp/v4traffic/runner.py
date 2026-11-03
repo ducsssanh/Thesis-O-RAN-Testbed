@@ -36,18 +36,20 @@ def _k(args, inp=None, timeout=120):
     return p.returncode, p.stdout, p.stderr
 
 
-def _push_backend(dep, backend):
+def _push_backend(dep, backend, name=None):
     _k(["-n", "oai-ran", "exec", "-i", f"deploy/{dep}", "-c", "keepalive", "--",
-        "sh", "-c", f"cat > /tmp/{backend}.py"], inp=BACKENDS[backend])
+        "sh", "-c", f"cat > /tmp/{name or backend}.py"], inp=BACKENDS[backend])
 
 
 def run_backend(dep, plan, timeout=None):
     """Run the plan's backend (default 'pacer') on dep's sidecar; return achieved rows."""
     backend = plan.get("backend", "pacer")
-    _push_backend(dep, backend)
+    tag = (plan.get("ports") or [0])[0]                  # two flows of one UE (attack over twin) keep their own files
+    name = f"{backend}_{tag}"
+    _push_backend(dep, backend, name)
     pj = json.dumps(plan)
     rc, out, err = _k(["-n", "oai-ran", "exec", "-i", f"deploy/{dep}", "-c", "keepalive", "--",
-                       "sh", "-c", f"cat > /tmp/plan.json && python3 /tmp/{backend}.py /tmp/plan.json"],
+                       "sh", "-c", f"cat > /tmp/plan_{tag}.json && python3 /tmp/{name}.py /tmp/plan_{tag}.json"],
                       inp=pj, timeout=timeout or (len(plan["seconds"]) + 30))
     rows = []
     for line in out.splitlines():
@@ -57,6 +59,8 @@ def run_backend(dep, plan, timeout=None):
             pass
     if not rows and err:
         sys.stderr.write(err)
+    if rc:                                               # a failed generator must show in the run, not only in its rows
+        rows.append({"final": True, "backend_rc": rc, "error": (err or "")[-300:]})
     return rows
 
 

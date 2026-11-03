@@ -279,7 +279,7 @@ class V4Flow:
     Same interface as Flow/HpingFlow so run.py's phase loop is unchanged."""
 
     def __init__(self, ue, direction, spec, length, duration, port, ip):
-        if direction != "ul":
+        if direction not in ("ul", "ul_attack", "ul_client"):              # ul_attack: attack flow over the twin on the same UE
             raise ValueError("v4 flows are ul only (UE-originated); got %r" % direction)
         if _V4DIR not in sys.path:
             sys.path.insert(0, _V4DIR)
@@ -298,7 +298,10 @@ class V4Flow:
         self.mode = self.spec.get("mode")
         self.plan, self.meta = planbuilder.build_plan(self.spec, int(duration), DN_IP, ip, port)
         self.replay = self.model == "real_window"
-        self.level = self.meta["level_bytes_s"] if self.replay else float(self.spec.get("level", 0.0))
+        self.overlay = bool(self.spec.get("evasion"))
+        self.model = self.meta["model"]
+        self.backend, self.mode = self.plan["backend"], self.plan.get("mode", self.mode)
+        self.level = self.meta["level_bytes_s"] if self.replay or self.overlay else float(self.spec.get("level", 0.0))
         self.start_at, self.dl_rows = None, []
         self.fanout = int(self.spec.get("fanout", 0) or 0)
         if self.fanout > 1:
@@ -320,7 +323,7 @@ class V4Flow:
         # does not track the label); the DROP is installed only for the malicious flow.
         self.victim_mode = self.spec.get("victim_mode")
         self.dl_feedback = 0.0
-        if not self.replay and not self.malicious and self.proto == "udp" and self.spec.get("dl_feedback", "auto") != 0:
+        if not self.replay and not self.overlay and not self.malicious and self.proto == "udp" and self.spec.get("dl_feedback", "auto") != 0:
             fb = self.spec.get("dl_feedback", "auto")
             rng = __import__("random").Random(int(self.spec["seed"]) ^ 0x5DF)
             self.dl_feedback = float(fb) if fb != "auto" else round(rng.uniform(0.01, 0.10), 4)
@@ -336,7 +339,10 @@ class V4Flow:
         if self.replay:
             self._start_replay()
             return
-        self._srv = self._runner._start_dn_server(self.backend, self.port, self.duration + 6)
+        if self.overlay:
+            self.start_at = __import__("math").ceil(time.time() + self.REPLAY_LEAD_S)
+            self.plan["start_at"] = self.start_at
+        self._srv = self._runner._start_dn_server(self.backend, self.port, self.duration + 6 + (self.REPLAY_LEAD_S if self.overlay else 0))
         if self.fanout > 1:
             self._runner.add_dn_aliases(self.fanout)       # responsive fan-out destinations on the DN
             self._fanout_srv = self._runner.start_udpecho_sink(self.port, self.duration + 6)
@@ -367,7 +373,7 @@ class V4Flow:
 
         def _go():
             self._achieved = self._runner.run_backend(UES[self.ue][0], self.plan,
-                                                       timeout=self.duration + 30 + (self.REPLAY_LEAD_S if self.replay else 0))
+                                                       timeout=self.duration + 30 + (self.REPLAY_LEAD_S if self.replay or self.overlay else 0))
         self._thread = threading.Thread(target=_go, daemon=True)
         self._thread.start()
 
@@ -419,6 +425,10 @@ class V4Flow:
              "congestion": int(bool(self.spec.get("congestion"))), "pair": self.pair, "v4_meta": self.meta}
         if self.replay:
             s.update({"replay_start_at": self.start_at, "dl_rows": self.dl_rows})
+        if self.overlay:
+            s["attack_start_at"] = self.start_at
+        if fin and fin.get("backend_rc"):
+            s["backend_failed"] = fin["error"]
         if self.backend == "dns_client":
             s["answers"] = sum(r.get("answers", 0) for r in self._achieved)
         if self.backend == "tcp_shortconn":

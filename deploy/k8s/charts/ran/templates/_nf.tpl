@@ -112,7 +112,7 @@ spec:
             - {{ $lab.networks.n6.addresses.dn | quote }}
             - {{ $lab.defense.ueKeepaliveS | quote }}
           securityContext: {capabilities: {add: [NET_RAW], drop: [ALL]}}
-          resources: {requests: {cpu: 5m, memory: 16Mi}, limits: {cpu: 50m, memory: 64Mi}}
+          resources: {requests: {cpu: 5m, memory: 16Mi}, limits: {cpu: "1", memory: 256Mi}}
         {{- end }}
         {{- if eq $nf "smf" }}
         - name: capture

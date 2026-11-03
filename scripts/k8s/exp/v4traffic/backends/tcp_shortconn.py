@@ -37,12 +37,17 @@ def main():
     dst, bind = p["dst"], p.get("bind")
     port = (p.get("ports") or [5402])[0]
 
+    if p.get("start_at"):
+        wait = p["start_at"] - time.time()
+        if wait > 0:
+            time.sleep(wait)
     start = time.clock_gettime(time.CLOCK_REALTIME)
     mono0 = time.monotonic()
+    stats = [0, 0]                                  # [completed, failed], over the run
+    done0 = fail0 = 0
     for i, sec in enumerate(p["seconds"]):
         n = int(sec["pps"]) if sec.get("pps") else int(round(float(sec.get("bytes") or 0.0) / BYTES_PER_CONN))
         t_start = mono0 + i
-        stats = [0, 0]                              # [completed, failed]
         ts = []
         for k in range(n):
             due = t_start + (k + 0.5) / n if n else t_start
@@ -53,16 +58,16 @@ def main():
                 break
             th = threading.Thread(target=_one_conn, args=(dst, port, bind, stats), daemon=True)
             th.start(); ts.append(th)
-        for th in ts:
-            th.join(timeout=max(0.0, (mono0 + i + 1.5) - time.monotonic()))
+        # a slow exchange must not eat the next second: it is counted in the second where it ends
         rem = (mono0 + i + 1) - time.monotonic()
         if rem > 0:
             time.sleep(rem)
-        completed = stats[0]
+        completed, failed = stats[0] - done0, stats[1] - fail0
+        done0, fail0 = done0 + completed, fail0 + failed
         sent_bytes = int(completed * BYTES_PER_CONN)
         row = {"t": round(start + i, 3), "sec": i, "backend": "tcp_shortconn",
                "target_bytes": round(float(sec.get("bytes") or 0.0), 1), "target_pkts": n,
-               "sent_bytes": sent_bytes, "sent_pkts": completed, "conn_failed": stats[1],
+               "sent_bytes": sent_bytes, "sent_pkts": completed, "conn_failed": failed,
                "achieved_mbps": round(sent_bytes * 8 / 1e6, 4), "achieved_pps": completed}
         gate = p.get("attack_active")
         if gate is not None and i < len(gate):

@@ -98,6 +98,77 @@ def build_replay(spec, T, dst, bind, port):
     return plan, meta
 
 
+# hping3 packets without payload: the 42 / 54 / 42 B frames of 5G-NIDD (TRAFFIC-TWINNING-PLAN 3.3) minus 14 B Ethernet
+ATTACK_IP_LEN = {"udp": 28, "syn": 40, "icmp": 28}
+L3_UL_BYTES = {"tcp_shortconn": 300.0, "dns_client": 56.0}     # UL IP bytes of one exchange
+PRE_ROLL_S = 15
+L2_MIN_ACTIVE_S = 10
+
+
+def build_attack(spec, T, dst, bind, port):
+    """Attack flow laid over the benign twin of the same UE (TRAFFIC-TWINNING-PLAN 5.1-5.3): the twin keeps its own flow, unscaled.
+    `anchor_bps` is the UL rate of an active second, onset uniform over the pre-roll. evasion L1: hping3 at the anchor, default
+    packets; L2: UDP in the rhythm, TTI times and sizes of another real window of `band`, active seconds scaled to the anchor mean;
+    L3: real clients against the DN sink. No ramp or react here."""
+    rng = np.random.default_rng(spec["seed"])
+    evasion, anchor = spec["evasion"], float(spec["anchor_bps"])
+    onset = int(rng.integers(0, PRE_ROLL_S))
+    active = np.arange(T) >= onset
+    extra = {}
+    if evasion == "L1":
+        backend, mode = "hping", spec["mode"]
+        size = ATTACK_IP_LEN[mode]
+        pps = int(round(anchor / 8.0 / size))
+        seconds = [{"bytes": pps * size * float(a), "pps": pps if a else 0} for a in active]
+        extra = {"mode": mode, "sizes": [[size, 1.0]]}
+    elif evasion == "L2":
+        backend, band = "pacer", spec["band"]
+        for _ in range(100):
+            w = schedules.real_window(band, rng, spec.get("windows_npz", schedules.WINDOWS_NPZ))
+            if (np.asarray(w["ul"])[onset:] > 0).sum() >= L2_MIN_ACTIVE_S:
+                break
+        else:
+            raise ValueError("no window of %s with %d active seconds" % (band, L2_MIN_ACTIVE_S))
+        ul = np.asarray(w["ul"], float)
+        ul[:onset] = 0
+        scale = (anchor / 8.0) / ul[ul > 0].mean()
+        apps = {k: v for k, v in sizes.app_priors().items() if v["band"] == band}
+        app = spec.get("app") or sorted(apps)[int(rng.integers(len(apps)))]
+        tti = schedules.window_tti(band, w["index"], "ul") if spec.get("timing") == "tti" else None
+        seconds, _, _, _ = _replay_seconds(ul, apps[app]["ul_size_q"], rng, REPLAY_CAP_BYTES_S["ul"], sizes.MAC_OVERHEAD["ul"], tti, scale)
+        active = ul > 0
+        extra = {"process": "poisson", "span": REPLAY_SPAN}
+        size = None
+    elif evasion == "L3":
+        backend = spec["backend"]
+        size = L3_UL_BYTES[backend]
+        rate = int(round(anchor / 8.0 / size))
+        seconds = [{"bytes": rate * size * float(a), "pps": rate if a else 0} for a in active]
+        if spec.get("role") == "benign":               # hard negative: the same client, in the rhythm of a real window; never labelled attack
+            for _ in range(100):
+                w = schedules.real_window(spec["band"], rng, spec.get("windows_npz", schedules.WINDOWS_NPZ))
+                if (np.asarray(w["ul"]) > 0).sum() >= L2_MIN_ACTIVE_S:
+                    break
+            ul = np.asarray(w["ul"], float)
+            n = np.round(rate * ul / ul[ul > 0].mean()).astype(int)
+            seconds = [{"bytes": float(x) * size, "pps": int(x)} for x in n]
+            active = n > 0
+            extra = {"window": {"cell": w["src"][0], "rnti": w["src"][1], "start": w["src"][2], "index": w["index"]}}
+    else:
+        raise ValueError(evasion)
+    plan = {"dst": dst, "bind": bind, "ports": [port], "backend": backend, "seconds": seconds, "seed": int(spec["seed"]),
+            "attack_active": [int(a) for a in active], **extra}
+    target = float(np.mean([x["bytes"] for x in seconds]))
+    window_meta = extra.pop("window", None)
+    plan.pop("window", None)
+    meta = {"backend": backend, "model": "flood_overlay", "role": spec.get("role", "attack"), "window": window_meta, "evasion": evasion, "anchor_bps": anchor, "onset_s": onset,
+            "level_bytes_s": anchor / 8.0, "mean_size": size, "seed": int(spec["seed"]), "attack_active": plan["attack_active"],
+            "target_mean_bytes_s": target, "params": {}}
+    if evasion == "L2":
+        meta["window"] = {"cell": w["src"][0], "rnti": w["src"][1], "start": w["src"][2], "index": w["index"], "scale": float(scale), "app": app}
+    return plan, meta
+
+
 def build_plan(spec, T, dst, bind, port):
     """Return (plan, meta). plan -> runner.run_backend; meta -> flows.json label.
 
@@ -108,6 +179,8 @@ def build_plan(spec, T, dst, bind, port):
     overlap ≈ 0 even across many reps), while keeping distinct behaviour seeds."""
     if spec.get("model") == "real_window":
         return build_replay(spec, T, dst, bind, port)
+    if spec.get("evasion"):
+        return build_attack(spec, T, dst, bind, port)
     rng = np.random.default_rng(spec["seed"])
     size_rng = np.random.default_rng(spec.get("size_seed", spec["seed"]))
     backend = spec["backend"]

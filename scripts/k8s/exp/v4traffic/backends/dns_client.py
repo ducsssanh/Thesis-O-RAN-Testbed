@@ -29,6 +29,10 @@ def main():
     s.setblocking(False)
     pkt_len = 28 + len(_query(0))                   # IP+UDP + DNS query, for the byte count
 
+    if p.get("start_at"):
+        wait = p["start_at"] - time.time()
+        if wait > 0:
+            time.sleep(wait)
     start = time.clock_gettime(time.CLOCK_REALTIME)
     mono0 = time.monotonic()
     for i, sec in enumerate(p["seconds"]):
