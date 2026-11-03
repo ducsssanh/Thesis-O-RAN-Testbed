@@ -33,4 +33,5 @@ artifacts/ml/*/windows.npz
 research/twinning/*.parquet
 research/twinning/benign_profiles.json
 research/twinning/benign_windows.npz
+research/twinning/heldout_windows.npz
 research/twinning/benign_windows_tti.npz

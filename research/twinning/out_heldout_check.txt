@@ -1,0 +1,43 @@
+tau* 0.9990 k 38 family pass True over [] missing []
+P1 n 100 dropped 0 real windows by cell [5454, 4546] tau band 0.995 per pair {'0-0': 0.996, '1-0': 0.9855, '2-1': 0.996, '3-1': 0.992}
+   ul_rate   stat 0.09996   pct 0.372   null q50/q95 0.17021/0.34648
+   dl_rate   stat 0.0709    pct 0.202   null q50/q95 0.13322/0.23102
+   ratio     stat 0.26876   pct 0.362   null q50/q95 0.34698/0.47637
+   on_run    stat 0.13066   pct 0.545   null q50/q95 0.12174/0.20549
+   off_gap   stat 0.34845   pct 0.483   null q50/q95 0.35199/0.43651
+   win_mean  stat 0.2753    pct 0.564   null q50/q95 0.24631/0.39155
+   busy      stat 0.1356    pct 0.272   null q50/q95 0.19115/0.31772
+   d_acf     stat 0.00269   pct 0.041   null q50/q95 0.00984/0.05052
+   spearman  stat 0.09644   pct 0.413   null q50/q95 0.11103/0.20908
+P2 n 100 dropped 0 real windows by cell [4511, 5489] tau band 0.994 per pair {'0-0': 0.998, '1-0': 0.9885, '2-1': 0.9541, '3-1': 0.995}
+   ul_rate   stat 0.09419   pct 0.398   null q50/q95 0.11111/0.20052
+   dl_rate   stat 0.07489   pct 0.22    null q50/q95 0.13483/0.26317
+   ratio     stat 0.25416   pct 0.562   null q50/q95 0.24104/0.43191
+   on_run    stat 0.06175   pct 0.334   null q50/q95 0.08213/0.19922
+   off_gap   stat 0.11078   pct 0.07    null q50/q95 0.20522/0.31305
+   win_mean  stat 0.1069    pct 0.541   null q50/q95 0.10401/0.16324
+   busy      stat 0.0785    pct 0.123   null q50/q95 0.12598/0.21081
+   d_acf     stat 0.05359   pct 0.946   null q50/q95 0.01662/0.05549
+   spearman  stat 0.16638   pct 0.515   null q50/q95 0.16375/0.27479
+P3 n 100 dropped 0 real windows by cell [4274, 5726] tau band 0.994 per pair {'0-0': 0.998, '1-0': 0.9935, '2-1': 0.9501, '3-1': 0.9905}
+   ul_rate   stat 0.06559   pct 0.384   null q50/q95 0.07568/0.20711
+   dl_rate   stat 0.05723   pct 0.193   null q50/q95 0.08318/0.30049
+   ratio     stat 0.21006   pct 0.648   null q50/q95 0.18257/0.29309
+   on_run    stat 0.03045   pct 0.02    null q50/q95 0.09492/0.15978
+   off_gap   stat 0.0345    pct 0.056   null q50/q95 0.09517/0.19362
+   win_mean  stat 0.1553    pct 0.429   null q50/q95 0.16894/0.28981
+   busy      stat 0.1247    pct 0.136   null q50/q95 0.20476/0.29485
+   d_acf     stat 0.00708   pct 0.111   null q50/q95 0.01911/0.06173
+   spearman  stat 0.05685   pct 0.184   null q50/q95 0.12965/0.26173
+P4 n 100 dropped 0 real windows by cell [2751, 7249] tau band 0.995 per pair {'0-0': 0.998, '1-0': 0.9965, '2-1': 0.9517, '3-1': 0.99}
+   ul_rate   stat 0.04317   pct 0.191   null q50/q95 0.05926/0.14771
+   dl_rate   stat 0.08741   pct 0.322   null q50/q95 0.1087/0.389
+   ratio     stat 0.16733   pct 0.486   null q50/q95 0.17011/0.39552
+   on_run    stat 0.09166   pct 0.521   null q50/q95 0.08893/0.16288
+   off_gap   stat 0.01888   pct 0.029   null q50/q95 0.06897/0.16022
+   win_mean  stat 0.0921    pct 0.255   null q50/q95 0.1178/0.2136
+   busy      stat 0.137     pct 0.537   null q50/q95 0.13188/0.21131
+   d_acf     stat 0.01072   pct 0.366   null q50/q95 0.01576/0.06081
+   spearman  stat 0.04241   pct 0.136   null q50/q95 0.09957/0.24099
+   q99       stat 0.28322   pct 0.319   null q50/q95 0.56068/1.6068
+   ad        stat 8.37575   pct 0.207   null q50/q95 17.52624/81.57609

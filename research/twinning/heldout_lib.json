@@ -1,0 +1,17 @@
+{
+ "cells": [
+  {
+   "file": "madrid_I-796_persec.parquet",
+   "gap_s": 59.3
+  },
+  {
+   "file": "madrid_II-2650_persec.parquet",
+   "gap_s": 34.7
+  }
+ ],
+ "band_edges_bps": [
+  1251.4,
+  7847.3,
+  45116.1
+ ]
+}

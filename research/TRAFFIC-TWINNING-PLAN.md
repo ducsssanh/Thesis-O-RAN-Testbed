@@ -517,6 +517,17 @@ Reading: the gate catches the large factors within 2-5 seconds with traffic. x0.
 | P4 x4 | .998, 1.000 | .27, 8.53 % | 88 % | .89 % | 2.01 % |
 
 No dead window, no RLC failure, all windows kept. Normalised shape tests stay under tau* (n = 20 gives tau* of .997-1.000, a very loose bar; absolute window mean moves as expected, P4 x4 at percentile 1.0). KPM masking does not grow with scale, it moves between 0 and 4.9 % on single reps. What this bounds: the testbed and the gate behave the same up to x4 before saturation. It does not show how TCP or ABR would have behaved on a faster link; that stays a stated limit.
+### 6.6 Held-out check of the twin: protocol, fixed before the data is read (2026-11-04)
+
+Used once, reported as it is, whatever the result; nothing is tuned afterwards. The gate's held-out check is separate and comes later.
+- **Twin:** the `final2` windows of §6.5, unchanged (100 per band, active threshold 30 B).
+- **Real side:** windows of `I-796` and `II-2650` built by `madrid_windows.py` as for the build cells: 10 000 per band, band edges from the build set. T is not measured on these cells: I-796 uses 59.3 s (both group I build cells), II-2650 uses 34.7 s (midpoint of the group II build cells, 28.4 and 41.0 s).
+- **Statistics:** the same as §6.2, twin against the two held-out cells pooled.
+- **Bar:** null = n windows from a build cell against all of the held-out cell of its group: I-2650 and I-1815 against I-796, II-816 and II-1835 against II-2650; 1000 replicates. Per replicate each statistic becomes its percentile in its own null, T = the largest over **all bands together**, tau* = q95 of T. The family has 38 statistics (9, 9, 9, 11), not the 30 written in §6.3, which predates the two window statistics.
+- **Pass:** every statistic of every band at or below tau*. Per-test results and tau per band are reported too. `research/twinning/heldout_check.py` refuses to run if its result file exists.
+
+**Result, run once on 2026-11-04 (`research/twinning/out_heldout_check.txt`).** The family passes: tau* = .999, k = 38, no statistic over it. The highest percentile is P2 d_acf at .946, known from the build cells (.964, from window selection); the next is .648 (P3 ratio), and all 38 are below the 95th percentile of their null. tau per band .994-.995. Limits of this result: the bar is loose (n = 100, wide null), the held-out cells come from the same Madrid data set, operators and LTE, and T on them is borrowed, not measured. It shows the twin is no further from unseen cells than real cells are from each other; it does not show realism outside this data.
+
 ---
 
 ## 7. Parameter provenance (what is real / assumed / synthetic)
