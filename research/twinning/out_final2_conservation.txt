@@ -1,0 +1,4 @@
+P1 flows 100 |K-C|>500 B: 0 max 49 sum 440 of core 164930 | core ICMP 0 | masked per rep % [np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0)]
+P2 flows 100 |K-C|>500 B: 0 max 74 sum -25 of core 400516 | core ICMP 0 | masked per rep % [np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0), np.float64(0.0)]
+P3 flows 100 |K-C|>500 B: 3 max 2370 sum -4690 of core 3833969 | core ICMP 0 | masked per rep % [np.float64(0.72), np.float64(1.0), np.float64(0.67), np.float64(7.67), np.float64(0.0)]
+P4 flows 100 |K-C|>500 B: 16 max 3242 sum 1562 of core 71432755 | core ICMP 0 | masked per rep % [np.float64(0.61), np.float64(0.0), np.float64(0.56), np.float64(0.0), np.float64(0.0)]

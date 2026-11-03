@@ -1,0 +1,102 @@
+{
+ "band": "P1",
+ "n_windows": 100,
+ "tau_star": 0.995,
+ "tau_per_pair": {
+  "0-1": 0.9281,
+  "1-0": 0.9905,
+  "2-3": 0.9915,
+  "3-2": 0.998
+ },
+ "pass": true,
+ "worst": "win_mean",
+ "no_data": [],
+ "active_bytes": 30,
+ "replicates": 1000,
+ "tests": {
+  "ul_rate": {
+   "stat": 0.06215,
+   "percentile": 0.282,
+   "null_q50": 0.11149,
+   "null_q95": 0.21773,
+   "n_twin": 231,
+   "location": 0.8747346072186837,
+   "sign": -1
+  },
+  "dl_rate": {
+   "stat": 0.0509,
+   "percentile": 0.001,
+   "null_q50": 0.13962,
+   "null_q95": 0.22032,
+   "n_twin": 742,
+   "location": 0.3399574779084446,
+   "sign": 1
+  },
+  "ratio": {
+   "stat": 0.11724,
+   "percentile": 0.006,
+   "null_q50": 0.46339,
+   "null_q95": 0.63119,
+   "n_twin": 71,
+   "location": 0.1841715976331361,
+   "sign": -1
+  },
+  "on_run": {
+   "stat": 0.01821,
+   "percentile": 0.099,
+   "null_q50": 0.04569,
+   "null_q95": 0.0936,
+   "n_twin": 208,
+   "location": 1.0,
+   "sign": 1
+  },
+  "off_gap": {
+   "stat": 0.09039,
+   "percentile": 0.141,
+   "null_q50": 0.31578,
+   "null_q95": 0.65857,
+   "n_twin": 119,
+   "location": 16.0,
+   "sign": -1
+  },
+  "win_mean": {
+   "stat": 0.1805,
+   "percentile": 0.486,
+   "null_q50": 0.19343,
+   "null_q95": 0.29367,
+   "n_twin": 100,
+   "location": 0.26666666666666666,
+   "sign": -1
+  },
+  "busy": {
+   "stat": 0.0759,
+   "percentile": 0.111,
+   "null_q50": 0.19688,
+   "null_q95": 0.33749,
+   "n_twin": 100,
+   "location": 0.08333333333333333,
+   "sign": -1
+  },
+  "d_acf": {
+   "stat": 0.00148,
+   "percentile": 0.121,
+   "null_q50": 0.02197,
+   "null_q95": 0.05544
+  },
+  "spearman": {
+   "stat": 0.01284,
+   "percentile": 0.087,
+   "null_q50": 0.08883,
+   "null_q95": 0.19426
+  }
+ },
+ "dropped_windows": 0,
+ "runs": [
+  "artifacts/experiments/20261102-233524_ds-benign-twin-P1_final2/runs/detection-off/rep-01",
+  "artifacts/experiments/20261102-233524_ds-benign-twin-P1_final2/runs/detection-off/rep-02",
+  "artifacts/experiments/20261102-233524_ds-benign-twin-P1_final2/runs/detection-off/rep-03",
+  "artifacts/experiments/20261102-233524_ds-benign-twin-P1_final2/runs/detection-off/rep-04",
+  "artifacts/experiments/20261102-233524_ds-benign-twin-P1_final2/runs/detection-off/rep-05"
+ ],
+ "windows": "/home/ducsssanh/6G/O-RAN/DATN/Codebase/research/twinning/benign_windows.npz"
+}

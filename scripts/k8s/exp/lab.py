@@ -112,14 +112,18 @@ def amf_ids():
 def ues_no_forward(ue_names):
     """A real UE does not route. With ip_forward=1 (the image default) a DL packet of the other UE that reaches this UE goes back
     UL with an ICMP redirect: KPM counts it, the profiler does not (research/twinning/ct_root_cause/ip_forward_result.txt).
-    /proc/sys is read-only in the pods, so it is set from the node. A restarted UE needs it again."""
+    /proc/sys is read-only in the pods, so it is set from the node. A restarted UE needs it again.
+    pgrep -x: with -f the matching shell itself is hit, and that sets the NODE's ip_forward to 0 (2026-11-02), which breaks Services."""
     state = lambda: [ex("oai-ran", UES[n][0], "nr-ue", "cat", "/proc/sys/net/ipv4/ip_forward").strip() for n in ue_names]
     if set(state()) == {"0"}:
         return
-    subprocess.run(["minikube", "-p", "oai-lab", "ssh", "--", "for p in $(sudo pgrep -f nr-uesoftmodem); do sudo nsenter -t $p -n "
+    subprocess.run(["minikube", "-p", "oai-lab", "ssh", "--", "for p in $(sudo pgrep -x nr-uesoftmodem); do sudo nsenter -t $p -n "
                     "sysctl -qw net.ipv4.ip_forward=0 net.ipv4.conf.all.send_redirects=0 2>/dev/null; done"], capture_output=True, text=True, timeout=60)
     if set(state()) != {"0"}:
         raise LabError("ip_forward is still on in a UE")
+    node = subprocess.run(["minikube", "-p", "oai-lab", "ssh", "--", "cat /proc/sys/net/ipv4/ip_forward"], capture_output=True, text=True, timeout=30).stdout.strip()
+    if node != "1":
+        raise LabError("ip_forward is off on the node: pod services stop working")
 
 
 def restart_ue(name, timeout=180):
