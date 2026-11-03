@@ -50,11 +50,12 @@ REPLAY_CAP_BYTES_S = {"ul": 1_000_000, "dl": 1_000_000}
 REPLAY_SPAN = [0.05, 0.75]     # send inside this part of each second, so a second's bytes stay in one stats second
 
 
-def _replay_seconds(series, quantiles, rng, cap, overhead, tti=None):
-    """tti = (ms, bytes) of the window: each packet then carries its real send time inside the second."""
+def _replay_seconds(series, quantiles, rng, cap, overhead, tti=None, scale=1.0):
+    """tti = (ms, bytes) of the window: each packet then carries its real send time inside the second.
+    scale: LTE sensitivity only (TRAFFIC-TWINNING-PLAN 0a row 9); every second is multiplied before the clip. Never used for the dataset."""
     out, clipped, floored, no_tti = [], 0, 0, 0
     for i, v in enumerate(series):
-        v = float(v)
+        v = float(v) * scale
         if v > cap:
             v, clipped = float(cap), clipped + 1
         floored += int(0 < v < sizes.MIN_IP + overhead)
@@ -80,9 +81,10 @@ def build_replay(spec, T, dst, bind, port):
     w = schedules.real_window(band, rng, spec.get("windows_npz", schedules.WINDOWS_NPZ))
     apps = {k: v for k, v in sizes.app_priors().items() if v["band"] == band}
     app = spec.get("app") or sorted(apps)[int(rng.integers(len(apps)))]
+    scale = float(spec.get("scale", 1.0))
     tti = {d: schedules.window_tti(band, w["index"], d) for d in ("ul", "dl")} if spec.get("timing") == "tti" else {"ul": None, "dl": None}
-    ul, ul_clip, ul_floor, ul_no_tti = _replay_seconds(w["ul"], apps[app]["ul_size_q"], rng, REPLAY_CAP_BYTES_S["ul"], sizes.MAC_OVERHEAD["ul"], tti["ul"])
-    dl, dl_clip, dl_floor, dl_no_tti = _replay_seconds(w["dl"], apps[app]["dl_size_q"], rng, REPLAY_CAP_BYTES_S["dl"], sizes.MAC_OVERHEAD["dl"], tti["dl"])
+    ul, ul_clip, ul_floor, ul_no_tti = _replay_seconds(w["ul"], apps[app]["ul_size_q"], rng, REPLAY_CAP_BYTES_S["ul"], sizes.MAC_OVERHEAD["ul"], tti["ul"], scale)
+    dl, dl_clip, dl_floor, dl_no_tti = _replay_seconds(w["dl"], apps[app]["dl_size_q"], rng, REPLAY_CAP_BYTES_S["dl"], sizes.MAC_OVERHEAD["dl"], tti["dl"], scale)
     plan = {"dst": dst, "bind": bind, "ports": [port], "backend": "pacer", "process": "poisson",
             "span": REPLAY_SPAN, "seconds": ul, "dl_seconds": dl, "seed": int(spec["seed"])}
     n_pkts = sum(len(x["pkts"]) for x in ul)
@@ -92,7 +94,7 @@ def build_replay(spec, T, dst, bind, port):
             "window": {"cell": w["src"][0], "rnti": w["src"][1], "start": w["src"][2], "index": w["index"]},
             "ul_clipped_s": ul_clip, "dl_clipped_s": dl_clip, "ul_floored_s": ul_floor, "dl_floored_s": dl_floor,
             "target_mean_bytes_s": float(np.mean([x["bytes"] for x in ul])),
-            "target_dl_mean_bytes_s": float(np.mean([x["bytes"] for x in dl])), "timing": spec.get("timing", "second"), "ul_no_tti_s": ul_no_tti, "dl_no_tti_s": dl_no_tti, "params": {}}
+            "target_dl_mean_bytes_s": float(np.mean([x["bytes"] for x in dl])), "timing": spec.get("timing", "second"), "scale": scale, "ul_no_tti_s": ul_no_tti, "dl_no_tti_s": dl_no_tti, "params": {}}
     return plan, meta
 
 

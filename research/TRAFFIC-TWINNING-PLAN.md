@@ -476,6 +476,47 @@ samples ≤ x differ by D; everywhere else by less.*
   headline attack claim is robustness across the L1/L2/L3 boundary under an adaptive attacker (Kerckhoffs), reported
   as a delay-vs-false-alarm curve per evasion level.
 
+
+### 6.5 Results on the build cells (step 2, 2026-11-03; held-out cells not used)
+
+**Twin, tag `final2` (P1-P4, 100 windows each, 0 dropped; `research/twinning/out_final2_report.txt`).** Every test stays under tau*, so all four bands pass. tau* is near 1 (.994-.995), so the bar is loose, and the twin replays real windows: this shows the testbed does not distort the replay, it is not independent evidence of realism. Worst test per band: P1 win_mean .486, P2 d_acf .964 (the selected real windows themselves give 0.0575), P3 ratio .508, P4 d_acf .291. Open: P2 UL MAC/target .964, P3 DL per-second correlation .784.
+
+**Gate, honest traffic on the twin (seconds with at least 1 kB).** Band +-0.2.
+
+| band | gate seconds | c_t 1 s q01 / q99 | outside, 1 s | outside, 3 s | KPM masked |
+|---|---|---|---|---|---|
+| P1 | 70 | -.221 / .039 | 1.43 % | 1.43 % | 0 % |
+| P2 | 156 | -.586 / .332 | 3.85 % | 1.92 % | 0 % |
+| P3 | 777 | -.574 / .476 | 5.53 % | 1.80 % | 2.57 % (rep-04 alone 7.67 %, unexplained) |
+| P4 | 3273 | -.234 / .295 | 3.24 % | .43 % | .40 % |
+
+**Gate, `ct_gate.py` on steady and bursty synthetic traffic, pass judged on c_t_w, sender phase 0 / .5 / .95 of the second (`ct_root_cause/ct_gate_phase_*`).** All pass; 3 s honest outside 0 %, KPM not masked. Time to mask: x0.33 2.6-3.5 s, x0.1 3.1-3.6 s, x0.8 4.3-5.8 s (51-61 kB misreported first), x2 2.8-3.3 s, x5 2.4-2.9 s, x1.25 3.5-7.0 s (17-29 kB). UE2 honest outside at 1 s is 6.0 % / 0 % / 4.0 % by phase, which supports the explanation that the 1 s figure follows where a burst ends against the second (earlier 10.5 % and 1 %; the run behind the 1 % was not kept).
+
+**Gate, live tamper over the P4 twin (`ct_root_cause/tamper_live_results.txt`, 2 runs, one tampered UE each, 20 episodes of 50 s with 30 s between, KPM UL only).** A mask needs traffic: trust updates only on seconds with at least 1 kB, so on real bursty traffic the wall clock depends on when the UE sends. Episodes that started masked (4) or had too little traffic are excluded from time to mask.
+
+| factor | time to mask, s | gate seconds before the mask | bytes misreported before the mask (UL of the episode) |
+|---|---|---|---|
+| x0.1 | 6.7 | 4 | 32.9 kB (36.5 kB) |
+| x0.33 | 3.7, 3.9 | 3, 3 | 175 kB (3.26 MB), 39.7 kB (868 kB) |
+| x0.8 | 29.9; **not masked twice** | 6; 5 and 5 | 16.7 kB (275 kB); 4.4 kB (22 kB) and 10.3 kB (51 kB) |
+| x1.25 | 5.7, 21.9, 4.9 | 5, 16, 4 | 33.4 kB (605 kB), 32.5 kB (402 kB), 26.5 kB (146 kB) |
+| x2 | 44.7, 4.9 | 3, 3 | 151 kB (422 kB), 19.1 kB (99 kB) |
+| x5 | 20.9 | 2 | 102 kB (294 kB) |
+
+Reading: the gate catches the large factors within 2-5 seconds with traffic. x0.8 and x1.25 sit on the band edge (log .8 = -.22), so they can pass unmasked over a short active stretch. After an episode ends the mask stays 10-25 s (trust must climb back); in 3 of 20 the mask was still on 30 s later. Trust is per E2 node, so the honest UE of the node is masked too (35 % and 54 % of its gate seconds), while its own c_t_w stays in band (1.2 % and 0 % outside). Honest gate seconds before the first and after the last episode: 61, 0 masked; too few to state a false-mask rate, the table above does that. One false mask did occur between episodes: run 780, 6 s, starting 26.8 s after a x0.8 episode ended, with trust not fully recovered (cause not checked window by window). 5 of the 20 episodes had 0-1 gate seconds, and x0.1 and x5 have one usable episode each, so these numbers describe the runs and support no rate.
+
+**LTE sensitivity, every second x2 and x4 (`out_lte_sensitivity.txt`, `out_lte_validate.txt`; 1 rep, 20 windows per set; `scale` in the scenario, never used for the dataset).**
+
+| set | MAC/plan UL, DL | clipped s UL, DL | cell PRB UL q99 | outside 3 s | KPM masked |
+|---|---|---|---|---|---|
+| P3 x1 (`final2`, 100 windows) | .999, .993 | 0, .07 % | 48 % | 1.80 % | 2.57 % |
+| P3 x2 | .996, 1.004 | 0, .13 % | 48 % | 1.05 % | 4.88 % |
+| P3 x4 | .993, 1.002 | 0, .33 % | 60 % | 1.42 % | 0 % |
+| P4 x1 (`final2`, 100 windows) | 1.000, 1.000 | 0, 1.33 % | 73 % | .43 % | .40 % |
+| P4 x2 | 1.000, 1.001 | .13, 3.2 % | 83 % | .47 % | 0 % |
+| P4 x4 | .998, 1.000 | .27, 8.53 % | 88 % | .89 % | 2.01 % |
+
+No dead window, no RLC failure, all windows kept. Normalised shape tests stay under tau* (n = 20 gives tau* of .997-1.000, a very loose bar; absolute window mean moves as expected, P4 x4 at percentile 1.0). KPM masking does not grow with scale, it moves between 0 and 4.9 % on single reps. What this bounds: the testbed and the gate behave the same up to x4 before saturation. It does not show how TCP or ABR would have behaved on a faster link; that stays a stated limit.
 ---
 
 ## 7. Parameter provenance (what is real / assumed / synthetic)
@@ -531,6 +572,12 @@ Everything downstream (the DRL replay environment, baselines) consumes this data
 ## 9. Limitations (state them, do not paper over)
 
 - **DL spill between seconds (measured 2026-11-02).** A large DL second does not all leave within that second at the testbed; part of it lands in the next second. In the second-timed P3 and P4 runs about 1.1 % of active DL seconds were off, seen from about 250 kB/s; total bytes still match (P4 MAC/target 1.000). DL capacity was not measured, so the cause is not established. Lowering the 1 MB/s clip would remove it at the cost of the real P4 tail; it is kept and stated.
+- **Second boundary (2026-11-02).** KPM and the profiler close their seconds apart, so the same bytes can land in different seconds; isolated bursts about 23 ms, under steady load up to 136-160 ms of traffic, cause of the variation unknown. c_t per second stays noisy (§6.5), and only the 3 s sum updates trust. Detection therefore takes at least 2 windows with traffic.
+- **Small tampering on bursty traffic (2026-11-03).** x0.8 and x1.25 reach at most +-0.223 against a band of +-0.2, so a window falls either side almost by chance (45-67 % in band in the episodes with traffic). The byte floor shrinks the ratio further: under about 29 kB in 3 s x0.8 cannot leave the band, under about 23 kB x1.25 cannot (computed from the formula). x0.8 passed unmasked twice (§6.5). The band is not changed to hide this.
+- **Trust is per E2 node, pooled over its UEs.** A tamper of one UE masks the KPM of every UE of the node until trust recovers, 10-25 s or more after it ends. Honest UEs also dilute the signal: long-run trust is about the in-band share of all samples, so with 7 or more equally active UEs one tampered UE would keep trust above the 0.85 mask threshold, even at x0.1. This is derived from `features.c`, not measured (the testbed has 2 UEs); run 781 shows the effect at x1.25, masked and unmasked during one episode. Per-UE trust can be recomputed offline from the logged features, since runs have the defense off; to be done before the gate's held-out check.
+- **DL cross delivery between UEs.** A DL packet for one UE occasionally reaches the other (cause unknown, RFsim or OAI). With ip_forward=0 on the UEs it is dropped, about 60 packets per rep in InAddrErrors, instead of returning UL.
+- **Open-loop replay.** Traffic is replayed from the real series and does not react to the testbed, unlike TCP or ABR. x2 and x4 bound the effect on testbed and gate only (§6.5).
+- **Silent failures and restarts.** An SMF crash can kill DL without failing the run (per-rep QA, dead windows); a gNB stall moved the KPM phase once to 401 ms, real mechanism not found, the watchdog is unit tested only; an xApp restart turns the defense on by default, so that rep is dropped.
 - Madrid is **LTE**, not 5G NR; we twin *user demand* (rate/timing), which is largely RAT-independent, while the gNB
   scheduler and capacity are the testbed's own. No public 5G per-UE commercial trace exists (checked 2026-10-28).
 - TBS includes retransmissions/padding; RNTI reuse fragments long sessions → session *duration* is unreliable (rate

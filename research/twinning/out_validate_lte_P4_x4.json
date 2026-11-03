@@ -1,0 +1,110 @@
+{
+ "band": "P4",
+ "n_windows": 20,
+ "tau_star": 1.0,
+ "tau_per_pair": {
+  "0-1": 1.0,
+  "1-0": 0.997,
+  "2-3": 0.9785,
+  "3-2": 0.993
+ },
+ "pass": true,
+ "worst": "win_mean",
+ "no_data": [],
+ "active_bytes": 30,
+ "replicates": 1000,
+ "tests": {
+  "ul_rate": {
+   "stat": 0.06278,
+   "percentile": 0.062,
+   "null_q50": 0.12547,
+   "null_q95": 0.21455,
+   "n_twin": 978,
+   "location": 0.9105977474768321,
+   "sign": 1
+  },
+  "dl_rate": {
+   "stat": 0.06891,
+   "percentile": 0.0689,
+   "null_q50": 0.13788,
+   "null_q95": 0.64661,
+   "n_twin": 939,
+   "location": 0.9047525770671629,
+   "sign": -1
+  },
+  "ratio": {
+   "stat": 0.08787,
+   "percentile": 0.0341,
+   "null_q50": 0.21547,
+   "null_q95": 0.89712,
+   "n_twin": 924,
+   "location": 1.70595750117106,
+   "sign": 1
+  },
+  "on_run": {
+   "stat": 0.11783,
+   "percentile": 0.459,
+   "null_q50": 0.12481,
+   "null_q95": 0.24102,
+   "n_twin": 87,
+   "location": 1.0,
+   "sign": -1
+  },
+  "off_gap": {
+   "stat": 0.04897,
+   "percentile": 0.031,
+   "null_q50": 0.12259,
+   "null_q95": 0.27657,
+   "n_twin": 67,
+   "location": 2.0,
+   "sign": -1
+  },
+  "win_mean": {
+   "stat": 0.5433,
+   "percentile": 1.0,
+   "null_q50": 0.22302,
+   "null_q95": 0.3711,
+   "n_twin": 20,
+   "location": 87739.6,
+   "sign": -1
+  },
+  "busy": {
+   "stat": 0.2765,
+   "percentile": 0.765,
+   "null_q50": 0.22378,
+   "null_q95": 0.34995,
+   "n_twin": 20,
+   "location": 0.7,
+   "sign": -1
+  },
+  "d_acf": {
+   "stat": 0.02143,
+   "percentile": 0.19,
+   "null_q50": 0.04803,
+   "null_q95": 0.19723
+  },
+  "spearman": {
+   "stat": 0.07641,
+   "percentile": 0.321,
+   "null_q50": 0.1172,
+   "null_q95": 0.2759
+  },
+  "q99": {
+   "stat": 0.77809,
+   "percentile": 0.305,
+   "null_q50": 1.33295,
+   "null_q95": 2.91317
+  },
+  "ad": {
+   "stat": 5.62739,
+   "percentile": 0.1,
+   "null_q50": 14.28091,
+   "null_q95": 69.93587
+  }
+ },
+ "dropped_windows": 0,
+ "runs": [
+  "artifacts/experiments/20261103-235134_ds-benign-twin-P4-x4_lte/runs/detection-off/rep-01"
+ ],
+ "windows": "/home/ducsssanh/6G/O-RAN/DATN/Codebase/research/twinning/benign_windows.npz"
+}

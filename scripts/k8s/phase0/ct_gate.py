@@ -4,11 +4,13 @@
 Defense actions are off for the whole check; the gate runs on the features anyway. Traffic: UE1 steady UDP with large
 packets, UE2 UDP bursts (3 s on, 2 s off) with small packets, so that per-packet overhead matters. Phases: honest, then
 hiding on UE1 and framing on UE2 through the xApp's tamper API (KPM scaled at ingest, ground truth logged by the xApp).
-Prints, per phase and UE, the KPM window phase, the c_t quantiles of seconds with traffic, the share outside the band and
-the node trust. Pass: honest c_t inside the band for >= 98 % of seconds, and every large tamper level outside it in
->= 90 % of the tampered UE's seconds with traffic. Near-threshold levels are reported only.
+Prints, per phase and UE, the KPM window phase, the c_t and c_t_w (3 s) quantiles of seconds with traffic, the share outside the
+band, the node trust, the time from the tamper start to the first masked second and the bytes hidden by then. Pass, on c_t_w which
+is what masks KPM: honest inside the band for >= 98 % of seconds, and every large tamper level outside it in >= 90 % of the tampered
+UE's seconds with traffic. Near-threshold levels are reported only. c_t per second is reported, not judged: bursts that end just after
+a second boundary leave it out of band with all bytes intact (research/twinning/ct_root_cause).
 
-Usage: ct_gate.py <out.json> [honest_s=120] [tamper_s=30]"""
+Usage: ct_gate.py <out.json> [honest_s=120] [tamper_s=30] [phase_s=0.0] [gap_s=30]; phase_s = fraction of a second at which senders start"""
 import json, subprocess, sys, time
 import numpy as np
 
@@ -22,6 +24,7 @@ LARGE = {0.33, 0.1, 2, 5}
 SENDER = """
 import socket,time,sys
 kbps,size,on,off,T=float(sys.argv[1]),int(sys.argv[2]),float(sys.argv[3]),float(sys.argv[4]),float(sys.argv[5])
+start=float(sys.argv[7]);now=time.time();time.sleep((start-now%1)%1+1)
 s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM);d=(sys.argv[6],5001);p=b'x'*size
 gap=size*8/(kbps*1000);t0=time.time();n=time.time()
 while time.time()-t0<T:
@@ -42,15 +45,17 @@ def xapp_api(path, body=None):
 
 def sender(ue, kbps, size, on, off, seconds):
     return subprocess.Popen(K + ["-n", "oai-ran", "exec", f"deploy/{ue}", "-c", "nr-ue", "--", "python3", "-c", SENDER, str(kbps), str(size),
-                                 str(on), str(off), str(seconds), DN], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                 str(on), str(off), str(seconds), DN, str(phase_s)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 out = sys.argv[1]
 honest_s = int(sys.argv[2]) if len(sys.argv) > 2 else 120
 tamper_s = int(sys.argv[3]) if len(sys.argv) > 3 else 30
+phase_s = float(sys.argv[4]) if len(sys.argv) > 4 else 0.0
+gap_s = int(sys.argv[5]) if len(sys.argv) > 5 else 30
 ue1, ue2 = UES["oai-nr-ue"], UES["oai-nr-ue2"]
 steps = [("hide", ue1, 0.33), ("hide", ue1, 0.1), ("hide", ue1, 0.8), ("frame", ue2, 2), ("frame", ue2, 5), ("frame", ue2, 1.25)]
-total = honest_s + len(steps) * (tamper_s + 10) + 20
+total = honest_s + len(steps) * (tamper_s + gap_s) + 20
 xapp_api("/v1/defense/enabled", {"enabled": False})
 xapp_api("/v1/defense/tamper", {"off": True})
 procs = [sender("oai-nr-ue", 400, 1000, 1, 0, total), sender("oai-nr-ue2", 150, 120, 3, 2, total)]
@@ -60,12 +65,11 @@ time.sleep(honest_s)
 marks[-1] += (time.time(),)
 for name, supi, factor in steps:
     xapp_api("/v1/defense/tamper", {"supi": supi, "factor": factor})
-    time.sleep(2)
     t0 = time.time()
-    time.sleep(tamper_s - 2)
+    time.sleep(tamper_s)
     xapp_api("/v1/defense/tamper", {"supi": supi, "off": True})
     marks.append((f"{name} x{factor}", supi, factor, t0, time.time()))
-    time.sleep(10)
+    time.sleep(gap_s)
 for p in procs:
     p.wait()
 n_lines = (total + 60) * 2
@@ -84,11 +88,18 @@ for name, supi, factor, t0, t1 in marks:
         v = [r for r in rows if r["supi"] == s and t0 * 1000 <= r["collect_ms"] <= t1 * 1000 and "c_t" in r]
         act = [r for r in v if r["rate_ul_kbps"] * 125 >= EPS or r.get("prof_ul_kbps", 0) * 125 >= EPS]
         ct = np.array([r["c_t"] for r in act]) if act else np.array([0.0])
-        out_share = float(np.mean((ct < LO) | (ct > HI)))
+        ctw = np.array([r.get("c_t_w", 0.0) for r in act]) if act else np.array([0.0])
+        out_share = float(np.mean((ctw < LO) | (ctw > HI)))
+        out_1s = float(np.mean((ct < LO) | (ct > HI)))
+        vs = sorted(v, key=lambda r: r["collect_ms"])
+        first = next((r for r in vs if r["kpm_masked"]), None)
+        core = lambda r: max(r.get("prof_ul_kbps", 0) * 125 - 57 * r.get("prof_ul_pps", 0), 0)
+        hidden = sum(abs(r["rate_ul_kbps"] * 125 - core(r)) for r in vs if first and r["collect_ms"] <= first["collect_ms"])
         phase = float(np.median([r["collect_ms"] % 1000 for r in v])) if v else float("nan")
         row = {"phase": name, "supi": s[-3:], "seconds": len(v), "with_traffic": len(act), "kpm_phase_ms": phase,
                "ct_q01": round(float(np.quantile(ct, .01)), 2), "ct_q50": round(float(np.quantile(ct, .5)), 2),
-               "ct_q99": round(float(np.quantile(ct, .99)), 2), "out_of_band": round(out_share, 3),
+               "ct_q99": round(float(np.quantile(ct, .99)), 2), "out_of_band_3s": round(out_share, 3), "out_of_band_1s": round(out_1s, 3), "ctw_q01": round(float(np.quantile(ctw, .01)), 2), "ctw_q99": round(float(np.quantile(ctw, .99)), 2),
+               "first_mask_s": round(first["collect_ms"] / 1000 - t0, 1) if first and supi else None, "bytes_by_mask": int(hidden) if supi else None,
                "min_trust": round(min((r["kpm_trust"] for r in v), default=1.0), 2), "masked": any(r["kpm_masked"] for r in v),
                "prof_age_p99_s": round(float(np.quantile([r.get("prof_age_s", 0) for r in v], .99)), 3) if v else None}
         report.append(row)

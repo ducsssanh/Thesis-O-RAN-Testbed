@@ -1,0 +1,36 @@
+UE 780 seconds 900 gate seconds 237
+ x0.8   masked at start False | time to mask  never s (5 of 5 gate s before) | UL    22218 B | misreported before mask    4444 B | masked on gate s   0.0% | recovery 0.0 s
+ x1.25  masked at start False | time to mask    5.7 s (5 of 44 gate s before) | UL   604782 B | misreported before mask   33371 B | masked on gate s  88.6% | recovery 21.7 s
+ x0.33  masked at start False | time to mask    3.7 s (3 of 50 gate s before) | UL  3257716 B | misreported before mask  175347 B | masked on gate s  94.0% | recovery 11.7 s
+ x2     masked at start False | time to mask  never s (0 of 0 gate s before) | UL      625 B | misreported before mask     625 B | masked on gate s   nan% | recovery 0.0 s
+ x0.1   masked at start False | time to mask    6.7 s (4 of 4 gate s before) | UL    36529 B | misreported before mask   32876 B | masked on gate s   0.0% | recovery no s
+ x5     masked at start True  | time to mask    0.7 s (0 of 0 gate s before) | UL        0 B | misreported before mask       0 B | masked on gate s   nan% | recovery 0.0 s
+ x0.8   masked at start False | time to mask  never s (5 of 5 gate s before) | UL    51266 B | misreported before mask   10253 B | masked on gate s   0.0% | recovery 0.7 s
+ x1.25  masked at start True  | time to mask    0.7 s (0 of 2 gate s before) | UL    15036 B | misreported before mask       0 B | masked on gate s   0.0% | recovery 0.0 s
+ x0.33  masked at start False | time to mask  never s (0 of 0 gate s before) | UL      539 B | misreported before mask     361 B | masked on gate s   nan% | recovery 0.0 s
+ x2     masked at start False | time to mask   44.7 s (3 of 9 gate s before) | UL   422323 B | misreported before mask  151024 B | masked on gate s  66.7% | recovery 22.7 s
+ honest before first episode: gate s 5, masked 0.00%
+ honest after last episode + 30 s: gate s 37, masked 0.00%
+ other UE (honest throughout): gate s 334, masked 34.73%, 1 s out 5.09%, 3 s out 1.20%
+UE 781 seconds 902 gate seconds 347
+ x0.8   masked at start False | time to mask   29.9 s (6 of 22 gate s before) | UL   275279 B | misreported before mask   16680 B | masked on gate s  72.7% | recovery 23.9 s
+ x1.25  masked at start False | time to mask   21.9 s (16 of 39 gate s before) | UL   402439 B | misreported before mask   32476 B | masked on gate s  48.7% | recovery 21.9 s
+ x0.33  masked at start False | time to mask    3.9 s (3 of 50 gate s before) | UL   868429 B | misreported before mask   39685 B | masked on gate s  94.0% | recovery 9.9 s
+ x2     masked at start False | time to mask  never s (1 of 1 gate s before) | UL     6254 B | misreported before mask    6254 B | masked on gate s   0.0% | recovery 0.0 s
+ x0.1   masked at start False | time to mask  never s (0 of 0 gate s before) | UL        0 B | misreported before mask       0 B | masked on gate s   nan% | recovery 0.0 s
+ x5     masked at start False | time to mask   20.9 s (2 of 27 gate s before) | UL   293716 B | misreported before mask  102060 B | masked on gate s  92.6% | recovery no s
+ x0.8   masked at start True  | time to mask    0.9 s (0 of 27 gate s before) | UL   292470 B | misreported before mask       0 B | masked on gate s 100.0% | recovery 14.9 s
+ x1.25  masked at start False | time to mask    4.9 s (4 of 12 gate s before) | UL   146482 B | misreported before mask   26472 B | masked on gate s  66.7% | recovery no s
+ x0.33  masked at start True  | time to mask    0.9 s (0 of 17 gate s before) | UL   283553 B | misreported before mask       0 B | masked on gate s 100.0% | recovery 24.9 s
+ x2     masked at start False | time to mask    4.9 s (3 of 23 gate s before) | UL    99260 B | misreported before mask   19071 B | masked on gate s  87.0% | recovery 12.9 s
+ honest before first episode: gate s 0, masked 0.00%
+ honest after last episode + 30 s: gate s 19, masked 0.00%
+ other UE (honest throughout): gate s 240, masked 53.75%, 1 s out 2.50%, 3 s out 0.00%
+
+by factor (both runs, episodes with a mask at start excluded from time to mask):
+ x0.1   episodes 2 masked 1 | fresh time to mask ['6.7'] | misreported before mask [32876, 0] B | UL in episode [36529, 0] B | gate s [4, 0]
+ x0.33  episodes 4 masked 3 | fresh time to mask ['3.7', '3.9'] | misreported before mask [175347, 361, 39684, 0] B | UL in episode [3257716, 539, 868429, 283553] B | gate s [50, 0, 50, 17]
+ x0.8   episodes 4 masked 2 | fresh time to mask ['29.9'] | misreported before mask [4443, 10253, 16680, 0] B | UL in episode [22218, 51266, 275279, 292470] B | gate s [5, 5, 22, 27]
+ x1.25  episodes 4 masked 4 | fresh time to mask ['5.7', '21.9', '4.9'] | misreported before mask [33371, 0, 32475, 26472] B | UL in episode [604782, 15036, 402439, 146482] B | gate s [44, 2, 39, 12]
+ x2     episodes 4 masked 2 | fresh time to mask ['44.7', '4.9'] | misreported before mask [625, 151024, 6254, 19071] B | UL in episode [625, 422323, 6254, 99260] B | gate s [0, 9, 1, 23]
+ x5     episodes 2 masked 2 | fresh time to mask ['20.9'] | misreported before mask [0, 102060] B | UL in episode [0, 293716] B | gate s [0, 27]
