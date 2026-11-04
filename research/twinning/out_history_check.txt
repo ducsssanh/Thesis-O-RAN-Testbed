@@ -1,0 +1,24 @@
+benign twin-only episodes: campaign 773 final2 400
+final2 against the campaign, 3 episode-level history values: AUC 0.896 (n 288, 400)
+campaign episodes, history of the same band | history alone, seconds at 50 kbit/s or more: AUC 0.582
+  seconds at 50 kbit/s or more (flood against high benign), AUC without and with history:
+    L1 all    n+  9752 n-  2441  0.999 -> 0.999
+    L1 P1-P3  n+  6681 n-   141  1.000 -> 1.000
+    L1 P4     n+  3071 n-  2300  0.998 -> 0.998
+    L2 all    n+  4118 n-  2441  0.905 -> 0.908
+    L2 P1-P3  n+  2732 n-   141  0.956 -> 0.961
+    L2 P4     n+  1386 n-  2300  0.868 -> 0.845
+    L3 all    n+  9264 n-  2441  0.966 -> 0.959 | against the same client as benign n- 4538  0.559 -> 0.565
+    L3 P1-P3  n+  6957 n-   141  0.974 -> 0.960 | against the same client as benign n- 3054  0.476 -> 0.492
+    L3 P4     n+  2307 n-  2300  0.964 -> 0.960 | against the same client as benign n- 1484  0.727 -> 0.725
+campaign episodes, history matched to the level of the twin window | history alone, seconds at 50 kbit/s or more: AUC 0.558
+  seconds at 50 kbit/s or more (flood against high benign), AUC without and with history:
+    L1 all    n+  9752 n-  2441  0.999 -> 0.999
+    L1 P1-P3  n+  6681 n-   141  1.000 -> 0.999
+    L1 P4     n+  3071 n-  2300  0.998 -> 0.999
+    L2 all    n+  4118 n-  2441  0.905 -> 0.931
+    L2 P1-P3  n+  2732 n-   141  0.956 -> 0.956
+    L2 P4     n+  1386 n-  2300  0.868 -> 0.875
+    L3 all    n+  9264 n-  2441  0.966 -> 0.968 | against the same client as benign n- 4538  0.559 -> 0.561
+    L3 P1-P3  n+  6957 n-   141  0.974 -> 0.954 | against the same client as benign n- 3054  0.476 -> 0.481
+    L3 P4     n+  2307 n-  2300  0.964 -> 0.969 | against the same client as benign n- 1484  0.727 -> 0.738

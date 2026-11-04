@@ -1,0 +1,6 @@
+sessions of at least 150 s: 856395
+Spearman, UL bytes of stretch 1 and stretch 2: 0.295
+  P1 n 801333 Spearman 0.158
+  P2 n 22152 Spearman 0.217
+  P3 n 20740 Spearman 0.310
+  P4 n 12170 Spearman 0.319
