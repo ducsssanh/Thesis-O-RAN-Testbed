@@ -1,0 +1,45 @@
+name: ds-heldout-twin-P1
+description: |
+  Benign twin validation, band P1 (TRAFFIC-TWINNING-PLAN §6): 5 reps x 10 phases x 2 UEs = 100 real 75 s windows, each rep with
+  its own windows (run.py adds the rep to the seed). `grid: gnb` keeps each sent second inside one gNB stats second.
+  Compare with research/twinning/validate_twin.py. Needs the long keep-alive and T2 of deploy/k8s/values/minikube.yaml. Detection off.
+ues: {ue1: benign, ue2: benign}
+reps: 5
+drain: {quiet_kbps: 300, timeout_s: 120}
+tail_s: 5
+variants:
+  - name: detection-off
+    defense: {enabled: false, core: false}
+phases:
+  - {name: idle, duration: 10}
+  - {name: w01, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11001}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12001}}}}
+  - {name: w02, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11002}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12002}}}}
+  - {name: w03, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11003}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12003}}}}
+  - {name: w04, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11004}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12004}}}}
+  - {name: w05, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11005}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12005}}}}
+  - {name: w06, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11006}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12006}}}}
+  - {name: w07, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11007}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12007}}}}
+  - {name: w08, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11008}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12008}}}}
+  - {name: w09, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11009}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12009}}}}
+  - {name: w10, duration: 75, flows: {
+        ue1: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 11010}},
+        ue2: {ul: {v4: true, model: real_window, backend: pacer, band: P1, grid: gnb, timing: tti, windows_npz: research/twinning/heldout_windows.npz, tti_npz: research/twinning/heldout_windows_tti.npz, role: benign, seed: 12010}}}}
+report: []

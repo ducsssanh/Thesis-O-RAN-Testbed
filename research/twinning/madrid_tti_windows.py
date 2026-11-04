@@ -3,8 +3,8 @@
 Output research/twinning/benign_windows_tti.npz, per band and direction: <d>_<band>_off (n+1 row offsets per window),
 <d>_<band>_ms (uint32, ms from the window start), <d>_<band>_b (float32, bytes = tbs_sum / 8, tbs_sum is in bits).
 Checks that the TTIs of each window sum to its per-second row in benign_windows.npz and prints the share that match.
-Usage: madrid_tti_windows.py"""
-import pathlib
+Usage: madrid_tti_windows.py [heldout]   heldout: the windows of heldout_windows.npz from the raw I-796 and II-2650, for the gate check of TRAFFIC-TWINNING-PLAN 6.7"""
+import pathlib, sys
 import numpy as np
 import pyarrow.parquet as pq
 
@@ -14,8 +14,11 @@ CELLS = [["I-2650-raw-df-ms.parquet"], ["I-1815-raw-df-ms.parquet"],
          ["II-816-raw-df-ms-part1.parquet", "II-816-raw-df-ms-part2.parquet"],
          ["II-1835-raw-df-ms-part1.parquet", "II-1835-raw-df-ms-part2.parquet"]]
 BANDS, LEN = ("P1", "P2", "P3", "P4"), 75
+HELD = len(sys.argv) > 1 and sys.argv[1] == "heldout"
+if HELD:
+    CELLS = [["I-796-raw-df-ms.parquet"], ["II-2650-raw-df-ms.parquet"]]
 
-z = np.load(HERE / "benign_windows.npz")
+z = np.load(HERE / ("heldout_windows.npz" if HELD else "benign_windows.npz"))
 rows = {(b, d): [[] for _ in range(len(z["src_" + b]))] for b in BANDS for d in (0, 1)}
 for c, parts in enumerate(CELLS):
     wins = {}
@@ -69,5 +72,5 @@ for b in BANDS:
         out[f"{name}_{b}_ms"] = np.concatenate(ms)
         out[f"{name}_{b}_b"] = np.concatenate(by)
         print(b, name, "TTIs", off[-1], "active seconds matching the per-second row: %d / %d" % (good, active), flush=True)
-np.savez_compressed(HERE / "benign_windows_tti.npz", **out)
-print("saved", (HERE / "benign_windows_tti.npz").stat().st_size)
+np.savez_compressed(HERE / "heldout_windows_tti.npz" if HELD else "benign_windows_tti.npz", **out)
+print("saved", (HERE / "heldout_windows_tti.npz" if HELD else "benign_windows_tti.npz").stat().st_size)

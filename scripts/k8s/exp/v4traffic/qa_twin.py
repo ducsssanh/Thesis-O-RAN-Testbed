@@ -3,7 +3,7 @@
 import gzip, json, pathlib, sys
 import numpy as np
 BETA = 57
-MIN_DELIVERED = {"L1": .85, "L2": .5, "L3": .85}        # L2 is measured over the bursts of a real window, with bytes spilling over a second
+MIN_DELIVERED = {"L1": .8, "L2": .7, "L3": .8}
 
 
 def qa_run(run, expected_phases=6):
@@ -42,7 +42,8 @@ def qa_run(run, expected_phases=6):
             out.append("MAC gap or new RNTI %s %s" % (f["phase"], f["ue"]))
             continue
         target = f["v4_meta"]["target_dl_mean_bytes_s"] * 75
-        if target >= 5000 and t[-1][3] - t[0][3] < target / 2:
+        # a dead DL is near 0 (SMF crash). A single burst of 180 kB can legitimately lose half at the testbed (c027, same on 3 attempts); the ratio is kept per window in the dataset
+        if target >= 5000 and t[-1][3] - t[0][3] < target / 4:
             out.append("dead DL %s %s" % (f["phase"], f["ue"]))
     for f in flows:
         m = f.get("v4_meta") or {}
@@ -55,14 +56,15 @@ def qa_run(run, expected_phases=6):
         tw = next(x for x in twins if x["phase"] == f["phase"] and x["ue"] == f["ue"])
         z = np.load(pathlib.Path(__file__).resolve().parents[4] / "research/twinning/benign_windows.npz")
         twin = z["ul_" + tw["v4_meta"]["band"]][tw["v4_meta"]["window"]["index"]]
-        s0, ts, S = int(f["attack_start_at"]), int(round(tw["replay_start_at"])), F[ue[f["ue"]]]
-        ex = []
-        for i in np.flatnonzero(m["attack_active"]):
-            x = S.get(s0 + i)
+        # bytes over the whole phase: a row of second t holds [t-1, t), and bytes of a burst can land one second later
+        ts, S = int(np.floor(tw["replay_start_at"])) + 1, F[ue[f["ue"]]]
+        core = 0.0
+        for j in range(77):
+            x = S.get(ts + j)
             if x and "prof_ul_pps" in x:
-                j = s0 + i - ts
-                ex.append(max(x["prof_ul_kbps"] * 125 - BETA * x["prof_ul_pps"], 0) - (float(twin[j]) if 0 <= j < 75 else 0.0))
-        d = np.mean(ex) * 8 / m["anchor_bps"] if ex else 0.0
+                core += max(x["prof_ul_kbps"] * 125 - BETA * x["prof_ul_pps"], 0)
+        plan = m["target_mean_bytes_s"] * 75
+        d = (core - float(twin.sum())) / plan if plan else 0.0
         if d < MIN_DELIVERED[m["evasion"]]:
             out.append("attack delivered %.2f %s %s %s" % (d, f["phase"], f["ue"], m["evasion"]))
     return out

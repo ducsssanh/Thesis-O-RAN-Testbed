@@ -82,7 +82,7 @@ def build_replay(spec, T, dst, bind, port):
     apps = {k: v for k, v in sizes.app_priors().items() if v["band"] == band}
     app = spec.get("app") or sorted(apps)[int(rng.integers(len(apps)))]
     scale = float(spec.get("scale", 1.0))
-    tti = {d: schedules.window_tti(band, w["index"], d) for d in ("ul", "dl")} if spec.get("timing") == "tti" else {"ul": None, "dl": None}
+    tti = {d: schedules.window_tti(band, w["index"], d, spec.get("tti_npz", schedules.WINDOWS_TTI_NPZ)) for d in ("ul", "dl")} if spec.get("timing") == "tti" else {"ul": None, "dl": None}
     ul, ul_clip, ul_floor, ul_no_tti = _replay_seconds(w["ul"], apps[app]["ul_size_q"], rng, REPLAY_CAP_BYTES_S["ul"], sizes.MAC_OVERHEAD["ul"], tti["ul"], scale)
     dl, dl_clip, dl_floor, dl_no_tti = _replay_seconds(w["dl"], apps[app]["dl_size_q"], rng, REPLAY_CAP_BYTES_S["dl"], sizes.MAC_OVERHEAD["dl"], tti["dl"], scale)
     plan = {"dst": dst, "bind": bind, "ports": [port], "backend": "pacer", "process": "poisson",

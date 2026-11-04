@@ -528,6 +528,13 @@ Used once, reported as it is, whatever the result; nothing is tuned afterwards. 
 
 **Result, run once on 2026-11-04 (`research/twinning/out_heldout_check.txt`).** The family passes: tau* = .999, k = 38, no statistic over it. The highest percentile is P2 d_acf at .946, known from the build cells (.964, from window selection); the next is .648 (P3 ratio), and all 38 are below the 95th percentile of their null. tau per band .994-.995. Limits of this result: the bar is loose (n = 100, wide null), the held-out cells come from the same Madrid data set, operators and LTE, and T on them is borrowed, not measured. It shows the twin is no further from unseen cells than real cells are from each other; it does not show realism outside this data.
 
+### 6.7 Held-out check of the gate: protocol, fixed before the data is read (2026-11-04)
+
+Used once, reported as it is; nothing is tuned afterwards. Windows of `I-796` and `II-2650` (`heldout_windows.npz`, §6.6) are replayed on the testbed with their real TTIs, as `final2` did for the build cells: 5 reps of 20 windows per band, UEs with ip_forward=0, sidecar at 1 core, detection off, honest traffic only. Gate seconds as in §6.5.
+- **Measured per band:** c_t outside +-0.2 at 1 s and at 3 s; KPM masked with node trust (as the xApp runs) and with per-UE trust (`tamper_replay.gate`, §9), both replayed offline from the same rows.
+- **Pass, per band and for both trust scopes:** outside at 3 s at most 5 %, masked at most 5 %. This bar is chosen now, from the build cell results (highest 3.45 % and 2.57 %), not from these data.
+- A rep with a known fault (dead DL, new RNTI, KPM phase) is dropped by the same `twin_qa.py` rules and reported, and is not replaced by looking at its gate values.
+
 ---
 
 ## 7. Parameter provenance (what is real / assumed / synthetic)

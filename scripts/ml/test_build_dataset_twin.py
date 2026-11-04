@@ -35,9 +35,9 @@ def main():
         df = B.build_run(make_run(tmp))
     assert len(df) == 150
     a, c = df[df.supi == A], df[df.supi == C]
-    assert (a.t_window.to_numpy() == np.arange(75)).all() and a.t_unix.iloc[0] == T0 + 2
+    assert (a.t_window.to_numpy() == np.arange(75)).all() and a.t_unix.iloc[0] == T0 + 3
     assert a.attack_active.sum() == 70 and c.attack_active.sum() == 0 and (c.role == "benign").all() and (c.client_role == "dns_client").all()
-    assert a.attack_active.iloc[4] == 0 and a.attack_active.iloc[5] == 1 and a.onset_t.iloc[0] == T0 + 7 and a.attack_bytes.iloc[4] == 0 and a.attack_bytes.iloc[5] == 100
+    assert a.attack_active.iloc[4] == 0 and a.attack_active.iloc[5] == 1 and a.onset_t.iloc[0] == T0 + 8 and a.attack_bytes.iloc[4] == 0 and a.attack_bytes.iloc[5] == 100
     assert (a.vector == "syn").all() and (a.attacker_ue == "ue1").all() and (c.attacker_ue == "ue1").all()
     assert (a.prof_ul_kbps == (2000 + 114) * 8 / 1000).all() and (a.prof_age_s == 1.0).all() and (a.kpm_age_s > 0).all(), "the profile of second t arrives after t"
     assert abs(a.c_t).max() < 1e-9 and not df.kpm_masked.any() and (df.kpm_trust == 1).all()
@@ -48,7 +48,7 @@ def main():
     t = TR.tamper(df, A, T0 + 20, T0 + 40, factor=.1)
     g = TR.gate(t, "ue").loc[t.supi == A]
     b = g.c_t_w.to_numpy()
-    assert abs(b[17]) < .2 and abs(b[18]) > .2 and g.kpm_masked.iloc[19] and not g.kpm_masked.iloc[17]
+    assert abs(b[16]) < .2 and abs(b[17]) > .2 and g.kpm_masked.iloc[18] and not g.kpm_masked.iloc[16]
     n = TR.gate(t, "node")
     assert (n.kpm_trust[t.supi == A].min() > g.kpm_trust.min()), "the honest UE dilutes node trust"
     q = t[(t.supi == A) & (t.t_unix >= T0 + 20) & (t.t_unix < T0 + 40)]

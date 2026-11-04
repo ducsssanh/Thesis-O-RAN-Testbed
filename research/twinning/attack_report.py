@@ -19,7 +19,7 @@ for D in sys.argv[1:]:
         ue = {"ue1": "780", "ue2": "781"}
         print(" retx", [gzip.open(r + "/logs/%s.log.gz" % n, "rt", errors="ignore").read().count("max RETX") for n in ("ue1", "ue2")])
         for f in flows:
-            if f.get("v4_meta", {}).get("model") != "flood_overlay":
+            if f.get("v4_meta", {}).get("model") != "flood_overlay" or f["v4_meta"].get("role") != "attack":
                 continue
             m = f["v4_meta"]; t0 = int(f["attack_start_at"]); act = np.array(m["attack_active"], bool)
             tw = next(x for x in flows if x["phase"] == f["phase"] and x["ue"] == f["ue"] and x["v4_meta"].get("model") == "real_window")

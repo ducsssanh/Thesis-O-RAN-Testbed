@@ -1,0 +1,27 @@
+events {'kept': 72, 'failed': 14, 'stop': 3} kept 72 repeatable notes {'c027': 'QA threshold for a dead DL changed to a quarter of the target: one 180', 'c031': 'repeatable, window burst: L2 p6 ue1, one planned second of 180 kB, 56 ', 'c039': 'not a burst: the old QA read the attack seconds one second early; 98.5'}
+QA with the final rules, runs with problems: {}
+windows without attack or client flow {'P1': 69, 'P4': 90, 'P3': 55, 'P2': 73}
+P1 n 69 tau* 0.994 pass True worst spearman {'ul_rate': 0.449, 'dl_rate': 0.063, 'ratio': 0.035, 'on_run': 0.45, 'off_gap': 0.007, 'win_mean': 0.494, 'busy': 0.055, 'd_acf': 0.37, 'spearman': 0.735}
+P2 n 73 tau* 0.995 pass True worst win_mean {'ul_rate': 0.839, 'dl_rate': 0.0, 'ratio': 0.26, 'on_run': 0.531, 'off_gap': 0.07, 'win_mean': 0.973, 'busy': 0.506, 'd_acf': 0.457, 'spearman': 0.956}
+P3 n 55 tau* 0.994 pass True worst d_acf {'ul_rate': 0.043, 'dl_rate': 0.205, 'ratio': 0.503, 'on_run': 0.001, 'off_gap': 0.002, 'win_mean': 0.465, 'busy': 0.499, 'd_acf': 0.689, 'spearman': 0.196}
+P4 n 90 tau* 0.995 pass True worst dl_rate {'ul_rate': 0.101, 'dl_rate': 0.268, 'ratio': 0.001, 'on_run': 0.011, 'off_gap': 0.0, 'win_mean': 0.073, 'busy': 0.007, 'd_acf': 0.095, 'spearman': 0.082, 'q99': 0.159, 'ad': 0.01}
+rows 64800 runs 72 attack s 25806 no KPM 0.0000 no profile 0.0001 age q99 KPM 0.005 profile 0.106
+honest gate seconds, UE with the twin only, band: n, out 1 s, out 3 s, masked node, masked UE
+  P1 58 10.34% 3.45% 0.00% 0.00%
+  P2 130 0.77% 0.00% 0.00% 0.00%
+  P3 392 4.08% 1.28% 0.51% 1.79%
+  P4 2520 3.69% 0.99% 0.60% 1.03%
+attack: gate seconds out 1 s 0.92%, out 3 s 0.16%, masked node 0.16% UE 0.16%
+      n  active_s  sent_kB  core_kB
+ev                                 
+L1  144      68.0   1631.0   1575.4
+L2  144      43.7   1009.0   1013.3
+L3  144      67.5   1321.3   1609.1
+episodes where core is under 70 % of sent: 0 of 432 {}
+5G-NIDD shape on attack seconds with a silent twin; IP length at the UPF = mean - 57; 5G-NIDD frame - 14 B: SYN 40, UDP 28, ICMP 28, HTTP flood p50 52
+  L1 icmp           s  2459 | IP len q05/50/95 29.0 29.0 29.0 | TCP 0.000 SYN 0.000 UDP 0.000 ICMP 1.000 DNS 0.000 | pps q50 478
+  L1 syn            s  2440 | IP len q05/50/95 41.0 41.0 41.0 | TCP 0.999 SYN 0.999 UDP 0.001 ICMP 0.000 DNS 0.000 | pps q50 338
+  L1 udp            s  2367 | IP len q05/50/95 29.0 29.0 29.0 | TCP 0.000 SYN 0.000 UDP 1.000 ICMP 0.000 DNS 0.000 | pps q50 483
+  L2 pacer          s  5000 | IP len q05/50/95 206.5 740.5 894.5 | TCP 0.000 SYN 0.000 UDP 1.000 ICMP 0.000 DNS 0.000 | pps q50 12
+  L3 dns_client     s  3802 | IP len q05/50/95 55.8 56.0 56.0 | TCP 0.000 SYN 0.000 UDP 0.998 ICMP 0.000 DNS 0.000 | pps q50 248
+  L3 tcp_shortconn  s  4001 | IP len q05/50/95 55.2 55.5 55.9 | TCP 0.998 SYN 0.187 UDP 0.001 ICMP 0.000 DNS 0.000 | pps q50 248

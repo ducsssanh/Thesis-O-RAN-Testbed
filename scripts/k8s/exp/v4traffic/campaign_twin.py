@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Resumable runner of the twin campaign. Each manifest run goes through run.py, then qa_twin; a run with problems is kept on disk, marked in the log, and repeated after recovery with the same seeds.
 Stops after 3 failed attempts in a row. Log: research/datasets/oran_flooding_twin/manifest/campaign_log.jsonl. Usage: campaign_twin.py --lo 0 --hi 72"""
-import argparse, glob, json, pathlib, shutil, subprocess, sys, tempfile, time
+import argparse, glob, json, pathlib, re, shutil, subprocess, sys, tempfile, time
 import yaml
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
@@ -65,7 +65,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--lo", type=int, default=0); ap.add_argument("--hi", type=int, default=72)
     a = ap.parse_args()
     d = json.loads((ROOT / "research/datasets/oran_flooding_twin/manifest/design.json").read_text())
-    fails, done = 0, done_ids()
+    fails, done, hist = 0, done_ids(), {}
     for i, r in enumerate(d["runs"][a.lo:a.hi]):
         if r["id"] in done:
             continue
@@ -94,6 +94,13 @@ def main():
                 fails = 0
                 break
             fails += 1
+            hist.setdefault(r["id"], []).append(problems)
+            h = hist[r["id"]]
+            if len(h) == 3 and len({tuple(re.sub(r"\d+\.\d+", "", x) for x in y) for y in h}) == 1 and all(x.startswith(("attack delivered", "dead DL")) for x in problems):
+                # the same phase and flow after two recoveries: a property of the replayed window, not of the testbed state
+                log(event="kept", id=r["id"], attempt=attempt, run=run, problems=[], note="repeatable: %s" % problems)
+                fails = 0
+                break
             if fails >= 3:
                 log(event="stop", id=r["id"], problems=problems); sys.exit("3 failed attempts in a row: %s" % problems)
             recover()

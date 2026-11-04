@@ -45,25 +45,26 @@ def prof_rows(run):
 
 
 def labels(run, ue_supi):
-    """{(supi, second): label fields} from the flows actually run."""
+    """{(supi, row second): label fields} from the flows actually run. A row of second t holds the traffic of [t-1, t): KPM and the profile report at the end of their second
+    (time_unix = end of the window; plan against core per second: correlation .99 at this lag, .63 without it, research/twinning/out_label_lag.txt)."""
     flows = json.loads((run / "traffic/flows.json").read_text())
     out = {}
     for f in flows:
         m = f.get("v4_meta") or {}
         if m.get("model") != "real_window":
             continue
-        s0 = int(round(f["replay_start_at"]))
+        s0 = int(np.floor(f["replay_start_at"])) + 1
         for i in range(75):
             out[(ue_supi[f["ue"]], s0 + i)] = dict(phase=f["phase"], t_window=i, role="benign", attack_active=0, attack_bytes=0.0, onset_t=np.nan, band=m["band"], window_index=m["window"]["index"], seed=m["seed"], evasion="", vector="", anchor_bps=np.nan, attacker_ue="none", client_role="")
     for f in flows:
         m = f.get("v4_meta") or {}
         if m.get("model") != "flood_overlay":
             continue
-        s0 = int(f["attack_start_at"]); supi = ue_supi[f["ue"]]
+        s0 = int(f["attack_start_at"]) + 1; supi = ue_supi[f["ue"]]
         active = m["attack_active"]
         attack = m.get("role", "attack") == "attack"
         onset = s0 + m["onset_s"]
-        sent = {int(round(r["t"])): r.get("bytes") or 0.0 for r in f.get("rows") or []}
+        sent = {int(round(r["t"])) + 1: r.get("bytes") or 0.0 for r in f.get("rows") or []}
         for i, a in enumerate(active):
             k = (supi, s0 + i)
             if k not in out:
@@ -97,6 +98,11 @@ def build_run(run, run_id=None):
         row["prof_age_s"] = p["arrival"] - t if p else np.nan
         rows.append(row)
     df = pd.DataFrame(rows)
+    # attack bytes that reached the UPF: core UL of the second minus the twin plan of the second (a burst of one second can be lost at the testbed)
+    z = np.load(pathlib.Path(__file__).resolve().parents[2] / "research/twinning/benign_windows.npz")
+    tw = np.array([float(z["ul_" + b][i][t]) for b, i, t in zip(df.band, df.window_index, df.t_window)])
+    core = np.maximum(df.prof_ul_bytes.fillna(0) - TR.BETA * df.prof_ul_pkts.fillna(0), 0) / df.prof_window_s.fillna(1)
+    df["attack_bytes_core"] = np.where(df.attack_active == 1, np.maximum(core - tw, 0), 0.0)
     df[["c_t", "c_t_w", "kpm_trust", "kpm_masked"]] = TR.gate(df, "node")
     u = TR.gate(df, "ue")
     df["kpm_trust_ue"], df["kpm_masked_ue"] = u["kpm_trust"], u["kpm_masked"]

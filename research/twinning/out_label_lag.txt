@@ -1,0 +1,1 @@
+Row second against send second, 10 campaign runs, windows of at least 20 kB; lag -1, 0, +1, +2: twin UL plan against core UL per second .184 .323 .907 .786 (16 windows); L2 attack sent against core .375 .628 .994 .676 (19 phases). A row of second t holds the traffic of [t-1, t).
