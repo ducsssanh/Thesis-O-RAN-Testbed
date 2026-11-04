@@ -25,5 +25,5 @@ Per-run QA `scripts/k8s/exp/v4traffic/qa_twin.py`, log `manifest/campaign_log.js
 - The tamper injection leaves a cue at equal UL rate (benign x0.8 AUC .67, x5 .99): read KPM-only ablations with care.
 - No ramp, no react, 3 of 6 L1 vectors, DNS not on port 53, attack rates at 3 fixed levels.
 - Bursts of one second can lose bytes at the testbed: use `attack_bytes_core` and `windows.csv`.
-- Node trust masks the honest UE of the node; per-UE trust is computed offline and was not run live.
+- `kpm_trust`, `kpm_masked` are node scope, as the xApp ran during the campaign; `kpm_trust_ue`, `kpm_masked_ue` are per UE, computed offline, and match the current xApp. Use the per-UE columns.
 - 2 UEs only: dilution of pooled trust with more UEs is derived, not measured.

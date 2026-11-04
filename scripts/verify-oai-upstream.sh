@@ -118,6 +118,7 @@ apply "$F" "$P/flexric-xapp-live-sidecar-tamper.patch" # v5 live: core records t
 apply "$F" "$P/flexric-xapp-kpm-gate-profiler.patch"  # 2026-11: UPF profile as core source, KPM trust gate, KPM subscribed on a second boundary
 apply "$F" "$P/flexric-xapp-gate-window.patch"         # 2026-11: soft c_t per second, trust updated on a sum of seconds (second-boundary gap KPM/profiler)
 apply "$F" "$P/flexric-xapp-kpm-phase-watchdog.patch" # 2026-11: restart the xApp when a gNB stall moves the KPM report phase
+apply "$F" "$P/flexric-xapp-gate-per-ue.patch"         # 2026-11: KPM trust and mask per UE, not per E2 node
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722

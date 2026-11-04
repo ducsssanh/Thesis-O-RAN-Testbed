@@ -14,7 +14,7 @@ The design is "DRL design for the defence xApp (A to Z)". It stays the single so
 6. **Deployment**, design 5.6: ONNX in the sidecar behind `/classify`, 200 ms fallback to the rules; live check on a few runs, separate from the evaluation.
 
 ## Questions the campaign leaves for this plan
-- **Trust scope.** The design's gate input is the trust of the gNB. Pooled trust masks the honest UE too and dilutes with many UEs (TRAFFIC-TWINNING-PLAN 9); on replay, per-UE trust keeps the honest UE masked at 0.4 % against about 97 %. The dataset has both (`kpm_trust`, `kpm_trust_ue`). Decide before step 1; changing it means a patch of the xApp for step 6.
+- **Trust scope: decided, per UE** (user, 2026-11-04). The xApp runs it live; the environment reads `kpm_trust_ue` and `kpm_masked_ue`, not the node columns.
 - **Tamper cue.** See `research/twinning/out_tamper_cue.txt`. If a KPM-only classifier separates tampered seconds, ablations B and C must be read with that limit.
 - **Training mode.** Offline on replay; online inference only. The attacker does not react to an alarm in these data, which limits the claim.
 - **Correction to make.** `research/DRL-DIRECTION.md:133`, the "waiting for core 1.5-2.8 s" argument: on the campaign data the profile reaches the xApp within about 0.1 s (q99 of `prof_age_s`).
