@@ -1,6 +1,6 @@
 # DRL plan (step 8)
 
-The design is "DRL design for the defence xApp (A to Z)". It stays the single source: this plan adds no item, only the order of work and what the twin campaign changes. The DRL is a component with a modest claim, not a contribution of the thesis. Nothing here has been run.
+The design is "DRL design for the defence xApp (A to Z)". It stays the single source: this plan adds no item, only the order of work and what the twin campaign changes. The DRL is a component with a modest claim, not a contribution of the thesis. First results: `research/drl/out_r0_report.txt` (2026-11-05: 5 folds, 1 seed, 3 C_FA, no history feature, no confidence interval yet). Code: `scripts/drl/`.
 
 ## Input
 `research/datasets/oran_flooding_twin/rows.parquet` (`scripts/ml/build_dataset_twin.py`), 72 runs. A row of second t holds the traffic of [t-1, t), and `t_window`, `onset_t`, `attack_*` are labels, never inputs. Tampering is injected on replay by `scripts/ml/tamper_replay.py`, then `gate()` is called again.
@@ -18,3 +18,9 @@ The design is "DRL design for the defence xApp (A to Z)". It stays the single so
 - **Tamper cue.** See `research/twinning/out_tamper_cue.txt`. If a KPM-only classifier separates tampered seconds, ablations B and C must be read with that limit.
 - **Training mode.** Offline on replay; online inference only. The attacker does not react to an alarm in these data, which limits the claim.
 - **Correction to make.** `research/DRL-DIRECTION.md:133`, the "waiting for core 1.5-2.8 s" argument: on the campaign data the profile reaches the xApp within about 0.1 s (q99 of `prof_age_s`).
+
+## First run (r0), what it showed
+- At about 1.9 false alarms per benign UE-hour, DQN with C_FA 50 against the calibrated classifier: L1 detected 135 and 143 of 144, L2 123 and 116, L3 125 and 143. The DQN is faster on L2 (median 2.2 s against 5.7 s, 16.8 % against 31.4 % of attack bytes first) and worse on L1 and L3. One seed, so not yet a finding.
+- The same TCP or DNS client as a benign hard negative raises an alarm in 120-142 of 144 episodes, in both methods: L3 phases are out of training, and benign traffic in training is all UDP. This is the main weakness.
+- Tamper scenarios are easier than honest ones, partly by construction: hiding is only applied to attackers and framing only to benign UEs, so the sign of c_t tells the label. To fix before reading any tamper result.
+- Choice made for this run: from the onset to the end of the episode an alarm is a true alarm, including in the silent seconds of L2.

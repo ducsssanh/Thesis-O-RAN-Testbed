@@ -28,6 +28,7 @@ build/
 artifacts/ml/*/windows.npz
 /artifacts/experiments/
 /artifacts/ml/
+/artifacts/drl/
 
 # Madrid per-second reductions (~2 GB; regenerate with research/twinning/madrid_reduce.py from data/external/madrid)
 research/twinning/*.parquet
