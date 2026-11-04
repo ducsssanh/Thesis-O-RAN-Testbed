@@ -1,0 +1,28 @@
+tune base_f0 -6.402
+tune base_f1 -9.074
+tune big_f0 -5.674
+tune big_f1 -7.306
+tune clf_f0 {'10': (-2.22, -2.195), '50': (-6.677, -6.097), '200': (-17.36, -13.455)}
+tune clf_f1 {'10': (-2.029, -2.415), '50': (-6.897, -6.474), '200': (-20.763, -11.402)}
+tune clfhist_f0 {'10': (-2.237, -2.234), '50': (-4.911, -5.114), '200': (-10.224, -8.287)}
+tune clfhist_f1 {'10': (-2.207, -2.341), '50': (-5.745, -6.481), '200': (-13.837, -9.76)}
+tune hist_f0 -6.244
+tune hist_f1 -7.805
+tune lr1_f0 -6.35
+tune lr1_f1 -8.408
+tune2 reg_f0 -6.106
+tune2 reg_f1 -6.963
+tune2 small_f0 -5.6
+tune2 small_f1 -7.052
+tune2 stack_f0_c10 -3.0
+tune2 stack_f0_c200 -11.686
+tune2 stack_f0_c50 -5.296
+tune2 stack_f1_c10 -2.694
+tune2 stack_f1_c200 -14.625
+tune2 stack_f1_c50 -6.667
+tune2 stacknh_f0_c10 -2.301
+tune2 stacknh_f0_c200 -13.274
+tune2 stacknh_f0_c50 -4.966
+tune2 stacknh_f1_c10 -1.955
+tune2 stacknh_f1_c200 -16.213
+tune2 stacknh_f1_c50 -5.166

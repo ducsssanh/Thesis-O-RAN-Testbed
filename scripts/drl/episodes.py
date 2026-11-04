@@ -66,29 +66,28 @@ def main():
             d = d.copy()
             d[["c_t", "c_t_w", "kpm_trust", "kpm_masked"]] = g
             return d
-        S = {"honest": scen(ph)}
-        if attacker is not None:
-            for f in (.1, .33, .8):
-                S["hide%s" % f] = scen(TR.tamper(ph, attacker, onset, 10**12, factor=f))
-            S["hide0.33on"] = scen(TR.tamper(ph, attacker, onset, 10**12, factor=.33, on_only=True))
-            if other is not None:
-                S["swap"] = scen(TR.tamper(ph, attacker, onset, 10**12, swap_with=other))
-                t0 = int(ph.t_unix.min() + rng.integers(0, 15))
-                for f in (1.25, 2, 5):
-                    S["frame%s" % f] = scen(TR.tamper(ph, other, t0, 10**12, factor=f))
+        H0 = scen(ph)
+        first_s = int(ph.t_unix.min())
+        Sw = None
+        if attacker is not None and other is not None:     # swap, from a start that does not depend on the attack onset
+            Sw = scen(TR.tamper(ph, attacker, first_s + int(rng.integers(0, 15)), 10**12, swap_with=other))
         for s in ues:
-            g0 = S["honest"][S["honest"].supi == s]
+            g0 = H0[H0.supi == s]
             is_att = s == attacker
             run_lab = (g0.t_unix.to_numpy() >= onset).astype(np.int8) if is_att else np.zeros(len(g0), np.int8)
-            scs = {}
-            for name, d in S.items():
-                if name.startswith("frame") and is_att:
-                    continue
-                if (name.startswith("hide")) and not is_att:
-                    continue
-                scs[name] = features(d[d.supi == s])
-            out.append(dict(run=run, phase=phase, supi=s, attack=is_att, evasion=(first(g0.evasion) if is_att else ""), vector=(first(g0.vector) if is_att else ""), other_evasion=(ph[ph.role == "attack"].evasion.iloc[0] if attacker else ""),
-                            client=first(g0.client_role) != "", band=g0.band.iloc[0], anchor=float(g0.anchor_bps.max()) if is_att else 0.0, run_lab=run_lab, active=g0.attack_active.to_numpy().astype(np.int8), bytes=g0.attack_bytes_core.to_numpy().astype(np.float32), scen=scs))
+            scs = {"honest": features(g0)}
+            # any UE can be hidden or framed, from a start drawn the same way for all, so neither the sign of c_t nor its first second tells the label
+            for f in (.1, .33, .8, 1.25, 2, 5):
+                d = scen(TR.tamper(ph, s, first_s + int(rng.integers(0, 15)), 10**12, factor=f))
+                scs[("hide%s" if f < 1 else "frame%s") % f] = features(d[d.supi == s])
+            if is_att:
+                d = scen(TR.tamper(ph, s, first_s + int(rng.integers(0, 15)), 10**12, factor=.33, on_only=True))
+                scs["hide0.33on"] = features(d[d.supi == s])
+            if Sw is not None:
+                scs["swap"] = features(Sw[Sw.supi == s])
+            oth = ph[ph.supi != s].set_index("t_unix").rate_ul_kbps.reindex(g0.t_unix).fillna(0).to_numpy() if other is not None else np.zeros(len(g0))
+            out.append(dict(run=run, phase=phase, supi=s, attack=is_att, evasion=(first(g0.evasion) if is_att else ""), vector=(first(g0.vector) if is_att else ""), other_evasion=(first(ph[ph.role == "attack"].evasion) if attacker else ""),
+                            client=first(g0.client_role) != "", band=g0.band.iloc[0], anchor=float(g0.anchor_bps.max()) if is_att else 0.0, run_lab=run_lab, active=g0.attack_active.to_numpy().astype(np.int8), bytes=g0.attack_bytes_core.to_numpy().astype(np.float32), other_ul=oth.astype(np.float32), scen=scs))
     pathlib.Path(sys.argv[2]).parent.mkdir(parents=True, exist_ok=True)
     pickle.dump(dict(names=NAMES, groups=GROUPS, protocol=PROTOCOL, episodes=out), open(sys.argv[2], "wb"))
     print("episodes", len(out), "attack", sum(e["attack"] for e in out), "T", sorted({len(e["run_lab"]) for e in out})[:4], "scenarios", sorted({k for e in out for k in e["scen"]}))

@@ -123,11 +123,20 @@ else:
         o2.zero_grad(); v = bce(li / temp.clamp(min=.05), torch.from_numpy(YI)); v.backward(); return v
     o2.step(clos); Tm = float(temp.detach().clamp(min=.05))
     grid = np.r_[np.linspace(-6, 6, 25), np.linspace(7, 30, 24)]
+    hgrid = np.geomspace(1, 3000, 30); pi = float(Y.mean()); prior = float(np.log(pi / (1 - pi))); cusum = {}
     for e, w in TEW:
         with torch.no_grad():
             r = {k: M(torch.from_numpy(x)).squeeze(1).numpy() / Tm for k, x in w.items()}
-        results["|".join((e["run"], e["phase"], e["supi"]))] = {k: [first_alarm(v, float(g)) for g in grid] for k, v in r.items()}
-    out = dict(mode="clf", fold=a.fold, seed=a.seed, temperature=Tm, grid=grid.tolist(), alarms=results)
+        key = "|".join((e["run"], e["phase"], e["supi"]))
+        results[key] = {k: [first_alarm(v, float(g)) for g in grid] for k, v in r.items()}
+        cus = {}
+        for k, v in r.items():                         # CUSUM on the log-odds minus the prior log-odds
+            st, c = 0.0, np.zeros(len(v))
+            for t, l in enumerate(v - prior):
+                st = max(0.0, st + float(l)); c[t] = st
+            cus[k] = [first_alarm(c, float(h)) for h in hgrid]
+        cusum[key] = cus
+    out = dict(mode="clf", fold=a.fold, seed=a.seed, temperature=Tm, grid=grid.tolist(), hgrid=hgrid.tolist(), prior=prior, alarms=results, cusum=cusum)
 out.update(drop=a.drop, runs_train=len(train), runs_inner=len(inner), runs_test=len(test))
 json.dump(out, open(a.out, "w"))
 print("done", a.out, flush=True)
