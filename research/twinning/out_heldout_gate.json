@@ -1,0 +1,43 @@
+{
+ "P1": {
+  "reps": 5,
+  "dropped": {},
+  "gate_seconds": 39,
+  "out_1s": 0.0,
+  "out_3s": 0.0,
+  "masked_node": 0.0,
+  "masked_ue": 0.0,
+  "pass": true
+ },
+ "P2": {
+  "reps": 5,
+  "dropped": {},
+  "gate_seconds": 194,
+  "out_1s": 2.06,
+  "out_3s": 0.0,
+  "masked_node": 0.0,
+  "masked_ue": 0.0,
+  "pass": true
+ },
+ "P3": {
+  "reps": 5,
+  "dropped": {},
+  "gate_seconds": 1147,
+  "out_1s": 5.58,
+  "out_3s": 0.87,
+  "masked_node": 0.0,
+  "masked_ue": 0.0,
+  "pass": true
+ },
+ "P4": {
+  "reps": 5,
+  "dropped": {},
+  "gate_seconds": 2899,
+  "out_1s": 4.62,
+  "out_3s": 0.62,
+  "masked_node": 0.0,
+  "masked_ue": 0.0,
+  "pass": true
+ },
+ "family_pass": true
+}

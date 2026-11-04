@@ -21,7 +21,7 @@ Nothing in the measurement path changes (see §1).
 | 2 | **No exact-mean rescale**: each window keeps its natural mean; validation adds KS on the 60 s window mean and on the busy share of a 60 s window (k = 9 per band, 11 for P4, as validate_twin.py counts them). | §4.A step 6, §6.2 |
 | 3 | DL twin comes from the **same window** (real UL–DL coupling), not from rho × UL. | §4.E |
 | 4 | Gate: c_t = log((KPM + ε) / (max(B − βN, 0) + ε)); benign c_t band reported **per rate band P1–P4**; extra tampering levels ×0.8, ×1.25, **ON-only** adaptive tampering and an **identity swap**; identity join KPM (AMF UE NGAP ID + GUAMI) ↔ profiler (SUPI/SEID + AMF-table RAN identity) stated in the threat model. | Methodology §7.2, DRL doc §3 |
-| 5 | Replay tampering scales **UL rate, UE UL PRB and the UE's share of cell UL PRB together**; check that a KPM-only classifier cannot tell tampered from honest seconds. | dataset builder / DRL replay |
+| 5 | Replay tampering scales **UL rate, UE UL PRB and the UE's share of cell UL PRB together**; check that a KPM-only classifier cannot tell tampered from honest seconds at equal UL rate (test changed 2026-11-04, result in §6.8: a cue remains). | dataset builder / DRL replay |
 | 6 | **L3 uses real TCP / application clients** (`backends/tcp_shortconn.py`, `dns_client.py` against `dn_sink.py`), not hping3; tool defaults visible to the profiler (sizes, protocol mix) aligned with benign; check header fields the profiler could read. | §5.1, §5.3 |
 | 7 | Baselines: classifier probabilities **calibrated** (temperature scaling, inner split) — needed for CUSUM and fixed operating points; no time-in-phase or cumulative counters in any input. FA rate denominator = benign time actually observed (episodes stop at the first alarm). | DRL doc §3.2, §7 |
 | 8 | Mitigation claim narrowed: 26 ms is a direct call to the UPF; the standard NEF → PCF → SMF → N4 path is not measured. | Methodology §7.4 |
@@ -535,6 +535,22 @@ Used once, reported as it is; nothing is tuned afterwards. Windows of `I-796` an
 - **Pass, per band and for both trust scopes:** outside at 3 s at most 5 %, masked at most 5 %. This bar is chosen now, from the build cell results (highest 3.45 % and 2.57 %), not from these data.
 - A rep with a known fault (dead DL, new RNTI, KPM phase) is dropped by the same `twin_qa.py` rules and reported, and is not replaced by looking at its gate values.
 
+**Result, run once on 2026-11-04 (`research/twinning/out_heldout_gate.txt`).** All bands pass with both trust scopes, no rep dropped: P1 39 gate seconds (thin), outside at 1 s 0 %, at 3 s 0 %; P2 194, 2.06 %, 0 %; P3 1147, 5.58 %, 0.87 %; P4 2899, 4.62 %, 0.62 %; KPM masked 0 % everywhere. This is honest traffic: it bounds false masking on unseen cells, it says nothing on detection there.
+
+### 6.8 Campaign results on the build cells (2026-11-04; `out_campaign_report.txt`, `out_tamper_eval.txt`, `out_tamper_cue_matched.txt`)
+
+**Sidecar CPU.** The UE sidecar ran at 50 m until 2026-11-04 (`_nf.tpl`), which capped the generators; it now has 1 core. `final2`, §6.5 and the held-out check of the twin (§6.6) ran at 50 m. The twin was validated again on the build cells at 1 core, on the windows without another flow on that UE: all pass (n = 69, 73, 55, 90; tau* .994-.995; highest percentiles P1 spearman .735, P2 win_mean .973, P3 d_acf .689, P4 dl_rate .268). The held-out check of the twin cannot be repeated.
+
+**Attack shape at the UPF against 5G-NIDD (6.4).** IP length = mean at the UPF - 57 B, 5G-NIDD frame - 14 B: SYN 41 against 40, UDP 29 against 28, ICMP 29 against 28, TCP client 55.5 against an HTTP flood p50 of 52. The +1 B is the KPM per-packet difference of §6.5. Protocol shares above .998. The DNS client uses a flow port, not 53, so the profiler counts it as UDP and `prof_ul_dns` stays 0.
+
+**Delivery.** 432 episodes, none under 70 % of the bytes sent. L3 rows count less than the wire carries (core 1609 kB, sent 1321 kB per episode); `attack_bytes_core` is the value to use.
+
+**Honest gate on UEs with the twin only.** Outside at 3 s: P1 3.45 % (58 gate seconds), P2 0 %, P3 1.28 %, P4 0.99 %; masked, node / UE trust: 0 / 0, 0 / 0, .51 / 1.79, .60 / 1.03 %. So the 1 core sidecar did not improve the gate, against what the pilot suggested.
+
+**Tamper on replay, each of the 432 attack episodes tampered from its onset, gate restarted per episode.** All factors mask in nearly every episode: x0.8 98.8 %, x1.25 99.5 %, the others 100 %; median time 1-3 s. Bytes reaching the core before the mask: 1.6-4.6 % of the episode. Node trust masks the honest UE too, 76-97 % of its gate seconds; per-UE trust 0.4 %, with the same detection. This is steady flood traffic, so it is easier than §6.5, where bursty twin traffic alone let x0.8 pass. ON-only x0.33 and x2 give the same figures, because attack seconds are nearly all of these episodes after the onset. Identity swap masks in 99.8 %, and with per-UE trust masks the other UE too (96 %), since both are tampered. Framing of a benign UE was not replayed here.
+
+**Tamper cue (0a row 5, DRL design 5.2).** AUC of 0.5 against unmatched honest seconds is impossible: scaling moves the level, and the UL rate alone gives .81-.93. The test now matches honest seconds on UL rate. Control x1: .50. Benign seconds: x0.8 .67, x1.25 .72, x0.33 .94, x2 .93, x0.1 .98, x5 .99; all seconds x0.8 .83, x1.25 .85. The first version of this test gave .94-1.00 because it was unmatched. So a cue remains. Fixed attack rates explain part of it; DL is not scaled with UL, which a real attacker tampering UL only also leaves (inferred, not isolated); PRB drawn from honest seconds did not help and broke the control (.68), so it is not used.
+
 ---
 
 ## 7. Parameter provenance (what is real / assumed / synthetic)
@@ -589,6 +605,12 @@ Everything downstream (the DRL replay environment, baselines) consumes this data
 
 ## 9. Limitations (state them, do not paper over)
 
+- **Tamper cue.** A KPM-only classifier still separates tampered seconds at equal UL rate (§6.8). Ablations B and C of the DRL design can be inflated, most at large factors.
+- **Sidecar limit in earlier results.** `final2`, §6.5 and the twin's held-out check ran with the UE sidecar at 50 m; the campaign at 1 core (§6.8).
+- **Bursts of one second.** A planned second of about 180 kB can lose half or more at the testbed, DL (c027, 44 % delivered) and UL (c031, 56 kB of 240 kB). `windows.csv` and `attack_bytes_core` keep what arrived.
+- **Attack variants not in the campaign.** Step onset only, no ramp (hping3 runs at one rate); no react (detection off); L1 uses UDP, SYN and ICMP, not the fragment, DNS and fan-out vectors of §5.2. The L3 benign counterpart is the same client in the rhythm of a real window, not a heavy-UL TCP upload as in §5.3.
+- **Campaign size.** 72 runs, set by the evaluation precision per level; whether it is enough for training is not known until the DRL trains.
+- **UE loss during runs.** 5 of 72 first attempts lost a UE or its MAC stats mid-run; cause not looked for. Those attempts are kept on disk, marked failed, and repeated with the same seeds.
 - **DL spill between seconds (measured 2026-11-02).** A large DL second does not all leave within that second at the testbed; part of it lands in the next second. In the second-timed P3 and P4 runs about 1.1 % of active DL seconds were off, seen from about 250 kB/s; total bytes still match (P4 MAC/target 1.000). DL capacity was not measured, so the cause is not established. Lowering the 1 MB/s clip would remove it at the cost of the real P4 tail; it is kept and stated.
 - **Second boundary (2026-11-02).** KPM and the profiler close their seconds apart, so the same bytes can land in different seconds; isolated bursts about 23 ms, under steady load up to 136-160 ms of traffic, cause of the variation unknown. c_t per second stays noisy (§6.5), and only the 3 s sum updates trust. Detection therefore takes at least 2 windows with traffic.
 - **Small tampering on bursty traffic (2026-11-03).** x0.8 and x1.25 reach at most +-0.223 against a band of +-0.2, so a window falls either side almost by chance (45-67 % in band in the episodes with traffic). The byte floor shrinks the ratio further: under about 29 kB in 3 s x0.8 cannot leave the band, under about 23 kB x1.25 cannot (computed from the formula). x0.8 passed unmasked twice (§6.5). The band is not changed to hide this.

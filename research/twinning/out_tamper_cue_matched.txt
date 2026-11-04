@@ -1,0 +1,7 @@
+all seconds with UL  PRB linear    x1 0.503(36k) x0.1 0.992(10k) x0.33 0.974(16k) x0.8 0.833(24k) x1.25 0.847(23k) x2 0.952(22k) x5 0.995(13k)
+all seconds with UL  PRB empirical x1 0.679(36k) x0.1 0.926(10k) x0.33 0.910(16k) x0.8 0.857(24k) x1.25 0.839(23k) x2 0.895(22k) x5 0.905(13k)
+attack seconds       PRB linear    x1 0.466(23k) x0.1 0.996(3k) x0.33 0.990(7k) x0.8 0.898(12k) x1.25 0.891(12k) x2 0.964(11k) x5 0.995(4k)
+attack seconds       PRB empirical x1 0.658(23k) x0.1 0.931(3k) x0.33 0.882(7k) x0.8 0.896(12k) x1.25 0.899(12k) x2 0.912(11k) x5 0.876(4k)
+benign seconds       PRB linear    x1 0.475(11k) x0.1 0.982(6k) x0.33 0.943(8k) x0.8 0.666(10k) x1.25 0.716(11k) x2 0.928(10k) x5 0.991(8k)
+benign seconds       PRB empirical x1 0.691(11k) x0.1 0.920(6k) x0.33 0.879(8k) x0.8 0.737(10k) x1.25 0.731(11k) x2 0.860(10k) x5 0.922(8k)
+all seconds, without UL PRB columns: x1 0.498 x0.1 0.887 x0.33 0.871 x0.8 0.786 x1.25 0.783 x2 0.860 x5 0.873

@@ -72,5 +72,6 @@ for b in BANDS:
         out[f"{name}_{b}_ms"] = np.concatenate(ms)
         out[f"{name}_{b}_b"] = np.concatenate(by)
         print(b, name, "TTIs", off[-1], "active seconds matching the per-second row: %d / %d" % (good, active), flush=True)
-np.savez_compressed(HERE / "heldout_windows_tti.npz" if HELD else "benign_windows_tti.npz", **out)
-print("saved", (HERE / "heldout_windows_tti.npz" if HELD else "benign_windows_tti.npz").stat().st_size)
+DST = HERE / ("heldout_windows_tti.npz" if HELD else "benign_windows_tti.npz")
+np.savez_compressed(DST, **out)
+print("saved", DST.stat().st_size)

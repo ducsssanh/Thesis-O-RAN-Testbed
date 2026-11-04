@@ -1,0 +1,6 @@
+P2 dl TTIs 350176 active seconds matching the per-second row: 54673 / 54673
+P3 ul TTIs 5306681 active seconds matching the per-second row: 169549 / 169549
+P3 dl TTIs 2679213 active seconds matching the per-second row: 139991 / 139991
+P4 ul TTIs 34025463 active seconds matching the per-second row: 337408 / 337408
+P4 dl TTIs 22081677 active seconds matching the per-second row: 301658 / 301658
+saved 143292269

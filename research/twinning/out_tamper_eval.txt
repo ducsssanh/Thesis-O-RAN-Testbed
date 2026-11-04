@@ -1,0 +1,19 @@
+attack episodes 432
+x0.1           node n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50   13.5 kB, share  1.7% | honest UE masked  96.6%
+x0.1           ue   n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50   13.5 kB, share  1.7% | honest UE masked   0.4%
+x0.33          node n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50   13.5 kB, share  1.7% | honest UE masked  96.6%
+x0.33          ue   n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50   13.5 kB, share  1.7% | honest UE masked   0.4%
+x0.8           node n 432 masked  98.8% | L1 100% L2  97% L3  99% | wall q50/q90  2.0/15.0 s gate s q50   2 | core bytes before mask q50   46.2 kB, share  4.3% | honest UE masked  75.9%
+x0.8           ue   n 432 masked  99.1% | L1 100% L2  97% L3 100% | wall q50/q90  2.0/15.0 s gate s q50   2 | core bytes before mask q50   46.1 kB, share  4.2% | honest UE masked   0.4%
+x1.25          node n 432 masked  99.5% | L1 100% L2  99% L3 100% | wall q50/q90  3.0/10.0 s gate s q50   3 | core bytes before mask q50   46.9 kB, share  4.6% | honest UE masked  83.1%
+x1.25          ue   n 432 masked  99.5% | L1 100% L2  99% L3 100% | wall q50/q90  3.0/10.0 s gate s q50   3 | core bytes before mask q50   46.8 kB, share  4.5% | honest UE masked   0.4%
+x2             node n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 1.0 s gate s q50   1 | core bytes before mask q50   13.3 kB, share  1.7% | honest UE masked  96.8%
+x2             ue   n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 1.0 s gate s q50   1 | core bytes before mask q50   13.3 kB, share  1.7% | honest UE masked   0.4%
+x5             node n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 1.0 s gate s q50   1 | core bytes before mask q50   13.2 kB, share  1.6% | honest UE masked  97.1%
+x5             ue   n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 1.0 s gate s q50   1 | core bytes before mask q50   13.3 kB, share  1.6% | honest UE masked   0.4%
+ON-only x0.33  node n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50   13.5 kB, share  1.7% | honest UE masked  96.6%
+ON-only x0.33  ue   n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50   13.5 kB, share  1.7% | honest UE masked   0.4%
+ON-only x2     node n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 1.0 s gate s q50   1 | core bytes before mask q50   13.3 kB, share  1.7% | honest UE masked  96.8%
+ON-only x2     ue   n 432 masked 100.0% | L1 100% L2 100% L3 100% | wall q50/q90  1.0/ 1.0 s gate s q50   1 | core bytes before mask q50   13.3 kB, share  1.7% | honest UE masked   0.4%
+swap           node n 432 masked  99.8% | L1 100% L2 100% L3  99% | wall q50/q90  1.0/ 2.0 s gate s q50   1 | core bytes before mask q50    5.6 kB, share  2.1% | honest UE masked  97.1%
+swap           ue   n 432 masked  99.8% | L1 100% L2 100% L3  99% | wall q50/q90  1.0/ 3.0 s gate s q50   1 | core bytes before mask q50   13.7 kB, share  2.9% | honest UE masked  96.0%

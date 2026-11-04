@@ -1,0 +1,17 @@
+honest seconds with UL: attack 25715, benign 12840
+UL PRB on honest seconds: min 0, share at or below 2: 0.059; values not whole: 0.0000
+rate on the 8 B grid, honest: 0.7972
+  rate    0-  10 kbit/s: n  3686, UL PRB q10/50/90 0 2 14
+  rate   10-  50 kbit/s: n  4756, UL PRB q10/50/90 4 11 29
+  rate   50- 100 kbit/s: n  8877, UL PRB q10/50/90 8 13 31
+  rate  100- 200 kbit/s: n  9618, UL PRB q10/50/90 17 25 36
+  rate  200- 500 kbit/s: n  9344, UL PRB q10/50/90 25 38 48
+  rate  500-2000 kbit/s: n  2210, UL PRB q10/50/90 31 46 62
+the test as run: attack seconds only, linear PRB     x0.1 0.999 x0.33 0.997 x0.8 0.948 x1.25 0.952 x2 0.987 x5 1.000
+all seconds with UL, linear PRB                      x0.1 0.998 x0.33 0.989 x0.8 0.892 x1.25 0.885 x2 0.971 x5 0.998
+L2 attack seconds only (no fixed rate levels)        x0.1 0.994 x0.33 0.980 x0.8 0.697 x1.25 0.740 x2 0.936 x5 0.998
+benign seconds only                                  x0.1 0.990 x0.33 0.952 x0.8 0.698 x1.25 0.740 x2 0.925 x5 0.994
+all seconds, UL rate and PRB columns only            x0.1 0.984 x0.33 0.952 x0.8 0.844 x1.25 0.864 x2 0.939 x5 0.995
+all seconds, UL rate column only                     x0.1 0.929 x0.33 0.873 x0.8 0.817 x1.25 0.818 x2 0.811 x5 0.904
+all seconds, no UL rate                              x0.1 0.995 x0.33 0.965 x0.8 0.713 x1.25 0.743 x2 0.940 x5 0.995
+all seconds, PRB from honest seconds of that rate    x0.1 0.981 x0.33 0.956 x0.8 0.895 x1.25 0.897 x2 0.937 x5 0.970

@@ -36,5 +36,6 @@ research/twinning/benign_windows.npz
 research/twinning/heldout_windows.npz
 research/twinning/heldout_windows_tti.npz
 research/datasets/oran_flooding_twin/rows.parquet
+research/datasets/oran_flooding_twin_package.tar.gz
 research/datasets/oran_flooding_twin_pilot/
 research/twinning/benign_windows_tti.npz
