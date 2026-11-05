@@ -1,0 +1,14 @@
+benign twin P1         ep  70 | seconds   5250 | with traffic   1.1% | UL kbit/s active q50/q90   11.6   28.7 | pps q50     8 | IP len q50   163 | UE PRB UL q50   5 | DL kbit/s q50    0.0 | outside 3 s 3.45%
+benign twin P2         ep  73 | seconds   5475 | with traffic   2.4% | UL kbit/s active q50/q90   21.8   50.8 | pps q50    37 | IP len q50    68 | UE PRB UL q50   7 | DL kbit/s q50    6.8 | outside 3 s 0.00%
+benign twin P3         ep  55 | seconds   4125 | with traffic   9.4% | UL kbit/s active q50/q90   20.2   83.0 | pps q50    10 | IP len q50   285 | UE PRB UL q50   7 | DL kbit/s q50   32.7 | outside 3 s 1.04%
+benign twin P4         ep  90 | seconds   6750 | with traffic  36.5% | UL kbit/s active q50/q90   81.0  534.1 | pps q50    14 | IP len q50   750 | UE PRB UL q50  20 | DL kbit/s q50  163.6 | outside 3 s 0.77%
+benign client tcp_shortconn ep  72 | seconds   5400 | with traffic  63.0% | UL kbit/s active q50/q90   87.2  526.5 | pps q50   151 | IP len q50    56 | UE PRB UL q50  18 | DL kbit/s q50  103.0 | outside 3 s 0.35%
+benign client dns_client ep  72 | seconds   5400 | with traffic  59.7% | UL kbit/s active q50/q90   99.5  508.0 | pps q50   173 | IP len q50    56 | UE PRB UL q50  17 | DL kbit/s q50  127.8 | outside 3 s 0.25%
+L1 udp                 ep  48 | seconds   3266 | with traffic 100.0% | UL kbit/s active q50/q90  118.2  396.5 | pps q50   484 | IP len q50    29 | UE PRB UL q50  29 | DL kbit/s q50    0.0 | outside 3 s 0.03%
+L1 syn                 ep  48 | seconds   3270 | with traffic 100.0% | UL kbit/s active q50/q90  112.5  403.8 | pps q50   338 | IP len q50    41 | UE PRB UL q50  27 | DL kbit/s q50  148.6 | outside 3 s 0.09%
+L1 icmp                ep  48 | seconds   3257 | with traffic 100.0% | UL kbit/s active q50/q90  113.6  400.0 | pps q50   480 | IP len q50    29 | UE PRB UL q50  27 | DL kbit/s q50  164.6 | outside 3 s 0.00%
+L2 pacer               ep 144 | seconds   6293 | with traffic  89.0% | UL kbit/s active q50/q90  109.1  558.6 | pps q50    19 | IP len q50   746 | UE PRB UL q50  34 | DL kbit/s q50    0.0 | outside 3 s 0.52%
+L3 tcp_shortconn       ep  72 | seconds   4839 | with traffic  99.8% | UL kbit/s active q50/q90  112.5  431.8 | pps q50   251 | IP len q50    56 | UE PRB UL q50  25 | DL kbit/s q50  131.8 | outside 3 s 0.00%
+L3 dns_client          ep  72 | seconds   4881 | with traffic 100.0% | UL kbit/s active q50/q90  112.4  424.0 | pps q50   249 | IP len q50    56 | UE PRB UL q50  22 | DL kbit/s q50  166.6 | outside 3 s 0.04%
+attack bytes at core per episode kB q50: {('L1', 'icmp'): 938.0, ('L1', 'syn'): 927.0, ('L1', 'udp'): 976.0, ('L2', 'pacer'): 514.0, ('L3', 'dns_client'): 958.0, ('L3', 'tcp_shortconn'): 936.0}
+attack seconds 25806 benign seconds 38994
