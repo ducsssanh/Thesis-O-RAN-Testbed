@@ -119,6 +119,9 @@ apply "$F" "$P/flexric-xapp-kpm-gate-profiler.patch"  # 2026-11: UPF profile as 
 apply "$F" "$P/flexric-xapp-gate-window.patch"         # 2026-11: soft c_t per second, trust updated on a sum of seconds (second-boundary gap KPM/profiler)
 apply "$F" "$P/flexric-xapp-kpm-phase-watchdog.patch" # 2026-11: restart the xApp when a gNB stall moves the KPM report phase
 apply "$F" "$P/flexric-xapp-gate-per-ue.patch"         # 2026-11: KPM trust and mask per UE, not per E2 node
+apply "$F" "$P/flexric-xapp-embedded-classifier.patch" # 2026-11-08: R050 XGBoost in the xApp (clf_xgb.c), observe mode, escalation by response
+apply "$F" "$P/flexric-xapp-e2e-mitigation.patch"     # 2026-11-13: limit and block RAN slices, fixed UPF cap at level 2, POST /v1/defense/force
+apply "$F" "$P/flexric-xapp-relative-escalation.patch" # 2026-11-13: escalation threshold relative to the UE's own rate at the limit (esc_rule.h), shadow mode
 compare "flexric" "$F" "$ROOT/src/flexric"
 
 # --- OAI RAN 26efcc4 (gNB, nrUE); embedded FlexRIC submodule ef6d722

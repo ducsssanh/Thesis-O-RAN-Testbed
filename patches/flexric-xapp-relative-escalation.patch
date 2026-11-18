@@ -1,0 +1,247 @@
+diff -ruN a/examples/xApp/c/monitor/classifier.c b/examples/xApp/c/monitor/classifier.c
+--- a/examples/xApp/c/monitor/classifier.c	2026-11-13 05:13:53.320704968 +0700
++++ b/examples/xApp/c/monitor/classifier.c	2026-11-13 18:12:15.638348238 +0700
+@@ -12,6 +12,7 @@
+                     taken by the policy as is (the model's own escalation);
+                     unknown, timeout or any failure falls back to v1 */
+ #include "defense_internal.h"
++#include "esc_rule.h"
+ #include "http_client.h"
+ #include "urr_receiver.h"
+ #include <math.h>
+@@ -298,29 +299,30 @@
+ }
+ 
+ /* direction 1: at level 2 for grace_s, offered UL (profile, counted before
+-   the UPF policy) above (1 + over_ratio) x the cap in k of the last n ACTIVE
+-   seconds (core UL >= 8 kbit/s) -> the UE does not back off -> level 3 */
++   the UPF policy) above the threshold in k of the last n ACTIVE seconds
++   (core UL >= 8 kbit/s) -> the UE does not back off -> level 3. Threshold
++   (esc_rule.h, 2026-11-13): max((1 + over_ratio) x cap, rel_ratio x the UE's
++   median offered UL in its first ref_s active seconds at level 2): a UE that
++   backs off from a high rate is not judged against the cap alone. Shadow
++   mode: u->esc_would is set and logged, the UE is not escalated. */
+ static bool escalate(ue_t *u, const features_t *f, bool late, int64_t now) {
++  u->esc_would = false;
+   if (u->level != 2) {
+     u->limited_since_us = 0;
+-    u->esc_n = u->esc_head = 0;
++    u->esc_n = u->esc_head = u->esc_ref_n = 0;
++    u->esc_thr = 0;
++    u->esc_offered = -1;
+     return false;
+   }
+   if (!u->limited_since_us) u->limited_since_us = now;
+   double cap_ul, cap_dl;
+   core_want(u, &cap_ul, &cap_dl);
+-  const double offered = late ? 0 : features_core_ul_kbps(f);
+-  const bool over = !late && cap_ul > 0 && offered > (1.0 + cfg.esc_over_ratio) * cap_ul;
+-  if (!late && offered >= 8.0) { /* active seconds only: an ON/OFF flood cannot dilute the count with silent seconds */
+-    u->esc_hist[u->esc_head] = over;
+-    u->esc_head = (u->esc_head + 1) % 32;
+-    if (u->esc_n < 32) u->esc_n++;
+-  }
+-  if (!cfg.esc_enabled || now - u->limited_since_us < (int64_t)cfg.esc_grace_s * 1000000) return false;
+-  if (!over || offered < 8.0) return false; /* fires on new evidence only (this second over the cap): a UE that backed off does not refresh the TTL */
+-  int hits = 0, m = u->esc_n < cfg.esc_n ? u->esc_n : cfg.esc_n;
+-  for (int i = 0; i < m; i++) hits += u->esc_hist[(u->esc_head - 1 - i + 64) % 32];
+-  return m >= cfg.esc_n && hits >= cfg.esc_k;
++  u->esc_offered = late ? -1 : features_core_ul_kbps(f);
++  /* the rule is computed also when disabled (grace = never) so the log keeps the reference and the threshold */
++  const double grace = cfg.esc_enabled ? cfg.esc_grace_s : 1e18;
++  u->esc_would = esc_step(u->esc_hist, &u->esc_n, &u->esc_head, u->esc_ref, &u->esc_ref_n, cfg.esc_ref_s, cap_ul, cfg.esc_over_ratio,
++                          cfg.esc_rel_ratio, cfg.esc_k, cfg.esc_n, (now - u->limited_since_us) / 1e6, grace, u->esc_offered, &u->esc_thr);
++  return u->esc_would && !cfg.esc_shadow;
+ }
+ 
+ static void clf_line(const ue_t *u, const features_t *f, const clf_out_t *o, const cls_result_t *r, bool late, double trust,
+@@ -344,6 +346,14 @@
+   json_object_object_add(j, "masked", json_object_new_boolean(masked));
+   if (f->has_gate) json_object_object_add(j, "c_t_w", json_object_new_double(f->c_t_w));
+   json_object_object_add(j, "esc", json_object_new_boolean(esc));
++  if (u->level == 2 || u->esc_would) { /* relative escalation (esc_rule.h): reference, threshold, rule result (also in shadow mode) */
++    json_object_object_add(j, "esc_would", json_object_new_boolean(u->esc_would));
++    json_object_object_add(j, "esc_ref", json_object_new_double(esc_ref_median(u->esc_ref, u->esc_ref_n)));
++    json_object_object_add(j, "esc_ref_n", json_object_new_int(u->esc_ref_n));
++    json_object_object_add(j, "esc_thr", json_object_new_double(u->esc_thr));
++    json_object_object_add(j, "esc_offered", json_object_new_double(u->esc_offered));
++    json_object_object_add(j, "esc_since_ms", json_object_new_int64(u->limited_since_us ? (now - u->limited_since_us) / 1000 : -1));
++  }
+   json_object_object_add(j, "label", json_object_new_string(label_name(r->label)));
+   json_object_object_add(j, "kind", json_object_new_string(r->kind));
+   json_object_object_add(j, "want_level", json_object_new_int(r->want_level));
+diff -ruN a/examples/xApp/c/monitor/defense.c b/examples/xApp/c/monitor/defense.c
+--- a/examples/xApp/c/monitor/defense.c	2026-11-13 01:27:59.392175174 +0700
++++ b/examples/xApp/c/monitor/defense.c	2026-11-13 18:09:34.448987218 +0700
+@@ -128,6 +128,7 @@
+                    .endpoint = "http://127.0.0.1:8091/classify", .window = 10, .timeout_ms = 200,
+                    .model_path = "/opt/oai/models/clf_model.json", .actuate = true,
+                    .esc_enabled = true, .esc_grace_s = 5, .esc_k = 8, .esc_n = 10, .esc_over_ratio = 0.25,
++                   .esc_rel_ratio = 0, .esc_ref_s = 3, .esc_shadow = false,
+                    .sev_rate = 2, .sev_repeat = 1, .half_life_s = 60};
+   load_fair_use(NULL, NULL);
+   const char *env = getenv("DEFENSE_CONFIG");
+@@ -186,8 +187,13 @@
+   cfg.esc_k = (int)num(es, "hits", cfg.esc_k);
+   cfg.esc_n = (int)num(es, "samples", cfg.esc_n);
+   cfg.esc_over_ratio = num(es, "overRatio", cfg.esc_over_ratio);
++  cfg.esc_rel_ratio = num(es, "relRatio", cfg.esc_rel_ratio);
++  cfg.esc_ref_s = (int)num(es, "refS", cfg.esc_ref_s);
++  if (es && json_object_object_get_ex(es, "shadow", &x)) cfg.esc_shadow = json_object_get_boolean(x);
+   if (cfg.esc_n < 1 || cfg.esc_n > 32) cfg.esc_n = 10;
+   if (cfg.esc_k < 1 || cfg.esc_k > cfg.esc_n) cfg.esc_k = cfg.esc_n;
++  if (cfg.esc_ref_s < 1 || cfg.esc_ref_s > 8) cfg.esc_ref_s = 3;
++  if (cfg.esc_rel_ratio < 0) cfg.esc_rel_ratio = 0;
+   if (cl && json_object_object_get_ex(cl, "endpoint", &x) && json_object_is_type(x, json_type_string))
+     snprintf(cfg.endpoint, sizeof(cfg.endpoint), "%s", json_object_get_string(x));
+   cfg.window = (int)num(cl, "window", cfg.window);
+@@ -266,8 +272,10 @@
+     printf("[defense] core layer off: RAN only, levels stop at 2\n");
+   printf("[defense] repeated labels: %s (evidence every %d s)\n", cfg.repeat_every ? "every" : "refresh", cfg.evidence_interval_s);
+   if (cfg.xgb)
+-    printf("[defense] classifier xgb (embedded, %s); escalation by response %s (grace %d s, %d of %d s above %.0f%% over the cap)\n",
+-           cfg.model_path, cfg.esc_enabled ? "on" : "off", cfg.esc_grace_s, cfg.esc_k, cfg.esc_n, cfg.esc_over_ratio * 100);
++    printf("[defense] classifier xgb (embedded, %s); escalation by response %s%s (grace %d s, %d of %d s above max(%.0f%% over the cap, "
++           "relRatio %.2f x the first %d active s at level 2))\n",
++           cfg.model_path, cfg.esc_enabled ? "on" : "off", cfg.esc_shadow ? ", shadow (logged only)" : "", cfg.esc_grace_s, cfg.esc_k,
++           cfg.esc_n, cfg.esc_over_ratio * 100, cfg.esc_rel_ratio, cfg.esc_ref_s);
+   printf("[defense] actions %s\n", cfg.actuate ? "sent to the RAN and the UPF" : "NOT sent (observe mode: decisions logged only)");
+   printf("[defense] classifier %s%s%s (window %d, timeout %d ms, fallback rules)\n", cfg.external ? "external " : "rules",
+          cfg.external ? "at " : "", cfg.external ? cfg.endpoint : "", cfg.window, cfg.timeout_ms);
+@@ -700,7 +708,8 @@
+       memset(&u->clf, 0, sizeof(u->clf));
+       u->clf.last_seq = scored;
+       u->limited_since_us = 0;
+-      u->esc_n = u->esc_head = 0;
++      u->esc_n = u->esc_head = u->esc_ref_n = 0;
++      u->esc_would = false;
+       policy_set_level(u, 0, time_now_us(), "admin reset");
+       code = 200;
+     }
+@@ -769,7 +778,7 @@
+     printf("[defense] actions %s by request\n", cfg.actuate ? "on" : "off (observe)");
+     code = 200;
+   } else if (strcmp(url, "/v1/defense/escalation") == 0 && in) {
+-    /* {"enabled"?, "graceS"?, "hits"?, "samples"?, "overRatio"?} */
++    /* {"enabled"?, "graceS"?, "hits"?, "samples"?, "overRatio"?, "relRatio"?, "refS"?, "shadow"?} */
+     json_object *y = NULL;
+     pthread_mutex_lock(&st_lock);
+     if (json_object_object_get_ex(in, "enabled", &y) && json_object_is_type(y, json_type_boolean)) cfg.esc_enabled = json_object_get_boolean(y);
+@@ -777,13 +786,24 @@
+     cfg.esc_n = (int)num(in, "samples", cfg.esc_n);
+     cfg.esc_k = (int)num(in, "hits", cfg.esc_k);
+     cfg.esc_over_ratio = num(in, "overRatio", cfg.esc_over_ratio);
++    cfg.esc_rel_ratio = num(in, "relRatio", cfg.esc_rel_ratio);
++    cfg.esc_ref_s = (int)num(in, "refS", cfg.esc_ref_s);
++    if (json_object_object_get_ex(in, "shadow", &y) && json_object_is_type(y, json_type_boolean)) cfg.esc_shadow = json_object_get_boolean(y);
+     if (cfg.esc_n < 1 || cfg.esc_n > 32) cfg.esc_n = 10;
+     if (cfg.esc_k < 1 || cfg.esc_k > cfg.esc_n) cfg.esc_k = cfg.esc_n;
++    if (cfg.esc_ref_s < 1 || cfg.esc_ref_s > 8) cfg.esc_ref_s = 3;
++    if (cfg.esc_rel_ratio < 0) cfg.esc_rel_ratio = 0;
+     json_object_object_add(o, "enabled", json_object_new_boolean(cfg.esc_enabled));
+     json_object_object_add(o, "graceS", json_object_new_int(cfg.esc_grace_s));
+     json_object_object_add(o, "hits", json_object_new_int(cfg.esc_k));
+     json_object_object_add(o, "samples", json_object_new_int(cfg.esc_n));
+     json_object_object_add(o, "overRatio", json_object_new_double(cfg.esc_over_ratio));
++    json_object_object_add(o, "relRatio", json_object_new_double(cfg.esc_rel_ratio));
++    json_object_object_add(o, "refS", json_object_new_int(cfg.esc_ref_s));
++    json_object_object_add(o, "shadow", json_object_new_boolean(cfg.esc_shadow));
++    printf("[defense] escalation by response %s%s: grace %d s, %d of %d, over %.2f, relRatio %.2f, refS %d (by request)\n",
++           cfg.esc_enabled ? "on" : "off", cfg.esc_shadow ? " (shadow)" : "", cfg.esc_grace_s, cfg.esc_k, cfg.esc_n, cfg.esc_over_ratio,
++           cfg.esc_rel_ratio, cfg.esc_ref_s);
+     pthread_mutex_unlock(&st_lock);
+     code = 200;
+   } else if (strcmp(url, "/v1/defense/core") == 0 && in && json_object_object_get_ex(in, "enabled", &x) &&
+diff -ruN a/examples/xApp/c/monitor/defense_internal.h b/examples/xApp/c/monitor/defense_internal.h
+--- a/examples/xApp/c/monitor/defense_internal.h	2026-11-13 01:01:53.711681518 +0700
++++ b/examples/xApp/c/monitor/defense_internal.h	2026-11-13 18:09:55.182033655 +0700
+@@ -69,6 +69,12 @@
+   bool esc_enabled;
+   int esc_grace_s, esc_k, esc_n;
+   double esc_over_ratio;
++  /* relative threshold (2026-11-13, esc_rule.h): above max((1 + over_ratio) x cap, rel_ratio x the UE's own rate in
++     its first ref_s active seconds at level 2); rel_ratio 0 = absolute rule. shadow: the rule runs and is logged
++     (clf esc_would), the UE is not escalated (calibration runs) */
++  double esc_rel_ratio;
++  int esc_ref_s;
++  bool esc_shadow;
+   char endpoint[128];
+   int window, timeout_ms;
+   int max_prb_ratio;          /* RAN action of levels 1-2 */
+@@ -240,6 +246,11 @@
+   int64_t limited_since_us;   /* level 2 entered (0: not at 2) */
+   unsigned char esc_hist[32]; /* per second at level 2: offered UL above the cap */
+   int esc_n, esc_head;
++  double esc_ref[8];          /* first active seconds at level 2 (esc_rule.h ESC_REF_MAX) */
++  int esc_ref_n;
++  double esc_thr;             /* threshold of the last second (log) */
++  double esc_offered;         /* offered UL of the last second the rule saw (-1: late) (log) */
++  bool esc_would;             /* the rule fired this second (also in shadow mode) */
+   uint64_t esc_seq;
+   /* feature window */
+   features_t win[WINDOW_MAX];
+diff -ruN a/examples/xApp/c/monitor/esc_rule.h b/examples/xApp/c/monitor/esc_rule.h
+--- a/examples/xApp/c/monitor/esc_rule.h	1970-01-01 08:00:00.000000000 +0800
++++ b/examples/xApp/c/monitor/esc_rule.h	2026-11-13 18:12:15.638348238 +0700
+@@ -0,0 +1,61 @@
++/* Escalation by response, relative threshold (2026-11-13): pure functions so the rule can be tested on its own
++   (tests/xapp/test_esc_rule.c) against the offline simulation (scripts/ml/esc_calib.py).
++   A UE at level 2 is "over" in an active second (offered UL >= ESC_ACTIVE_KBPS, counted by the UPF profile before
++   the policy) when offered > max((1 + over) x cap, rho x ref), ref = median of its first ref_s active seconds at
++   level 2 (its own rate when the limit came). rho 0 gives the absolute rule (> (1 + over) x cap). The threshold is
++   never below the absolute one, so the relative rule can only remove or delay an escalation. */
++#ifndef ESC_RULE_H
++#define ESC_RULE_H
++
++#include <stdbool.h>
++
++#define ESC_ACTIVE_KBPS 8.0
++#define ESC_REF_MAX 8
++
++/* add an active second to the reference until ref_s seconds are kept */
++static inline void esc_ref_add(double *ref, int *n, int ref_s, double offered) {
++  if (offered >= ESC_ACTIVE_KBPS && *n < ref_s && *n < ESC_REF_MAX) ref[(*n)++] = offered;
++}
++
++static inline double esc_ref_median(const double *ref, int n) {
++  if (n <= 0) return 0;
++  double v[ESC_REF_MAX];
++  for (int i = 0; i < n; i++) v[i] = ref[i];
++  for (int i = 1; i < n; i++) /* insertion sort, n <= 8 */
++    for (int j = i; j > 0 && v[j - 1] > v[j]; j--) {
++      const double t = v[j];
++      v[j] = v[j - 1];
++      v[j - 1] = t;
++    }
++  return n % 2 ? v[n / 2] : 0.5 * (v[n / 2 - 1] + v[n / 2]);
++}
++
++static inline double esc_threshold(double cap, double over, double rho, const double *ref, int n) {
++  const double abs_thr = (1.0 + over) * cap, rel = rho * esc_ref_median(ref, n);
++  return rel > abs_thr ? rel : abs_thr;
++}
++
++/* one second of a UE at level 2 (classifier.c escalate()): offered < 0 = late (not counted). Updates the reference
++   and the ring of over/not-over active seconds; returns true when the rule fires: past the grace, this second over
++   the threshold (new evidence) and k of the last n active seconds over. *thr_out: the threshold of this second. */
++static inline bool esc_step(unsigned char hist[32], int *hn, int *head, double *ref, int *ref_n, int ref_s, double cap,
++                            double over_ratio, double rho, int k, int n, double since_s, double grace_s, double offered,
++                            double *thr_out) {
++  const bool late = offered < 0;
++  if (!late) esc_ref_add(ref, ref_n, ref_s, offered);
++  const double thr = esc_threshold(cap, over_ratio, rho, ref, *ref_n);
++  if (thr_out) *thr_out = thr;
++  const bool over = !late && cap > 0 && offered > thr;
++  if (!late && offered >= ESC_ACTIVE_KBPS) { /* active seconds only: an ON/OFF flood cannot dilute the count with silent seconds */
++    hist[*head] = over;
++    *head = (*head + 1) % 32;
++    if (*hn < 32) (*hn)++;
++  }
++  if (since_s < grace_s) return false;
++  if (!over || offered < ESC_ACTIVE_KBPS) return false; /* new evidence only: a UE that backed off does not refresh the TTL */
++  int hits = 0, m = *hn < n ? *hn : n;
++  for (int i = 0; i < m; i++) hits += hist[(*head - 1 - i + 64) % 32];
++  return m >= n && hits >= k;
++}
++
++#endif
