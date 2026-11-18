@@ -7,6 +7,11 @@ import numpy as np, pandas as pd
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "ml"))
 import tamper_replay as TR
 DELTA = 0.2
+import os
+NOMASK = os.environ.get("EP_NOMASK") == "1"
+MIMIC = os.environ.get("EP_MIMIC") == "1"      # 2026-11-09: "mimic" scenario, the UE's KPM replaced by a recorded benign KPM trace
+MIMIC_POOL = os.environ.get("EP_MIMIC_POOL", "run")   # donors: other UE of the same run, or "all": benign UE-phases of other runs
+GATE_RUN = os.environ.get("EP_GATE") == "run"  # 2026-11-09 option (a): KPM trust gate over the whole run per UE, as the live xApp keeps it
 PROTO_UL = ["prof_ul_tcp", "prof_ul_tcp_syn", "prof_ul_udp", "prof_ul_icmp", "prof_ul_dns", "prof_ul_frag", "prof_ul_gtp_in_gtp"]
 PROTO_DL = ["prof_dl_tcp", "prof_dl_tcp_syn", "prof_dl_udp", "prof_dl_icmp", "prof_dl_frag"]
 NAMES = ["rate_ul", "rate_dl", "prb_ul", "prb_dl", "cell_ul", "cell_dl", "core_ul_kbps", "core_dl_kbps", "core_ul_pps", "core_dl_pps", "size_ul", "size_dl"] + [c[5:] for c in PROTO_UL] + ["dst_ul"] + [c[5:] for c in PROTO_DL] + ["c_t", "trust", "masked", "kpm_age", "prof_age"]
@@ -19,6 +24,8 @@ def features(g):
     late = (g.prof_age_s.to_numpy() > DELTA) | np.isnan(g.prof_age_s.to_numpy())
     f = np.zeros((len(g), 30), np.float32)
     mask = g.kpm_masked.to_numpy().astype(bool)
+    if NOMASK:                                   # baseline B3 (KPM-only xApp): no gate, KPM as reported
+        mask = np.zeros(len(g), bool)
     for i, c in enumerate(("rate_ul_kbps", "rate_dl_kbps")):
         f[:, i] = np.log1p(g[c].fillna(0).to_numpy())
     for i, c in enumerate(("prb_ul_pct", "prb_dl_pct", "cell_prb_ul_pct", "cell_prb_dl_pct")):
@@ -53,6 +60,16 @@ def first(c):
 def main():
     df = pd.read_parquet(sys.argv[1]).sort_values(["run_id", "phase", "supi", "t_unix"]).reset_index(drop=True)
     rng = np.random.default_rng(20261105)
+    rng_m = np.random.default_rng(20261109)          # separate stream: the other scenarios stay identical to earlier builds
+    runs = {r: g for r, g in df.groupby("run_id", sort=False)}
+    global POOL, SIDE
+    # donors stay on the run's side of the final split (EP_SPLIT): a clean-test user's KPM never appears in a training scenario
+    SIDE = {}
+    if os.environ.get("EP_SPLIT"):
+        import json
+        sp = json.load(open(os.environ["EP_SPLIT"]))
+        SIDE = {r: k for k in ("train", "test") for r in sp[k]}
+    POOL = [(k, g.sort_values("t_unix")) for k, g in df.groupby(["run_id", "phase", "supi"]) if (g.role == "benign").all() and (g.client_role == "").all() and len(g) >= 75] if MIMIC else []
     out = []
     for (run, phase), ph in df.groupby(["run_id", "phase"], sort=False):
         ues = list(ph.supi.unique())
@@ -62,7 +79,11 @@ def main():
         other = next((s for s in ues if s != attacker), None)
 
         def scen(d):
-            g = TR.gate(d, "ue")
+            if GATE_RUN:                              # this phase as tampered, the rest of the run as recorded
+                full = pd.concat([runs[run][runs[run].phase != phase], d])
+                g = TR.gate(full, "ue").loc[d.index]
+            else:
+                g = TR.gate(d, "ue")
             d = d.copy()
             d[["c_t", "c_t_w", "kpm_trust", "kpm_masked"]] = g
             return d
@@ -85,6 +106,14 @@ def main():
                 scs["hide0.33on"] = features(d[d.supi == s])
             if Sw is not None:
                 scs["swap"] = features(Sw[Sw.supi == s])
+            if MIMIC:                                 # the KPM of s, from the phase start, replaced by another UE's benign KPM of another phase of this run
+                pool = [g for k, g in POOL if k[0] != run and SIDE.get(k[0]) == SIDE.get(run)] if MIMIC_POOL == "all" else \
+                       [g for (p2, u2), g in runs[run][(runs[run].phase != phase) & (runs[run].supi != s)].groupby(["phase", "supi"])
+                        if (g.role == "benign").all() and (g.client_role == "").all() and len(g) >= len(g0)]
+                if pool:
+                    donor = pool[int(rng_m.integers(len(pool)))].sort_values("t_unix")
+                    d = scen(TR.tamper(ph, s, first_s, 10**12, donor=donor))
+                    scs["mimic"] = features(d[d.supi == s])
             oth = ph[ph.supi != s].set_index("t_unix").rate_ul_kbps.reindex(g0.t_unix).fillna(0).to_numpy() if other is not None else np.zeros(len(g0))
             out.append(dict(run=run, phase=phase, supi=s, attack=is_att, evasion=(first(g0.evasion) if is_att else ""), vector=(first(g0.vector) if is_att else ""), other_evasion=(first(ph[ph.role == "attack"].evasion) if attacker else ""),
                             client=first(g0.client_role) != "", band=g0.band.iloc[0], anchor=float(g0.anchor_bps.max()) if is_att else 0.0, run_lab=run_lab, active=g0.attack_active.to_numpy().astype(np.int8), bytes=g0.attack_bytes_core.to_numpy().astype(np.float32), other_ul=oth.astype(np.float32), scen=scs))

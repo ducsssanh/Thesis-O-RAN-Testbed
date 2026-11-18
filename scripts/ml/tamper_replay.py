@@ -39,12 +39,23 @@ def gate(df, scope="node"):
     return out.reindex(df.index)
 
 
-def tamper(df, supi, t0, t1, factor=None, on_only=False, swap_with=None):
-    """A copy of df with the KPM of `supi` tampered on seconds t0 <= t < t1; the cell PRB follows. Gate columns are not updated: call gate() on the result."""
+def tamper(df, supi, t0, t1, factor=None, on_only=False, swap_with=None, donor=None):
+    """A copy of df with the KPM of `supi` tampered on seconds t0 <= t < t1; the cell PRB follows. Gate columns are not updated: call gate() on the result.
+    donor (2026-11-09, "mimic"): rows of a benign UE recorded on the testbed; its KPM replaces the UE's KPM second by second (the k-th tampered
+    second gets the k-th donor second): a MITM replaying a real benign KPM trace, so the reported KPM is benign KPM by construction."""
     d = df.copy()
     me = (d["supi"] == supi) & (d["t_unix"] >= t0) & (d["t_unix"] < t1)
     if on_only:
         me &= d["attack_active"] == 1
+    if donor is not None:
+        idx = d.index[me][:len(donor)]
+        src = donor.iloc[:len(idx)]
+        for c, cell in (("prb_ul_pct", "cell_prb_ul_pct"), ("prb_dl_pct", "cell_prb_dl_pct")):
+            delta = src[c].to_numpy() - d.loc[idx, c].to_numpy()
+            d.loc[idx, cell] = np.clip(np.nan_to_num(d.loc[idx, cell].to_numpy() + delta), 0.0, 100.0)
+        for c in KPM_ALL:
+            d.loc[idx, c] = src[c].to_numpy()
+        return d
     if swap_with is not None:
         a = d[me].set_index("t_unix")
         o = (d["supi"] == swap_with) & d["t_unix"].isin(a.index)
