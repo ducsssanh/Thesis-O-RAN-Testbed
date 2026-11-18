@@ -361,6 +361,13 @@ class V4Flow:
         self.start_at = __import__("math").ceil(time.time() + self.REPLAY_LEAD_S - offset) + offset
         self.plan["start_at"] = self.start_at
         self._runner.set_victim_silent(self.ip, "udp", self.port)
+        if self.spec.get("reactive") and self.role == "benign":
+            # reactive benign (end-to-end runs): the pacer backs off on the DN's receive reports (pacer.py "reactive")
+            rp = dict(self.spec["reactive"]) if isinstance(self.spec["reactive"], dict) else {}
+            rp.setdefault("port", self.port + 2000)
+            self.plan["reactive"] = rp
+            self.reactive_thread = self._runner.start_feedback_reporter(
+                UES[self.ue][0], self.ip, self.port, rp["port"], int(self.duration + self.REPLAY_LEAD_S + 4))
         self._dl_threads = self._runner.start_dl_feedback(
             UES[self.ue][0], self.ip, self.port + 1000, None, int(self.duration + self.REPLAY_LEAD_S + 2),
             seed=int(self.spec["seed"]) ^ 0xD1, dl_seconds=self.plan.pop("dl_seconds"), start_at=self.start_at,
@@ -389,6 +396,8 @@ class V4Flow:
             self._srv.join(timeout=timeout)
         for t in self._dl_threads:
             t.join(timeout=timeout)
+        if getattr(self, "reactive_thread", None):
+            self.reactive_thread.join(timeout=timeout)
         if self.malicious and self.victim_mode == "silent":
             self._runner.clear_victim_silent(self.ip, self.proto, self.port)
         if self.replay:
@@ -401,9 +410,18 @@ class V4Flow:
             if r.get("final") or "sent_bytes" not in r:
                 continue
             sb = r["sent_bytes"]                           # None = sent volume unknown (iperf timeout/stall)
-            self.rows.append({"t": r["t"], "interval": [0.0, 1.0], "bytes": sb,
-                              "bps": None if sb is None else sb * 8.0, "jitter_ms": 0.0, "lost": 0, "total": 0,
-                              "final": False})
+            row = {"t": r["t"], "interval": [0.0, 1.0], "bytes": sb,
+                   "bps": None if sb is None else sb * 8.0, "jitter_ms": 0.0, "lost": 0, "total": 0,
+                   "final": False}
+            for k in ("mult", "loss", "held_pkts", "reports", "target_bytes"):   # reactive benign: kept in flows.json
+                if k in r and "mult" in r:
+                    row[k] = r[k]
+            if r.get("closed_loop"):                       # closed-loop benign L3 client: kept in flows.json
+                for k in ("target_pkts", "sent_pkts", "answers", "conn_failed", "window", "inflight", "timeouts", "skipped", "started", "loss", "cut"):
+                    if k in r:
+                        row[k] = r[k]
+                row["closed_loop"] = True
+            self.rows.append(row)
         self.client_out = json.dumps(self._achieved)[-4000:]
 
     def summary(self):
@@ -474,24 +492,31 @@ def make_flow(ue, direction, spec, length, duration, port, ip):
 
 class DnCounter:
     """Per-second packets/bytes per UE address at the DN's N6 (tcpdump headers
-    aggregated inside the pod, so only a small CSV leaves it)."""
+    aggregated inside the pod, so only a small CSV leaves it). Since 2026-11-13 also
+    per protocol and per port of the DN side (UL: destination port, DL: source port;
+    empty for ICMP), so the attack flow of a UE separates from its own benign twin by
+    port (flows.json) in the end-to-end runs; sums over (t, ue_ip, dir) are unchanged."""
 
     AGG = r"""
 import sys,collections
 c=collections.Counter();b=collections.Counter()
+def hp(x):
+    p=x.rstrip(':').split('.')
+    return '.'.join(p[:4]),(p[4] if len(p)>4 else '')
 for line in sys.stdin:
     f=line.split()
     if len(f)<6 or f[1]!='IP':continue
     try:
-        t=int(float(f[0]));src='.'.join(f[2].split('.')[:4]);dst='.'.join(f[4].rstrip(':').split('.')[:4])
+        t=int(float(f[0]));src,sp=hp(f[2]);dst,dp=hp(f[4])
         n=int(f[-1])
     except ValueError:continue
-    if src.startswith('10.1.'):k=(t,src,'ul')
-    elif dst.startswith('10.1.'):k=(t,dst,'dl')
+    pr=f[5].rstrip(',').lower()
+    if src.startswith('10.1.'):k=(t,src,'ul',pr,dp)
+    elif dst.startswith('10.1.'):k=(t,dst,'dl',pr,sp)
     else:continue
     c[k]+=1;b[k]+=n
-print('t,ue_ip,dir,pkts,ip_payload_bytes')
-for k in sorted(c):print('%d,%s,%s,%d,%d'%(k[0],k[1],k[2],c[k],b[k]))
+print('t,ue_ip,dir,pkts,ip_payload_bytes,proto,dn_port')
+for k in sorted(c):print('%d,%s,%s,%d,%d,%s,%s'%(k[0],k[1],k[2],c[k],b[k],k[3],k[4]))
 """
 
     def __init__(self, seconds):

@@ -125,6 +125,8 @@ def export_defense(out, t0, t1):
     (out / "raw/kpm.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_RawKpm.jsonl"), lambda o: o["arrival_ts"], t0, t1))
     # v5 live: KPM tamper ground truth (xApp) and the model sidecar's per-step decisions
     (out / "defense/tamper.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_Tamper.jsonl"), lambda o: o["ts"], t0, t1))
+    # embedded classifier: per UE and second the 25 inputs, logit, alarms, label and level (classifier.kind xgb)
+    (out / "defense/clf.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_Clf.jsonl"), lambda o: o["scored_ms"] / 1000, t0, t1))
     (out / "defense/sidecar.jsonl").write_text(cut_jsonl(
         tail("near-rt-ric", "oai-lab-xapp", "sidecar", d + "KPI_Metrics_Sidecar.jsonl"), lambda o: o["ts"], t0, t1))
     q = ("import sqlite3,json,sys\nc=sqlite3.connect('file:/urr-state/defense.db?mode=ro',uri=True)\n"

@@ -87,8 +87,12 @@ global:
         action:
           mode: slice           # slice: levels 1-2 hand the UE over to the quarantine RAN slice (members share
                                 # maxPrbRatio, PDU session kept; gNB C33, SliceHO idea); ue: PRB quota on the UE (R2)
-          maxPrbRatio: 10       # percent of the BWP per slot
+          maxPrbRatio: 10       # percent of the BWP per slot (overridden by limitSlice)
           quarantineSlice: {sst: 1, sd: "BADBAD"}
+          # end-to-end mitigation (2026-11-13): levels 1-2 -> limit slice, levels >= 3 -> block slice; members of a slice
+          # share its PRB quota (the gNB keeps at least 1 % and min_rbs, so the byte cap is at the UPF)
+          limitSlice: {sst: 1, sd: "BADBAD", maxPrbRatio: 5}
+          blockSlice: {sst: 1, sd: "BADB10", maxPrbRatio: 1}
           defaultSlice: {sst: 1, sd: "FFFFFF"}   # the lab slice (global.lab.slice); no RAN slice -> unlimited
         confirm:                # level 2: violates again within probationS after the level-1 quota expired
           probationS: 180       # (PRB "quota full" cannot confirm: spare PRBs go to any active UE, R3 05/10)
@@ -102,7 +106,9 @@ global:
           syncS: 10             # GET /v1/info (boot_id) + /v1/ues against the xApp's view
           ttlMarginS: 30        # UPF policy outlives the level by this much (xApp dead -> it still expires)
           maxTtlS: 86400        # level 4: block TTL (<= upfSecurity.maxTtlS), renewed at half
-          ratelimitFactor: 1.0  # level 2: UPF ratelimit = fair-use class rate x factor
+          ratelimitFactor: 1.0  # level 2: UPF ratelimit = fair-use class rate x factor (when limitUlKbps is 0)
+          limitUlKbps: 32       # level 2: fixed UPF cap for every UE, below the smallest flood of the dataset (53 kbit/s)
+          limitDlKbps: 64
           urrMaxAgeS: 5         # older URR reports are not features
           fusionS: 10           # KPM and URR window hits within this many seconds = both layers (levels >= 3)
           verifyS: 10           # RAN limit must lower the SUPI's URR, UPF action must show in URR, within this

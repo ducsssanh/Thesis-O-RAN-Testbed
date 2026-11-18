@@ -192,6 +192,27 @@ def del_dn_aliases(n, base=FANOUT_BASE, iface="n6", net="172.30.26"):
     _dn(cmd)
 
 
+def sidecar_ip(dep):
+    """Pod-network address of a UE pod (its keepalive sidecar shares the pod's network namespace)."""
+    rc, out, _ = _k(["-n", "oai-ran", "exec", f"deploy/{dep}", "-c", "keepalive", "--", "hostname", "-i"], timeout=30)
+    ips = [x for x in out.split() if x.count(".") == 3 and not x.startswith("10.1.")]
+    if rc != 0 or not ips:
+        raise RuntimeError("no pod IP for %s: %r" % (dep, out))
+    return ips[0]
+
+
+def start_feedback_reporter(ue_dep, ue_ip, dn_port, fb_port, seconds):
+    """Reactive benign (2026-11-13): the DN reports the bytes of this flow it received per second to the UE
+    sidecar (pacer "reactive"), over the pod network. Returns the thread (join at the end)."""
+    _dn_push_sink()
+    to = "%s:%d" % (sidecar_ip(ue_dep), fb_port)
+    cmd = ["-n", "oai-core", "exec", "deploy/oai-lab-dn", "-c", "dn", "--", "python3", "/tmp/dn_sink.py", "feedback",
+           "--port", str(dn_port), "--seconds", str(seconds), "--ue", ue_ip, "--to", to]
+    t = threading.Thread(target=lambda: _k(cmd, timeout=seconds + 10), daemon=True)
+    t.start()
+    return t
+
+
 def _start_dn_server(backend, port, seconds):
     """Launch the DN server in a background thread; returns the thread (join at the end)."""
     cmd = _dn_server_cmd(backend, port, seconds)

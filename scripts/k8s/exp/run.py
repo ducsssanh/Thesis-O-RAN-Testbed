@@ -29,6 +29,7 @@ import csv
 import datetime
 import json
 import sys
+import threading
 import time
 import traceback
 
@@ -55,6 +56,8 @@ def apply_defense(cfg, ue_names):
     """Variant defense settings through the xApp run-time API."""
     reqs = []
     base = "http://127.0.0.1:8090/v1/defense/"
+    if "actuate" in cfg:                           # first: live detection test in observe mode (decisions logged, no action)
+        reqs.append(["POST", base + "actuate", {"actuate": bool(cfg["actuate"])}])
     if "mode" in cfg:
         reqs.append(["POST", base + "mode", {"mode": cfg["mode"]}])
     if "core" in cfg:
@@ -63,6 +66,8 @@ def apply_defense(cfg, ue_names):
         reqs.append(["POST", base + "timing", cfg["timing"]])
     if "classifier" in cfg:
         reqs.append(["POST", base + "classifier", {"kind": cfg["classifier"]}])
+    if "escalation" in cfg:                        # escalation by response (direction 1)
+        reqs.append(["POST", base + "escalation", cfg["escalation"]])
     if cfg.get("clear_tamper"):                    # v5: no KPM tamper left from an earlier run
         reqs.append(["POST", base + "tamper", {"off": True}])
     if "sidecar_mode" in cfg:                      # v5: model sidecar configuration (also resets its state)
@@ -87,10 +92,18 @@ def phase_hooks(p, run, ue_names):
         reqs += [["POST", base + "reset", {"supi": lab.UES[n][2]}] for n in ue_names]
         reqs.append(["POST", base + "tamper", {"off": True}])
         done["reset_defense"] = True
+    if p.get("force"):
+        # end-to-end calibration (2026-11-13): put a benign UE at a level without a decision (POST /v1/defense/force);
+        # a force with "at_s" is sent later, at_s seconds after second 0 of the phase's schedule (force_later())
+        now_f = [f for f in (p["force"] if isinstance(p["force"], list) else [p["force"]]) if f.get("at_s") is None]
+        for f in now_f:
+            reqs.append(["POST", base + "force", {"supi": lab.UES[f["ue"]][2], "level": int(f["level"]), "ttl_s": int(f.get("ttl_s", 0))}])
+        done["force"] = p["force"]
     if p.get("tamper"):
         t = p["tamper"]
-        reqs.append(["POST", base + "tamper", {"supi": lab.UES[t["ue"]][2], "factor": t["factor"]}])
-        done["tamper"] = {**t, "supi": lab.UES[t["ue"]][2]}
+        body = {"supi": lab.UES[t["ue"]][2], **{k: v for k, v in t.items() if k != "ue"}}   # factor, or series (replay of a benign KPM trace)
+        reqs.append(["POST", base + "tamper", body])
+        done["tamper"] = {**{k: v for k, v in t.items() if k != "series"}, "supi": lab.UES[t["ue"]][2], "series_len": len(t.get("series") or [])}
     if reqs:
         res = lab.http_many(reqs)
         bad = [(r[1], s) for r, (s, _) in zip(reqs, res) if s != 200 and not (r[1].endswith("reset") and s == 404)]
@@ -103,6 +116,26 @@ def phase_hooks(p, run, ue_names):
                     "--timeout=60s", check=False, timeout=70)
         done["core_outage"] = {"down_at": round(time.time(), 3), "down_s": round(time.time() - t0, 1)}
     return done
+
+
+def force_later(p, flows, t_start):
+    """forces with "at_s" (2026-11-13 calibration): a timer per force, at_s after second 0 of the schedule of that UE
+    (start_at of its replay flow; else the phase start). Returns the timers and their log (filled when they fire)."""
+    timers, log_ = [], []
+    for f in (p.get("force") if isinstance(p.get("force"), list) else [p["force"]] if p.get("force") else []):
+        if f.get("at_s") is None:
+            continue
+        t0 = min([x.start_at for x in flows if getattr(x, "start_at", None) and x.ue == f["ue"]] or [t_start])
+        rec_ = {"ue": f["ue"], "at_s": f["at_s"], "planned_unix": round(t0 + float(f["at_s"]), 3)}
+        log_.append(rec_)
+
+        def fire(f=f, rec_=rec_):
+            rec_["sent_unix"] = round(time.time(), 3)
+            s_, _ = lab.defense("POST", "/v1/defense/force", {"supi": lab.UES[f["ue"]][2], "level": int(f["level"]), "ttl_s": int(f.get("ttl_s", 0))})
+            rec_["status"] = s_
+        t = threading.Timer(max(0.0, t0 + float(f["at_s"]) - time.time()), fire)
+        t.daemon = True; t.start(); timers.append(t)
+    return timers, log_
 
 
 def phase_unhooks(p, done):
@@ -270,6 +303,9 @@ def run_once(scn, variant, rep, camp_dir):
             ph["t_start"] = round(time.time(), 3)
             for f in flows:
                 f.start_client()
+            f_timers, f_log = force_later(p, flows, ph["t_start"])
+            if f_log:
+                ph["force_later"] = f_log
             if cong:
                 traffic.v4_set_congestion(cong)
                 ph["congestion"] = cong
@@ -285,6 +321,8 @@ def run_once(scn, variant, rep, camp_dir):
                     break
                 time.sleep(0.5)
             ph["t_end"] = round(time.time(), 3)
+            for t in f_timers:                         # a force still pending at the phase end is not sent
+                t.cancel()
             if cong:
                 traffic.v4_clear_congestion()
             for f in flows:

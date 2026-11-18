@@ -920,6 +920,7 @@ def build_ei():
 def build_xapp():
     sources=[p for p in sorted((ROOT/"src/flexric").rglob("*")) if p.is_file() and not any(x in p.parts for x in ("build",".git"))]
     sources.append(DEPLOY/"images/Dockerfile.radio")
+    sources.extend(sorted((DEPLOY/"images/models").glob("*.json")))   # embedded classifier
     digest=hashlib.sha256(b"".join(p.read_bytes() for p in sources)).hexdigest()[:16]
     image="oai-lab-xapp:"+digest
     cmd=["docker","build","--progress=plain","-f",str(DEPLOY/"images/Dockerfile.radio"),"--target","xapp","-t",image,str(ROOT)]
@@ -956,6 +957,8 @@ def rollout(component, image):
     if component=="adapter": upgrade.extend(["--set","adapter.xappPushEnabled=true"])
     # --reuse-values keeps the old release values: pass the UPF security block (Phase U) explicitly
     if component=="upf": upgrade.extend(["--set-json","global.lab.defense.upfSecurity="+json.dumps(values()["defense"].get("upfSecurity",{"enabled":False}))])
+    # ...and the xApp defence block (2026-11-13: new keys such as action.limitSlice / blockSlice, core.limitUlKbps)
+    if component=="xapp": upgrade.extend(["--set-json","global.lab.defense.xapp="+json.dumps(values()["defense"].get("xapp",{}))])
     helm(ns,*upgrade,"--timeout","5m",timeout=360)
     if component=="upf":
         kub("oai-core","scale","deployment/oai-upf","--replicas=1")

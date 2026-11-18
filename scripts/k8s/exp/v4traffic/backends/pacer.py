@@ -17,6 +17,13 @@ Benign twin (real window replay) adds:
    "seconds": [{"bytes": 500.0, "pkts": [58, 58, 300]}, ...]   # exact IP lengths of that second; no "sizes"
    "start_at": 1793539600.42,               # wall-clock time of second 0 (first row reports late_s)
    "span": [0.05, 0.75]                     # part of each second the packets are sent in
+Reactive benign (end-to-end runs, 2026-11-13), optional:
+   "reactive": {"port": 7401, "thr": 0.05, "down": 0.7, "up": 0.1, "floor": 0.02, "min_bytes": 1500}
+   The DN reports the UDP payload bytes it received from this flow per UNIX second (dn_sink.py feedback, over the
+   pod network). Once a second the pacer takes the newest two reported seconds: loss = 1 - received / sent; if the
+   pair carried >= min_bytes and loss > thr the send multiplier m goes to max(floor, m x down), otherwise to
+   min(1, m + up) (AIMD, as a TCP-like application backs off). Packets are kept with probability m, so the size
+   mix of the window stays; m = 1 is exactly the plain replay. Rows add m, the loss used and the packets held back.
    "seconds": [{..., "offs": [0.012, 0.012, 0.407]}, ...]   # send time of each packet in its second (TTI replay); span unused
 
 Rate control: each second, derive a packet count from target bytes and the mean
@@ -60,6 +67,15 @@ def main():
     else:
         dsts = [dst]
 
+    react = p.get("reactive")
+    fb, mult, last_loss, sent_w, rx_w, eval_w, held, nrep = None, 1.0, None, {}, {}, None, 0, [0]
+    if react:
+        fb = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        fb.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        fb.bind(("0.0.0.0", int(react["port"])))
+        fb.setblocking(False)
+        krng = random.Random(p.get("seed", 0) ^ 0x7EAC)
+
     late = None
     if p.get("start_at"):
         wait = p["start_at"] - time.time()
@@ -88,6 +104,9 @@ def main():
             offsets = sorted(span0 + (span1 - span0) * rng.random() for _ in range(n))
         else:
             offsets = [span0 + (span1 - span0) * (k + 0.5) / n for k in range(n)]
+        if fb is not None:
+            mult, last_loss, eval_w = _react(fb, react, mult, last_loss, sent_w, rx_w, eval_w, nrep)
+        held = 0
         sent_pkts = sent_bytes = 0
         szs = exact if exact is not None else [lens[_weighted(rng, weights)] for _ in range(n)]
         for k in range(n):
@@ -98,10 +117,16 @@ def main():
             elif now - t_sec_start >= 1.0:
                 break                                    # out of budget for this second; record shortfall
             L = szs[k]
+            if fb is not None and mult < 1.0 and krng.random() >= mult:
+                held += 1
+                continue
             try:
                 s.sendto(payloads[L] if L in payloads else bytes(max(L - 28, 1)), (dsts[k % len(dsts)], ports[k % len(ports)]))
                 sent_pkts += 1
                 sent_bytes += L
+                if fb is not None:
+                    w = int(time.time())
+                    sent_w[w] = sent_w.get(w, 0) + max(L - 28, 1)
             except OSError:
                 pass
         # hold to the second boundary so the next second starts aligned
@@ -116,8 +141,46 @@ def main():
             row["late_s"] = late
         if gate is not None and i < len(gate):
             row["attack_active"] = int(gate[i])
+        if fb is not None:
+            row["mult"] = round(mult, 4)
+            row["loss"] = None if last_loss is None else round(last_loss, 4)
+            row["held_pkts"] = held
+            row["reports"] = nrep[0]
         print(json.dumps(row), flush=True)
     s.close()
+
+
+def _react(fb, react, mult, last_loss, sent_w, rx_w, eval_w, nrep):
+    """drain the DN's receive reports, then one AIMD step on the newest pair of reported seconds"""
+    while True:
+        try:
+            m = json.loads(fb.recv(2048).decode())
+            rx_w[int(m["t"])] = int(m["rx"])
+            nrep[0] += 1
+        except (BlockingIOError, InterruptedError):
+            break
+        except (ValueError, KeyError, OSError):
+            continue
+    if not rx_w:
+        return mult, last_loss, eval_w
+    w = max(rx_w)
+    if w == eval_w or (w - 1) not in rx_w:
+        return mult, last_loss, eval_w
+    sent = sent_w.get(w - 1, 0) + sent_w.get(w, 0)
+    if sent >= react.get("min_bytes", 1500):
+        loss = 1.0 - (rx_w[w - 1] + rx_w[w]) / sent
+        if loss > react.get("thr", 0.05):
+            mult = max(react.get("floor", 0.02), mult * react.get("down", 0.7))
+        else:
+            mult = min(1.0, mult + react.get("up", 0.1))
+        last_loss = loss
+    else:
+        mult = min(1.0, mult + react.get("up", 0.1))   # nothing to judge on: recover
+    for k in [k for k in sent_w if k < w - 5]:
+        sent_w.pop(k, None)
+    for k in [k for k in rx_w if k < w - 5]:
+        rx_w.pop(k, None)
+    return mult, last_loss, w
 
 
 def _weighted(rng, weights):

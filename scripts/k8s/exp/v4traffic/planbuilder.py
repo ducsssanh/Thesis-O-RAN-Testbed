@@ -113,6 +113,8 @@ def build_attack(spec, T, dst, bind, port):
     rng = np.random.default_rng(spec["seed"])
     evasion, anchor = spec["evasion"], float(spec["anchor_bps"])
     onset = int(rng.integers(0, PRE_ROLL_S))
+    if spec.get("onset_s") is not None:                # end-to-end runs: an attack carried on from the previous phase starts at 0
+        onset = int(spec["onset_s"])
     active = np.arange(T) >= onset
     extra = {}
     if evasion == "L1":
@@ -158,15 +160,33 @@ def build_attack(spec, T, dst, bind, port):
         raise ValueError(evasion)
     plan = {"dst": dst, "bind": bind, "ports": [port], "backend": backend, "seconds": seconds, "seed": int(spec["seed"]),
             "attack_active": [int(a) for a in active], **extra}
+    if evasion == "L3" and spec.get("role") == "benign" and spec.get("closed_loop"):
+        plan["closed_loop"] = closed_loop_params(spec["closed_loop"], seconds)
     target = float(np.mean([x["bytes"] for x in seconds]))
     window_meta = extra.pop("window", None)
     plan.pop("window", None)
     meta = {"backend": backend, "model": "flood_overlay", "role": spec.get("role", "attack"), "window": window_meta, "evasion": evasion, "anchor_bps": anchor, "onset_s": onset,
             "level_bytes_s": anchor / 8.0, "mean_size": size, "seed": int(spec["seed"]), "attack_active": plan["attack_active"],
             "target_mean_bytes_s": target, "params": {}}
+    if "closed_loop" in plan:
+        meta["closed_loop"] = plan["closed_loop"]
     if evasion == "L2":
         meta["window"] = {"cell": w["src"][0], "rnti": w["src"][1], "start": w["src"][2], "index": w["index"], "scale": float(scale), "app": app}
     return plan, meta
+
+
+def closed_loop_params(cl, seconds):
+    """closed-loop benign L3 client (2026-11-13, backends dns_client.py / tcp_shortconn.py): the base window of
+    outstanding queries / open connections by a fixed rule, never tuned by hand: max(16, ceil(1.5 x peak scheduled
+    rate x the RTT budget)), RTT budget 0.25 s (raised only by the rule fixed in the logbook before the calibration);
+    the window adapts per second as the reactive benign pacer (AIMD x0.7 on > 5 % lost, + 0.1 x base; the newest two
+    seconds pooled, decided only with >= 20 outcomes: one late answer in a quiet second no longer cuts the window
+    to 1, the fault found in the calibration oran_flooding_e2e_calib4, logbook 2026-11-13)."""
+    cl = cl if isinstance(cl, dict) else {}
+    rtt = float(cl.get("rtt_budget_s", 0.25))
+    peak = max([int(x.get("pps") or 0) for x in seconds] + [0])
+    return {"window": max(16, int(np.ceil(1.5 * peak * rtt))), "timeout_s": float(cl.get("timeout_s", 1.0)),
+            "down": 0.7, "up": 0.1, "loss_thr": 0.05, "min_outcomes": 20, "rtt_budget_s": rtt, "peak_pps": peak}
 
 
 def build_plan(spec, T, dst, bind, port):

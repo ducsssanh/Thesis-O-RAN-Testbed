@@ -38,8 +38,9 @@ wait_ready oai-core oai-amf 150s
 log "wait for UPF registered at NRF"
 # a restarted UPF takes ~100 s to (re-)register (seen 2026-10-24): wait up to 180 s
 for i in $(seq 1 60); do
-  $K -n oai-core logs deploy/oai-nrf --since=240s 2>/dev/null \
-    | grep -q "NF type UPF" && { log "UPF registered at NRF"; break; }
+  # read the log first: `logs | grep -q` under pipefail fails on SIGPIPE when grep exits early
+  l=$($K -n oai-core logs deploy/oai-nrf --since=240s 2>/dev/null)
+  grep -q "NF type UPF" <<<"$l" && { log "UPF registered at NRF"; break; }
   [ "$i" = 60 ] && fail "UPF never registered at NRF"
   sleep 3
 done
@@ -53,12 +54,22 @@ wait_ready oai-core oai-smf 150s
 log "verify PFCP association"
 assoc=0
 for i in $(seq 1 30); do
-  $K -n oai-core logs deploy/oai-smf -c smf --since=120s 2>/dev/null \
-    | grep -q "Added PFCP association with UPF" && { assoc=1; break; }
+  l=$($K -n oai-core logs deploy/oai-smf -c smf --since=120s 2>/dev/null)
+  grep -q "Added PFCP association with UPF" <<<"$l" && { assoc=1; break; }
   sleep 3
 done
 [ "$assoc" = 1 ] || fail "SMF did not associate with the UPF (no 'Added PFCP association')"
 log "PFCP association OK"
+
+# 5b. the gNB re-dials the restarted AMF on its own (~40-60 s); a UE restarted before the NG
+#     Setup sends its Registration Request to "no AMF" and never retries (seen 2026-11-14)
+log "wait for the gNB NG Setup at the new AMF"
+for i in $(seq 1 60); do
+  l=$($K -n oai-core logs deploy/oai-amf 2>/dev/null)
+  grep -q "has been attached to AMF" <<<"$l" && { log "gNB attached to AMF"; break; }
+  [ "$i" = 60 ] && fail "gNB never attached to the new AMF"
+  sleep 3
+done
 
 # 6. UEs re-attach (they do not auto-retry a PDU request that failed before association)
 log "restart UEs"

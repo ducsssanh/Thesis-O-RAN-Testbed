@@ -1,5 +1,6 @@
 """Cluster access for the experiment runner: kubectl, the xApp defense API,
 the UPF Security API, UE addressing, preflight checks."""
+import os
 import json
 import pathlib
 import shutil
@@ -167,7 +168,8 @@ def preflight(ue_names):
     facts = {"run_id": staged.run_id()}
     free = shutil.disk_usage("/").free / 2**30
     facts["disk_free_gib"] = round(free, 1)
-    if free < 5:
+    need = float(os.environ.get("CAMPAIGN_MIN_FREE_GB", "5"))   # a live run writes ~10 MB; the campaign runner passes its own floor
+    if free < need:
         raise LabError("only %.1f GiB free on / (clean up first, see docs/SESSION-HANDOFF.md section 7)" % free)
     st = defense_state()
     facts["defense"] = {k: st.get(k) for k in ("enabled", "profile", "action_mode", "timing", "unlabelled_samples")}
