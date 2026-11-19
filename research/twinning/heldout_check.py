@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single held-out check of the twin (TRAFFIC-TWINNING-PLAN 6.6). Refuses to run if the result file exists.
+"""Single held-out check of the twin. Refuses to run if the result file exists.
 Null: n windows of a build cell against all of the held-out cell of its group; tau* over all bands together.
 Usage: heldout_check.py <out.json> <heldout windows npz> [--replicates 1000] [--tag final2]"""
 import argparse, glob, json, pathlib, sys

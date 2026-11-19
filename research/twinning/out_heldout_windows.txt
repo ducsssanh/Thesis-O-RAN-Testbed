@@ -1,6 +1,0 @@
-madrid_I-796_persec.parquet: 2264257 sessions
-madrid_II-2650_persec.parquet: 2638439 sessions
-P1: windows 10000; 60 s UL mean bit/s q10..q99 [0.0, 0.0, 63.9, 134.9, 259.7, 706.2]; busy share q10..q99 [0.0, 0.033, 0.1, 0.2, 0.617, 0.983]; active share first/middle/last 15 s 0.196/0.192/0.194
-P2: windows 10000; 60 s UL mean bit/s q10..q99 [0.0, 58.0, 301.8, 676.4, 1406.6, 5054.0]; busy share q10..q99 [0.0, 0.017, 0.067, 0.117, 0.2, 0.65]; active share first/middle/last 15 s 0.098/0.099/0.095
-P3: windows 10000; 60 s UL mean bit/s q10..q99 [0.0, 211.9, 2580.8, 8221.2, 17622.4, 49307.9]; busy share q10..q99 [0.0, 0.033, 0.117, 0.333, 0.683, 1.0]; active share first/middle/last 15 s 0.236/0.236/0.234
-P4: windows 10000; 60 s UL mean bit/s q10..q99 [37.5, 5166.7, 33024.3, 80702.4, 176738.4, 765183.1]; busy share q10..q99 [0.017, 0.1, 0.417, 0.783, 1.0, 1.0]; active share first/middle/last 15 s 0.456/0.457/0.458

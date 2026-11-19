@@ -1,4 +1,4 @@
-"""Measure, on the raw 1 ms Madrid decode, what the session rule needs (TRAFFIC-TWINNING-PLAN §3.1a): the RNTI
+"""Measure, on the raw 1 ms Madrid decode, what the session rule needs: the RNTI
 expiration threshold T, the RNTI allocation rule and the RNTI reuse interval. Build cells only.
 
 Method (Attanasio et al., Computer Networks 219, 2022, Sec. 4.1.1, same IMDEA group and FALCON sniffer): the

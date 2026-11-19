@@ -123,12 +123,10 @@ def export_defense(out, t0, t1):
     # v4: raw KPM (one record per indication, source_ts + arrival_ts) for the causal offline build
     (out / "raw").mkdir(exist_ok=True)
     (out / "raw/kpm.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_RawKpm.jsonl"), lambda o: o["arrival_ts"], t0, t1))
-    # v5 live: KPM tamper ground truth (xApp) and the model sidecar's per-step decisions
+    # KPM tamper ground truth (written by the xApp)
     (out / "defense/tamper.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_Tamper.jsonl"), lambda o: o["ts"], t0, t1))
     # embedded classifier: per UE and second the 25 inputs, logit, alarms, label and level (classifier.kind xgb)
     (out / "defense/clf.jsonl").write_text(cut_jsonl(tail(*x, d + "KPI_Metrics_Clf.jsonl"), lambda o: o["scored_ms"] / 1000, t0, t1))
-    (out / "defense/sidecar.jsonl").write_text(cut_jsonl(
-        tail("near-rt-ric", "oai-lab-xapp", "sidecar", d + "KPI_Metrics_Sidecar.jsonl"), lambda o: o["ts"], t0, t1))
     q = ("import sqlite3,json,sys\nc=sqlite3.connect('file:/urr-state/defense.db?mode=ro',uri=True)\n"
          "print(json.dumps({t:[list(r) for r in c.execute('SELECT * FROM '+t+' WHERE at>=? AND at<=?',(sys.argv[1],sys.argv[2]))]"
          " for t in ('evidence','actions')}))\n")
@@ -140,7 +138,7 @@ def export_core(out, t0, t1):
     d = run_dir_xapp()
     (out / "core/urr_received.jsonl").write_text(cut_jsonl(
         tail("near-rt-ric", "oai-lab-xapp", "xapp", d + "urr-received.jsonl"), lambda o: iso_to_unix(o["report"]["observed_at"]), t0, t1))
-    # closed-loop records (docs/CLOSED-LOOP-FRAMEWORK.md 3): xApp and producer side
+    # closed-loop records: xApp and producer side
     (out / "core/core_received.jsonl").write_text(cut_jsonl(
         tail("near-rt-ric", "oai-lab-xapp", "xapp", d + "core-received.jsonl"), lambda o: o["received_unix_ms"] / 1000, t0, t1))
     p = ("non-rt-ric", "urr-ei-producer", "artifacts")

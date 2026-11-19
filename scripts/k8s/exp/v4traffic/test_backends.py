@@ -83,7 +83,7 @@ def test_tcp_shortconn():
 
 
 def test_row_schema():
-    """every backend row has the common achieved-schema fields build_dataset_v4 reads."""
+    """every backend row has the common achieved-schema fields the dataset builder reads."""
     port = _free_port()
     rx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); rx.bind(("127.0.0.1", port))
     plan = {"dst": "127.0.0.1", "bind": "127.0.0.1", "ports": [port], "sizes": [[256, 1.0]],

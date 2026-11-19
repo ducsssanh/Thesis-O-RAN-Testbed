@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """M0: the fair-use rule of the xApp (2 Mbit/s while the cell is busy, 3 of the last 4 seconds, KPM or core), ported
-offline as in scripts/drl/report.py, on every episode (it has no training). Same outcome definitions as report_clf.py.
+offline, on every episode (it has no training). Same outcome definitions as report_clf.py.
 Usage: clf_rule_baseline.py <episodes31.pkl>"""
 import pickle, sys
 import numpy as np

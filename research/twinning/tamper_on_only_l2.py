@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ON-only tampering on the L2 episodes, the only level whose attack is intermittent (advisor point 3c). Per factor, tamper of all seconds from the onset against tamper of attack seconds only, per-UE trust, gate restarted per episode.
+"""ON-only tampering on the L2 episodes, the only level whose attack is intermittent. Per factor, tamper of all seconds from the onset against tamper of attack seconds only, per-UE trust, gate restarted per episode.
 Control x1. Usage: tamper_on_only_l2.py <rows.parquet>"""
 import sys, pathlib
 import numpy as np, pandas as pd

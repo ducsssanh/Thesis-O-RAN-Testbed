@@ -1,6 +1,6 @@
 name: ds-benign-twin-P1
 description: |
-  Benign twin validation, band P1 (TRAFFIC-TWINNING-PLAN §6): 5 reps x 10 phases x 2 UEs = 100 real 75 s windows, each rep with
+  Benign twin validation, band P1: 5 reps x 10 phases x 2 UEs = 100 real 75 s windows, each rep with
   its own windows (run.py adds the rep to the seed). `grid: gnb` keeps each sent second inside one gNB stats second.
   Compare with research/twinning/validate_twin.py. Needs the long keep-alive and T2 of deploy/k8s/values/minikube.yaml. Detection off.
 ues: {ue1: benign, ue2: benign}

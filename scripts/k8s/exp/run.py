@@ -8,7 +8,7 @@
 
 A campaign = one scenario invocation: every variant (defense configuration)
 x every repetition, interleaved (rep 1 of all variants, then rep 2, ...).
-Layout of the results (see experiments/README.md):
+Layout of the results:
 
   artifacts/experiments/<YYYYmmdd-HHMMSS>_<scenario>[_<tag>]/
     campaign.json  runs.csv  summary.csv  summary.md
@@ -70,8 +70,6 @@ def apply_defense(cfg, ue_names):
         reqs.append(["POST", base + "escalation", cfg["escalation"]])
     if cfg.get("clear_tamper"):                    # v5: no KPM tamper left from an earlier run
         reqs.append(["POST", base + "tamper", {"off": True}])
-    if "sidecar_mode" in cfg:                      # v5: model sidecar configuration (also resets its state)
-        reqs.append(["POST", "http://127.0.0.1:8091/mode", {"mode": cfg["sidecar_mode"]}])
     for ue, cls in (cfg.get("classes") or {}).items():
         reqs.append(["POST", base + "policy", {"supi": lab.UES[ue][2], "class": cls}])
     for ue in ue_names:

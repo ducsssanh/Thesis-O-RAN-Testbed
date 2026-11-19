@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""False alarms of every model on benign UEs, offline replay of live runs (advisor steps 3-4, 2026-11-10): KPM as recorded and every
+"""False alarms of every model on benign UEs, offline replay of live runs: KPM as recorded and every
 UE's KPM tampered offline (frame x1.25/x2/x5, hide x0.8/x0.33/x0.1, mimic, swap; gate recomputed). Each model with its own rules
 (chosen as the deployed ones). Per data set and pooled: events / benign UE-hours, exact Poisson 95% CI.
 Usage: abl_benign_fa.py <name>=<episodes pkl>:<score dir suffix> ...   e.g. live5=artifacts/clf/live5/episodes31_live5_mall.pkl:live5

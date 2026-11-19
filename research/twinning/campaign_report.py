@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Whole-campaign report (TRAFFIC-TWINNING-PLAN 6, 6.4). QA of every kept run, delivery per level, DL and UL delivered per twin window, the twin of the UEs without an attack or client flow validated again on the build cells
+"""Whole-campaign report. QA of every kept run, delivery per level, DL and UL delivered per twin window, the twin of the UEs without an attack or client flow validated again on the build cells
 (sidecar at 1 core, unlike final2), shape at the UPF against 5G-NIDD (3.3), gate on honest seconds per band. Usage: campaign_report.py"""
 import json, pathlib, sys, collections
 import numpy as np, pandas as pd

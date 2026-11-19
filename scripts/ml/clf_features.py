@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Per-second raw features for the classifier plan (Kế hoạch huấn luyện classifier): the episodes and tamper scenarios of
-scripts/drl/episodes.py, with one more column, c_t over 3 s. Feature sets are cut from these columns in train_clf.py.
+"""Per-second raw features for the classifier: the episodes and tamper scenarios of
+scripts/ml/episodes.py, with one more column, c_t over 3 s. Feature sets are cut from these columns in train_clf.py.
 Columns 0-29 are the 30 features of episodes.py (KPM zeroed when the per-UE gate masks it, profiler zeroed when it arrives
 after t + 0.2 s); column 30 is c_t_w clipped to [-3, 3], zeroed like c_t.
 Usage: clf_features.py <rows.parquet> <out.pkl>"""
 import pathlib, sys
 import numpy as np
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "drl"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import episodes as EP
 
 _old = EP.features

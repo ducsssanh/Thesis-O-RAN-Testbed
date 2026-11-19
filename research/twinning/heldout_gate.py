@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Held-out check of the gate, run once (TRAFFIC-TWINNING-PLAN 6.7): I-796 and II-2650 windows replayed on the testbed, honest traffic. Refuses to run if its result file exists. Usage: heldout_gate.py"""
+"""Held-out check of the gate, run once: I-796 and II-2650 windows replayed on the testbed, honest traffic. Refuses to run if its result file exists. Usage: heldout_gate.py"""
 import glob, json, pathlib, sys
 import numpy as np, pandas as pd
 ROOT = pathlib.Path(__file__).resolve().parents[2]

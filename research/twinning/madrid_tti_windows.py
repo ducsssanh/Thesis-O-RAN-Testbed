@@ -3,7 +3,7 @@
 Output research/twinning/benign_windows_tti.npz, per band and direction: <d>_<band>_off (n+1 row offsets per window),
 <d>_<band>_ms (uint32, ms from the window start), <d>_<band>_b (float32, bytes = tbs_sum / 8, tbs_sum is in bits).
 Checks that the TTIs of each window sum to its per-second row in benign_windows.npz and prints the share that match.
-Usage: madrid_tti_windows.py [heldout]   heldout: the windows of heldout_windows.npz from the raw I-796 and II-2650, for the gate check of TRAFFIC-TWINNING-PLAN 6.7"""
+Usage: madrid_tti_windows.py [heldout]   heldout: the windows of heldout_windows.npz from the raw I-796 and II-2650, for the held-out check of the gate"""
 import pathlib, sys
 import numpy as np
 import pyarrow.parquet as pq

@@ -8,7 +8,7 @@ Usage: live_report.py <manifest dir> <out.txt> [--json out.json] [--boot 300]"""
 import argparse, glob, json, pathlib, sys
 import numpy as np
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "scripts/ml")); sys.path.insert(0, str(ROOT / "scripts/drl"))
+sys.path.insert(0, str(ROOT / "scripts/ml"))
 ap = argparse.ArgumentParser(); ap.add_argument("manifest"); ap.add_argument("out"); ap.add_argument("--json", default=""); ap.add_argument("--boot", type=int, default=300)
 a = ap.parse_args()
 DELTA, PI = .2, {"P1": .50, "P2": .40, "P3": .09, "P4": .01}

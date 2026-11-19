@@ -9,7 +9,7 @@ import glob, json, pathlib, sys
 import numpy as np
 import xgboost as xgb
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "scripts/ml")); sys.path.insert(0, str(ROOT / "scripts/drl"))
+sys.path.insert(0, str(ROOT / "scripts/ml"))
 import build_dataset_twin as BD, tamper_replay as TR, clf_features  # noqa: F401  (clf_features patches episodes.features)
 import episodes as EP
 

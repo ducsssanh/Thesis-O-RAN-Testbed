@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Metrics of the classifier plan at fixed false-alarm budgets (Kế hoạch huấn luyện classifier, Bộ metrics).
+"""Metrics of the classifier plan at fixed false-alarm budgets.
 
 For every fold and seed of one configuration: alarm rules (threshold, 2 of 3, 3 of 5, CUSUM) on the calibrated logits;
 for each budget, the threshold of each rule is the most sensitive one whose false-alarm rate on the out-of-fold

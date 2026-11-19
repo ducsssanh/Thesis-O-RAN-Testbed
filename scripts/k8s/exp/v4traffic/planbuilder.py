@@ -52,7 +52,7 @@ REPLAY_SPAN = [0.05, 0.75]     # send inside this part of each second, so a seco
 
 def _replay_seconds(series, quantiles, rng, cap, overhead, tti=None, scale=1.0):
     """tti = (ms, bytes) of the window: each packet then carries its real send time inside the second.
-    scale: LTE sensitivity only (TRAFFIC-TWINNING-PLAN 0a row 9); every second is multiplied before the clip. Never used for the dataset."""
+    scale: LTE sensitivity only; every second is multiplied before the clip. Never used for the dataset."""
     out, clipped, floored, no_tti = [], 0, 0, 0
     for i, v in enumerate(series):
         v = float(v) * scale
@@ -71,7 +71,7 @@ def _replay_seconds(series, quantiles, rng, cap, overhead, tti=None, scale=1.0):
 
 
 def build_replay(spec, T, dst, bind, port):
-    """Benign twin: replay of a real window of `band` (TRAFFIC-TWINNING-PLAN §0a rev 4). UL and DL come
+    """Benign twin: replay of a real window of `band`. UL and DL come
     from the same window and are not rescaled; packet lengths come from one app of the band. The DL
     seconds are left in plan["dl_seconds"] for the caller."""
     if T != schedules.WINDOW_LEN:
@@ -98,7 +98,7 @@ def build_replay(spec, T, dst, bind, port):
     return plan, meta
 
 
-# hping3 packets without payload: the 42 / 54 / 42 B frames of 5G-NIDD (TRAFFIC-TWINNING-PLAN 3.3) minus 14 B Ethernet
+# hping3 packets without payload: the 42 / 54 / 42 B frames of 5G-NIDD minus 14 B Ethernet
 ATTACK_IP_LEN = {"udp": 28, "syn": 40, "icmp": 28}
 L3_UL_BYTES = {"tcp_shortconn": 300.0, "dns_client": 56.0}     # UL IP bytes of one exchange
 PRE_ROLL_S = 15
@@ -106,7 +106,7 @@ L2_MIN_ACTIVE_S = 10
 
 
 def build_attack(spec, T, dst, bind, port):
-    """Attack flow laid over the benign twin of the same UE (TRAFFIC-TWINNING-PLAN 5.1-5.3): the twin keeps its own flow, unscaled.
+    """Attack flow laid over the benign twin of the same UE: the twin keeps its own flow, unscaled.
     `anchor_bps` is the UL rate of an active second, onset uniform over the pre-roll. evasion L1: hping3 at the anchor, default
     packets; L2: UDP in the rhythm, TTI times and sizes of another real window of `band`, active seconds scaled to the anchor mean;
     L3: real clients against the DN sink. No ramp or react here."""

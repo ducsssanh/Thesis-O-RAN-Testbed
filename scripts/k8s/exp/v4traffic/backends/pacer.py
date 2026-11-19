@@ -31,7 +31,7 @@ sampled size (or from "pps" if given), draw sizes from the bin weights, schedule
 sends evenly (or with exponential gaps) across the second with a monotonic clock,
 and never block — if the host can't keep up it records the shortfall rather than
 spilling into the next second. Timestamps are CLOCK_REALTIME so they align with
-the KPM/URR/profiler arrival stamps used by build_dataset_v4.
+the KPM/URR/profiler arrival stamps used by the dataset builder.
 """
 import json, random, socket, struct, sys, time
 

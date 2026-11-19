@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Does the KPM tamper injection leave its own cue? (TRAFFIC-TWINNING-PLAN 0a row 5, DRL design 5.2.) A classifier on the 6 KPM features only, honest against tampered seconds of the same attack episodes, cross-validated by run. Usage: tamper_cue_check.py <rows.parquet>"""
+"""Does the KPM tamper injection leave its own cue? A classifier on the 6 KPM features only, honest against tampered seconds of the same attack episodes, cross-validated by run. Usage: tamper_cue_check.py <rows.parquet>"""
 import sys, pathlib
 import numpy as np, pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier as HGB

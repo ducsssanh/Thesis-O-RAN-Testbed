@@ -539,7 +539,7 @@ for k in sorted(c):print('%d,%s,%s,%d,%d,%s,%s'%(k[0],k[1],k[2],c[k],b[k],k[3],k
 class MacStats:
     """Per-UE MAC counters of the gNB, one sample per rewrite of nrMAC_stats.log (1 s). The raw lines
     stay in self.raw; collect.parse_mac_stats turns them into ran/mac_stats.csv. Validation of the twin
-    reads byte counts here (TRAFFIC-TWINNING-PLAN §6.1): the same layer as the Madrid sniffer."""
+    reads byte counts here: the same layer as the Madrid sniffer."""
 
     FILE = "/opt/oai/ran/nrMAC_stats.log"
     STOP = "/tmp/macstats.stop"

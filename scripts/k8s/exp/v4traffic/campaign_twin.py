@@ -40,16 +40,16 @@ def env_problems():
 
 
 def rotate_xapp_logs():
-    cmd = "cd %s && for f in KPI_Metrics.csv KPI_Metrics_Cells.csv; do truncate -s $(head -1 $f | wc -c) $f; done; for f in KPI_Metrics_Defense.jsonl KPI_Metrics_Features.jsonl KPI_Metrics_RAN_Control.jsonl KPI_Metrics_RawKpm.jsonl KPI_Metrics_Sidecar.jsonl KPI_Metrics_Tamper.jsonl KPI_Metrics_Clf.jsonl core-received.jsonl urr-received.jsonl; do truncate -s 0 $f; done" % XAPP_LOGS
+    cmd = "cd %s && for f in KPI_Metrics.csv KPI_Metrics_Cells.csv; do truncate -s $(head -1 $f | wc -c) $f; done; for f in KPI_Metrics_Defense.jsonl KPI_Metrics_Features.jsonl KPI_Metrics_RAN_Control.jsonl KPI_Metrics_RawKpm.jsonl KPI_Metrics_Tamper.jsonl KPI_Metrics_Clf.jsonl core-received.jsonl urr-received.jsonl; do truncate -s 0 $f; done" % XAPP_LOGS
     return sh(K + ["-n", "near-rt-ric", "exec", "deploy/oai-lab-xapp", "-c", "xapp", "--", "sh", "-c", cmd], 60)
 
 
 def recover():
-    rc1, o1 = sh(["bash", str(ROOT / "scripts/k8s/phase0/recover_core_ordered.sh")], 600)
+    rc1, o1 = sh(["bash", str(ROOT / "scripts/k8s/recover_core_ordered.sh")], 600)
     sh(K + ["-n", "oai-core", "rollout", "restart", "deploy/oai-smf"], 60)
     sh(K + ["-n", "oai-core", "rollout", "status", "deploy/oai-smf", "--timeout=180s"], 200)
     time.sleep(20)
-    rc2, o2 = sh(["bash", str(ROOT / "scripts/k8s/phase0/recover_ran.sh")], 600)
+    rc2, o2 = sh(["bash", str(ROOT / "scripts/k8s/recover_ran.sh")], 600)
     for d in ("oai-nr-ue", "oai-nr-ue2"):
         sh(K + ["-n", "oai-ran", "exec", "deploy/" + d, "-c", "nr-ue", "--", "ip", "route", "replace", "172.30.26.0/24", "dev", "oaitun_ue1"], 30)
     time.sleep(20)

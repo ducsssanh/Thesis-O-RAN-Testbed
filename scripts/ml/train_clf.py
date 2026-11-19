@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Train one classifier for one outer fold and one seed (Kế hoạch huấn luyện classifier). Writes calibrated logits per
+"""Train one classifier for one outer fold and one seed. Writes calibrated logits per
 second for (a) the out-of-fold part of the training runs, used later to set alarm thresholds, and (b) the test runs.
 Thresholds, alarm rules and metrics are in report_clf.py; this script never looks at test labels.
 

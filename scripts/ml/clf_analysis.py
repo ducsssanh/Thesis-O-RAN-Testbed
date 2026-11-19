@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Feature analysis before training (Kế hoạch huấn luyện classifier, step 1): per-feature AUC of attack seconds against
+"""Feature analysis before training: per-feature AUC of attack seconds against
 benign seconds, on all seconds and on active seconds at a heavy-user rate (UL at least 50 kbit/s), by evasion level;
 correlation between the 15 chosen features. Honest scenario, L3 phases left out except where named. No model, no split.
 Usage: clf_analysis.py <episodes31.pkl> <out.txt>"""

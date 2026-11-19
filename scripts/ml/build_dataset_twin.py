@@ -1,13 +1,39 @@
 #!/usr/bin/env python3
-"""Dataset builder for the twin campaign (execution plan Phase 3, DRL design 5.2). Per UE, per measurement second: KPM and the profiler of that same second, their arrival times as data ages,
+"""Dataset builder for the twin campaign. Per UE, per measurement second: KPM and the profiler of that same second, their arrival times as data ages,
 gate, per-second labels. No time-in-phase value or cumulative counter is a feature; t_window is meta for the replay environment only.
 
 Inputs per run directory: raw/kpm.jsonl, core/core_received.jsonl (kind profile), run.json, traffic/flows.json. Usage: build_dataset_twin.py --out <dir> <run dir>..."""
-import argparse, json, pathlib, sys
+import argparse, datetime, json, pathlib, sys
 import numpy as np, pandas as pd
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from build_dataset_v4 import iso, jsonl, PROF_COUNTS
 import tamper_replay as TR
+
+PROF_COUNTS = ["tcp", "tcp_syn", "udp", "icmp", "frag", "dns", "gtp_in_gtp"]
+
+
+def iso(s):
+    """ISO-8601 (optionally with ns fraction, Z) -> unix seconds float."""
+    s = s.rstrip("Z")
+    frac = 0.0
+    if "." in s:
+        s, f = s.split(".", 1)
+        frac = float("0." + f)
+    dt = datetime.datetime.strptime(s, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=datetime.timezone.utc)
+    return dt.timestamp() + frac
+
+
+def jsonl(p):
+    p = pathlib.Path(p)
+    if not p.exists():
+        return []
+    out = []
+    for line in p.read_text().splitlines():
+        try:
+            out.append(json.loads(line))
+        except ValueError:
+            pass
+    return out
+
 
 KPM = ["rate_ul_kbps", "rate_dl_kbps", "thp_ul_kbps", "thp_dl_kbps", "prb_ul_pct", "prb_dl_pct", "cell_prb_ul_pct", "cell_prb_dl_pct"]
 PROF = ["prof_ul_kbps", "prof_dl_kbps", "prof_ul_pps", "prof_dl_pps", "prof_ul_mean_bytes", "prof_dl_mean_bytes", "prof_ul_dst_estimate"] + \

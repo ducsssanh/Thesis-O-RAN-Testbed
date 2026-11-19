@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""False alarms of the live xApp decisions (observe mode), pooled over live campaigns (advisor step 4, 2026-11-10): per campaign and
+"""False alarms of the live xApp decisions (observe mode), pooled over live campaigns: per campaign and
 pooled, rate limit (want level >= 2) and block (want level 3), events / benign UE-hours with an exact Poisson 95% CI, and per band.
 Same episode and false-alarm definitions as live_report.py (functions loaded from it): first decision of an episode before the onset
 is a false alarm; the benign time of the episode stops there.

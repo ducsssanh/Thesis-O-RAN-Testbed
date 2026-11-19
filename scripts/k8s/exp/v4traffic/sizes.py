@@ -3,8 +3,8 @@
 Sizes are IP-level packet lengths (what URR/profiler/KPM count), so a size s
 means a UDP payload of s - 28 bytes. Per phase a Dirichlet draw over the bins gives
 the size mix; benign and attack flows of one design cell use draws from the same
-prior. Calibration: payloads above ~1200 B are unreliable over the GTP tunnel
-(research/testbed/phase0_v4.md), so the largest bin is 1228 B IP (1200 B payload).
+prior. Calibration: payloads above ~1200 B are unreliable over the GTP tunnel,
+so the largest bin is 1228 B IP (1200 B payload).
 
 Families whose packet size is fixed by the protocol (SYN, ICMP echo) bypass the
 prior; each has a benign counterpart with the same fixed size (v4 plan §6.3).
@@ -36,7 +36,7 @@ def fixed_mix(kind):
     return [[FIXED[kind], 1.0]]
 
 
-# ---- per-app prior for the benign twin (TRAFFIC-TWINNING-PLAN §0a rev 4, step 4.2) ----------------
+# ---- per-app prior for the benign twin ----------------
 # kr5g_app_priors.json holds 101 quantiles of the IP-level packet length per app, per direction.
 # The smallest value in the captures (31-33 B) is below an Ethernet + IP + UDP frame, so the captured
 # frame length is the IP length, without a link header.

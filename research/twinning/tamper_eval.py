@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate on replayed tampering over the whole campaign (Methodology 7.2). Each attack episode of the attacker UE is tampered from the onset to its end, one factor at a time, the gate replayed from the start of its run, node trust (as live) against per-UE trust.
+"""Gate on replayed tampering over the whole campaign. Each attack episode of the attacker UE is tampered from the onset to its end, one factor at a time, the gate replayed from the start of its run, node trust (as live) against per-UE trust.
 Per factor: share of episodes masked, gate seconds and wall seconds to the mask, attack bytes reaching the core before it, and masking of the honest UE of the node. Also ON-only tampering and identity swap. Usage: tamper_eval.py <rows.parquet>"""
 import sys, pathlib
 import numpy as np, pandas as pd

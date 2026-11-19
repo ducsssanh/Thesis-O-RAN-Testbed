@@ -1,6 +1,0 @@
-x0.1   seconds 25806 tampered share 0.46 KPM-only AUC 1.000
-x0.33  seconds 25806 tampered share 0.53 KPM-only AUC 0.997
-x0.8   seconds 25806 tampered share 0.48 KPM-only AUC 0.943
-x1.25  seconds 25806 tampered share 0.52 KPM-only AUC 0.946
-x2     seconds 25806 tampered share 0.59 KPM-only AUC 0.989
-x5     seconds 25806 tampered share 0.52 KPM-only AUC 1.000

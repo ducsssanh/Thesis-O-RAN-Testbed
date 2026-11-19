@@ -154,7 +154,7 @@ def restart_xapp():
     for _ in range(60):
         log = kubectl("-n", "near-rt-ric", "logs", "deploy/oai-lab-xapp", "-c", "xapp", check=False)
         if "Assertion" in log:
-            raise LabError("xApp asserted after restart (FlexRIC stuck: run scripts/k8s/phase0/recover_ran.sh)")
+            raise LabError("xApp asserted after restart (FlexRIC stuck: run scripts/k8s/recover_ran.sh)")
         if "RAN control on" in log:
             return
         time.sleep(3)
@@ -170,7 +170,7 @@ def preflight(ue_names):
     facts["disk_free_gib"] = round(free, 1)
     need = float(os.environ.get("CAMPAIGN_MIN_FREE_GB", "5"))   # a live run writes ~10 MB; the campaign runner passes its own floor
     if free < need:
-        raise LabError("only %.1f GiB free on / (clean up first, see docs/SESSION-HANDOFF.md section 7)" % free)
+        raise LabError("only %.1f GiB free on / (remove the image tarballs of minikube first)" % free)
     st = defense_state()
     facts["defense"] = {k: st.get(k) for k in ("enabled", "profile", "action_mode", "timing", "unlabelled_samples")}
     facts["defense"]["core"] = st.get("core", {}).get("enabled")

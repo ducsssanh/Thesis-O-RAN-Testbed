@@ -158,7 +158,7 @@ def pulsing(rbar, T, rng, period=10, on=2):
     return _result("pulsing", rate, "even", {"rbar": rbar, "period": period, "on": on, "amplitude": R, "offset": off})
 
 
-# ---- benign twin: replay of a real window (TRAFFIC-TWINNING-PLAN §0a rev 4) -----------------------
+# ---- benign twin: replay of a real window -----------------------
 WINDOWS_NPZ = pathlib.Path(__file__).resolve().parents[4] / "research/twinning/benign_windows.npz"
 WINDOW_LEN = 75                                      # 15 s pre-roll + 60 s phase
 _windows = {}

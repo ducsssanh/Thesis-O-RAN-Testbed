@@ -1,4 +1,4 @@
-"""Per-application packet priors for the benign twin (TRAFFIC-TWINNING-PLAN §4.A, step 1.4): from the Korean 5G
+"""Per-application packet priors for the benign twin: from the Korean 5G
 captures, the empirical UL and DL packet-size distribution (101 quantiles of the captured length), the protocol mix
 and the packet rates, for the apps mapped to the rate bands (P1 Roblox, YouTube Live; P2 Battleground, Teamfight
 Tactics; P3 GeForce Now; P4 Zoom). UE side and direction are found as in inspect_kr5g.py.

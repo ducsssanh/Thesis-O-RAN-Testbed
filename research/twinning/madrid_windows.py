@@ -1,4 +1,4 @@
-"""Index of real 75 s windows for the benign twin (TRAFFIC-TWINNING-PLAN §0a rev 4, step 1.6).
+"""Index of real 75 s windows for the benign twin.
 
 A testbed UE replays the UL and DL bytes per second of one real user: 15 s pre-roll + 60 s phase. A session of the band
 is picked with probability proportional to W + 74 and the window start is uniform in [s0 - 74, s1], so the session

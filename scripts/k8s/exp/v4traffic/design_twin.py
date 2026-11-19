@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Campaign manifest for the twinned dataset, fixed with a seed before any run (TRAFFIC-TWINNING-PLAN 5, execution plan Phase 6).
+"""Campaign manifest for the twinned dataset, fixed with a seed before any run.
 Size comes from what the evaluation reads per evasion level: 144 attack episodes per level give a detection rate of 0.90 to about +-5 % (95 %). A run has 6 phases of 75 s, so 432 phases = 72 runs,
 about 10 min each. In every phase one UE runs its twin plus the attack, the other its twin; roles alternate inside a run. L3 phases give the other UE the same client as a benign hard negative
 in the rhythm of a real window (no benign heavy-UL TCP backend follows a window; recorded as an assumption). Twin bands follow WEIGHTS. Only the step onset is used: hping3 cannot ramp, and
@@ -11,7 +11,7 @@ ANCHORS = {"q0.90": 52536.0, "q0.95": 111088.0, "q0.99": 409856.0}
 CELLS = [dict(evasion="L1", mode=m, anchor=a, victim="silent" if m == "udp" else "responsive", n=16) for m in ("udp", "syn", "icmp") for a in ANCHORS] + \
         [dict(evasion="L2", anchor=a, victim="silent", n=48) for a in ANCHORS] + \
         [dict(evasion="L3", backend=b, anchor=a, victim="responsive", n=24) for b in ("tcp_shortconn", "dns_client") for a in ANCHORS]
-WEIGHTS = {"P1": .25, "P2": .25, "P3": .20, "P4": .30}   # TRAFFIC-TWINNING-PLAN 4.B; real Madrid about .50 .40 .09 .01
+WEIGHTS = {"P1": .25, "P2": .25, "P3": .20, "P4": .30}   # real Madrid about .50 .40 .09 .01
 PHASES_PER_RUN = 6
 
 
@@ -52,7 +52,7 @@ def scenario(run):
             "drain": {"quiet_kbps": 300, "timeout_s": 120}, "tail_s": 5, "variants": [{"name": "detection-off", "defense": {"enabled": False, "core": False}}], "phases": phases}
 
 
-# L2 campaign (2026-11-09, nhật ký thực nghiệm vòng 4): every attack phase is L2, 72 phases per anchor; the benign UE of a
+# L2 campaign (2026-11-09): every attack phase is L2, 72 phases per anchor; the benign UE of a
 # phase favours P4 (the band the L2 threshold is set against); the attacker's own twin keeps WEIGHTS. Runs 0-23 add training
 # data, runs 24-35 are a clean test that no model has seen.
 L2_CELLS = [dict(evasion="L2", anchor=a, victim="silent", n=72) for a in ANCHORS]
@@ -348,7 +348,7 @@ def design_live6(seed, n_runs=84):
             phases.append(dict(name="p%d" % (j + 1), bands={"ue1": b[0], "ue2": b[1]}, seed=s))
         runs.append(dict(id="lb%03d" % r, live=True, benign_only=True, phases=phases))
     return dict(seed=seed, weights=WEIGHTS, defense=LIVE2_DEFENSE, phases_per_run=PHASES_PER_RUN, runs=runs,
-                note="live benign-only (advisor step 4): Madrid users (cell, rnti) never replayed before, live-test users included")
+                note="live benign-only: Madrid users (cell, rnti) never replayed before, live-test users included")
 
 
 # End-to-end mitigation (2026-11-13, advisor: 20-30 attack runs; bytes to the DN, decision-to-effect latency, escalation at

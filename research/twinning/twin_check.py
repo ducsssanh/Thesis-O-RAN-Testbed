@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Per-band checks on benign twin validation runs, beside validate_twin.py: how MAC bytes follow the target per second, the
-active threshold (false active / missed seconds), and the c_t of seconds with traffic (TRAFFIC-TWINNING-PLAN §0a).
+active threshold (false active / missed seconds), and the c_t of seconds with traffic.
 
 Usage: twin_check.py <band> <out.json> <campaign dir>...
 c_t is read as the xApp wrote it in defense/features.jsonl, inside the replayed part of each window. A second counts as having

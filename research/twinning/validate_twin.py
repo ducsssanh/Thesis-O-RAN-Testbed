@@ -1,4 +1,4 @@
-"""Validation of the benign twin against Madrid (TRAFFIC-TWINNING-PLAN §6, rev 4 §0a), one band at a time.
+"""Validation of the benign twin against Madrid, one band at a time.
 
 Both sides are sets of 75 s windows, with known limits (decided 2026-11-01): the twin side comes from the gNB MAC counters
 of a replayed window, the real side from benign_windows.npz (4 build cells only). So no session is re-cut on the twin,

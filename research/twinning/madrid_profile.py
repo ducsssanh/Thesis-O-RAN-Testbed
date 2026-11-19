@@ -1,5 +1,4 @@
-"""Build the benign profile library from the reduced (rnti, sec) tables of the build cells (TRAFFIC-TWINNING-PLAN
-§4.A, step 1.3) and the attack load anchors (§5.2).
+"""Build the benign profile library from the reduced (rnti, sec) tables of the build cells and the attack load anchors (§5.2).
 
 Units: the reduced columns hold TBS **bits** (madrid_reduce.py); they are divided by 8 here.
 Activity: a second is active in a direction when its bytes > 0; a session is one RNTI value with no silence (UL or

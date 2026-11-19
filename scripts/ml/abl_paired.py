@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Paired comparison of the ablation models against the deployed cross-domain model (advisor steps 1-2, 2026-11-10), on the same
+"""Paired comparison of the ablation models against the deployed cross-domain model, on the same
 attack episodes: (1) ensemble out-of-fold scores of the 177 training runs (outside L3 phases, as rule selection), (2) the 144 attacks
 of the 30 live-test runs (offline replay). Each model with its own chosen rules. Per tier: detected, mean undetected (active) seconds,
 exact McNemar p, and a 95% bootstrap CI over runs of the detection difference.

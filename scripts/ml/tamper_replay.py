@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Gate replay and KPM tamper injection on built rows (Methodology 7.2, DRL design 3.1, 5.2). Shared by the DRL environment and the baselines.
+"""Gate replay and KPM tamper injection on built rows. Shared by the DRL environment and the baselines.
 
 gate(df, scope): the xApp gate of features.c over a frame of rows: c_t per second, c_t_w over 3 s, trust EWMA, mask with hysteresis. scope "node" pools the UEs of the gNB as the
-live xApp does; scope "ue" keeps one trust per UE (TRAFFIC-TWINNING-PLAN 9, trust pooled over the UEs).
+live xApp does; scope "ue" keeps one trust per UE.
 tamper(df, ...): hiding or framing multiplies UL rate, UL throughput, UL PRB of the UE and its share of the cell UL PRB by one factor; values stay on the grid of honest KPM
 (rate in 8 B steps per second, PRB in whole percent), so the injection leaves no cue of its own. on_only limits it to attack seconds. swap exchanges all KPM fields of two UEs."""
 import numpy as np, pandas as pd

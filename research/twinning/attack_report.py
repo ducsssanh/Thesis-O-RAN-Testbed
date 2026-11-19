@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Attack pilot over the twin (TRAFFIC-TWINNING-PLAN 5, 6.4). Per attack flow: rate at the UPF over the active seconds, minus what the twin of that second planned,
+"""Attack pilot over the twin. Per attack flow: rate at the UPF over the active seconds, minus what the twin of that second planned,
 against the anchor; packets per second; packet size at the UPF on seconds where the twin is silent (5G-NIDD comparison, 3.3); protocol counters; c_t at the onset and after; delivery.
 Usage: attack_report.py <campaign dir>..."""
 import glob, gzip, json, sys
