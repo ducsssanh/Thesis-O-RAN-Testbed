@@ -1,8 +1,0 @@
-## scripts/ml/test_build_dataset_v4.py  (exit 0)
-ALL TESTS PASSED (causality, urr per-period, delta-duration, session reset, legacy +1s pad, non-negative, ue-join, age-cap, labels+IDLE, guard, separation, attack gate)
-
-## /home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/exp/v4traffic/test_schedules.py  (exit 0)
-ALL SCHEDULE TESTS PASSED (cbr, poisson, mmpp2, onoff_pareto, fgn H, hawkes, pulsing, sizes, mixer, seed-repro)
-
-## /home/ducsssanh/6G/O-RAN/DATN/Codebase/scripts/k8s/exp/v4traffic/test_backends.py  (exit 0)
-all offline backend tests passed

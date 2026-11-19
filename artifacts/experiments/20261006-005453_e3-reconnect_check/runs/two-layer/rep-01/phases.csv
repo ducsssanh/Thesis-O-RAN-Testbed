@@ -1,5 +1,0 @@
-phase,t_start_unix,t_end_unix,duration_s,attack,baseline,reconnect,stopped_early,action
-baseline,1791222904.931,1791222924.945,20.0,0,1,0,0,""""""
-attack,1791222941.312,1791223121.399,180.1,1,0,0,0,""""""
-reconnect,1791223180.755,1791223240.777,60.0,0,0,1,0,"{""restart_ue"": ""ue1"", ""restart_xapp"": true, ""seconds"": 42.7, ""new_ip"": ""10.1.0.3""}"
-cooldown,1791223287.438,1791223307.443,20.0,0,0,0,0,""""""

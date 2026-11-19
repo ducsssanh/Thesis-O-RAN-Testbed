@@ -1,1 +1,0 @@
-../../User_Equipment/additional_scripts/apply_changes_to_patch_files.sh

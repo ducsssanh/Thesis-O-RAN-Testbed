@@ -1,5 +1,0 @@
-MATCH  oai-upf
-MATCH  oai-smf
-MATCH  flexric
-MATCH  oai-ran (+embedded flexric)
-MATCH  oai charts

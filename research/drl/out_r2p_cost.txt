@@ -1,8 +1,0 @@
-C_FA 50, seeds [0, 1, 2]
-  all, without L3 phases                     n  14688 | policy   -4.73 classifier   -4.59 CUSUM   -5.18 | policy - classifier  -0.15 [-0.50, +0.21]
-  honest, without L3 phases                  n   1728 | policy   -4.88 classifier   -4.76 CUSUM   -4.73 | policy - classifier  -0.12 [-0.69, +0.46]
-  honest L1 + benign                         n    864 | policy   -2.07 classifier   -1.65 CUSUM   -2.15 | policy - classifier  -0.42 [-0.88, +0.02]
-  honest L2 + benign                         n    864 | policy   -7.69 classifier   -7.88 CUSUM   -7.32 | policy - classifier  +0.18 [-0.81, +1.21]
-  tampered L1, L2 phases                     n  12960 | policy   -4.71 classifier   -4.56 CUSUM   -5.24 | policy - classifier  -0.15 [-0.50, +0.22]
-  all with L3 phases                         n  22032 | policy  -11.36 classifier  -11.14 CUSUM  -11.74 | policy - classifier  -0.22 [-0.48, +0.04]
-  honest L3 phases, with the benign client   n    864 | policy  -25.97 classifier  -25.82 CUSUM  -25.94 | policy - classifier  -0.15 [-0.64, +0.31]

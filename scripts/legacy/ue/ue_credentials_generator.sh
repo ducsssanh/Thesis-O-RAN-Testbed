@@ -1,1 +1,0 @@
-../../User_Equipment/ue_credentials_generator.sh
