@@ -150,17 +150,13 @@ replicas: 0
 seedEnabled: false
 xappEnabled: false
 xappImage: ""
-sidecar:                 # classifier sidecar in the xApp pod (scripts/k8s/classifier/build_sidecar.py; stub until DRL)
-  enabled: false
-  image: ""
-  mode: answer           # stub: answer | unknown | sleep
 adapter:
   replicas: 0
   image: oai-lab-a1-ei-adapter:unbuilt
   xappPushEnabled: false
   allUes: true   # EI job without SUPI filter: URR of every UE (R1)
-  # closed-loop streams "kind=jobID@infoType,..." (docs/CLOSED-LOOP-FRAMEWORK.md 3.3)
+  # closed-loop streams "kind=jobID@infoType,..."
   extraJobs: "session=oai-session-nearrt@oai-session_1.0.0,profile=oai-upf-profile-nearrt@oai-upf-profile_1.0.0"
-  testJob: ""    # gate CL-1 sets test=oai-test-nearrt@oai-test_1.0.0
+  testJob: ""    # a test stream: test=oai-test-nearrt@oai-test_1.0.0
 oai-flexric:
   enabled: false

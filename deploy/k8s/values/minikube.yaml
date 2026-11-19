@@ -19,25 +19,25 @@ global:
     ueSubnet: 10.1.0.0/16
     xdpMode: skb
     usageReporting: true
-    extraUes: 3          # subscribers provisioned beyond the base IMSI (R1; 3 for the multi-UE flood)
+    extraUes: 3          # subscribers provisioned beyond the base IMSI
     extraUeReplicas: 0   # replicas of each extra UE (oai-nr-ue2..4: IMSI + 1..3; enable oai-nr-ueN per UE)
-    # Two-layer defense, core side (docs/TWO-LAYER-DEFENSE-DESIGN.md 4.1, 6.1)
+    # Defense, core side
     defense:
       userId: true              # PFCP User ID IE (IMSI) in Session Establishment
       urr:
         periodicS: 1            # urr.periodic_s
         volumeThresholdDlBytes: 0
         timeThresholdS: 0
-        guard:                  # Volume Quota per period; UPF semantics in Phase G
+        guard:                  # Volume Quota per period
           enabled: false
           quotaUlBytes: 3125000
           quotaDlBytes: 3125000
       sessionTtl:
         deactivatedReleaseS: 120  # T1 (also the grace after a T2 UPIR)
         upInactivityS: 172800     # T2, PFCP IE 117; twin runs: longer than any run, real users are silent for minutes
-      ueKeepaliveS: 86400       # twin runs: one datagram at UE start, then none, or it would add 5 % busy seconds; < upInactivityS; 0 removes the sidecar the traffic runs in
-      upfSecurity:              # per-SUPI block/ratelimit/monitor in the eBPF UPF (Phase U, design 5.1-5.3a, 6.1)
-        enabled: true           # HTTP API (no TLS, design 8) for the xApp; changing this block restarts only the UPF
+      ueKeepaliveS: 86400       # twin runs: one datagram at UE start, then none, or it would add 5 % busy seconds; < upInactivityS; 0 removes the keepalive container the traffic runs in
+      upfSecurity:              # per-SUPI block/ratelimit/monitor in the eBPF UPF
+        enabled: true           # HTTP API (no TLS in the lab) for the xApp; changing this block restarts only the UPF
         port: 8095              # Service oai-upf-security.oai-core.svc
         storageSize: 64Mi       # PVC oai-lab-upf-security: SQLite policy DB + audit.jsonl survive UPF restarts
         dbPath: /upf-sec/sec_policy.db
@@ -48,7 +48,7 @@ global:
         maxPolicies: 16384      # sec_policy_by_supi entries (overhead runs use 10k)
         ratelimitBurstMs: 100   # token bucket depth of ratelimit (minimal v1: bytes of the whole packet)
         sweepS: 5               # expired policies are ignored by XDP at once, removed from DB/maps this often
-        profile: true           # CL-3: packet mix per session in XDP + GET /v1/telemetry (off: E4 baseline)
+        profile: true           # profiler: packet mix per session in XDP + GET /v1/telemetry
         telemetryRing: 7200     # telemetry records kept for the producer's cursor (~1 h for 2 UEs)
         dropSpoofed: true       # fixed rule: UL whose GTP-U TEID is not the session's own tunnel
         dropGtpInGtp: true      # fixed rule: UL inner UDP to the GTP-U port 2152
@@ -60,33 +60,32 @@ global:
           ttlS: 10              # expires unless the xApp confirms it
           ttlMaxS: 60           # a repeat within the TTL doubles it, up to here
           maxShare: 1.0         # at most this share of live sessions under a reflex at once (lab has 2-4 UEs; production ~0.2)
-      xapp:                     # RAN layer in the xApp (plan R3, design 6 / 6.1)
+      xapp:                     # defense in the xApp (DEFENSE_CONFIG of the pod); a campaign run overrides parts of it over the REST API
         enabled: true
         profile: lab            # escalation.profile
-        fairUse:                # policy per SUPI (SYSTEM-OVERVIEW 6, option b; k x AMBR in Phase L)
+        fairUse:                # fair-use rule (baseline classifier): rate a SUPI may sustain
           classes:              # mean PDCP rate a class may sustain; "default" applies to unassigned SUPIs
             default: {ulRateKbps: 2000, dlRateKbps: 15000}   # must sit below a flood's PF fair share C/N: RFsim UL C ~3.8-6.2 Mbit/s,
-                                                             # 2 UEs -> 1.9-3.1 (3000 detected a flood in 3 s or 20 s, R3 05/10); benign lab UE <= 2 Mbit/s UL
+                                                             # 2 UEs -> 1.9-3.1 ; benign lab UE <= 2 Mbit/s UL
             heavy: {ulRateKbps: 5000, dlRateKbps: 30000}
           supiClass: {}         # "imsi-...": heavy; the DB table policy (POST /v1/defense/policy) overrides
           congestion:           # above the rate only counts while the cell is busy in that direction
             enabled: true
-            ulCellPrbPct: 80    # sum of the UEs' PRB shares; R2 UL flood 71-99 % (mean 94)
-            dlCellPrbPct: 60    # R2 DL flood 59-76 % (mean 69): DL does not fill the PRBs
-            otherUeKbps: 100    # ...and another UE sends >= this in that direction (a UE alone gets ~98 % PRB, R3 05/10)
-        classifier:             # Phase X: window of feature vectors per SUPI -> label (design 5.6)
-          kind: rules           # rules (v1) | external: model sidecar on the xApp loopback (AI later);
-          endpoint: http://127.0.0.1:8091/classify   # unknown, timeout or failure -> rules
-          window: 10            # vectors (1 s each) sent to the model
-          timeoutMs: 200
+            ulCellPrbPct: 80    # sum of the UEs' PRB shares; a UL flood measured 71-99 % (mean 94)
+            dlCellPrbPct: 60    # a DL flood measured 59-76 % (mean 69): DL does not fill the PRBs
+            otherUeKbps: 100    # ...and another UE sends >= this in that direction (a UE alone gets ~98 % PRB)
+        classifier:
+          kind: rules           # rules: the fair-use rule above | xgb: the embedded model (clf_model.json in the image).
+                                # The campaigns of design_twin.py switch a run to xgb; the idle testbed stays on the rule
+          window: 10            # feature vectors (1 s each) the rule looks back over
         detector:               # hits of the last samples (1 s each)
           ulPrbPct: 0           # 0 = rule off (a busy benign UE also takes ~40 % of the PRBs)
           dlPrbPct: 0
           hits: 3               # 3 of 4: a victim draining its backlog after congestion
-          samples: 4            # stays above the rate for ~2 samples (R3, 04/10)
+          samples: 4            # stays above the rate for ~2 samples
         action:
           mode: slice           # slice: levels 1-2 hand the UE over to the quarantine RAN slice (members share
-                                # maxPrbRatio, PDU session kept; gNB C33, SliceHO idea); ue: PRB quota on the UE (R2)
+                                # maxPrbRatio, PDU session kept); ue: PRB quota on the UE
           maxPrbRatio: 10       # percent of the BWP per slot (overridden by limitSlice)
           quarantineSlice: {sst: 1, sd: "BADBAD"}
           # end-to-end mitigation (2026-11-13): levels 1-2 -> limit slice, levels >= 3 -> block slice; members of a slice
@@ -95,13 +94,13 @@ global:
           blockSlice: {sst: 1, sd: "BADB10", maxPrbRatio: 1}
           defaultSlice: {sst: 1, sd: "FFFFFF"}   # the lab slice (global.lab.slice); no RAN slice -> unlimited
         confirm:                # level 2: violates again within probationS after the level-1 quota expired
-          probationS: 180       # (PRB "quota full" cannot confirm: spare PRBs go to any active UE, R3 05/10)
-        expiryS:                # [level 1, 2, 3, 4] per profile (design 6); 0 = until admin reset (level 4)
+          probationS: 180       # (PRB "quota full" cannot confirm: spare PRBs go to any active UE)
+        expiryS:                # [level 1, 2, 3, 4] per profile; 0 = until admin reset (level 4)
           lab: [60, 180, 600, 0]
           production: [300, 3600, 86400, 0]
-        core:                   # core layer (plan L1): URR rule in classifier v1 + UPF Security API actions per level
-          enabled: true         # false = RAN only (R3 behaviour, levels stop at 2)
-          upfApi: http://oai-upf-security.oai-core.svc.cluster.local:8095   # plain HTTP (C35, design 8)
+        core:                   # core layer: core rule of the fair-use classifier + UPF Security API actions per level
+          enabled: true         # false = RAN only (levels stop at 2)
+          upfApi: http://oai-upf-security.oai-core.svc.cluster.local:8095   # plain HTTP in the lab
           timeoutMs: 1000
           syncS: 10             # GET /v1/info (boot_id) + /v1/ues against the xApp's view
           ttlMarginS: 30        # UPF policy outlives the level by this much (xApp dead -> it still expires)
@@ -113,7 +112,7 @@ global:
           fusionS: 10           # KPM and URR window hits within this many seconds = both layers (levels >= 3)
           verifyS: 10           # RAN limit must lower the SUPI's URR, UPF action must show in URR, within this
           releaseEveryS: 10     # level 4: at most one RRC release per this many seconds
-        repeat:                 # attack labels while a level is in force (plan L1 step 0a; policy not settled)
+        repeat:                 # attack labels while a level is in force
           strategy: refresh     # refresh: refresh the expiry, evidence at most every evidenceIntervalS | every
           evidenceIntervalS: 10
         severity: {kpmRate: 2, repeat: 1}
@@ -128,7 +127,7 @@ global:
       numerology: 1
       frequency: 3619200000
       ulMinMcs: 16              # floor of OAI UL link adaptation: idle drops it to MCS 0 at the fixed RFsim SNR
-                                # (~17 dB, MCS 17-20 under load), the slow ramp then buffers and bursts (R3 05/10)
+                                # (~17 dB, MCS 17-20 under load), the slow ramp then buffers and bursts
     experiment:
       rate: 10M
       duration: 120

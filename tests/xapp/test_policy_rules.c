@@ -1,5 +1,5 @@
 /* Unit test of the escalation table (plan L1 step 5), independent of any
-   classifier: cc -I src/flexric/examples/xApp/c/monitor tests/xapp/test_policy_rules.c && ./a.out */
+   classifier: cc -I src/xapp tests/xapp/test_policy_rules.c && ./a.out */
 #include "policy_rules.h"
 #include <stdio.h>
 

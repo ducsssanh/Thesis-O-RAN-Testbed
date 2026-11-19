@@ -1,0 +1,1690 @@
+diff -ru a/docker/Dockerfile.upf.ubuntu b/docker/Dockerfile.upf.ubuntu
+--- a/docker/Dockerfile.upf.ubuntu
++++ b/docker/Dockerfile.upf.ubuntu
+@@ -48,6 +48,13 @@
+ # BUILDER IMAGE
+ #---------------------------------------------------------------------
+ FROM oai-upf-base AS oai-upf-builder
++ARG BUILD_CPUSET=""
++# UPF Security API (HTTP server + policy DB)
++RUN apt-get update && \
++    DEBIAN_FRONTEND=noninteractive apt-get install --yes \
++    libmicrohttpd-dev \
++    libsqlite3-dev \
++    && rm -rf /var/lib/apt/lists/*
+ # Copy the rest of source code
+ COPY . /openair-upf
+ # Building UPF
+@@ -65,7 +72,11 @@
+     ldconfig; \
+     fi && \
+     if [ "$BPF_DEBUG" = "true" ]; then BUILD_ARGS="$BUILD_ARGS --bpf-debug"; fi && \
+-    ./build_upf --clean --Verbose --build-type Release --jobs ${BUILD_ARGS}; \
++    if [ -n "$BUILD_CPUSET" ]; then \
++      taskset -c "$BUILD_CPUSET" ./build_upf --clean --Verbose --build-type Release --jobs ${BUILD_ARGS}; \
++    else \
++      ./build_upf --clean --Verbose --build-type Release --jobs ${BUILD_ARGS}; \
++    fi; \
+     ldd /openair-upf/build/upf/build/upf && \
+     mv /openair-upf/build/upf/build/upf /openair-upf/build/upf/build/oai_upf && \
+     echo "end of UPF build"
+@@ -107,6 +118,8 @@
+     libpsl5 \
+     libnghttp2-14 \
+     libcurl?-gnutls \
++    libmicrohttpd12 \
++    libsqlite3-0 \
+     # Ubuntu 20 --> boost71
+     # Ubuntu 22 --> boost74
+     libboost-thread1.7?.0 \
+diff -ru a/src/upf_app/app/upf_config.hpp b/src/upf_app/app/upf_config.hpp
+--- a/src/upf_app/app/upf_config.hpp
++++ b/src/upf_app/app/upf_config.hpp
+@@ -95,6 +95,7 @@
+ 
+   bool enable_5g_features;
+   bool enable_bpf_datapath;
++  std::string xdp_mode = "auto";
+   bool enable_eth_pdu;  // Ethernet PDU Sessions (3GPP TS 29.244)
+   bool enable_fr;
+   bool enable_qos;
+diff -ru a/src/upf_app/app/upf_config_yaml.cpp b/src/upf_app/app/upf_config_yaml.cpp
+--- a/src/upf_app/app/upf_config_yaml.cpp
++++ b/src/upf_app/app/upf_config_yaml.cpp
+@@ -6,6 +6,7 @@
+ 
+ #include <boost/algorithm/string.hpp>
+ #include <regex>
++#include "XdpMode.hpp"
+ 
+ #include "conversions.hpp"
+ #include "fqdn.hpp"
+@@ -37,6 +38,10 @@
+ 
+ //------------------------------------------------------------------------------
+ void upf_support_features::from_yaml(const YAML::Node& node) {
++  if (node["xdp_mode"]) {
++    m_xdp_mode = node["xdp_mode"].as<std::string>();
++    ::upf::ParseXdpMode(m_xdp_mode);  // Reject invalid modes before loading BPF.
++  }
+   // Performance
+   if (node[UPF_ENABLE_BPF]) {
+     m_enable_bpf_datapath.from_yaml(node[UPF_ENABLE_BPF]);
+@@ -90,6 +95,7 @@
+ //------------------------------------------------------------------------------
+ std::string upf_support_features::to_string(const std::string& indent) const {
+   std::string out;
++  out.append(indent).append("XDP mode: ").append(m_xdp_mode).append("\n");
+   unsigned int inner_width = get_inner_width(indent.length());
+ 
+   // Performance
+@@ -484,6 +490,7 @@
+   cfg.sbi.if_name = local().get_sbi().get_if_name();
+ 
+   // Feature flags - Performance
++  cfg.xdp_mode = upf_local->get_support_features().get_xdp_mode();
+   cfg.enable_bpf_datapath =
+       upf_local->get_support_features().get_option_enable_bpf_datapath();
+ 
+diff -ru a/src/upf_app/app/upf_config_yaml.hpp b/src/upf_app/app/upf_config_yaml.hpp
+--- a/src/upf_app/app/upf_config_yaml.hpp
++++ b/src/upf_app/app/upf_config_yaml.hpp
+@@ -200,6 +200,7 @@
+    *       - Appropriate kernel capabilities (CAP_BPF, CAP_NET_ADMIN)
+    */
+   option_config_value m_enable_bpf_datapath{};
++  std::string m_xdp_mode = "auto";
+ 
+   /**
+    * @brief Enable QoS enforcement (QER rules)
+@@ -376,6 +377,7 @@
+    * @return true if eBPF datapath is enabled, false otherwise
+    */
+   [[nodiscard]] bool get_option_enable_bpf_datapath() const;
++  const std::string& get_xdp_mode() const { return m_xdp_mode; }
+ 
+   /**
+    * @brief Check if QoS enforcement is enabled
+diff -ru a/src/upf_app/app/upf_n4.cpp b/src/upf_app/app/upf_n4.cpp
+--- a/src/upf_app/app/upf_n4.cpp
++++ b/src/upf_app/app/upf_n4.cpp
+@@ -137,6 +137,13 @@
+         }
+         break;
+ 
++      case N4_SESSION_REPORT_REQUEST:
++        if (itti_n4_session_report_request* m =
++                dynamic_cast<itti_n4_session_report_request*>(msg)) {
++          upf_n4_inst->send_n4_msg(ref(*m));
++        }
++        break;
++
+       case N4_SESSION_REPORT_RESPONSE:
+         if (itti_n4_session_report_response* m =
+                 dynamic_cast<itti_n4_session_report_response*>(msg)) {
+@@ -338,6 +345,32 @@
+           "IE!, ignore message");
+       return;
+     }
++    // A CP-initiated association has no locally-created candidate. Register
++    // the peer before add_association(), which otherwise only promotes an
++    // existing candidate and silently leaves the association map empty.
++    std::shared_ptr<pfcp_association> existing_association = {};
++    if (not pfcp_associations::get_instance().get_association(
++            msg_ies_container.node_id.second, existing_association)) {
++      pfcp_associations::get_instance().add_peer_candidate_node(
++          msg_ies_container.node_id.second);
++    } else if (
++        existing_association->recovery_time_stamp.recovery_time_stamp !=
++        msg_ies_container.recovery_time_stamp.second.recovery_time_stamp) {
++      // The CP function restarted faster than the heartbeat detects it
++      // (session TTL T3, TS 29.244 6.2.6.2.2): its PFCP sessions are gone
++      // there, delete them here before the new SEIDs can collide
++      Logger::upf_n4().info(
++          "PFCP Association Setup with a new Recovery Time Stamp (%u -> %u): "
++          "deleting the sessions of the previous association",
++          existing_association->recovery_time_stamp.recovery_time_stamp,
++          msg_ies_container.recovery_time_stamp.second.recovery_time_stamp);
++      existing_association->del_sessions();
++      existing_association->recovery_time_stamp =
++          msg_ies_container.recovery_time_stamp.second;
++      if (msg_ies_container.cp_function_features.first)
++        existing_association->set(
++            msg_ies_container.cp_function_features.second);
++    }
+     // bool restore_n4_sessions = false;
+     if (msg_ies_container.cp_function_features.first) {
+       // Should be detected by lower layers
+@@ -589,6 +622,7 @@
+ }
+ //------------------------------------------------------------------------------
+ void upf_n4::send_n4_msg(itti_n4_session_report_request& i) {
++  if (i.trxn_id == 0) i.trxn_id = generate_trxn_id();
+   send_request(i.r_endpoint, i.seid, i.pfcp_ies, TASK_UPF_N4, i.trxn_id);
+ }
+ //------------------------------------------------------------------------------
+@@ -618,10 +652,12 @@
+ //------------------------------------------------------------------------------
+ void upf_n4::send_n4_msg(
+     const pfcp::fseid_t& cp_fseid, const pfcp::pfcp_session_report_request& s) {
+-  itti_n4_session_report_request isrr(TASK_UPF_N4, TASK_UPF_N4);
+-  isrr.trxn_id  = generate_trxn_id();
+-  isrr.pfcp_ies = s;
+-  isrr.seid     = cp_fseid.seid;
++  auto isrr = std::make_shared<itti_n4_session_report_request>(
++      TASK_UPF_APP, TASK_UPF_N4);
++  // The N4 task allocates the transaction ID immediately before sending.
++  isrr->trxn_id  = 0;
++  isrr->pfcp_ies = s;
++  isrr->seid     = cp_fseid.seid;
+ 
+   std::shared_ptr<pfcp_association> sa = {};
+   if (pfcp_associations::get_instance().get_association(cp_fseid, sa)) {
+@@ -629,9 +665,13 @@
+     if (peer_node_id.node_id_type == pfcp::NODE_ID_TYPE_IPV4_ADDRESS) {
+       // a.l_endpoint =
+       // endpoint(boost::asio::ip::address_v4(upf_cfg.n4.addr4), 0);
+-      isrr.r_endpoint =
++      isrr->r_endpoint =
+           endpoint(peer_node_id.u1.ipv4_address, pfcp::default_port);
+-      send_n4_msg(isrr);
++      const int ret = itti_inst->send_msg(isrr);
++      if (RETURNok != ret) {
++        Logger::upf_n4().error(
++            "Could not enqueue PFCP_SESSION_REPORT_REQUEST to TASK_UPF_N4");
++      }
+     } else {
+       Logger::upf_n4().warn("TODO start_association() node_id IPV6, FQDN!");
+     }
+diff -ru a/src/upf_app/CMakeLists.txt b/src/upf_app/CMakeLists.txt
+--- a/src/upf_app/CMakeLists.txt
++++ b/src/upf_app/CMakeLists.txt
+@@ -63,11 +63,14 @@
+ # ==========================================================================
+ set(UPF_CONTROL_SOURCES
+   control/UserPlaneComponent.cpp
++  control/UrrReportConsumer.cpp
+   control/Configuration.cpp
+   control/SignalHandler.cpp
+   control/SessionProgramManager.cpp
+   control/SessionManager.cpp
+   control/SessionPrograms.cpp
++  control/SecurityPolicyStore.cpp
++  control/SecurityApi.cpp
+ )
+ 
+ set(UPF_HELPER_SOURCES
+@@ -144,6 +147,7 @@
+   ${CMAKE_CURRENT_SOURCE_DIR}/../../build/ext/libbpf/src/libbpf.so
+   PRIVATE elf
+   PRIVATE z qer_tc eth_broadcast_tc   # TC skeletons for QERProgram + EthBroadcastTCProgram
++  PUBLIC microhttpd sqlite3          # UPF Security API (SecurityApi, SecurityPolicyStore)
+ )
+ 
+ add_dependencies(UPF_XDP upf_xdp_all)
+@@ -193,6 +197,7 @@
+   PRIVATE z
+   libnl-3.so
+   libnl-route-3.so
++  PUBLIC microhttpd sqlite3          # UPF Security API
+ )
+ 
+   add_dependencies(UPF_TC upf_xdp_all)
+@@ -207,4 +212,3 @@
+       RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+       INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+   )
+-
+diff -ru a/src/upf_app/control/Configuration.cpp b/src/upf_app/control/Configuration.cpp
+--- a/src/upf_app/control/Configuration.cpp
++++ b/src/upf_app/control/Configuration.cpp
+@@ -86,6 +86,7 @@
+   //   upf::g_net_cfg.n6_port = upf_cfg.n6.port;
+ 
+   // --- Feature flags ---
++  upf::g_net_cfg.xdp_mode = upf_cfg.xdp_mode;
+   upf::g_net_cfg.bpf_datapath   = upf_cfg.enable_bpf_datapath;
+   upf::g_net_cfg.qos            = upf_cfg.enable_qos;
+   upf::g_net_cfg.urr            = upf_cfg.enable_urr;
+diff -ru a/src/upf_app/control/SessionManager.cpp b/src/upf_app/control/SessionManager.cpp
+--- a/src/upf_app/control/SessionManager.cpp
++++ b/src/upf_app/control/SessionManager.cpp
+@@ -19,6 +19,7 @@
+ #include "pfcp_mar.hpp"
+ #include "itti_msg_n4.hpp"
+ #include "pfcp_switch.hpp"
++#include "SecurityPolicyStore.h"
+ 
+ using namespace oai::config;
+ extern upf_config upf_cfg;
+@@ -150,6 +151,11 @@
+       }
+     }
+ 
++    // Per-SUPI security policy before the pipeline makes the session
++    // reachable (session_by_ue_ip_map): no packet passes unchecked
++    SecurityPolicyStore::GetInstance().OnSessionEstablished(
++        seid, session->supi);
++
+     // Create BPF pipeline
+     session_program_manager_->CreatePipeline(session);
+ 
+@@ -320,7 +326,8 @@
+         "[eBPF] Remove Pipeline - Cleaning up pipeline for session " SEID_FMT,
+         seid);
+ 
+-    session_program_manager_->RemovePipeline(seid);
++    session_program_manager_->RemovePipeline(session);
++    SecurityPolicyStore::GetInstance().OnSessionRemoved(seid);
+ 
+     Logger::upf_app().info(
+         "[N4] Delete Session: seid " SEID_FMT
+diff -ru a/src/upf_app/control/SessionProgramManager.cpp b/src/upf_app/control/SessionProgramManager.cpp
+--- a/src/upf_app/control/SessionProgramManager.cpp
++++ b/src/upf_app/control/SessionProgramManager.cpp
+@@ -44,6 +44,29 @@
+ 
+ static constexpr int64_t kEmptySlot = -1;
+ 
++// OAI SMF can install the default flow's QFI on the ACCESS PDR while omitting
++// both QFI and QER from the CORE PDR. In a single-flow session, the ACCESS QFI
++// is the only unambiguous value to put in the DL GTP-U PDU Session Container.
++// Never guess when the session has several distinct uplink QFIs.
++static uint8_t UniqueAccessQfi(
++    const std::shared_ptr<pfcp::pfcp_session>& session) {
++  uint8_t unique_qfi = 0;
++  for (const auto& candidate : session->pdrs) {
++    pfcp::pdi pdi;
++    pfcp::source_interface_t source_interface;
++    if (!candidate->get(pdi) || !pdi.get(source_interface) ||
++        source_interface.interface_value != INTERFACE_VALUE_ACCESS ||
++        !pdi.qfi.first) {
++      continue;
++    }
++    const auto qfi = pdi.qfi.second.qfi;
++    if (qfi == 0 || qfi > 63) continue;
++    if (unique_qfi != 0 && unique_qfi != qfi) return 0;
++    unique_qfi = qfi;
++  }
++  return unique_qfi;
++}
++
+ //==============================================================================
+ // Constructor & Destructor
+ //==============================================================================
+@@ -102,11 +125,18 @@
+  * - QER TC-BPF program (if instantiated)
+  * - ARP caches for N3/N6 endpoints
+  *
+- * @param seid Session Endpoint Identifier
++ * @param session PFCP session being removed
+  *
+  * @see 3GPP TS 29.244 V17.10.0 §7.5.6 — PFCP Session Deletion Request
+  */
+-void SessionProgramManager::RemoveSession(uint64_t seid) {
++void SessionProgramManager::RemoveSession(
++    std::shared_ptr<pfcp::pfcp_session> session) {
++  if (!session) {
++    Logger::upf_app().warn("RemoveSession: null PFCP session");
++    return;
++  }
++
++  const uint64_t seid = session->get_up_seid();
+   std::lock_guard<std::mutex> lock(mutex_);
+ 
+   Logger::upf_app().info("Removing session " SEID_FMT, seid);
+@@ -123,10 +153,46 @@
+   // Clean up rules_enabled entry from BPF map
+   auto upf_xdp_program = UserPlaneComponent::GetInstance().GetUPF_XDPProgram();
+   if (upf_xdp_program) {
++    // Remove every UE-IP mapping that still belongs to this session.  UE
++    // addresses are commonly reused after a UE reconnects, so leaving this
++    // entry behind makes the next session resolve to the deleted SEID.
++    auto session_map = upf_xdp_program->GetSessionMappingMap();
++    if (session_map) {
++      std::vector<uint32_t> keys_to_remove;
++      uint32_t current_key = 0;
++      uint32_t next_key    = 0;
++      bool have_key =
++          bpf_map_get_next_key(session_map->GetFd(), nullptr, &next_key) == 0;
++      while (have_key) {
++        struct session_id mapped_session = {0};
++        if (session_map->Lookup(next_key, &mapped_session) == 0 &&
++            mapped_session.seid == seid) {
++          keys_to_remove.push_back(next_key);
++        }
++        current_key = next_key;
++        have_key = session_map->GetNextKey(current_key, next_key) == 0;
++      }
++      for (auto& key : keys_to_remove) session_map->RemoveIfPresent(key);
++    }
++
++    // Remove the session PDR array plus per-PDR rule and SDF entries while
++    // the PFCP session still carries the list of PDR IDs.
++    auto pdr_program = upf_xdp_program->GetPdrMatchProgram();
++    if (pdr_program) {
++      // session->pdrs is already empty at deletion time; the datapath was
++      // built from the UL/DL lists, so tear down from those.
++      std::vector<std::shared_ptr<pfcp::pfcp_pdr>> pdrs(
++          session->pdrs_uplink.begin(), session->pdrs_uplink.end());
++      pdrs.insert(
++          pdrs.end(), session->pdrs_downlink.begin(),
++          session->pdrs_downlink.end());
++      pdr_program->RemovePdrRulesMaps(seid, pdrs);
++    }
++
+     auto rules_en_map =
+         upf_xdp_program->GetMapByName("session_rules_enabled_map");
+     if (rules_en_map) {
+-      rules_en_map->Remove(seid);
++      rules_en_map->RemoveIfPresent(seid);
+     }
+ 
+     // Clean up ETH-specific maps if this was an ETH PDU session
+@@ -136,22 +202,22 @@
+         Logger::upf_app().debug(
+             "Cleaning up ETH PDU maps for seid " SEID_FMT, seid);
+         auto eth_pdrs = upf_xdp_program->GetMapByName("eth_session_pdrs_map");
+-        if (eth_pdrs) eth_pdrs->Remove(seid);
++        if (eth_pdrs) eth_pdrs->RemoveIfPresent(seid);
+       }
+       session_pdu_type_map_.erase(pdu_type_it);
+     }
+ 
+     // Clean up URR/BAR/MAR dedicated config + runtime state maps
+     auto urr_cfg_map = upf_xdp_program->GetMapByName("urr_config_map");
+-    if (urr_cfg_map) urr_cfg_map->Remove(seid);
++    if (urr_cfg_map) urr_cfg_map->RemoveIfPresent(seid);
+     auto urr_vol_map = upf_xdp_program->GetMapByName("urr_volume_counters_map");
+-    if (urr_vol_map) urr_vol_map->Remove(seid);
++    if (urr_vol_map) urr_vol_map->RemoveIfPresent(seid);
+     auto bar_cfg_map = upf_xdp_program->GetMapByName("bar_config_map");
+-    if (bar_cfg_map) bar_cfg_map->Remove(seid);
++    if (bar_cfg_map) bar_cfg_map->RemoveIfPresent(seid);
+     auto bar_st_map = upf_xdp_program->GetMapByName("bar_state_map");
+-    if (bar_st_map) bar_st_map->Remove(seid);
++    if (bar_st_map) bar_st_map->RemoveIfPresent(seid);
+     auto mar_map = upf_xdp_program->GetMapByName("mar_rules_map");
+-    if (mar_map) mar_map->Remove(seid);
++    if (mar_map) mar_map->RemoveIfPresent(seid);
+   }
+ 
+   // Clean up ARP caches
+@@ -241,7 +307,7 @@
+  * @param ue_ip UE IP address (map key)
+  * @param teid_ul Uplink TEID (3GPP TS 29.281)
+  * @param teid_dl Downlink TEID (3GPP TS 29.281)
+- * @param seid Session Endpoint Identifier
++ * @param session PFCP session being removed
+  *
+  * @see 3GPP TS 29.281 - GTPv1-U
+  */
+@@ -276,8 +342,9 @@
+ 
+     // Lookup session entry for UE IP
+     const bool exists = (session_map->Lookup(ue_ip, &session) == 0);
+-    // If the session exists, update the relevant fields
+-    if (exists) {
++    // A UE IP can be reused after reconnect.  An entry owned by a different
++    // SEID is stale and must be replaced rather than merged.
++    if (exists && session.seid == seid) {
+       // Only fill missing TEIDs
+       if (session.teid_ul == 0) {
+         session.teid_ul = (teid_ul != 0 ? teid_ul : teid_dl);
+@@ -285,9 +352,8 @@
+       if (session.teid_dl == 0) {
+         session.teid_dl = (teid_dl != 0 ? teid_dl : teid_ul);
+       }
+-      // Keep existing SEID
+     } else {
+-      // Create new mapping entry
++      // Create a new mapping, or replace the mapping from a deleted session.
+       session.teid_ul = teid_ul;
+       session.teid_dl = teid_dl;
+       session.seid    = seid;
+@@ -732,12 +798,26 @@
+       struct pfcp_bar bpf_bar = ConvertBar(bar);
+       struct pfcp_mar bpf_mar = ConvertMar(mar);
+ 
+-      // For downlink PDRs, QFI is not in PDI (no incoming GTP-U
+-      // header) Copy QFI from QER into PDR's PDI for BPF matching logic See
+-      // 3GPP TS 29.244 Section 8.2.89 - QFI is in QER for downlink
++      // Prefer an explicit PDR/QER QFI. If SMF omitted both on a CORE PDR,
++      // use the unique ACCESS PDR QFI from this same PFCP session.
+       if (bpf_pdr.pdi.qfi.qfi == 0 && bpf_qer.qos_flow_identifier.qfi != 0) {
+         bpf_pdr.pdi.qfi.qfi = bpf_qer.qos_flow_identifier.qfi;
+       }
++      if (!is_eth_pdu &&
++          source_interface.interface_value == INTERFACE_VALUE_CORE &&
++          bpf_pdr.pdi.qfi.qfi == 0) {
++        bpf_pdr.pdi.qfi.qfi = UniqueAccessQfi(session);
++        if (bpf_pdr.pdi.qfi.qfi != 0) {
++          logger.info(
++              "DL PDR %u: derived QFI %u from unique ACCESS PDR in "
++              "session " SEID_FMT,
++              pdr_id, bpf_pdr.pdi.qfi.qfi, seid);
++        } else {
++          logger.warn(
++              "DL PDR %u: no unambiguous QFI in session " SEID_FMT, pdr_id,
++              seid);
++        }
++      }
+ 
+       /* Update rules_match_pdr map with ALL rules (TS 29.244 Section 8.2)
+        * (PDR ID + SEID -> FAR + QER + URR + BAR + MAR)
+@@ -1133,12 +1213,26 @@
+       struct pfcp_bar bpf_bar = ConvertBar(bar);
+       struct pfcp_mar bpf_mar = ConvertMar(mar);
+ 
+-      // CRITICAL: For downlink PDRs, QFI is not in PDI (no incoming GTP-U
+-      // header) Copy QFI from QER into PDR's PDI for BPF matching logic See
+-      // 3GPP TS 29.244 Section 8.2.89 - QFI is in QER for downlink
++      // Prefer an explicit PDR/QER QFI. If SMF omitted both on a CORE PDR,
++      // use the unique ACCESS PDR QFI from this same PFCP session.
+       if (bpf_pdr.pdi.qfi.qfi == 0 && bpf_qer.qos_flow_identifier.qfi != 0) {
+         bpf_pdr.pdi.qfi.qfi = bpf_qer.qos_flow_identifier.qfi;
+       }
++      if (!is_eth_pdu && has_pdi &&
++          source_interface.interface_value == INTERFACE_VALUE_CORE &&
++          bpf_pdr.pdi.qfi.qfi == 0) {
++        bpf_pdr.pdi.qfi.qfi = UniqueAccessQfi(session);
++        if (bpf_pdr.pdi.qfi.qfi != 0) {
++          logger.info(
++              "DL PDR %u: derived QFI %u from unique ACCESS PDR in "
++              "session " SEID_FMT,
++              pdr_id, bpf_pdr.pdi.qfi.qfi, seid);
++        } else {
++          logger.warn(
++              "DL PDR %u: no unambiguous QFI in session " SEID_FMT, pdr_id,
++              seid);
++        }
++      }
+ 
+       /* Update rules_match_pdr map with ALL rules (TS 29.244 Section 8.2)
+        * (PDR ID + SEID -> FAR + QER + URR + BAR + MAR)
+@@ -1311,11 +1405,17 @@
+  *
+  * @see 3GPP TS 29.244 Section 7.5.6 - PFCP Session Deletion
+  */
+-void SessionProgramManager::RemovePipeline(uint64_t seid) {
++void SessionProgramManager::RemovePipeline(
++    std::shared_ptr<pfcp::pfcp_session> session) {
++  if (!session) {
++    Logger::upf_app().warn("RemovePipeline: null PFCP session");
++    return;
++  }
++  const uint64_t seid = session->get_up_seid();
+   Logger::upf_app().info("Removing pipeline for session " SEID_FMT, seid);
+ 
+   try {
+-    RemoveSession(seid);
++    RemoveSession(session);
+     Logger::upf_app().info("Pipeline removed for session " SEID_FMT, seid);
+ 
+   } catch (const std::exception& e) {
+diff -ru a/src/upf_app/control/SessionProgramManager.h b/src/upf_app/control/SessionProgramManager.h
+--- a/src/upf_app/control/SessionProgramManager.h
++++ b/src/upf_app/control/SessionProgramManager.h
+@@ -104,9 +104,9 @@
+    * - QER TC-BPF program (if instantiated)
+    * - ARP caches for N3/N6 endpoints
+    *
+-   * @param seid Session Endpoint Identifier
++   * @param session PFCP session being removed; its PDRs identify map entries
+    */
+-  void RemoveSession(uint64_t seid);
++  void RemoveSession(std::shared_ptr<pfcp::pfcp_session> session);
+ 
+   /**
+    * @brief Remove all sessions and clean up all resources
+@@ -289,9 +289,9 @@
+ 
+   /**
+    * @brief Remove BPF pipeline for a session
+-   * @param seid Session Endpoint Identifier
++   * @param session PFCP session being removed
+    */
+-  void RemovePipeline(uint64_t seid);
++  void RemovePipeline(std::shared_ptr<pfcp::pfcp_session> session);
+ 
+   // ==========================================================================
+   // PFCP IE to BPF Conversion
+diff -ru a/src/upf_app/control/UserPlaneComponent.cpp b/src/upf_app/control/UserPlaneComponent.cpp
+--- a/src/upf_app/control/UserPlaneComponent.cpp
++++ b/src/upf_app/control/UserPlaneComponent.cpp
+@@ -6,6 +6,9 @@
+ #include "SessionManager.h"
+ #include "SessionProgramManager.h"
+ #include "SignalHandler.h"
++#include "UrrReportConsumer.h"
++#include "SecurityApi.h"
++#include "SecurityPolicyStore.h"
+ #include <upf_xdp_user.h>
+ #include "logger.hpp"
+ #include "Configuration.h"
+@@ -132,6 +135,24 @@
+   //   - Links entry programs to N3/N6 interfaces
+   upf_xdp_program_->Setup(flags);
+ 
++  // Per-SUPI security policy + HTTP API (lab extension), ready before any
++  // PFCP session can be established
++  if (SecurityConfig::Get().enabled) {
++    auto& store = SecurityPolicyStore::GetInstance();
++    if (store.Start(
++            upf_xdp_program_->GetMapByName("sec_policy_by_supi"),
++            upf_xdp_program_->GetMapByName("sec_policy_by_seid"),
++            upf_xdp_program_->GetMapByName("sec_stats_by_seid"))) {
++      store.StartTelemetry(
++          upf_xdp_program_->GetMapByName("sec_profile_by_seid"),
++          upf_xdp_program_->GetMapByName("sec_dst_bits_by_seid"),
++          upf_xdp_program_->GetMapByName("sec_config"),
++          upf_xdp_program_->GetMapByName("sec_global"));
++      SecurityApi::GetInstance().Start(SecurityConfig::Get().port);
++    } else
++      Logger::upf_app().error("UPF security: disabled (store start failed)");
++  }
++
+   // Get SessionProgramManager singleton
+   SessionProgramManager& session_program_manager =
+       SessionProgramManager::GetInstance();
+@@ -159,6 +180,20 @@
+ 
+   Logger::upf_app().info("Session Manager initialized");
+ 
++  // PFCP encoding/sending belongs in userspace. Start consuming only after the
++  // BPF maps and the session registry are both available.
++  if (flags.enable_urr) {
++    const auto urr_program = upf_xdp_program_->GetUrrProgram();
++    if (!urr_program || !urr_program->GetUrrReportRingbuf()) {
++      throw std::runtime_error("URR enabled but report ring buffer is missing");
++    }
++    urr_report_consumer_ = std::make_shared<UrrReportConsumer>(
++        urr_program->GetUrrReportRingbuf(), session_manager_,
++        upf_xdp_program_->GetMapByName("urr_volume_counters_map"),
++        upf_xdp_program_->GetMapByName("urr_config_map"));
++    urr_report_consumer_->Start();
++  }
++
+   // Count loaded features
+   int feature_count = 3;  // Core: session_lookup + pdr_match + far
+   if (flags.enable_qer) feature_count++;
+@@ -211,6 +246,12 @@
+ void UserPlaneComponent::TearDown() {
+   Logger::upf_app().info("Tearing down User Plane Component");
+ 
++  // Stop polling while both the session registry and BPF map are still alive.
++  if (urr_report_consumer_) {
++    urr_report_consumer_->Stop();
++    urr_report_consumer_.reset();
++  }
++
+   // Remove all sessions from singleton
+   SessionProgramManager::GetInstance().RemoveAllSessions();
+ 
+diff -ru a/src/upf_app/control/UserPlaneComponent.h b/src/upf_app/control/UserPlaneComponent.h
+--- a/src/upf_app/control/UserPlaneComponent.h
++++ b/src/upf_app/control/UserPlaneComponent.h
+@@ -32,6 +32,7 @@
+ // Forward declarations
+ class SessionManager;
+ class UPF_XDPProgram;
++class UrrReportConsumer;
+ 
+ /**
+  * @class UserPlaneComponent
+@@ -246,6 +247,9 @@
+   /// BPF data plane manager (entry programs + shared map ownership)
+   std::shared_ptr<UPF_XDPProgram> upf_xdp_program_;
+ 
++  /// Converts dataplane URR ring-buffer events into PFCP Usage Reports.
++  std::shared_ptr<UrrReportConsumer> urr_report_consumer_;
++
+   /// N3 GTP-U interface name
+   std::string gtp_interface_;
+ 
+diff -ru a/src/upf_app/include/upf_network_config.h b/src/upf_app/include/upf_network_config.h
+--- a/src/upf_app/include/upf_network_config.h
++++ b/src/upf_app/include/upf_network_config.h
+@@ -48,6 +48,7 @@
+ 
+   /// eBPF/XDP datapath acceleration — upf_cfg.enable_bpf_datapath
+   bool bpf_datapath = false;
++  std::string xdp_mode = "auto";
+ 
+   /// TC-BPF QoS enforcement (QER) — upf_cfg.enable_qer
+   bool qos = false;
+diff -ru a/src/upf_app/kernel/include/packet_context.h b/src/upf_app/kernel/include/packet_context.h
+--- a/src/upf_app/kernel/include/packet_context.h
++++ b/src/upf_app/kernel/include/packet_context.h
+@@ -138,7 +138,9 @@
+    * to select the ATSSS steering configuration.
+    */
+   __u16 pdr_mar_id; /**< MAR ID from matched PDR (§8.2.123); 0 = none */
+-  __u16 pad4;
++  __u16 inner_l3_off; /**< offset of the (inner) IPv4 header from the
++                       *   frame start, IP PDU only; set by the IP entry
++                       *   points for the security profile (sec_policy.h) */
+   /*
+    * Future fields — uncomment when implementing:
+    *
+diff -ru a/src/upf_app/kernel/include/urr_maps.h b/src/upf_app/kernel/include/urr_maps.h
+--- a/src/upf_app/kernel/include/urr_maps.h
++++ b/src/upf_app/kernel/include/urr_maps.h
+@@ -68,7 +68,7 @@
+  *
+  * Producer: xdp_urr_apply_kern.c  — submits struct urr_report_event
+  *           when a Reporting Trigger fires.
+- * Consumer: xdp_urr_apply_user.cpp — polls and constructs PFCP
++ * Consumer: UrrReportConsumer.cpp — polls and constructs PFCP
+  *           Session Report Requests (§7.2.5) for the SMF.
+  *
+  * If the ring is full, bpf_ringbuf_reserve() returns NULL and the
+diff -ru a/src/upf_app/kernel/include/urr_types.h b/src/upf_app/kernel/include/urr_types.h
+--- a/src/upf_app/kernel/include/urr_types.h
++++ b/src/upf_app/kernel/include/urr_types.h
+@@ -75,6 +75,9 @@
+   __u8 reporting_triggers; /**< Reporting Triggers bitmask (§8.2.19)    */
+   __u8 pad[3];
+ 
++  /** One-shot latch used to suppress duplicate threshold/quota reports. */
++  __u64 reported_triggers;
++
+   /* Volume Threshold (§8.2.13) — generate report when crossed           */
+   __u64 volume_threshold_total; /**< Total volume threshold (bytes)      */
+   __u64 volume_threshold_ul;    /**< Uplink volume threshold (bytes)     */
+@@ -111,7 +114,7 @@
+ /**
+  * @brief Usage Report event sent to userspace via ringbuf.
+  *
+- * Produced by the XDP program, consumed by xdp_urr_apply_user.cpp.
++ * Produced by the XDP program, consumed by UrrReportConsumer.cpp.
+  * Userspace reads this event and constructs a PFCP Session Report
+  * Request (TS 29.244 §7.2.5) with a Usage Report IE
+  * (Table 7.5.8.3-1) and sends it to the SMF.
+diff -ru a/src/upf_app/kernel/xdp/xdp_n3_entry_kern.c b/src/upf_app/kernel/xdp/xdp_n3_entry_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_n3_entry_kern.c
++++ b/src/upf_app/kernel/xdp/xdp_n3_entry_kern.c
+@@ -144,6 +144,7 @@
+   pctx->ue_ip        = ue_ip;
+   pctx->qfi          = qfi;
+   pctx->pkt_teid     = pkt_teid;
++  pctx->inner_l3_off = (__u16)((void*) ip_inner - data);
+ 
+   /* ---------------------------------------------------------- */
+   /*  Tail call: IP session lookup                              */
+diff -ru a/src/upf_app/kernel/xdp/xdp_n6_entry_kern.c b/src/upf_app/kernel/xdp/xdp_n6_entry_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_n6_entry_kern.c
++++ b/src/upf_app/kernel/xdp/xdp_n6_entry_kern.c
+@@ -121,6 +121,7 @@
+   pctx->session_type = SESSION_TYPE_IP_DOWNLINK;
+   pctx->ue_ip        = ue_ip;
+   pctx->pkt_teid     = 0; /* not applicable for downlink */
++  pctx->inner_l3_off = (__u16)((void*) ip - data);
+ 
+   /* ---------------------------------------------------------- */
+   /*  Extract 5-tuple for SDF filter matching (§8.2.5)          */
+diff -ru a/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c b/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c
++++ b/src/upf_app/kernel/xdp/xdp_session_lookup_eth_kern.c
+@@ -27,6 +27,7 @@
+ #include "tail_call_dispatcher.h"
+ #include "stats_maps.h"
+ #include "stats_types.h"
++#include "sec_policy.h"
+ 
+ /* ========================================================================== */
+ /*                     ETH SESSION LOOKUP ENTRY POINT                         */
+@@ -114,6 +115,10 @@
+ 
+   bpf_debug("ETH Lookup: rules_enabled=0x%x", pctx->rules_enabled);
+ 
++  /* Per-SUPI security policy (UPF Security API) before PDR match */
++  if (sec_policy_apply(ctx, pctx))
++    return xdp_stats_record_action(ctx, XDP_DROP);
++
+   /* ---------------------------------------------------------- */
+   /*  Tail call: PDR Match (shared with IP PDU sessions)        */
+   /*                                                            */
+diff -ru a/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c b/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c
++++ b/src/upf_app/kernel/xdp/xdp_session_lookup_ip_kern.c
+@@ -29,6 +29,7 @@
+ #include "tail_call_dispatcher.h"
+ #include "stats_maps.h"
+ #include "stats_types.h"
++#include "sec_policy.h"
+ 
+ /* ========================================================================== */
+ /*                    PFCP SESSION LOOKUP (IP PDU)                            */
+@@ -65,6 +66,9 @@
+         "PFCP Session Lookup failed: no session for "
+         "UE IP %pI4",
+         &ue_ip);
++    /* UL source no session owns (CL-4): drop when configured */
++    if (sec_unknown_ul(ctx, pctx))
++      return xdp_stats_record_action(ctx, XDP_DROP);
+     return xdp_stats_record_action(ctx, XDP_PASS);
+   }
+ 
+@@ -105,6 +109,10 @@
+     bpf_debug("No rule flags for SEID = %llu — all rules disabled", seid);
+   }
+ 
++  /* Per-SUPI security policy (UPF Security API) before PDR match */
++  if (sec_policy_apply(ctx, pctx))
++    return xdp_stats_record_action(ctx, XDP_DROP);
++
+   /* Tail call: PDR Match */
+   TAIL_CALL_NEXT(ctx, PROG_PDR_MATCH);
+ 
+diff -ru a/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c b/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c
+--- a/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c
++++ b/src/upf_app/kernel/xdp/xdp_urr_apply_kern.c
+@@ -101,10 +101,6 @@
+   evt->pad[2]        = 0;
+   evt->timestamp_ns  = now_ns;
+   evt->start_time_ns = cfg->monitoring_time_ns;
+-  /*  Not an atomic read of the whole struct,
+-   * but individual fields are atomically updated — slight inconsistency
+-   * between fields is acceptable for reporting purposes.
+-   */
+   /*
+    * Snapshot current counters. Not an atomic read of the whole struct,
+    * but individual fields are atomically updated — slight inconsistency
+@@ -127,6 +123,19 @@
+       trigger, cfg->urr_id, seid);
+ }
+ 
++/**
++ * @brief Atomically claim a one-shot reporting trigger.
++ *
++ * Threshold and quota conditions remain true for every packet after they are
++ * crossed. Without this latch, each of those packets would enqueue another
++ * PFCP Usage Report event. Periodic reporting deliberately does not use it.
++ */
++static __always_inline bool urr_claim_one_shot_trigger(
++    struct urr_config* cfg, __u64 trigger) {
++  __u64 previous = __sync_fetch_and_or(&cfg->reported_triggers, trigger);
++  return !(previous & trigger);
++}
++
+ /* ========================================================================== */
+ /*                   THRESHOLD / QUOTA CHECK (§8.2.46-48)                     */
+ /* ========================================================================== */
+@@ -168,7 +177,7 @@
+         vol->dl_bytes >= cfg->volume_threshold_dl)
+       crossed = true;
+ 
+-    if (crossed) {
++    if (crossed && urr_claim_one_shot_trigger(cfg, URR_TRIGGER_VOLTH)) {
+       bpf_debug(
+           "URR: Volume Threshold crossed"
+           "SEID = %llu, total = %llu bytes",
+@@ -200,7 +209,8 @@
+           "URR: Volume Quota exhausted "
+           "SEID = %llu - enforcing DROP",
+           seid);
+-      urr_submit_report(seid, cfg, vol, URR_TRIGGER_VOLQU, now_ns);
++      if (urr_claim_one_shot_trigger(cfg, URR_TRIGGER_VOLQU))
++        urr_submit_report(seid, cfg, vol, URR_TRIGGER_VOLQU, now_ns);
+       should_drop = true;
+     }
+   }
+@@ -212,7 +222,8 @@
+     if (cfg->time_threshold_ns > 0 && cfg->monitoring_time_ns > 0) {
+       __u64 elapsed = now_ns - cfg->monitoring_time_ns;
+ 
+-      if (elapsed >= cfg->time_threshold_ns) {
++      if (elapsed >= cfg->time_threshold_ns &&
++          urr_claim_one_shot_trigger(cfg, URR_TRIGGER_TIMTH)) {
+         bpf_debug(
+             "URR: Time Threshold reached "
+             "SEID = %llu, elapsed = %llu ns",
+@@ -255,7 +266,8 @@
+             "URR: Time Quota exhausted (§8.2.47) "
+             "SEID = %llu, elapsed = %llu ns — enforcing DROP",
+             seid, elapsed);
+-        urr_submit_report(seid, cfg, vol, URR_TRIGGER_TIMQU, now_ns);
++        if (urr_claim_one_shot_trigger(cfg, URR_TRIGGER_TIMQU))
++          urr_submit_report(seid, cfg, vol, URR_TRIGGER_TIMQU, now_ns);
+         should_drop = true;
+       }
+     }
+@@ -280,7 +292,7 @@
+         vol->dropped_dl_packets >= cfg->dropped_dl_threshold_pkts)
+       droth_crossed = true;
+ 
+-    if (droth_crossed) {
++    if (droth_crossed && urr_claim_one_shot_trigger(cfg, URR_TRIGGER_DROTH)) {
+       bpf_debug(
+           "URR: Dropped DL Threshold crossed (§8.2.49) "
+           "SEID = %llu, dropped_dl_bytes = %llu, dropped_dl_pkts = %llu",
+diff -ru a/src/upf_app/simpleswitch/pfcp_far.cpp b/src/upf_app/simpleswitch/pfcp_far.cpp
+--- a/src/upf_app/simpleswitch/pfcp_far.cpp
++++ b/src/upf_app/simpleswitch/pfcp_far.cpp
+@@ -108,7 +108,9 @@
+ bool pfcp_far::update(
+     const pfcp::update_far& updated_far, uint8_t& cause_value) {
+   // 3GPP TS 29.244 V17.10.0 Table 7.5.4.3-1 — Update FAR IEs
+-  set(updated_far.apply_action.second);  // §8.2.26 — Sxa+Sxb+Sxc+N4+N4mb (C)
++  // §8.2.26 — Sxa+Sxb+Sxc+N4+N4mb (C). Conditional: an Update FAR without
++  // Apply Action keeps the current action (it must not reset it to 0).
++  if (updated_far.apply_action.first) set(updated_far.apply_action.second);
+ 
+   if (updated_far.update_forwarding_parameters.first) {
+     // Update Forwarding Parameters — grouped IE type=11, Table 7.5.4.3-2
+diff -ru a/src/upf_app/simpleswitch/pfcp_session.hpp b/src/upf_app/simpleswitch/pfcp_session.hpp
+--- a/src/upf_app/simpleswitch/pfcp_session.hpp
++++ b/src/upf_app/simpleswitch/pfcp_session.hpp
+@@ -61,6 +61,10 @@
+                                     ///< default is 0 (undefined)
+   uint8_t qfi = 0x05;  ///< Default QFI for DN-originated packets (§8.2.89)
+ 
++  // ---- Subscriber and inactivity (two-layer defense, session TTL T2) -------
++  std::string supi;  ///< "imsi-<digits>" from the User ID IE (§8.2.101), or ""
++  uint32_t up_inactivity_timer_s = 0;  ///< IE 117 (§8.2.83), 0 = none
++
+   // TO DO better than this :(sooner the better)  when inserting or removing new
+   // PDRs, FARS, should not conflict with switching operations
+ 
+@@ -123,7 +127,9 @@
+         bars(c.bars),
+         mars(c.mars),
+         teid_uplink(c.teid_uplink),
+-        pdn_type(c.pdn_type) {}
++        pdn_type(c.pdn_type),
++        supi(c.supi),
++        up_inactivity_timer_s(c.up_inactivity_timer_s) {}
+ 
+   //------------------------------------------------------------------------------
+   virtual ~pfcp_session() {
+diff -ru a/src/upf_app/simpleswitch/pfcp_switch.cpp b/src/upf_app/simpleswitch/pfcp_switch.cpp
+--- a/src/upf_app/simpleswitch/pfcp_switch.cpp
++++ b/src/upf_app/simpleswitch/pfcp_switch.cpp
+@@ -563,6 +563,16 @@
+ void pfcp_switch::remove_pfcp_session(const pfcp::fseid_t& cp_fseid) {
+   std::shared_ptr<pfcp::pfcp_session> session = {};
+   if (get_pfcp_session_by_cp_fseid(cp_fseid, session)) {
++    // Association teardown (heartbeat failure, CP restart): clear the BPF
++    // datapath too, as a Session Deletion Request does
++    if (upf_cfg.enable_bpf_datapath) {
++      Logger::upf_app().info(
++          "Delete datapath of session SEID " SEID_FMT " (association teardown)",
++          session->seid);
++      call_datapath(
++          nullptr, nullptr, nullptr, session.get(), session_manager,
++          &SessionManager::RemoveSession);
++    }
+     remove_pfcp_session(session);
+   }
+ }
+@@ -753,6 +763,16 @@
+     if (not exist) {
+       session = new pfcp_session(fseid, generate_seid());
+ 
++      // User ID (§8.2.101): subscriber identity of the session
++      pfcp::user_id_t user_id = {};
++      if (req->pfcp_ies.get(user_id) && user_id.imsif)
++        session->supi = "imsi-" + user_id.imsi.toString();
++      // User Plane Inactivity Timer (§8.2.83): UPIR after that long without
++      // traffic (UrrReportConsumer)
++      pfcp::user_plane_inactivity_timer_t upit = {};
++      if (req->pfcp_ies.get(upit))
++        session->up_inactivity_timer_s = upit.user_plane_inactivity_timer;
++
+       // ---- Create FARs first (PDR create_far look-up requires them) --------
+       for (auto it : req->pfcp_ies.create_fars) {
+         create_far& cr_far = it;
+@@ -894,6 +914,12 @@
+         s = std::shared_ptr<pfcp_session>(session);
+         add_pfcp_session_by_cp_fseid(fseid, s);
+         add_pfcp_session_by_up_seid(session->seid, s);
++        Logger::upf_app().info(
++            "PFCP session established: UP SEID " SEID_FMT " CP SEID " SEID_FMT
++            " SUPI %s UP inactivity timer %u s",
++            session->seid, fseid.seid,
++            session->supi.empty() ? "-" : session->supi.c_str(),
++            session->up_inactivity_timer_s);
+         // start_timer_min_commit_interval();
+         // start_timer_max_commit_interval();
+ 
+@@ -1336,6 +1362,7 @@
+   } else {
+     pfcp::pfcp_session* session = s.get();
+     resp->seid                  = s->cp_fseid.seid;
++    fseid                       = s->cp_fseid;  // for notify_del_session()
+ 
+     if (isBpfAccelerationEnabled) {
+       Logger::upf_app().info("Delete datapath");
+diff -ru a/src/upf_app/user/pdr_match_user.cpp b/src/upf_app/user/pdr_match_user.cpp
+--- a/src/upf_app/user/pdr_match_user.cpp
++++ b/src/upf_app/user/pdr_match_user.cpp
+@@ -8,6 +8,7 @@
+ #include <wrappers/BPFMap.hpp>
+ #include <wrappers/BPFMaps.h>
+ #include "logger.hpp"
++#include "common_root_types.h"
+ #include "upf_xdp_limits.h"
+ #include "utils/bpf_utils.hpp"
+ #include "SdfFilterParser.hpp"
+@@ -157,10 +158,11 @@
+ 
+ //------------------------------------------------------------------------------
+ pdr_rule_key PdrMatchProgram::MakePdrKey(uint64_t seid, uint32_t pdr_id) {
++  // Hash keys compare every byte, including the padding after pdr_id.
+   pdr_rule_key k;
++  std::memset(&k, 0, sizeof(k));
++  k.pdr_id = static_cast<decltype(k.pdr_id)>(pdr_id);
+   k.seid   = seid;
+-  k.pdr_id = pdr_id;
+-  k._pad   = 0;
+   return k;
+ }
+ 
+@@ -212,13 +214,56 @@
+ }
+ 
+ //------------------------------------------------------------------------------
++template<class Key>
++size_t PdrMatchProgram::SweepSeid(
++    const std::shared_ptr<BPFMap>& map, uint64_t seid) {
++  if (!map) return 0;
++  // Collect first: deleting while iterating a hash map can restart or skip.
++  std::vector<Key> stale;
++  Key cur;
++  Key next;
++  std::memset(&cur, 0, sizeof(cur));
++  std::memset(&next, 0, sizeof(next));
++  int fd    = map->GetFd();
++  bool have = bpf_map_get_next_key(fd, nullptr, &next) == 0;
++  while (have) {
++    if (next.seid == seid) stale.push_back(next);
++    cur  = next;
++    have = bpf_map_get_next_key(fd, &cur, &next) == 0;
++  }
++  size_t removed = 0;
++  for (auto& key : stale) removed += map->RemoveIfPresent(key) ? 1 : 0;
++  return removed;
++}
++
++//------------------------------------------------------------------------------
+ void PdrMatchProgram::RemovePdrRulesMaps(
+     uint64_t seid, const std::vector<std::shared_ptr<pfcp::pfcp_pdr>>& pdrs) {
++  // Best-effort teardown: a missing key is normal and must not abort the rest.
++  Logger::upf_app().debug(
++      "RemovePdrRulesMaps: seid " SEID_FMT " with %zu PDR(s)", seid,
++      pdrs.size());
+   for (const auto& pdr : pdrs) {
+     if (!pdr) continue;
+     pdr_rule_key key = MakePdrKey(seid, pdr->pdr_id.rule_id);
+-    if (rules_match_map_) rules_match_map_->Remove(key);
+-    if (sdf_filter_map_) sdf_filter_map_->Remove(key);
++    if (rules_match_map_ && !rules_match_map_->RemoveIfPresent(key)) {
++      Logger::upf_app().debug(
++          "RemovePdrRulesMaps: PDR %u of seid " SEID_FMT " already absent",
++          pdr->pdr_id.rule_id, seid);
++    }
++  }
++  if (session_pdrs_map_) session_pdrs_map_->RemoveIfPresent(seid);
++
++  // Sweep what the PDR list no longer names (e.g. PDRs removed by an earlier
++  // Session Modification). sdf_filters_map is keyed by {seid, qfi}, not by
++  // PDR, so it is only cleaned here. SEIDs are reused: a leftover entry
++  // would be inherited by the next session with this SEID.
++  size_t swept = SweepSeid<pdr_rule_key>(rules_match_map_, seid) +
++                 SweepSeid<struct session_qfi>(sdf_filter_map_, seid);
++  if (swept > 0) {
++    Logger::upf_app().warn(
++        "RemovePdrRulesMaps: swept %zu stale entries for seid " SEID_FMT,
++        swept, seid);
+   }
+-  if (session_pdrs_map_) session_pdrs_map_->Remove(seid);
+ }
++
+diff -ru a/src/upf_app/user/pdr_match_user.h b/src/upf_app/user/pdr_match_user.h
+--- a/src/upf_app/user/pdr_match_user.h
++++ b/src/upf_app/user/pdr_match_user.h
+@@ -8,7 +8,10 @@
+ #include <ProgramLifeCycle.hpp>
+ #include <linux/bpf.h>
+ #include <cstdint>
++#include <cstring>
+ #include <memory>
++#include <pipeline_types.h>
++#include <sdf_types.h>
+ #include <vector>
+ #include <xdp_pdr_match_skel.h>
+ #include <wrappers/BPFMap.hpp>
+@@ -39,14 +42,13 @@
+ };
+ 
+ /**
+- * @struct pdr_rule_key
+- * @brief Compound BPF map key: {seid, pdr_id}.
++ * @brief Compound key of rules_match_pdr_map: the kernel's own struct.
++ *
++ * Must be byte-identical to the key the datapath and CreatePipeline use
++ * ({u16 pdr_id; u64 seid}, naturally aligned). A separate packed
++ * {seid, pdr_id} definition made every delete hit the wrong entry.
+  */
+-struct pdr_rule_key {
+-  uint64_t seid;
+-  uint32_t pdr_id;
+-  uint32_t _pad;
+-} __attribute__((packed));
++using pdr_rule_key = struct pdrs_per_session;
+ 
+ /**
+  * @class PdrMatchProgram
+@@ -155,6 +157,14 @@
+       uint64_t seid, const std::vector<std::shared_ptr<pfcp::pfcp_pdr>>& pdrs);
+ 
+   /**
++   * @brief Delete every entry of @p seid from @p map.
++   * @tparam Key the map's exact key type; must have a `seid` member.
++   * @return number of entries deleted
++   */
++  template<class Key>
++  static size_t SweepSeid(const std::shared_ptr<BPFMap>& map, uint64_t seid);
++
++  /**
+    * @brief Populate sdf_filters_map for a single PDR.
+    *
+    * @param seid  PFCP session identifier.
+diff -ru a/src/upf_app/user/ProgramLifeCycle.hpp b/src/upf_app/user/ProgramLifeCycle.hpp
+--- a/src/upf_app/user/ProgramLifeCycle.hpp
++++ b/src/upf_app/user/ProgramLifeCycle.hpp
+@@ -19,6 +19,8 @@
+ #include <map>
+ #include <mutex>
+ #include "logger.hpp"
++#include "upf_network_config.h"
++#include "XdpMode.hpp"
+ 
+ // TC handle and priority defaults
+ #define INGRESS_HANDLE 0x1
+@@ -339,42 +341,33 @@
+       throw std::runtime_error("Failed to get BPF program FD");
+     }
+ 
+-    // Try attaching XDP program with smart fallback
+-    int ret              = -1;
+-    const char* mode_str = "unknown";
+-
+-    // First try: Native mode (best performance)
+-    ret = bpf_xdp_attach(
+-        if_index, prog_fd, xdp_flags_ | XDP_FLAGS_DRV_MODE, nullptr);
+-    bool tried_native = (ret != 0);
+-
+-    if (ret == 0) {
+-      mode_str                                      = "native (driver mode)";
+-      interface_native_xdp_[std::string(interface)] = true;
+-    } else if (ret == -EOPNOTSUPP || ret == -95) {
+-      // Native mode not supported, try SKB mode (software fallback)
+-      Logger::upf_app().warn(
+-          "[%s] Native XDP unsupported on %s (driver limitation), using SKB "
+-          "mode",
+-          name_.c_str(), interface);
++    const auto mode = upf::ParseXdpMode(upf::g_net_cfg.xdp_mode);
++    uint32_t mode_flags = upf::InitialXdpFlags(mode);
++    struct bpf_prog_info info {};
++    uint32_t info_len = sizeof(info);
++    if (bpf_obj_get_info_by_fd(prog_fd, &info, &info_len) != 0)
++      throw std::runtime_error("Cannot identify XDP program before attach");
++    int ret = bpf_xdp_attach(
++        if_index, prog_fd, xdp_flags_ | mode_flags, nullptr);
++    bool tried_native = false;
++    if (upf::ShouldFallbackToSkb(mode, ret)) {
++      mode_flags = XDP_FLAGS_SKB_MODE;
++      tried_native = true;
+       ret = bpf_xdp_attach(
+-          if_index, prog_fd, xdp_flags_ | XDP_FLAGS_SKB_MODE, nullptr);
+-
+-      if (ret == 0) {
+-        mode_str                                      = "SKB (software mode)";
+-        interface_native_xdp_[std::string(interface)] = false;
+-      }
++          if_index, prog_fd, xdp_flags_ | mode_flags, nullptr);
+     }
+-
+-    // If both attempts failed, throw error
+-
+     if (ret < 0) {
+       Logger::upf_app().error(
+-          "[%s] Failed to attach XDP program '%s' to interface '%s': %d (%s)",
+-          name_.c_str(), section_name, interface, ret, strerror(-ret));
+-      throw std::runtime_error(
+-          "XDP attach failed in both native and SKB modes");
+-    }
++          "[%s] XDP attach failed interface=%s requested_mode=%s error=%d",
++          name_.c_str(), interface, upf::g_net_cfg.xdp_mode.c_str(), ret);
++      throw std::runtime_error("XDP attach failed in requested mode");
++    }
++    const char* mode_str = mode_flags == XDP_FLAGS_SKB_MODE ? "skb" : "native";
++    interface_native_xdp_[std::string(interface)] = mode_flags == XDP_FLAGS_DRV_MODE;
++    xdp_attachments_[if_index] = {prog_fd, info.id, mode_flags};
++    Logger::upf_app().info(
++        "[%s] XDP attached interface=%s mode=%s program_id=%u",
++        name_.c_str(), interface, mode_str, info.id);
+ 
+     // Track linked interface
+     std::string section_str(section_name);
+@@ -658,29 +651,28 @@
+       return;
+     }
+ 
+-    // Unlink XDP programs if in LINKED state
+-    if (state_ == LINKED) {
+-      Logger::upf_app().debug(
+-          "[%s] Unlinking XDP programs from interfaces", name_.c_str());
+-      for (const auto& section_entry : section_link_map_) {
+-        const std::string& section_name         = section_entry.first;
+-        const std::vector<uint32_t>& interfaces = section_entry.second;
+-
+-        for (uint32_t if_index : interfaces) {
+-          int ret = bpf_xdp_attach(if_index, -1, xdp_flags_, nullptr);
+-          if (ret) {
+-            Logger::upf_app().error(
+-                "[%s] Failed to unlink XDP '%s' from ifindex %d", name_.c_str(),
+-                section_entry.first.c_str(), if_index);
+-          } else {
+-            Logger::upf_app().info(
+-                "[%s] XDP '%s' unlinked from ifindex %d", name_.c_str(),
+-                section_entry.first.c_str(), if_index);
+-          }
+-        }
++    // Ownership is checked by ID and atomically enforced by old_prog_fd.
++    // Do not detach a replacement program installed by another instance.
++    for (const auto& entry : xdp_attachments_) {
++      uint32_t current_id = 0;
++      const auto& attachment = entry.second;
++      if (bpf_xdp_query_id(entry.first, attachment.mode, &current_id) != 0 ||
++          current_id != attachment.id) {
++        Logger::upf_app().warn(
++            "[%s] Skipping XDP detach on ifindex=%u: ownership changed",
++            name_.c_str(), entry.first);
++        continue;
+       }
+-      section_link_map_.clear();
++      struct bpf_xdp_attach_opts opts {};
++      opts.sz = sizeof(opts);
++      opts.old_prog_fd = attachment.fd;
++      const int ret = bpf_xdp_detach(entry.first, attachment.mode, &opts);
++      if (ret != 0)
++        Logger::upf_app().error("[%s] XDP detach failed ifindex=%u error=%d",
++                                name_.c_str(), entry.first, ret);
+     }
++    xdp_attachments_.clear();
++    section_link_map_.clear();
+ 
+     // Destroy skeleton
+     if (skeleton_) {
+@@ -734,6 +726,8 @@
+ 
+   T* skeleton_;         ///< Pointer to BPF skeleton (nullptr if not opened)
+   ProgramState state_;  ///< Current lifecycle state
++  struct XdpAttachment { int fd; uint32_t id; uint32_t mode; };
++  std::map<uint32_t, XdpAttachment> xdp_attachments_;
+   uint32_t xdp_flags_;  ///< XDP attachment flags (DRV_MODE or SKB_MODE)
+ 
+   std::mutex teardown_mutex_;  ///< Mutex for thread-safe teardown
+diff -ru a/src/upf_app/user/session_lookup_ip_user.cpp b/src/upf_app/user/session_lookup_ip_user.cpp
+--- a/src/upf_app/user/session_lookup_ip_user.cpp
++++ b/src/upf_app/user/session_lookup_ip_user.cpp
+@@ -10,6 +10,7 @@
+ #include "logger.hpp"
+ #include "upf_xdp_limits.h"
+ #include "utils/bpf_utils.hpp"
++#include "SecurityPolicyStore.h"
+ 
+ using namespace oai::utils::bpf;
+ 
+@@ -45,6 +46,27 @@
+       skel->maps.m_framed_route_mapping, "m_framed_route_mapping",
+       upf::GetMaxPduSessions());
+ 
++  /* sec_policy_maps.h -- UPF Security API (shared into session_lookup_eth) */
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_policy_by_supi, "sec_policy_by_supi",
++      SecurityConfig::Get().max_policies);
++
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_policy_by_seid, "sec_policy_by_seid",
++      upf::GetMaxPduSessions());
++
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_stats_by_seid, "sec_stats_by_seid",
++      upf::GetMaxPduSessions());
++
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_profile_by_seid, "sec_profile_by_seid",
++      upf::GetMaxPduSessions());
++
++  ok &= ConfigureMapMaxEntries(
++      skel->maps.sec_dst_bits_by_seid, "sec_dst_bits_by_seid",
++      upf::GetMaxPduSessions());
++
+   /*
+    * framed_routing_flag: BPF_MAP_TYPE_ARRAY, max_entries=1 (boolean flag).
+    * feature_dispatch_map: BPF_MAP_TYPE_PROG_ARRAY, tail-call table.
+diff -ru a/src/upf_app/user/upf_xdp_user.cpp b/src/upf_app/user/upf_xdp_user.cpp
+--- a/src/upf_app/user/upf_xdp_user.cpp
++++ b/src/upf_app/user/upf_xdp_user.cpp
+@@ -193,6 +193,14 @@
+     if (urr_) ShareMapsOwned(sl_obj, urr_->GetBpfObject(), pipeline_owned);
+     if (bar_) ShareMapsOwned(sl_obj, bar_->GetBpfObject(), pipeline_owned);
+     if (mar_) ShareMapsOwned(sl_obj, mar_->GetBpfObject(), pipeline_owned);
++
++    /* sec_policy_maps.h: session_lookup_eth applies the same per-SUPI
++     * policy, so it must see sl_ip_'s maps (it loads in Step 4a'). */
++    const std::initializer_list<const char*> sec_owned = {
++        "sec_policy_by_supi", "sec_policy_by_seid", "sec_stats_by_seid",
++        "sec_profile_by_seid", "sec_dst_bits_by_seid", "sec_config",
++        "sec_global"};
++    if (sl_eth_) ShareMapsOwned(sl_obj, sl_eth_->GetBpfObject(), sec_owned);
+   }
+ 
+   /* ── Step 4a' (ETH path mirror of Step 4a): Load sl_eth_ BEFORE the other
+@@ -634,6 +642,16 @@
+   if (n == "feature_dispatch_map")
+     return sl_ip_ ? sl_ip_->GetFeatureDispatchMap() : nullptr;
+ 
++  /* Security policy maps -- owned by SessionLookupIPProgram */
++  if (n == "sec_policy_by_supi" || n == "sec_policy_by_seid" ||
++      n == "sec_stats_by_seid" || n == "sec_profile_by_seid" ||
++      n == "sec_dst_bits_by_seid" || n == "sec_config" || n == "sec_global") {
++    if (!sl_ip_) return nullptr;
++    struct bpf_map* m =
++        bpf_object__find_map_by_name(sl_ip_->GetBpfObject(), n.c_str());
++    return m ? std::make_shared<BPFMap>(m, n) : nullptr;
++  }
++
+   /* ETH session maps -- SessionLookupETHProgram */
+   if (n == "session_by_mac_map")
+     return sl_eth_ ? sl_eth_->GetSessionByMacMap() : nullptr;
+diff -ru a/src/upf_app/user/urr_apply_user.cpp b/src/upf_app/user/urr_apply_user.cpp
+--- a/src/upf_app/user/urr_apply_user.cpp
++++ b/src/upf_app/user/urr_apply_user.cpp
+@@ -5,6 +5,8 @@
+ #include "urr_apply_user.h"
+ #include <bpf/libbpf.h>
+ #include <cerrno>
++#include <cstring>
++#include <ctime>
+ #include <stdexcept>
+ #include <wrappers/BPFMap.hpp>
+ #include <wrappers/BPFMaps.h>
+@@ -14,6 +16,19 @@
+ 
+ using namespace oai::utils::bpf;
+ 
++namespace {
++constexpr uint64_t kNanosecondsPerSecond = 1000000000ULL;
++
++uint64_t MonotonicNowNs() {
++  struct timespec now {};
++  if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
++    throw std::runtime_error("Failed to read CLOCK_MONOTONIC for URR");
++  }
++  return static_cast<uint64_t>(now.tv_sec) * kNanosecondsPerSecond +
++         static_cast<uint64_t>(now.tv_nsec);
++}
++}  // namespace
++
+ //------------------------------------------------------------------------------
+ void URRProgram::ConfigureMaps(struct xdp_urr_apply_kern_c* skel) {
+   if (!skel) {
+@@ -141,122 +156,114 @@
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::ConvertUrr(
+-    const pfcp::pfcp_urr& urr, struct pfcp_urr& bpf_urr) {
+-  bpf_urr        = {};
+-  bpf_urr.urr_id = urr.urr_id.second.urr_id;
++    const pfcp::pfcp_urr& urr, struct urr_config& config) {
++  config        = {};
++  config.urr_id = urr.urr_id.second.urr_id;
++
+   if (urr.reporting_triggers.first) {
+-    bpf_urr.reporting_triggers.volth =
+-        urr.reporting_triggers.second.volth ? 1 : 0;
+-    bpf_urr.reporting_triggers.volqu =
+-        urr.reporting_triggers.second.volqu ? 1 : 0;
+-    bpf_urr.reporting_triggers.timth =
+-        urr.reporting_triggers.second.timth ? 1 : 0;
+-    bpf_urr.reporting_triggers.timqu =
+-        urr.reporting_triggers.second.timqu ? 1 : 0;
+-    bpf_urr.reporting_triggers.perio =
+-        urr.reporting_triggers.second.perio ? 1 : 0;
+-    bpf_urr.reporting_triggers.start =
+-        urr.reporting_triggers.second.start ? 1 : 0;
+-    bpf_urr.reporting_triggers.stop =
+-        urr.reporting_triggers.second.stop ? 1 : 0;
+-    bpf_urr.reporting_triggers.droth =
+-        urr.reporting_triggers.second.droth ? 1 : 0;
++    const auto& triggers = urr.reporting_triggers.second;
++    if (triggers.volth) config.reporting_triggers |= URR_TRIGGER_VOLTH;
++    if (triggers.volqu) config.reporting_triggers |= URR_TRIGGER_VOLQU;
++    if (triggers.timth) config.reporting_triggers |= URR_TRIGGER_TIMTH;
++    if (triggers.timqu) config.reporting_triggers |= URR_TRIGGER_TIMQU;
++    if (triggers.perio) config.reporting_triggers |= URR_TRIGGER_PERIO;
++    if (triggers.start) config.reporting_triggers |= URR_TRIGGER_START;
++    if (triggers.stop) config.reporting_triggers |= URR_TRIGGER_STOPT;
++    if (triggers.droth) config.reporting_triggers |= URR_TRIGGER_DROTH;
+   }
++
+   if (urr.volume_threshold.first) {
+-    bpf_urr.volume_threshold.total_volume =
+-        urr.volume_threshold.second.total_volume;
+-    bpf_urr.volume_threshold.uplink_volume =
+-        urr.volume_threshold.second.uplink_volume;
+-    bpf_urr.volume_threshold.downlink_volume =
+-        urr.volume_threshold.second.downlink_volume;
++    config.volume_threshold_total = urr.volume_threshold.second.total_volume;
++    config.volume_threshold_ul    = urr.volume_threshold.second.uplink_volume;
++    config.volume_threshold_dl    = urr.volume_threshold.second.downlink_volume;
+   }
+   if (urr.volume_quota.first) {
+-    bpf_urr.volume_quota.total_volume  = urr.volume_quota.second.total_volume;
+-    bpf_urr.volume_quota.uplink_volume = urr.volume_quota.second.uplink_volume;
+-    bpf_urr.volume_quota.downlink_volume =
+-        urr.volume_quota.second.downlink_volume;
++    config.volume_quota_total = urr.volume_quota.second.total_volume;
++    config.volume_quota_ul    = urr.volume_quota.second.uplink_volume;
++    config.volume_quota_dl    = urr.volume_quota.second.downlink_volume;
+   }
+-  if (urr.measurement_period.first)
+-    bpf_urr.measurement_period.measurement_period =
++  if (urr.measurement_period.first) {
++    config.measurement_period_ns =
+         static_cast<uint64_t>(
+             urr.measurement_period.second.measurement_period) *
+-        1000000000ULL;
+-  if (urr.time_threshold.first)
+-    bpf_urr.time_threshold.time_threshold =
++        kNanosecondsPerSecond;
++  }
++  if (urr.time_threshold.first) {
++    config.time_threshold_ns =
+         static_cast<uint64_t>(urr.time_threshold.second.time_threshold) *
+-        1000000000ULL;
+-  if (urr.monitoring_time.first)
+-    bpf_urr.monitoring_time.monitoring_time =
+-        static_cast<uint64_t>(urr.monitoring_time.second.monitoring_time) *
+-        1000000000ULL;
++        kNanosecondsPerSecond;
++  }
++  if (urr.time_quota.first) {
++    config.time_quota_ns =
++        static_cast<uint64_t>(urr.time_quota.second.time_quota) *
++        kNanosecondsPerSecond;
++  }
+   if (urr.dropped_dl_traffic_threshold.first) {
+     const auto& ddth = urr.dropped_dl_traffic_threshold.second;
+-    bpf_urr.dropped_dl_traffic_threshold.flags = 0;
+-    if (ddth.dlpa) {
+-      bpf_urr.dropped_dl_traffic_threshold.flags |= DDTH_FLAG_DLPA;
+-      bpf_urr.dropped_dl_traffic_threshold.downlink_packets =
+-          ddth.downlink_packets;
+-    }
++    if (ddth.dlpa) config.dropped_dl_threshold_pkts = ddth.downlink_packets;
+     if (ddth.dlby) {
+-      bpf_urr.dropped_dl_traffic_threshold.flags |= DDTH_FLAG_DLBY;
+-      bpf_urr.dropped_dl_traffic_threshold.number_of_bytes_of_downlink_data =
+-          ddth.number_of_bytes_of_downlink_data;
++      config.dropped_dl_threshold_bytes = ddth.number_of_bytes_of_downlink_data;
+     }
+   }
+-}
+ 
+-//------------------------------------------------------------------------------
+-urr_map_key URRProgram::MakeKey(uint64_t seid, uint32_t urr_id) {
+-  urr_map_key k;
+-  k.seid   = seid;
+-  k.urr_id = urr_id;
+-  k._pad   = 0;
+-  return k;
++  // bpf_ktime_get_ns() is monotonic since boot. PFCP Monitoring Time is an
++  // NTP wall-clock value and cannot be used in kernel elapsed-time arithmetic.
++  config.monitoring_time_ns = MonotonicNowNs();
++  config.last_report_ns     = config.monitoring_time_ns;
+ }
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::PopulateUrrConfigMap(
+     uint64_t seid, const std::shared_ptr<pfcp::pfcp_urr>& ie, uint64_t flags) {
+   if (!ie || !urr_config_map_) return;
+-  struct pfcp_urr bpf_urr;
+-  ConvertUrr(*ie, bpf_urr);
+-  urr_map_key key = MakeKey(seid, bpf_urr.urr_id);
+-  int ret         = urr_config_map_->Update(key, bpf_urr, flags);
++  struct urr_config config {};
++  ConvertUrr(*ie, config);
++  uint64_t key = seid;
++  int ret      = urr_config_map_->Update(key, config, flags);
+   if (ret != 0) {
+     Logger::upf_app().error(
+         "URRProgram: config map update failed SEID=%" PRIu64
+         " URR_ID=%u ret=%d",
+-        seid, bpf_urr.urr_id, ret);
++        seid, config.urr_id, ret);
+   } else {
+-    __u16 t;
+-    __builtin_memcpy(&t, &bpf_urr.reporting_triggers, sizeof(t));
+     Logger::upf_app().debug(
+         "URRProgram: config map updated SEID=%" PRIu64
+-        " URR_ID=%u triggers=0x%04x",
+-        seid, bpf_urr.urr_id, static_cast<unsigned>(t));
++        " URR_ID=%u triggers=0x%02x",
++        seid, config.urr_id, static_cast<unsigned>(config.reporting_triggers));
+   }
+ }
+ 
+ //------------------------------------------------------------------------------
+-void URRProgram::InitUrrVolumeMap(uint64_t seid, uint32_t urr_id) {
+-  urr_map_key key = MakeKey(seid, urr_id);
+-  urr_volume_t zero{};
++void URRProgram::InitUrrVolumeMap(uint64_t seid) {
++  uint64_t key = seid;
++  struct urr_volume zero {};
+   if (!urr_volume_counters_map_) return;
+-  int ret = urr_volume_counters_map_->Update(key, zero, BPF_NOEXIST);
+-  if (ret != 0 && ret != -EEXIST)
++  const int ret = bpf_map_update_elem(
++      urr_volume_counters_map_->GetFd(), &key, &zero, BPF_NOEXIST);
++  if (ret != 0 && errno != EEXIST) {
+     Logger::upf_app().warn(
+-        "URRProgram: volume map init failed SEID=%" PRIu64 " URR_ID=%u ret=%d",
+-        seid, urr_id, ret);
++        "URRProgram: volume map init failed SEID=%" PRIu64
++        " errno=%d (%s)",
++        seid, errno, strerror(errno));
++    throw std::runtime_error("URR volume map initialization failed");
++  }
+ }
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::Setup(
+     uint64_t seid, const std::vector<std::shared_ptr<pfcp::pfcp_urr>>& urrs) {
++  std::shared_ptr<pfcp::pfcp_urr> selected;
+   for (const auto& urr : urrs) {
+     if (!urr) continue;
+-    PopulateUrrConfigMap(seid, urr, BPF_ANY);
+-    InitUrrVolumeMap(seid, urr->urr_id.second.urr_id);
++    if (selected) {
++      throw std::runtime_error(
++          "URR MVP supports exactly one URR per PFCP session");
++    }
++    selected = urr;
+   }
++  if (!selected) return;
++  PopulateUrrConfigMap(seid, selected, BPF_ANY);
++  InitUrrVolumeMap(seid);
+ }
+ 
+ //------------------------------------------------------------------------------
+@@ -268,7 +275,9 @@
+ 
+ //------------------------------------------------------------------------------
+ void URRProgram::Remove(uint64_t seid, uint32_t urr_id) {
+-  urr_map_key key = MakeKey(seid, urr_id);
++  uint64_t key = seid;
++  Logger::upf_app().debug(
++      "URRProgram: removing SEID=%" PRIu64 " URR_ID=%u", seid, urr_id);
+   if (urr_config_map_) urr_config_map_->Remove(key);
+   if (urr_volume_counters_map_) urr_volume_counters_map_->Remove(key);
+ }
+@@ -279,13 +288,14 @@
+   for (const auto& urr : urrs) {
+     if (!urr) continue;
+     Remove(seid, urr->urr_id.second.urr_id);
++    break;
+   }
+ }
+ 
+ //------------------------------------------------------------------------------
+ bool URRProgram::ReadVolumeCounters(
+-    uint64_t seid, uint32_t urr_id, urr_volume_t& out) const {
+-  urr_map_key key = MakeKey(seid, urr_id);
++    uint64_t seid, struct urr_volume& out) const {
++  uint64_t key = seid;
+   if (!urr_volume_counters_map_) return false;
+   return urr_volume_counters_map_->Lookup(key, &out) == 0;
+ }
+diff -ru a/src/upf_app/user/urr_apply_user.h b/src/upf_app/user/urr_apply_user.h
+--- a/src/upf_app/user/urr_apply_user.h
++++ b/src/upf_app/user/urr_apply_user.h
+@@ -25,27 +25,6 @@
+ using UrrProgramLifeCycle = ProgramLifeCycle<xdp_urr_apply_kern_c>;
+ 
+ /**
+- * @struct urr_map_key
+- * @brief Compound BPF map key: {seid, urr_id}.
+- */
+-struct urr_map_key {
+-  uint64_t seid;
+-  uint32_t urr_id;
+-  uint32_t _pad;
+-} __attribute__((packed));
+-
+-/**
+- * @struct urr_volume_t
+- * @brief Per-URR volume counters maintained atomically by the data plane.
+- */
+-struct urr_volume_t {
+-  uint64_t ul_octets;
+-  uint64_t dl_octets;
+-  uint64_t ul_packets;
+-  uint64_t dl_packets;
+-};
+-
+-/**
+  * @class URRProgram
+  * @brief Manages the xdp_urr_apply XDP program lifecycle.
+  *
+@@ -184,19 +163,16 @@
+    * exist, preserving any in-flight accounting across session updates.
+    *
+    * @param seid    PFCP session identifier.
+-   * @param urr_id  URR identifier.
+    */
+-  void InitUrrVolumeMap(uint64_t seid, uint32_t urr_id);
++  void InitUrrVolumeMap(uint64_t seid);
+ 
+   /**
+    * @brief Read current volume counters for a URR.
+    * @param seid    PFCP session identifier.
+-   * @param urr_id  URR identifier.
+    * @param[out] volume  Output volume counter struct.
+    * @return true if entry found and populated.
+    */
+-  bool ReadVolumeCounters(
+-      uint64_t seid, uint32_t urr_id, urr_volume_t& volume) const;
++  bool ReadVolumeCounters(uint64_t seid, struct urr_volume& volume) const;
+ 
+  private:
+   /**
+@@ -214,12 +190,9 @@
+    */
+   void InitializeMaps();
+ 
+-  /** @brief Build a urr_map_key from SEID and URR_ID (pad zeroed). */
+-  static urr_map_key MakeKey(uint64_t seid, uint32_t urr_id);
+-
+-  /** @brief Translate PFCP URR IE into BPF pfcp_urr struct. */
++  /** @brief Translate a PFCP URR IE into the exact BPF map value layout. */
+   static void ConvertUrr(
+-      const pfcp::pfcp_urr& pfcp_ie, struct pfcp_urr& bpf_urr);
++      const pfcp::pfcp_urr& pfcp_ie, struct urr_config& config);
+ 
+   //----------------------------------------------------------------------------
+   // Skeleton and lifecycle
+diff -ru a/src/upf_app/user/wrappers/BPFMap.cpp b/src/upf_app/user/wrappers/BPFMap.cpp
+--- a/src/upf_app/user/wrappers/BPFMap.cpp
++++ b/src/upf_app/user/wrappers/BPFMap.cpp
+@@ -20,3 +20,8 @@
+ std::string BPFMap::GetName() const {
+   return name_;
+ }
++
++//------------------------------------------------------------------------------
++int BPFMap::GetFd() const {
++  return bpf_map_ ? bpf_map__fd(bpf_map_) : -1;
++}
+diff -ru a/src/upf_app/user/wrappers/BPFMap.hpp b/src/upf_app/user/wrappers/BPFMap.hpp
+--- a/src/upf_app/user/wrappers/BPFMap.hpp
++++ b/src/upf_app/user/wrappers/BPFMap.hpp
+@@ -199,6 +199,18 @@
+   int Remove(KeyType& key);
+ 
+   /**
++   * @brief Best-effort delete for teardown paths
++   *
++   * Unlike Remove(), never throws. A missing key (ENOENT) means the entry is
++   * already gone and is not an error; any other failure is logged so the
++   * caller can continue cleaning the remaining maps.
++   *
++   * @return true if an entry was deleted, false if absent or on error
++   */
++  template<class KeyType>
++  bool RemoveIfPresent(KeyType& key);
++
++  /**
+    * @brief Get the name of the BPF map
+    *
+    * Returns the human-readable name assigned during construction.
+@@ -208,6 +220,9 @@
+    */
+   std::string GetName() const;
+ 
++  /** @brief Return the loaded map file descriptor, or -1 if unavailable. */
++  int GetFd() const;
++
+  private:
+   struct bpf_map* bpf_map_;  ///< Pointer to libbpf map structure
+   std::string name_;         ///< Human-readable map name for logging
+@@ -273,6 +288,24 @@
+ }
+ 
+ //------------------------------------------------------------------------------
++template<class KeyType>
++bool BPFMap::RemoveIfPresent(KeyType& key) {
++  int map_fd = bpf_map__fd(bpf_map_);
++  if (bpf_map_delete_elem(map_fd, &key) == 0) {
++    Logger::upf_app().debug(
++        "Remove value from Map '%s': [%s] -> *", name_.c_str(),
++        upf::utils::FormatBPFValue(key).c_str());
++    return true;
++  }
++  if (errno != ENOENT) {
++    Logger::upf_app().error(
++        "Failed to remove key from map '%s': errno=%d (%s)", name_.c_str(),
++        errno, strerror(errno));
++  }
++  return false;
++}
++
++//------------------------------------------------------------------------------
+ template<class KeyType>
+ int BPFMap::GetNextKey(KeyType& key, KeyType& next_key) {
+   int map_fd = bpf_map__fd(bpf_map_);

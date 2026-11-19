@@ -7,7 +7,7 @@ def lab():
     return json.loads(pathlib.Path('/input/lab.json').read_text())
 
 def sim_imsi(base,offset):
-    """Additional lab UEs (plan R1) share KEY/OPC and use IMSI = base + offset."""
+    """Additional lab UEs share KEY/OPC and use IMSI = base + offset."""
     if not 0<=offset<16:raise ValueError('Invalid IMSI offset')
     imsi='%015d'%(int(base)+offset)
     if len(imsi)!=15:raise ValueError('IMSI overflow')

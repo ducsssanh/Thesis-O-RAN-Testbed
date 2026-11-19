@@ -124,12 +124,8 @@ def validate(v, routes=()):
         raise GateError("Kubernetes lab requires xdpMode=skb")
     if not c["usageReporting"]:
         raise GateError("Usage reporting must be enabled")
-    if c["radio"] != {
-        "band": 78,
-        "prbs": 106,
-        "numerology": 1,
-        "frequency": 3619200000,
-    }:
+    pinned = {"band": 78, "prbs": 106, "numerology": 1, "frequency": 3619200000}
+    if {k: c["radio"].get(k) for k in pinned} != pinned:
         raise GateError(
             "This initial gNB radio template supports only the pinned RFsim profile"
         )
@@ -261,6 +257,25 @@ def host_check(v, *, for_build=False):
     }
 
 
+def sync_own_sources():
+    """Copy the sources kept in this repository (src/xapp, src/upf) into the rebuilt
+    upstream trees, so an image is always built from what is committed."""
+    pairs = [
+        (ROOT / "src/xapp", ROOT / "src/flexric/examples/xApp/c/monitor"),
+        (ROOT / "src/upf", ROOT / "src/oai-upf/src/upf_app"),
+    ]
+    for src, dst in pairs:
+        if not dst.is_dir():
+            raise GateError(
+                str(dst.relative_to(ROOT))
+                + " is missing; run scripts/verify-oai-upstream.sh --into src"
+            )
+        for f in sorted(p for p in src.rglob("*") if p.is_file()):
+            target = dst / f.relative_to(src)
+            if not target.exists() or target.read_bytes() != f.read_bytes():
+                shutil.copyfile(f, target)
+
+
 def fingerprint(paths):
     h = hashlib.sha256()
     skip = {".git", "build", "ran_build", "__pycache__", "CMakeFiles", "log", "logs"}
@@ -349,6 +364,7 @@ class Lab:
 
     def build(self):
         self.render()
+        sync_own_sources()
         write_json(
             artifact_path("preflight.json"), host_check(self.values, for_build=True)
         )
@@ -378,32 +394,9 @@ class Lab:
         smf_patches = [
             (
                 ROOT / "src/oai-smf/src/oai-cn5g-common-src",
-                ROOT / "patches/oai-smf-v2.2.0-pfcp-up-features-extension.patch",
+                ROOT / "patches/oai-smf-common-src.patch",
             ),
-            (
-                ROOT / "src/oai-smf",
-                ROOT / "patches/oai-smf-v2.2.0-stale-session-release.patch",
-            ),
-            (
-                ROOT / "src/oai-smf/src/oai-cn5g-common-src",
-                ROOT / "patches/oai-smf-v2.2.0-common-src-user-id-length.patch",
-            ),
-            (
-                ROOT / "src/oai-smf",
-                ROOT / "patches/oai-smf-v2.2.0-user-id-urr-config-ttl.patch",
-            ),
-            (
-                ROOT / "src/oai-smf",
-                ROOT / "patches/oai-smf-v2.2.0-reassociation-up-features.patch",
-            ),
-            (
-                ROOT / "src/oai-smf/src/oai-cn5g-common-src",
-                ROOT / "patches/oai-smf-v2.2.0-common-src-usage-report-times.patch",
-            ),
-            (
-                ROOT / "src/oai-smf",
-                ROOT / "patches/oai-smf-v2.2.0-usage-report-times.patch",
-            ),
+            (ROOT / "src/oai-smf", ROOT / "patches/oai-smf.patch"),
         ]
         if (ROOT / "src/oai-smf").is_dir() and all(p.exists() for _, p in smf_patches):
             smf_patch_hashes = {
@@ -558,7 +551,7 @@ class Lab:
         )
         if got:
             return
-        raw = (ROOT / "configs/ue/ue1.conf").read_text()
+        raw = (DEPLOY / "values/ue1.conf").read_text()
         fields = {}
         for k, p in [("IMSI", "imsi"), ("KEY", "key"), ("OPC", "opc")]:
             m = re.search(r"\b" + p + r'\s*=\s*"([a-fA-F0-9]+)"', raw, re.I)
@@ -801,10 +794,6 @@ class Lab:
         write_json(
             artifact_path("source-provenance.json"),
             {
-                "commits": {
-                    p.stem: p.read_text().strip()
-                    for p in (ROOT / "manifests").glob("*.commit")
-                },
                 "patchSha256": {
                     p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                     for p in (ROOT / "patches").glob("*.patch")

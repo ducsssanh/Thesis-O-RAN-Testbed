@@ -54,7 +54,7 @@ spec:
             - {name: DNN, value: {{ .Values.global.lab.slice.dnn | quote }}}
             - {name: SST, value: {{ .Values.global.lab.slice.sst | quote }}}
             - {name: SD, value: {{ .Values.global.lab.slice.sd | quote }}}
-            # Closed-loop streams "kind=jobID@infoType,..." (docs/CLOSED-LOOP-FRAMEWORK.md 3.3)
+            # Closed-loop streams "kind=jobID@infoType,..."
             - {name: EXTRA_JOBS, value: {{ list .Values.adapter.extraJobs .Values.adapter.testJob | compact | join "," | quote }}}
             # EI job SUPI filter; empty = every UE of the slice (R1, several UEs)
             {{- if .Values.adapter.allUes }}

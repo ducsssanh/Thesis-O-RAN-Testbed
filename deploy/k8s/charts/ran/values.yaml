@@ -21,14 +21,14 @@ global:
     usageReporting: true
     extraUes: 1          # subscribers provisioned beyond the base IMSI (R1)
     extraUeReplicas: 0   # replicas of each extra UE (oai-nr-ue2..4: IMSI + 1..3)
-    # Two-layer defense, core side (docs/TWO-LAYER-DEFENSE-DESIGN.md 4.1, 6.1)
+    # Defense, core side
     defense:
       userId: true              # PFCP User ID IE (IMSI) in Session Establishment
       urr:
         periodicS: 1            # urr.periodic_s
         volumeThresholdDlBytes: 0
         timeThresholdS: 0
-        guard:                  # Volume Quota per period; UPF semantics in Phase G
+        guard:                  # Volume Quota per period
           enabled: false
           quotaUlBytes: 3125000
           quotaDlBytes: 3125000

@@ -918,6 +918,8 @@ def build_ei():
 
 
 def build_xapp():
+    import lab
+    lab.sync_own_sources()
     sources=[p for p in sorted((ROOT/"src/flexric").rglob("*")) if p.is_file() and not any(x in p.parts for x in ("build",".git"))]
     sources.append(DEPLOY/"images/Dockerfile.radio")
     sources.extend(sorted((DEPLOY/"images/models").glob("*.json")))   # embedded classifier

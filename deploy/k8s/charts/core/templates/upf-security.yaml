@@ -1,4 +1,4 @@
-{{- /* Phase U: UPF Security API (design 5.3a). PVC keeps the per-SUPI policy DB across UPF restarts. */}}
+{{- /* UPF Security API. PVC keeps the per-SUPI policy DB across UPF restarts. */}}
 {{- $sec := ((.Values.global.lab.defense | default dict).upfSecurity | default dict) }}
 {{- if $sec.enabled }}
 ---

@@ -1,0 +1,55 @@
+diff -ru a/examples/xApp/c/monitor/CMakeLists.txt b/examples/xApp/c/monitor/CMakeLists.txt
+--- a/examples/xApp/c/monitor/CMakeLists.txt
++++ b/examples/xApp/c/monitor/CMakeLists.txt
+@@ -91,6 +91,15 @@
+ 
+ add_executable(xapp_kpm_moni_write_to_csv
+ 		xapp_kpm_moni_write_to_csv.c
++                urr_receiver.c
++                ran_control.c
++                defense.c
++                features.c
++                classifier.c
++                clf_xgb.c
++                policy.c
++                actuators.c
++                http_client.c
+                 ../metrics_factory.c
+                 ../../../../src/util/alg_ds/alg/defer.c
+                 ../../../../src/util/alg_ds/alg/murmur_hash_32.c
+@@ -103,7 +112,11 @@
+                     -pthread
+                     -lsctp
+                     -ldl
+-                      -lm
++                    -lm
++                    microhttpd
++                    json-c
++                    sqlite3
++                    crypto
+                       )
+ 
+ target_compile_definitions(xapp_kpm_moni_write_to_csv PRIVATE KPM_MEAS_LIST="${KPM_MEAS_LIST}")
+@@ -125,4 +138,3 @@
+                       -lm
+                       )
+ target_compile_definitions(xapp_kpm_moni_write_to_influxdb PRIVATE KPM_MEAS_LIST="${KPM_MEAS_LIST}")
+-
+diff -ru a/src/xApp/db/db.c b/src/xApp/db/db.c
+--- a/src/xApp/db/db.c
++++ b/src/xApp/db/db.c
+@@ -112,7 +112,9 @@
+ void init_db_xapp(db_xapp_t* db, char const* db_filename)
+ {
+   assert(db != NULL);
++#ifdef SQLITE3_XAPP
+   assert(db_filename != NULL);
++#endif
+ 
+   init_db_gen(&db->handler, db_filename);
+ 
+@@ -156,4 +158,3 @@
+ 
+   push_tsnq(&db->q, &d, sizeof(d) );
+ }
+-

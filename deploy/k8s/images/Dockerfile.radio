@@ -1,4 +1,4 @@
-# Source build, sequential. No dependency on legacy launchers or 5gdeploy.
+# Source build, sequential: FlexRIC (near-RT RIC, xApp), then the OAI gNB and UE.
 FROM ubuntu:24.04 AS flexric-builder
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential gcc-13 g++-13 cmake ninja-build make git sudo python3 python3-dev python3-pip pkg-config autoconf automake libtool bison flex swig libsctp-dev libpcre2-dev libssl-dev libconfig-dev libfftw3-dev libgmp-dev libyaml-cpp-dev libboost-all-dev libblas-dev liblapack-dev liblapacke-dev libjson-c-dev libcurl4-openssl-dev libczmq-dev libzmq3-dev libelf-dev libdw-dev libmicrohttpd-dev libsqlite3-dev zlib1g-dev xxd wget ca-certificates
@@ -8,7 +8,7 @@ COPY src/flexric /source/flexric
 RUN rm -rf /source/flexric/build && cmake -S /source/flexric -B /source/flexric/build -DE2AP_VERSION=E2AP_V3 -DKPM_VERSION=KPM_V3_00 -DXAPP_DB=NONE_XAPP -DCMAKE_INSTALL_PREFIX=/opt/oai -DUNIT_TEST=FALSE && cmake --build /source/flexric/build -j2 --target nearRT-RIC xapp_kpm_moni_write_to_csv mac_sm rlc_sm pdcp_sm slice_sm tc_sm gtp_sm kpm_sm rc_sm && cmake --install /source/flexric/build
 FROM flexric-builder AS xapp
 RUN mkdir -p /opt/oai/bin /opt/oai/sm && cp /source/flexric/build/examples/xApp/c/monitor/xapp_kpm_moni_write_to_csv /opt/oai/bin/ && cp -a /opt/oai/lib/flexric/*.so /opt/oai/sm/
-# embedded classifier (scripts/ml/export_clf.py, R050): part of the xApp image
+# embedded classifier, exported by scripts/ml/export_clf.py: part of the xApp image
 COPY deploy/k8s/images/models/clf_model.json /opt/oai/models/clf_model.json
 ENV LD_LIBRARY_PATH=/opt/oai/lib:/opt/oai/lib/flexric
 WORKDIR /opt/oai

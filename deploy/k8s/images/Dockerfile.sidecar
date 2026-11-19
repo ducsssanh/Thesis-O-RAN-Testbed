@@ -1,8 +1,0 @@
-# Classifier sidecar of the xApp (127.0.0.1:8091). Placeholder since 2026-10-27: the GBDT model sidecar was removed
-# (ML direction changed to DRL); scripts/k8s/classifier/stub_classifier.py answers "benign" so the xApp's "external"
-# classifier path, the harness and the chart keep working until a DRL policy plugs into the same interface.
-FROM python:3.12-slim
-ENV PYTHONUNBUFFERED=1
-WORKDIR /opt/sidecar
-COPY scripts/k8s/classifier/stub_classifier.py ./
-ENTRYPOINT ["python3", "-I", "/opt/sidecar/stub_classifier.py", "--port", "8091"]
