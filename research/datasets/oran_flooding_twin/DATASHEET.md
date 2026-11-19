@@ -17,7 +17,7 @@ Paired RAN and core telemetry per UE per second, for detecting user-plane floods
 OAI 5G SA with RF simulator, FlexRIC xApp, eBPF UPF profiler, 2 UEs, egress blocked, detection off. Manifest `manifest/design.json`, seed 20261104, fixed before the runs. Each phase: both UEs replay a twin window; one also runs the attack from a random onset in the 15 s pre-roll. L1 hping3 default packets; L2 UDP in the rhythm, TTI times and sizes of another real window; L3 real TCP and DNS clients against a responsive sink, with the same client as a benign hard negative on the other UE.
 
 ## QA
-Per-run QA `scripts/k8s/exp/v4traffic/qa_twin.py`, log `manifest/campaign_log.jsonl`. 72 kept, 14 failed attempts repeated with the same seeds. Builder tests `scripts/ml/test_build_dataset_twin.py`; offline gate equals the live xApp on 99.9 % of c_t values and 99.8 % of masks. Validation and limits: `NGHIEM-THU.md` at the repository root.
+Per-run QA `scripts/k8s/exp/v4traffic/qa_twin.py`, log `manifest/campaign_log.jsonl`. 72 kept, 14 failed attempts repeated with the same seeds. Builder tests `scripts/ml/test_build_dataset_twin.py`; offline gate equals the live xApp on 99.9 % of c_t values and 99.8 % of masks.
 
 ## Limits a user must know
 - Benign traffic is LTE demand replayed open loop on a testbed cell; it does not react to the network as TCP or ABR would.

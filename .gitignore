@@ -1,12 +1,11 @@
-# Upstream OAI / FlexRIC trees: rebuilt from pinned commits + patches/
-# (scripts/verify-oai-upstream.sh, docs/OAI-UPSTREAM-CHANGES.md)
+# Upstream source trees: rebuilt from pinned commits and patches/ by scripts/verify-oai-upstream.sh --into src
 /src/oai-ran/
 /src/oai-smf/
 /src/oai-upf/
 /src/flexric/
 /src/5gdeploy/
 
-# Build / tooling output
+# Build and tooling output
 __pycache__/
 *.pyc
 node_modules/
@@ -14,29 +13,27 @@ build/
 *.o
 *.a
 .venv/
-
-# Working documents (design, plan, handoff): kept local, not published
-/docs/
-
-# Datasets (large; not tracked): KDD99, NCSRD-DS-5GDDoS, GTP logs
-/data/
-
-# ML virtualenv (large; recreate from scripts/ml/requirements.txt)
 /.venv-ml/
 
-# Preprocessed ML tensors (regenerate from scripts/ml/prep_ncsrd.py; the dataset is in data/)
-artifacts/ml/*/windows.npz
-/artifacts/experiments/
-/artifacts/ml/
-/artifacts/drl/
+# Generated at run time: image locks, logs, raw experiment runs, trained models and scores
+/artifacts/
 
-# Madrid per-second reductions (~2 GB; regenerate with research/twinning/madrid_reduce.py from data/external/madrid)
-research/twinning/*.parquet
-research/twinning/benign_profiles.json
-research/twinning/benign_windows.npz
-research/twinning/heldout_windows.npz
-research/twinning/heldout_windows_tti.npz
-research/datasets/oran_flooding_twin/rows.parquet
-research/datasets/oran_flooding_twin_package.tar.gz
-research/datasets/oran_flooding_twin_pilot/
-research/twinning/benign_windows_tti.npz
+# Local working notes
+/docs/
+
+# External datasets (Madrid LTE traces and others), too large to track
+/data/
+
+# Madrid per-second reductions (regenerate with research/twinning/madrid_reduce.py from data/external/madrid)
+/research/twinning/*.parquet
+/research/twinning/*.npz
+/research/twinning/benign_profiles.json
+
+# Datasets: only the datasheet, the campaign manifest and the window table of the main dataset are tracked
+/research/datasets/*
+!/research/datasets/oran_flooding_twin/
+/research/datasets/oran_flooding_twin/rows.parquet
+/research/datasets/oran_flooding_twin/rows.csv
+
+# Analysis output of the training rounds (regenerate with scripts/ml)
+/research/clf/
